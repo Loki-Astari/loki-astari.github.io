@@ -1,0 +1,431 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>So you want to learn C++ Part-2 - Loki Astari</title>
+  <meta name="author" content="Loki Astari">
+
+  
+  <meta name="description" content="">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lokiastari.com/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/bootstrap/bootstrap.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/bootstrap/responsive.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/syntax/syntax.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <style type="text/css">
+    body {
+      padding-bottom: 40px;
+    }
+    h1 {
+      margin-bottom: 15px;
+    }
+    img {
+      max-width: 100%;
+    }
+    .sharing, .meta, .pager {
+      margin: 20px 0px 20px 0px;
+    }
+    .page-footer p {
+      text-align: center;
+    }
+  </style>
+  <script src="/javascripts/libs/jquery.js"></script>
+  <script src="/javascripts/libs/modernizr-2.0.js"></script>
+  <script src="/javascripts/libs/bootstrap.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Loki Astari" type="application/atom+xml">
+  
+  
+
+</head>
+
+<body   >
+  <nav role="navigation"><div class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+
+      <a class="brand" href="/">Loki Astari</a>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+
+        <ul class="nav pull-right" data-subscription="rss">
+          <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+          
+        </ul>
+
+        
+          <form class="pull-right navbar-search" action="http://google.com/search" method="get">
+            <fieldset role="search">
+              <input type="hidden" name="q" value="site:lokiastari.com" />
+              <input class="search-query" type="text" name="q" results="0" placeholder="Search"/>
+            </fieldset>
+          </form>
+        
+      </div>
+    </div>
+  </div>
+</div>
+</nav>
+  <div class="container">
+    <div class="row-fluid">
+      
+<article class="hentry span9" role="article">
+
+  
+  <header class="page-header">
+    
+      <h1 class="entry-title">So You Want to Learn C++ Part-2</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-18T08:58:28-08:00" pubdate data-updated="true">Nov 18<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Common Mistakes</h2>
+
+<h3>1: using namspace</h3>
+
+<p>Every new developer that comes to C++ always starts writing code like this:</p>
+
+<figure class='code'><figcaption><span>myfirstprog.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It seems reasonable and every book on learning C++ out there perpetrates the same mistake. The problem is the &ldquo; <strong>using namespace std;</strong> &rdquo;. On programs that are only 10 lines long (like in most books) it does not cause any problems. But as soon as your code strays to any meaningful size then it starts to become an issue. The problem with teaching new developers this technique is that they are not aware of the problems it causes and so it becomes a habit for all code they write. Break this habit <strong>now</strong> before you start doing it without thinking at the top of every source file you write.</p>
+
+<p>So what are the actual issues? Please read this article: <a href="http://stackoverflow.com/q/1452721/14065">Why is “using namespace std;” considered bad practice?</a> and the <a href="http://stackoverflow.com/a/1453605/14065">best Answer</a> that explains what the problem is in detail.</p>
+
+<p>We call this problem namespace pollution. What the <code>using</code> clause is doing is pulling everything from the named namespace into the current namespace; this will cause issues if there is already code in the current namespace. Doing this in your source file is bad enough but even worse is doing this in your header file. The problem with doing it in a header file is that you pollute the namespace for every source file that includes your header file. If the user of the header file is not aware of this pollution then trying to track down a suddenly new issue becomes really very hard.</p>
+
+<p>But not doing this is causing my much more typing!</p>
+
+<figure class='code'><figcaption><span>toomuch.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello World</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Now looks much longer</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello World</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you think adding <code>std::</code> as a prefix to anything in the standard namespace is a bother (then you need another language); there is a solution. Only pull into the current namespace what you actually need. And then try and restrict the scope so it is tight as possible;</p>
+
+<figure class='code'><figcaption><span>short.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// The using clause is scoped and thus cout is only in the global namespace for</span>
+</span><span class='line'>    <span class="c1">// the scope of the main() function.</span>
+</span><span class='line'>    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello Workld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>An additional technique to shorten namespace prefixes are namespace alias. These are very useful when things are nested inside multiple namespaces (or have very long unhelpful names)</p>
+
+<figure class='code'><figcaption><span>alias.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;boost/numeric/ublas/vector.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Here we define bnu as an alias too: boost::numeric::ublas</span>
+</span><span class='line'><span class="c1">// We can use either as the prefix to things in the that namespace;</span>
+</span><span class='line'><span class="k">namespace</span> <span class="n">bnu</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">numeric</span><span class="o">::</span><span class="n">ublas</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">bnu</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span>                      <span class="n">data1</span><span class="p">;</span>
+</span><span class='line'><span class="n">boost</span><span class="o">::</span><span class="n">numeric</span><span class="o">::</span><span class="n">ublas</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span>    <span class="n">data2</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>2: Prefixing identifiers with &#39;&#95;&#39;</h3>
+
+<p>A lot of developers new to C++ try to learn by browsing the standard libraries and getting there habits from things done there or bring conventions from their current favorite languages into there C++ code. One of the things they ultimately pick up on is using &lsquo;_&rsquo; as a prefix for identifiers.</p>
+
+<p>Though technically not wrong in all situations the actual rules on using the &lsquo;<em>&rsquo; as an identifier prefix are non trivial. Thus making it a habit will eventually get you burnt. The issue is that most identifiers that have prefix &lsquo;</em>&rsquo; are reserved for use by the implementation, thus the compiler/linker may potentially do special things with them. You can read up on the issue here: <a href="http://stackoverflow.com/q/228783/14065">What are the rules about using an underscore in a C++ identifier?</a>.</p>
+
+<h3>3: void main()</h3>
+
+<p>There are only two valid declarations from main in C++</p>
+
+<figure class='code'><figcaption><span>main.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="c1">// Version 1: You don&#39;t care about command line parameters.</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Version 2: You do care about command line parameters.</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Note: The parameters argc and argv are not actually required as a name.</span>
+</span><span class='line'>        <span class="c1">//       But they are so commonly defined that way that using any other</span>
+</span><span class='line'>        <span class="c1">//       names would cause experienced developers to do a double take.</span>
+</span><span class='line'>        <span class="c1">//       It is best to just stick with the convention.</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Version 2a: You do care about command line parameters.</span>
+</span><span class='line'><span class="cp">#include &lt;vector&gt;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>        <span class="c1">// If you want to convert all the command line parameters to strings.</span>
+</span><span class='line'>        <span class="c1">// This simple trick can be useful:</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span>  <span class="n">args</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">argv</span><span class="o">+</span><span class="n">argc</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Loki Astari</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-18T08:58:28-08:00" pubdate data-updated="true">Nov 18<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/c-plus-plus/'>C++</a>, <a class='category' href='/blog/categories/coding/'>Coding</a>, <a class='category' href='/blog/categories/so-you-want-to-learn-c-plus-plus/'>So-You-Want-To-Learn-C++</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lokiastari.com/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/" data-via="LokiAstari" data-counturl="http://lokiastari.com/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    
+    <ul class="pager">
+      
+      <li class="previous"><a class="basic-alignment left"
+        href="/blog/2013/11/12/want-to-set-up-wordpress-to-write-about-programming/" title="Previous Post:
+        Want to set up WordPress to write about Programming">&laquo; Want to set up WordPress to write about Programming</a></li>
+      
+      <li><a href="/blog/archives">Blog Archives</a></li>
+      
+      <li class="next"><a class="basic-alignment right" href="/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/"
+        title="Next Post: So you want to learn C++ Part-3">So you want to learn C++ Part-3
+        &raquo;</a></li>
+      
+    </ul>
+  </footer>
+</article>
+
+<aside class="sidebar-nav span3">
+  
+    <section class="well">
+  <ul id="recent_posts" class="nav nav-list">
+    <li class="nav-header">Recent Posts</li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/">So you want to learn C++ Part-4</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/">So you want to learn C++ Part-3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/">So you want to learn C++ Part-2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/12/want-to-set-up-wordpress-to-write-about-programming/">Want to set up WordPress to write about Programming</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1/">So you want to learn C++ Part-1</a>
+      </li>
+    
+  </ul>
+</section>
+<section class="well">
+  <ul id="recent_posts" class="nav nav-list">
+    <li class="nav-header">Twitter</li>
+    <li class="post">
+        <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </li>
+  </ul>
+</section>
+
+<section class="well">
+  <ul id="gh_repos" class="nav">
+    <li class="nav-header">GitHub Repos</li>
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/asides/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo" class="page-footer"><hr>
+<p>
+  Copyright &copy; 2013 - Loki Astari -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

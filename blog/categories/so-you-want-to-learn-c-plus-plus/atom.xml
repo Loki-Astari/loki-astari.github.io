@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: So-You-Want-To-Learn-C++ | Loki Astari]]></title>
+  <link href="http://lokiastari.com/blog/categories/so-you-want-to-learn-c-plus-plus/atom.xml" rel="self"/>
+  <link href="http://lokiastari.com/"/>
+  <updated>2013-11-30T14:18:01-08:00</updated>
+  <id>http://lokiastari.com/</id>
+  <author>
+    <name><![CDATA[Loki Astari]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[So you want to learn C++ Part-4]]></title>
+    <link href="http://lokiastari.com/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/"/>
+    <updated>2013-11-24T09:22:04-08:00</updated>
+    <id>http://lokiastari.com/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4</id>
+    <content type="html"><![CDATA[<h2>Functions</h2>
+
+<h3>Usage</h3>
+
+<p>All C++ applications must have at least one function; this is called <code>main()</code>. Additionally, you can have user defined functions that encapsulate individual tasks, thus allowing the code to be cleaner and easier to read. Therefore, this is a useful feature if you repeat the same task many time with only slight variations:</p>
+
+<p>``` cpp function1.cpp</p>
+
+<pre><code>#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+int main(int argc, char* argv[])
+{
+     std::cout &lt;&lt; "What is your first name?\n";
+     std::string firstName;
+     std::cin &gt;&gt; firstName;
+
+     std::cout &lt;&lt; "What is your second name?\n";
+     std::string secondName;
+     std::cin &gt;&gt; secondName;
+
+     std::cout &lt;&lt; "What is your Mother's name?\n";
+     std::string motherName;
+     std::cin &gt;&gt; motherName;
+
+     std::cout &lt;&lt; "What is your Father's name?\n";
+     std::string fatherName;
+     std::cin &gt;&gt; fatherName;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>It is easy to spot the obvious repetition here. We can simplify this code by using a function that does all the common work. Anything that is unique we can pass as parameters to the function.</p>
+
+<p>``` cpp function2.cpp</p>
+
+<pre><code>#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+std::string getNameFor(std::string who)
+{
+    std::cout &lt;&lt; "What is your " &lt;&lt; who &lt;&lt; " name?\n";
+    std::string result;
+    std::cin &gt;&gt; result;
+    return result;
+}
+
+int main(int argc, char* argv[])
+{
+     std::string firstName  = getNameFor("first");
+     std::string secondName = getNameFor("second");
+     std::string motherName = getNameFor("Mother's");
+     std::string fatherName = getNameFor("Father's");
+}
+</code></pre>
+
+<p>```</p>
+
+<h3>Definition</h3>
+
+<p>OK. We have seen an example but what is the exact format of a function</p>
+
+<p>``` cpp function3.cpp</p>
+
+<pre><code>// A function definition is very simple
+&lt;ReturnType&gt;  &lt;FunctionName&gt;(&lt;OptionalArgumentList&gt;)
+{
+    &lt;OptionalCode&gt;
+}
+
+//  ReturnType:            This is the name of any type (built in or user defined)
+//                         At the end of function you must have a statement
+//                         that returns an object of this type.
+//  
+//  FunctionName:          A unique name that identifies the function.
+//
+//  OptionalArgumentList:  This is either empty.
+//                         Or a comma separated list of parameters.
+//                         Because C++ is strongly typed each parameter is defined
+//                         with both a type and a name.
+//
+//  OptionalCode:          We will be discussing this in more detail throught
+//                         these articles. But the new statement to learn is
+//                         `return &lt;Value&gt;`. This is the value returned by the
+//                         function to the original caller.
+//
+//  Value:                 Notice that above I use the term `Value` and not object.
+//                         A `Value` here can be an explicit object or the result
+//                         of evaluating an expression (temporary object). Note
+//                         one type of expression is a function call.
+//
+//                         return "An explicit String Object";
+//
+//                         return theResultOfAFunctionCall("Get A Result");
+</code></pre>
+
+<p>```</p>
+
+<h3>Forward Declaration</h3>
+
+<p>One thing to note about a function is that you can not use it before a declaration. We rewrite the original example above as:</p>
+
+<p>``` cpp function4.cpp</p>
+
+<pre><code>#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+int main(int argc, char* argv[])
+{
+     std::string firstName  = getNameFor("first");
+     std::string secondName = getNameFor("second");
+     std::string motherName = getNameFor("Mother's");
+     std::string fatherName = getNameFor("Father's");
+}
+
+std::string getNameFor(std::string who)
+{
+    std::cout &lt;&lt; "What is your " &lt;&lt; who &lt;&lt; " name?\n";
+    std::string result;
+    std::cin &gt;&gt; result;
+    return result;
+}
+</code></pre>
+
+<p>```</p>
+
+<p>The only difference from above here is that I have moved the <code>main()</code> function before the <code>getNameFor()</code> function. This will generate a compilation error as you are using the function <code>getNameFor()</code> before a declaration. This may seem a potential problem but it is a deliberate technique that makes sure you spell things correctly before use. In the above situation the only change you need to make is a forward declaration. This allows you to declare a function before you define it. The utility of this will become clear when we start defining modules.</p>
+
+<p>``` cpp function5.cpp</p>
+
+<pre><code>#include &lt;string&gt;
+#include &lt;iostream&gt;
+
+// Add a forward declaration
+extern std::string getNameFor(std::string who);
+
+// A forward declaration is basically a function declaration without a body.
+// Add an extern prefix and a semicolon on the end (the rest you should copy
+// and paste from the function definition).
+//
+//
+// Note: For the languages lawyers who want to complain about the extern.
+//       Just hold your horses we will get to the intricacies in due course;
+//       this is only lesson 4.
+
+int main(int argc, char* argv[])
+{
+     std::string firstName  = getNameFor("first");
+     std::string secondName = getNameFor("second");
+     std::string motherName = getNameFor("Mother's");
+     std::string fatherName = getNameFor("Father's");
+}
+
+std::string getNameFor(std::string who)
+{
+    std::cout &lt;&lt; "What is your " &lt;&lt; who &lt;&lt; " name?\n";
+    std::string result;
+    std::cin &gt;&gt; result;
+    return result;
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[So you want to learn C++ Part-3]]></title>
+    <link href="http://lokiastari.com/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/"/>
+    <updated>2013-11-19T09:15:16-08:00</updated>
+    <id>http://lokiastari.com/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3</id>
+    <content type="html"><![CDATA[<h2>Variables</h2>
+
+<p>In most programming languages you have the concept of variables. These are simply named objects that hold a value (more formerly refereed to as state). By manipulating a variable you manipulate the state of the object that the variable referees too.</p>
+
+<p>``` cpp add.cpp</p>
+
+<pre><code>void addFunction()
+{
+    int   x = 0;      // Declare (and initialize) a variable called "x"
+
+    x = x + 5;        // Manipulate the variable "x".
+                      // The variable "x" now holds the value "5"
+
+    int   y = x + 3;  // Declare (and initialize) a variable called "y"
+                      // This will take the value "8" by adding "+" 3 
+                      // to the value of "x"
+}
+</code></pre>
+
+<p>```</p>
+
+<p>C++ is a strongly typed language. This means that each variable has a specific type that does not change (above that type is <strong>int</strong>). The operations that can be performed on an object are dependent on the type of the object and the result of the operation can depend on the types involved. C++ has several built in types (listed below) but allows the definition of new user defined types (which will be described in a later article). The standard library provides a set of commonly used user defined types (listed below).</p>
+
+<p>``` cpp Built in Types</p>
+
+<pre><code>char                    // Represents a character.
+short                   // Represents an integer of at least 16 bits
+int                     // Represents an integer of at least 32 bits
+long                    // Represents an integer of at least 32 bits
+long long               // Represents an integer of at least 64 bits
+float                   // Represents a floating point number
+double                  // Represents a double precision floating point number
+</code></pre>
+
+<p>```</p>
+
+<p>``` cpp Standard Types</p>
+
+<pre><code>// This is a list of the most commonly used types (there are many more)
+std::string             // Represents a string of characters.
+std::vector&lt;T&gt;          // Represents a dynamically sizable array
+                        //     of objects with the type 'T'
+std::array&lt;T, size&gt;     // Represents a fixed 'size'  array
+                        //     of objects with the type 'T'
+std::list&lt;T&gt;            // Represents a list of objects with the type 'T'
+std::map&lt;Key, Value&gt;    // Represents a dictionary of key, value pairs (index by key).
+                        //     The key   has type 'Key'
+                        //     The value has type 'Value'
+std::set&lt;Key&gt;           // Represents a set of keys of type 'Key'
+</code></pre>
+
+<p>```</p>
+
+<p>The list may seem a bit daunting at first, but while you are learning if you restrict yourselves to two built in types (<strong>int</strong> and <strong>double</strong>) and two standard types (<strong>std::string</strong> and <strong>std::vector&lt;T&gt;</strong>) you will be able to solve most beginner/training problems.</p>
+
+<p>The other built in types are usually used when you need larger range of values or need to save space. The additional standard type (shown above) are different types of container and provide different accesses characteristics (which will be explained later). We will cover all these types in due course.</p>
+
+<p>So an example of usage of the most common types is:
+``` cpp variables.cpp</p>
+
+<pre><code>#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    int                       age   = 28;
+    std::string               name  = "Loki";
+    double                    grade = 12.45;
+    std::vector&lt;std::string&gt;  courseNames = { "C++", "Teaching", "Maths", "Art", "Music"};
+
+    std::cout &lt;&lt; "Name: " &lt;&lt; name  &lt;&lt; "\n";
+    std::cout &lt;&lt; "Age:  " &lt;&lt; age   &lt;&lt; "\n";
+    std::cout &lt;&lt; "Grade:" &lt;&lt; grade &lt;&lt; "\n";
+    std::cout &lt;&lt; "Course 1: " &lt;&lt; courseNames[1] &lt;&lt; "\n";
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[So you want to learn C++ Part-2]]></title>
+    <link href="http://lokiastari.com/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/"/>
+    <updated>2013-11-18T08:58:28-08:00</updated>
+    <id>http://lokiastari.com/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2</id>
+    <content type="html"><![CDATA[<h2>Common Mistakes</h2>
+
+<h3>1: using namspace</h3>
+
+<p>Every new developer that comes to C++ always starts writing code like this:
+``` cpp myfirstprog.cpp</p>
+
+<pre><code>#include &lt;iostream&gt;
+
+using namespace std;
+</code></pre>
+
+<p>```</p>
+
+<p>It seems reasonable and every book on learning C++ out there perpetrates the same mistake. The problem is the &ldquo; <strong>using namespace std;</strong> &rdquo;. On programs that are only 10 lines long (like in most books) it does not cause any problems. But as soon as your code strays to any meaningful size then it starts to become an issue. The problem with teaching new developers this technique is that they are not aware of the problems it causes and so it becomes a habit for all code they write. Break this habit <strong>now</strong> before you start doing it without thinking at the top of every source file you write.</p>
+
+<p>So what are the actual issues? Please read this article: <a href="http://stackoverflow.com/q/1452721/14065">Why is “using namespace std;” considered bad practice?</a> and the <a href="http://stackoverflow.com/a/1453605/14065">best Answer</a> that explains what the problem is in detail.</p>
+
+<p>We call this problem namespace pollution. What the <code>using</code> clause is doing is pulling everything from the named namespace into the current namespace; this will cause issues if there is already code in the current namespace. Doing this in your source file is bad enough but even worse is doing this in your header file. The problem with doing it in a header file is that you pollute the namespace for every source file that includes your header file. If the user of the header file is not aware of this pollution then trying to track down a suddenly new issue becomes really very hard.</p>
+
+<p>But not doing this is causing my much more typing!</p>
+
+<p>``` cpp  toomuch.cpp</p>
+
+<pre><code>#include &lt;iostream&gt;
+int main()
+{
+    cout &lt;&lt; "Hello World\n";
+
+    // Now looks much longer
+    std::cout &lt;&lt; "Hello World\n";
+}
+</code></pre>
+
+<p>```</p>
+
+<p>If you think adding <code>std::</code> as a prefix to anything in the standard namespace is a bother (then you need another language); there is a solution. Only pull into the current namespace what you actually need. And then try and restrict the scope so it is tight as possible;</p>
+
+<p>``` cpp short.cpp</p>
+
+<pre><code>#include &lt;iostream&gt;
+int main()
+{
+    using std::cout;
+    // The using clause is scoped and thus cout is only in the global namespace for
+    // the scope of the main() function.
+    cout &lt;&lt; "Hello Workld\n";
+}
+</code></pre>
+
+<p>```</p>
+
+<p>An additional technique to shorten namespace prefixes are namespace alias. These are very useful when things are nested inside multiple namespaces (or have very long unhelpful names)
+``` cpp alias.cpp</p>
+
+<pre><code>#include &lt;boost/numeric/ublas/vector.hpp&gt;
+
+// Here we define bnu as an alias too: boost::numeric::ublas
+// We can use either as the prefix to things in the that namespace;
+namespace bnu = boost::numeric::ublas;
+
+bnu::vector&lt;double&gt;                      data1;
+boost::numeric::ublas::vector&lt;double&gt;    data2;
+</code></pre>
+
+<p>```</p>
+
+<h3>2: Prefixing identifiers with &#39;&#95;&#39;</h3>
+
+<p>A lot of developers new to C++ try to learn by browsing the standard libraries and getting there habits from things done there or bring conventions from their current favorite languages into there C++ code. One of the things they ultimately pick up on is using &lsquo;_&rsquo; as a prefix for identifiers.</p>
+
+<p>Though technically not wrong in all situations the actual rules on using the &lsquo;<em>&rsquo; as an identifier prefix are non trivial. Thus making it a habit will eventually get you burnt. The issue is that most identifiers that have prefix &lsquo;</em>&rsquo; are reserved for use by the implementation, thus the compiler/linker may potentially do special things with them. You can read up on the issue here: <a href="http://stackoverflow.com/q/228783/14065">What are the rules about using an underscore in a C++ identifier?</a>.</p>
+
+<h3>3: void main()</h3>
+
+<p>There are only two valid declarations from main in C++
+``` cpp main.cpp</p>
+
+<pre><code>// Version 1: You don't care about command line parameters.
+int main()
+{
+}
+
+// Version 2: You do care about command line parameters.
+int main(int argc, char* argv[])
+{
+        // Note: The parameters argc and argv are not actually required as a name.
+        //       But they are so commonly defined that way that using any other
+        //       names would cause experienced developers to do a double take.
+        //       It is best to just stick with the convention.
+}
+
+// Version 2a: You do care about command line parameters.
+#include &lt;vector&gt;
+int main(int argc, char* argv[])
+{
+        // If you want to convert all the command line parameters to strings.
+        // This simple trick can be useful:
+        std::vector&lt;std::string&gt;  args(argv, argv+argc);
+}
+</code></pre>
+
+<p>```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[So you want to learn C++ Part-1]]></title>
+    <link href="http://lokiastari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1/"/>
+    <updated>2013-11-12T07:59:11-08:00</updated>
+    <id>http://lokiastari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1</id>
+    <content type="html"><![CDATA[<p>OK. Lets do this.</p>
+
+<p>I keep trying to think about something big and interesting to write about. But that is just not working. All my time is spent trying to think of the blockbuster idea; which just gets in the way of actually writing. So lets start with the small things. If I can get into the habit of writing something a couple of times a week. Then maybe we can work up to interesting stuff.</p>
+
+<p>Step one; write about something I know. C++; we now start the &ldquo;So you want to learn C++&rdquo; series of posts.</p>
+
+<p>I am going to assume two things.</p>
+
+<ul>
+<li>You know how to use the compiler</li>
+<li>That you have some basic programming experience C/Java/C#/Perl/Php (nealy anything) <br/>
+So you understand the basics of program but are unfamiliar with C++</li>
+</ul>
+
+
+<p>First thing everybody needs is to get something working; here is the classic &ldquo;Hello World&rdquo; in C++</p>
+
+<p>```c++ helloworld.cpp</p>
+
+<pre><code>#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout &lt;&lt; "Hello World\n";
+}
+</code></pre>
+
+<p>```</p>
+
+<p>The next step is to accepts user input and generates a response based on that input. Lets move on to the not quite as classic &ldquo;Hi There Bob&rdquo; :&ndash;)</p>
+
+<p>```c++ hitherebob.cpp</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main()
+{
+    std::cout &lt;&lt; "Hi there what's your name?\n";
+
+    std::string  line;
+    std::getline(std::cin, line);
+
+    std::cout &lt;&lt; "It was good to meet you " &lt;&lt; line &lt;&lt; "\n";
+}
+</code></pre>
+
+<p>```</p>
+
+<p>The above code is relatively simple and only a few things to note:</p>
+
+<ul>
+<li><code>#include &lt;iostream&gt;</code> <br/>
+Imports the standard input and output facilities so you can print messages to the user and read user input.
+
+<ul>
+<li><code>std::cin</code>  <br/>
+Is the standard input stream. From this you can read user input.</li>
+<li><code>std::cout</code>  <br/>
+Is the standard output stream. You can print text to the user console.</li>
+</ul>
+</li>
+<li><code>#include &lt;string&gt;</code> <br/>
+Imports the standard string handling function. Most importantly it imports the type <code>std::string</code>.
+
+<ul>
+<li><code>std::string</code> <br/>
+This is one of the standard types and holds strings (a list of characters). We will go over types (and variables) in a lot more details in subsequent articles. But for just accept that <code>line</code> is a variable (of type std::string) used to hold a line of user input.</li>
+<li><code>std::getline()</code> <br/>
+This is a function that reads a line of text from a <code>std::istream</code> into a <code>std::string</code>. In this case we use <code>std::cin</code> as the input stream (it is a specialization of a std::istream and can thus be used as the input). Thus we read <code>a line</code> of input from the user.</li>
+</ul>
+</li>
+</ul>
+
+
+<p>There are a lot of other concepts encapsulated above that I don&rsquo;t want to get into quite yet. But don&rsquo;t worry I will cover them all.</p>
+]]></content>
+  </entry>
+  
+</feed>

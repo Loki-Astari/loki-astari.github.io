@@ -1,12 +1,38 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
+        <loc>http://lokiastari.com/blog/2011/10/21/interviews-processes/</loc>
+        <lastmod>2013-11-30T14:16:36-08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://lokiastari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1/</loc>
+        <lastmod>2013-11-30T14:16:36-08:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://lokiastari.com/blog/2013/11/12/want-to-set-up-wordpress-to-write-about-programming/
+        </loc>
+        <lastmod>2013-11-30T14:16:36-08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://lokiastari.com/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/</loc>
+        <lastmod>2013-11-30T14:16:36-08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://lokiastari.com/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/</loc>
+        <lastmod>2013-11-30T14:16:36-08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://lokiastari.com/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/</loc>
+        <lastmod>2013-11-30T14:16:36-08:00</lastmod>
+    </url>
+    <url>
         <loc>http://lokiastari.com/blog/archives/</loc>
-        <lastmod>2013-11-30T12:07:17-08:00</lastmod>
+        <lastmod>2013-11-30T14:16:36-08:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/</loc>
-        <lastmod>2013-11-30T12:07:17-08:00</lastmod>
+        <lastmod>2013-11-30T14:16:36-08:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/robots.txt</loc>
