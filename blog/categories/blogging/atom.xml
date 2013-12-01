@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Blogging | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/blogging/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2013-11-30T16:23:18-08:00</updated>
+  <updated>2013-11-30T16:25:28-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -20,7 +20,7 @@
     <id>http://lokiastari.com/blog/2013/11/30/switching-to-octopress</id>
     <content type="html"><![CDATA[<h2>Switching to OctoPress and Github</h2>
 
-<p>I have not blogged much, until recently, so I am not an HTML/CSS/Javascript expert. Thus layout, or layout during writing a blog article, is not of supreme importance for me. I expect the framework to handle that all for me. But that was my issue with WordPress. As a normal blogger I am sure it is not an issue but the tools for blogging about code are rudimentary and not will integrated in WordPress and basically forced me to write in HTML (see <a href="http://lokiastari.com/blog/2013/11/12/want-to-set-up-wordpress-to-write-about-programming/">Set up WordPress</a>). I do write a lot on other sites that specialize in coding and these sites have developed a style called <MarkDown>. The two most common versions are <code>[StackOverFlow markdown](http://stackoverflow.com/editing-help)</code> and <code>[GitHub markdown](http://daringfireball.net/projects/markdown/syntax)</code>.</p>
+<p>I have not blogged much, until recently, so I am not an HTML/CSS/Javascript expert. Thus layout, or layout during writing a blog article, is not of supreme importance for me. I expect the framework to handle that all for me. But that was my issue with WordPress. As a normal blogger I am sure it is not an issue but the tools for blogging about code are rudimentary and not will integrated in WordPress and basically forced me to write in HTML (see <a href="http://lokiastari.com/blog/2013/11/12/want-to-set-up-wordpress-to-write-about-programming/">Set up WordPress</a>). I do write a lot on other sites that specialize in coding and these sites have developed a style called <MarkDown>. The two most common versions are &lsquo;<a href="http://stackoverflow.com/editing-help">StackOverFlow markdown</a>&rsquo; and &lsquo;<a href="http://daringfireball.net/projects/markdown/syntax">GitHub markdown</a>&rsquo;.</p>
 
 <h3>MarkDown</h3>
 
