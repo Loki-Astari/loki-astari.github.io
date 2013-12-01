@@ -34,6 +34,8 @@ Like WordPress it has multiple themes, unlike WordPress the user base is small s
 
 OctoPress also integrates with [GitHub Pages](http://pages.github.com/) a feature of the site designed to allow you to create documentation for your software.
 
+Though this is still not my perfect writing environment; OctoPress is a step up from using WordPress (for me, if you are not used to writing code it will not be good for you and I would stick to WordPress's Visual editor). There are a couple of tweaks I still need to iron out here and there. Once I have got a basic system working perfectly I will talk about exactly what I did. I have some ideas on how to improve the basics which may be down the road a bit (I need to perform more research how others are using this tool so I don't reinvent the wheel).
+
 
 
 
