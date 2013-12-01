@@ -4,7 +4,7 @@
   <title><![CDATA[Category: OctoPress | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2013-11-30T17:21:14-08:00</updated>
+  <updated>2013-11-30T17:26:48-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -45,6 +45,8 @@
 <h3>GitHub</h3>
 
 <p>OctoPress also integrates with <a href="http://pages.github.com/">GitHub Pages</a> a feature of the site designed to allow you to create documentation for your software.</p>
+
+<p>Though this is still not my perfect writing environment; OctoPress is a step up from using WordPress (for me, if you are not used to writing code it will not be good for you and I would stick to WordPress&rsquo;s Visual editor). There are a couple of tweaks I still need to iron out here and there. Once I have got a basic system working perfectly I will talk about exactly what I did. I have some ideas on how to improve the basics which may be down the road a bit (I need to perform more research how others are using this tool so I don&rsquo;t reinvent the wheel).</p>
 ]]></content>
   </entry>
   
