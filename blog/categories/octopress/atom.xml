@@ -4,7 +4,7 @@
   <title><![CDATA[Category: OctoPress | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2013-11-30T16:54:34-08:00</updated>
+  <updated>2013-11-30T17:02:49-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -28,9 +28,11 @@
 
 <h3>Attack Vector</h3>
 
-<p>WordPress is also infamous for being the target of attackers, thus new attacks are constantly being developed (the joy of being top dog). This can be mitigated by putting your WordPress site on <a href="wordpress.com">wordpress.com</a>. This not only provides you with free hosting, but they do keep on top of security vulnerabilities and make sure all hosted sites are not overexposed. If you want use your own domain name (i.e. <a href="LokiAstari.com">LokiAstari.com</a>) or any other &ldquo;featured&rdquo; services then you either need to fork up the cash (not an insignificant sum) or run your own WordPress site.</p>
+<p>WordPress is also infamous for being the target of attackers, thus new attacks are constantly being developed (the joy of being top dog). This can be mitigated by putting your WordPress site on <a href="wordpress.com">wordpress.com</a>. This not only provides you with free hosting, but they do keep on top of security vulnerabilities and make sure all hosted sites are not overexposed.</p>
 
-<p>So I have been running my own WordPress sites. However, running your own site opens you to the vulnerabilities of WordPress attacks. To be honest not a big deal until I actually tweeted about my articles (now very much so). So the combination of these two issues has made me look for alternatives.</p>
+<p>If you want use your own domain name (i.e. <a href="LokiAstari.com">LokiAstari.com</a>) or any other &ldquo;featured&rdquo; services then you either need to fork up the cash (not an insignificant sum) or run your own WordPress site. So I have been running my own WordPress sites. However, running your own site opens you to the vulnerabilities of WordPress attacks. To be honest not a big deal until I actually tweeted about my articles (now very much so).</p>
+
+<p>So the combination of these two issues has made me look for alternatives.</p>
 
 <h3>OctoPress</h3>
 
