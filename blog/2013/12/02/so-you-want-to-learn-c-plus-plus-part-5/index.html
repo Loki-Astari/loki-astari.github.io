@@ -126,6 +126,8 @@
 
 <p>C++ provides two forms of branching. The <strong>&ldquo;If Statement&rdquo;</strong> and the <strong>&ldquo;Switch Statement&rdquo;</strong> .</p>
 
+<p>Note: Looping is also a form of branching. The looping concept is extensive enough that we will deal with looping separately in its own article.</p>
+
 <h3>If Statement</h3>
 
 <p>The <strong>&ldquo;If Statement&rdquo;</strong> allows code to be executed when a certain condition is fulfilled and optionally an alternative piece of code otherwise.</p>
@@ -173,7 +175,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types. On user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below (the language does not enforce this, <strong>BUT</strong> if you don&rsquo;t follow this suggestion your types will scare people and they will not be used (so follow the expected behavior)).</p>
+<p>The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types. On user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below; the language does not enforce this, <strong>BUT</strong> if you don&rsquo;t follow this suggestion your types will scare people and they will not be used, so follow the expected behavior.</p>
 
 <figure class='code'><figcaption><span>Standard Comparison Operators</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -271,32 +273,44 @@
 <span class='line-number'>18</span>
 <span class='line-number'>19</span>
 <span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">string</span>    <span class="n">name</span><span class="p">;</span>
-</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Please enter your name</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">name</span><span class="p">;</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;string&gt;</span>
 </span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">==</span> <span class="s">&quot;Loki&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
 </span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello Admin</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="k">else</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello Muggle</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span>    <span class="n">name</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Please enter your name</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">name</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'><span class="kt">int</span>   <span class="n">value</span><span class="p">;</span>
-</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">value</span><span class="p">;</span>
-</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Please enter a non zero integer value</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="c1">// integer value converted to bool</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You got it correct. Must use a non zero value.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">==</span> <span class="s">&quot;Loki&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello Admin</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello Muggle</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">int</span>   <span class="n">value</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">value</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Please enter a non zero integer value</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="c1">// integer value converted to bool</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You got it correct. Must use a non zero value.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <h3>Switch Statement</h3>
 
-<p>The <strong>&ldquo;Switch Statement&rdquo;</strong> is an alternative to the <strong>&ldquo;If Statement&rdquo;</strong>. Prefer the switch when you have lots of options derived from the same expression. Unlike other high level language C++ can only use <strong>Integer</strong> types in a switch statement (Thus in all `Case &lt;Value&gt; the &lt;Value&gt; must be an integer <strong>literal</strong> value).</p>
+<p>The <strong>&ldquo;Switch Statement&rdquo;</strong> is an alternative to the <strong>&ldquo;If Statement&rdquo;</strong>. Prefer the switch when you have lots of options derived from the same expression. Unlike other high level language C++ can only use <strong>Integer</strong> types in a switch statement; thus in all `Case &lt;Value&gt; the &lt;Value&gt; must be an integer <strong>literal</strong> value.</p>
 
 <figure class='code'><figcaption><span>switch.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -417,7 +431,16 @@
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="kt">int</span>  <span class="n">value</span><span class="p">;</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span>  <span class="n">value</span><span class="p">;</span>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Input a value between 0 and 5</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">value</span><span class="p">;</span>
 </span><span class='line'>
@@ -431,11 +454,12 @@
 </span><span class='line'>        <span class="k">case</span> <span class="mi">5</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used five</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>    <span class="k">break</span><span class="p">;}</span>
 </span><span class='line'>        <span class="k">default</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You failed to follow instructions</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="k">break</span><span class="p">;}</span>
 </span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Note I: The language does not require you to use a <strong>Break Statement</strong> in each block. <strong>BUT</strong> you should (and compilers will warn you when you don&rsquo;t).<br/>
-Note II: You should always use a <strong>Default Statement</strong> . If the value does not hit a value specified in a <strong>Case Statement</strong> then the <strong>Default Statement</strong> is used; If the <strong>Default Statement</strong> is not defined in this situation it results in undefined behavior. To avoid problems you should always define the <strong>Default Statement</strong> (even if all this does is generate an error). This will avoid maintenance issues down the road.</p>
+<p>Note I: The language does not require you to use a <strong>Break Statement</strong> in each block. <strong>BUT</strong> you should and compilers will warn you when you don&rsquo;t.<br/>
+Note II: You should always use a <strong>Default Statement</strong> . If the value does not hit a value specified in a <strong>Case Statement</strong> then the <strong>Default Statement</strong> is used; If the <strong>Default Statement</strong> is not defined in this situation it results in undefined behavior. To avoid problems you should always define the <strong>Default Statement</strong>, even if all this does is generate an error. This will avoid maintenance issues down the road.</p>
 </div>
 
 
