@@ -4,7 +4,7 @@
   <title><![CDATA[Category: So-You-Want-To-Learn-C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/so-you-want-to-learn-c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2013-12-02T17:41:15-08:00</updated>
+  <updated>2013-12-02T17:42:12-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -55,7 +55,7 @@ else
 
 <p>The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types and on user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below (the language does not enforce this, <strong>BUT</strong> if you don&rsquo;t follow the rules your types will scare people and they will not be used (so follow the expected behavior)).</p>
 
-<p><code>
+<p><code>cpp
 | Operator  | Usage   | Result Type | Meaning                                                           |
 | ----------|---------|-------------|-------------------------------------------------------------------|
 |    !      |  !A     |  bool       | Not A. If A is true then false, if A is false then true.          |
