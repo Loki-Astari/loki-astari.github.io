@@ -1,0 +1,652 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>So You Want to Learn C++ Part-5 - Loki Astari</title>
+  <meta name="author" content="Loki Astari">
+
+  
+  <meta name="description" content="">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lokiastari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/bootstrap/bootstrap.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/bootstrap/responsive.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/syntax/syntax.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <style type="text/css">
+    body {
+      padding-bottom: 40px;
+    }
+    h1 {
+      margin-bottom: 15px;
+    }
+    img {
+      max-width: 100%;
+    }
+    .sharing, .meta, .pager {
+      margin: 20px 0px 20px 0px;
+    }
+    .page-footer p {
+      text-align: center;
+    }
+  </style>
+  <script src="/javascripts/libs/jquery.js"></script>
+  <script src="/javascripts/libs/modernizr-2.0.js"></script>
+  <script src="/javascripts/libs/bootstrap.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+  
+  
+
+</head>
+
+<body   >
+  <nav role="navigation"><div class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+
+      <a class="brand" href="/">Loki Astari</a>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/about/">About</a></li>
+  <li><a href="/so-you-want-to-learn-c-plus-plus/">So you want to learn C++</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+
+        <ul class="nav pull-right" data-subscription="rss">
+          <li><a href="http://feeds.feedburner.com/LokiAstari" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+          
+        </ul>
+
+        
+          <form class="pull-right navbar-search" action="http://google.com/search" method="get">
+            <fieldset role="search">
+              <input type="hidden" name="q" value="site:lokiastari.com" />
+              <input class="search-query" type="text" name="q" results="0" placeholder="Search"/>
+            </fieldset>
+          </form>
+        
+      </div>
+    </div>
+  </div>
+</div>
+</nav>
+  <div class="container">
+    <div class="row-fluid">
+      
+<article class="hentry span9" role="article">
+
+  
+  <header class="page-header">
+    
+      <h1 class="entry-title">So You Want to Learn C++ Part-5</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-02T12:00:11-08:00" pubdate data-updated="true">Dec 2<span>nd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Control Flow</h2>
+
+<p>So far we have demonstrated basic programs that just do a single task without making any decisions. Most (all but the most trivial) programming languages provide constructs for decision making (Conditional Branching).</p>
+
+<p>C++ provides two forms of branching. The <strong>&ldquo;If Statement&rdquo;</strong> and the <strong>&ldquo;Switch Statement&rdquo;</strong> .</p>
+
+<h3>If Statement</h3>
+
+<p>The <strong>&ldquo;If Statement&rdquo;</strong> allows code to be executed when a certain conditions is fulfilled and optionally an alternative section of code when the condition is not meat.</p>
+
+<figure class='code'><figcaption><span>ifstatement.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="c1">// First versin of &quot;If Statement&quot;</span>
+</span><span class='line'>    <span class="c1">// Execute code if test is true.</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="n">code</span> <span class="n">to</span> <span class="n">execute</span> <span class="k">if</span> <span class="kt">bool</span> <span class="n">is</span> <span class="kc">true</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Second version of &quot;If Statement&quot;</span>
+</span><span class='line'>    <span class="c1">// Execute code1 if test is true or code2 if test is false </span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="n">code1</span> <span class="n">to</span> <span class="n">execute</span> <span class="k">if</span> <span class="kt">bool</span> <span class="n">is</span> <span class="kc">true</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="n">code2</span> <span class="n">to</span> <span class="n">execute</span> <span class="k">if</span> <span class="kt">bool</span> <span class="n">is</span> <span class="kc">false</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types and on user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below (the language does not enforce this, <strong>BUT</strong> if you don&rsquo;t follow the rules your types will scare people and they will not be used (so follow the expected behavior)).</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th> Operator  </th>
+<th> Usage   </th>
+<th> Result Type </th>
+<th> Meaning </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>    !      </td>
+<td>  !A     </td>
+<td>  bool       </td>
+<td> Not A. If A is true then false, if A is false then true. If A us not a boolean type it is converted (see below) |</td>
+</tr>
+<tr>
+<td></td>
+<td>    ==     </td>
+<td>  A == B </td>
+<td>  bool       </td>
+<td> true if A and B logically equivalent, otherwise false. |</td>
+</tr>
+<tr>
+<td></td>
+<td>    !=     </td>
+<td>  A != B </td>
+<td>  bool       </td>
+<td> Should mean !(A == B) |</td>
+</tr>
+<tr>
+<td></td>
+<td>    &lt;      </td>
+<td>  A &lt;  B </td>
+<td>  bool       </td>
+<td> true if A is logically less than B. |</td>
+</tr>
+<tr>
+<td></td>
+<td>    &lt;=     </td>
+<td>  A &lt;= B </td>
+<td>  bool       </td>
+<td> true if A is logically less than or equal to B. |</td>
+</tr>
+<tr>
+<td></td>
+<td>    >      </td>
+<td>  A >  B </td>
+<td>  bool       </td>
+<td> true if A is logically greater than B. |</td>
+</tr>
+<tr>
+<td></td>
+<td>    >=     </td>
+<td>  a >= B </td>
+<td>  bool       </td>
+<td> true if A is logically greater than or equal to B. |</td>
+</tr>
+<tr>
+<td></td>
+<td>    &amp;&amp;     </td>
+<td>  A &amp;&amp; B </td>
+<td>  bool       </td>
+<td> true if A is true <strong>AND</strong> B is true. If the expressions A or B are not actually boolean then it is converted (see below). Also worth noting is that if A is <strong>false</strong> then the expression for B is not evaluated. This is known as a shortcut operator we will describe this later. |</td>
+</tr>
+<tr>
+<td></td>
+<td>    </td>
+<td></td>
+<td>     </td>
+<td>  A || B |  bool       | true if A is true <strong>OR</strong> B is true. If the expressions A or B are not actually a boolean then it is converted (see below). Also worth noting is that if A is <strong>true</strong> then the expression for B is not evaluated. This is known as a shortcut operator we will describe this later. |</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>If the expression you use in <code>&lt;bool&gt;</code> does not actually result in a boolean value the compiler will attempt to insert a conversion that will result in a boolean (true/false).</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th> Type             </th>
+<th> false      </th>
+<th> true            </th>
+<th> Notes                                   </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td> bool             </td>
+<td> false      </td>
+<td> true            </td>
+<td> Should be obvious: No actual conversion used. |</td>
+</tr>
+<tr>
+<td></td>
+<td> Integers         </td>
+<td> 0          </td>
+<td> (anything else) </td>
+<td> Integer short for (char/short/int/long) |</td>
+</tr>
+<tr>
+<td></td>
+<td> Pointers         </td>
+<td> NULL       </td>
+<td> (anything else) </td>
+<td> Will discuss pointers in detail later.  |</td>
+</tr>
+<tr>
+<td></td>
+<td> User Define Type </td>
+<td> ?          </td>
+<td> ?               </td>
+<td> If a cast operator to bool/int/pointer exists, this will be used. |</td>
+</tr>
+</tbody>
+</table>
+
+
+<figure class='code'><figcaption><span>itest.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span>    <span class="n">name</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Please enter your name</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">name</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">==</span> <span class="s">&quot;Loki&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello Admin</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello Muggle</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">int</span>   <span class="n">value</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">value</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Please enter a non zero integer value</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="c1">// integer value converted to boolean</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You got it correct. Must use a non zero value.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Switch Statement</h3>
+
+<p>The <strong>&ldquo;Switch Statement&rdquo;</strong> is an alternative to the <strong>&ldquo;If Statement&rdquo;</strong> when you have lots of options from the same variable. Unlike other high level language C++ can only use <code>Integer</code> types in a switch statement.</p>
+
+<figure class='code'><figcaption><span>switch.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="k">switch</span><span class="p">(</span><span class="o">&lt;</span><span class="n">integer</span><span class="o">&gt;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">case</span> <span class="o">&lt;</span><span class="n">value1</span><span class="o">&gt;:</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="n">code1</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">case</span> <span class="o">&lt;</span><span class="n">value2</span><span class="o">&gt;:</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="n">code2</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">case</span> <span class="o">&lt;</span><span class="n">value3</span><span class="o">&gt;:</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="n">code3</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="n">code</span> <span class="n">Default</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="k">break</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">//</span>
+</span><span class='line'>    <span class="c1">// Equivalent &quot;If Statement&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">test</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">integer</span><span class="o">&gt;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">value1</span><span class="o">&gt;</span> <span class="o">==</span> <span class="n">test</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="n">code1</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">value2</span><span class="o">&gt;</span> <span class="o">==</span> <span class="n">test</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="n">code2</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">value3</span><span class="o">&gt;</span> <span class="o">==</span> <span class="n">test</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="n">code3</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">else</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="o">&lt;</span><span class="n">code</span> <span class="n">Default</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you use a non Integer expression int the switch statement the compiler will try and convert the value to an integer for you.</p>
+
+<figure class='code'><figcaption><span>switch.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="kt">int</span>  <span class="n">value</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Input a value between 0 and 5</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">value</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">switch</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">0</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used zero</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>    <span class="k">break</span><span class="p">;}</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">1</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>     <span class="k">break</span><span class="p">;}</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">2</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used two</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>     <span class="k">break</span><span class="p">;}</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">3</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used three</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>   <span class="k">break</span><span class="p">;}</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">4</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used four</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>    <span class="k">break</span><span class="p">;}</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">5</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used five</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>    <span class="k">break</span><span class="p">;}</span>
+</span><span class='line'>        <span class="k">default</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You failed to follow instructions</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="k">break</span><span class="p">;}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note I: The language does not require you to use a break in each block. <strong>BUT</strong> you should (and compilers will warn you when you don&rsquo;t).<br/>
+Note II: You should always use a <code>default</code> clause. If the value does not hit a value specified in a <code>Case Statement</code> then the <code>Default Statement is used. If the</code>Default Statement<code>is not defined it results in undefined behavior. To avoid problems you should always define the</code>Default Statement` even if all this does is generate an error. This will avoid maintenance issues down the road.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Loki Astari</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-02T12:00:11-08:00" pubdate data-updated="true">Dec 2<span>nd</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/c-plus-plus/'>C++</a>, <a class='category' href='/blog/categories/coding/'>Coding</a>, <a class='category' href='/blog/categories/so-you-want-to-learn-c-plus-plus/'>So-You-Want-To-Learn-C++</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lokiastari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/" data-via="LokiAstari" data-counturl="http://lokiastari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    
+    <ul class="pager">
+      
+      <li class="previous"><a class="basic-alignment left"
+        href="/blog/2013/11/30/switching-to-octopress/" title="Previous Post:
+        Switching to OctoPress">&laquo; Switching to OctoPress</a></li>
+      
+      <li><a href="/blog/archives">Blog Archives</a></li>
+      
+    </ul>
+  </footer>
+</article>
+
+<aside class="sidebar-nav span3">
+  
+    <section class="well">
+  <ul id="recent_posts" class="nav nav-list">
+    <li class="nav-header">Recent Posts</li>
+    
+      <li class="post">
+        <a href="/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/">So You Want to Learn C++ Part-5</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/30/switching-to-octopress/">Switching to OctoPress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/">So you want to learn C++ Part-4</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/">So you want to learn C++ Part-3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/">So you want to learn C++ Part-2</a>
+      </li>
+    
+  </ul>
+</section>
+<section class="well">
+  <ul id="recent_posts" class="nav nav-list">
+    <li class="nav-header">Twitter</li>
+    <li class="post">
+        <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </li>
+  </ul>
+</section>
+
+<section class="well">
+  <ul id="gh_repos" class="nav">
+    <li class="nav-header">GitHub Repos</li>
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/asides/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo" class="page-footer"><hr>
+<p>
+  Copyright &copy; 2013 - Loki Astari -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
