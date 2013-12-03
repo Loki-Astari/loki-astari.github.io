@@ -236,14 +236,18 @@
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="o">|</span> <span class="n">Type</span>             <span class="o">|</span> <span class="kc">false</span>      <span class="o">|</span> <span class="kc">true</span>            <span class="o">|</span> <span class="n">Notes</span>                                               <span class="o">|</span>
-</span><span class='line'><span class="o">|------------------|------------|-----------------|-----------------------------------------------------|</span>
-</span><span class='line'><span class="o">|</span> <span class="kt">bool</span>             <span class="o">|</span> <span class="kc">false</span>      <span class="o">|</span> <span class="kc">true</span>            <span class="o">|</span> <span class="n">Should</span> <span class="n">be</span> <span class="nl">obvious:</span> <span class="n">No</span> <span class="n">actual</span> <span class="n">conversion</span> <span class="n">used</span><span class="p">.</span>       <span class="o">|</span>
-</span><span class='line'><span class="o">|</span> <span class="n">Integers</span>         <span class="o">|</span> <span class="mi">0</span>          <span class="o">|</span> <span class="p">(</span><span class="n">anything</span> <span class="k">else</span><span class="p">)</span> <span class="o">|</span> <span class="n">Integer</span> <span class="kt">short</span> <span class="k">for</span> <span class="p">(</span><span class="kt">char</span><span class="o">/</span><span class="kt">short</span><span class="o">/</span><span class="kt">int</span><span class="o">/</span><span class="kt">long</span><span class="p">)</span>             <span class="o">|</span>
-</span><span class='line'><span class="o">|</span> <span class="n">Pointers</span>         <span class="o">|</span> <span class="nb">NULL</span>       <span class="o">|</span> <span class="p">(</span><span class="n">anything</span> <span class="k">else</span><span class="p">)</span> <span class="o">|</span> <span class="n">Will</span> <span class="n">discuss</span> <span class="n">pointers</span> <span class="n">in</span> <span class="n">detail</span> <span class="n">later</span><span class="p">.</span>              <span class="o">|</span>
-</span><span class='line'><span class="o">|</span> <span class="n">User</span> <span class="n">Define</span> <span class="n">Type</span> <span class="o">|</span> <span class="o">?</span>          <span class="o">|</span> <span class="o">?</span>               <span class="o">|</span> <span class="n">If</span> <span class="n">a</span> <span class="n">cast</span> <span class="k">operator</span> <span class="n">to</span> <span class="kt">bool</span><span class="o">/</span><span class="kt">int</span><span class="o">/</span><span class="n">pointer</span> <span class="n">exists</span><span class="p">,</span>      <span class="o">|</span>
-</span><span class='line'><span class="o">|</span>                  <span class="o">|</span>            <span class="o">|</span>                 <span class="o">|</span> <span class="k">this</span> <span class="n">will</span> <span class="n">be</span> <span class="n">used</span><span class="p">.</span>                                  <span class="o">|</span>
-</span><span class='line'><span class="o">|------------------|------------|-----------------|-----------------------------------------------------|</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm">| Type             | false      | true            | Notes                                               |</span>
+</span><span class='line'><span class="cm">|------------------|------------|-----------------|-----------------------------------------------------|</span>
+</span><span class='line'><span class="cm">| bool             | false      | true            | Should be obvious: No actual conversion used.       |</span>
+</span><span class='line'><span class="cm">| Integers         | 0          | (anything else) | Integer short for (char/short/int/long)             |</span>
+</span><span class='line'><span class="cm">| Pointers         | NULL       | (anything else) | Will discuss pointers in detail later.              |</span>
+</span><span class='line'><span class="cm">| User Define Type | ?          | ?               | If a cast operator to bool/int/pointer exists,      |</span>
+</span><span class='line'><span class="cm">|                  |            |                 | this will be used.                                  |</span>
+</span><span class='line'><span class="cm">|------------------|------------|-----------------|-----------------------------------------------------|</span>
+</span><span class='line'><span class="cm">*/</span>
 </span></code></pre></td></tr></table></div></figure>
 
 

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: So-You-Want-To-Learn-C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/so-you-want-to-learn-c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2013-12-02T17:44:11-08:00</updated>
+  <updated>2013-12-02T17:45:19-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -84,6 +84,7 @@ else
 <p>If the expression you use in <code>&lt;bool&gt;</code> does not actually result in a boolean value the compiler will attempt to insert a conversion that will result in a boolean (true/false).</p>
 
 <p><code>cpp Type conversion
+/*
 | Type             | false      | true            | Notes                                               |
 |------------------|------------|-----------------|-----------------------------------------------------|
 | bool             | false      | true            | Should be obvious: No actual conversion used.       |
@@ -92,6 +93,7 @@ else
 | User Define Type | ?          | ?               | If a cast operator to bool/int/pointer exists,      |
 |                  |            |                 | this will be used.                                  |
 |------------------|------------|-----------------|-----------------------------------------------------|
+*/
 </code></p>
 
 <p>``` cpp itest.cpp</p>
