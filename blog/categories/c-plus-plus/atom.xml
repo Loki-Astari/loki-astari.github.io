@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2013-12-02T17:30:11-08:00</updated>
+  <updated>2013-12-02T17:41:15-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -55,128 +55,42 @@ else
 
 <p>The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types and on user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below (the language does not enforce this, <strong>BUT</strong> if you don&rsquo;t follow the rules your types will scare people and they will not be used (so follow the expected behavior)).</p>
 
-<table>
-<thead>
-<tr>
-<th></th>
-<th> Operator  </th>
-<th> Usage   </th>
-<th> Result Type </th>
-<th> Meaning </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td>    !      </td>
-<td>  !A     </td>
-<td>  bool       </td>
-<td> Not A. If A is true then false, if A is false then true. If A us not a boolean type it is converted (see below) |</td>
-</tr>
-<tr>
-<td></td>
-<td>    ==     </td>
-<td>  A == B </td>
-<td>  bool       </td>
-<td> true if A and B logically equivalent, otherwise false. |</td>
-</tr>
-<tr>
-<td></td>
-<td>    !=     </td>
-<td>  A != B </td>
-<td>  bool       </td>
-<td> Should mean !(A == B) |</td>
-</tr>
-<tr>
-<td></td>
-<td>    &lt;      </td>
-<td>  A &lt;  B </td>
-<td>  bool       </td>
-<td> true if A is logically less than B. |</td>
-</tr>
-<tr>
-<td></td>
-<td>    &lt;=     </td>
-<td>  A &lt;= B </td>
-<td>  bool       </td>
-<td> true if A is logically less than or equal to B. |</td>
-</tr>
-<tr>
-<td></td>
-<td>    >      </td>
-<td>  A >  B </td>
-<td>  bool       </td>
-<td> true if A is logically greater than B. |</td>
-</tr>
-<tr>
-<td></td>
-<td>    >=     </td>
-<td>  a >= B </td>
-<td>  bool       </td>
-<td> true if A is logically greater than or equal to B. |</td>
-</tr>
-<tr>
-<td></td>
-<td>    &amp;&amp;     </td>
-<td>  A &amp;&amp; B </td>
-<td>  bool       </td>
-<td> true if A is true <strong>AND</strong> B is true. If the expressions A or B are not actually boolean then it is converted (see below). Also worth noting is that if A is <strong>false</strong> then the expression for B is not evaluated. This is known as a shortcut operator we will describe this later. |</td>
-</tr>
-<tr>
-<td></td>
-<td>    </td>
-<td></td>
-<td>     </td>
-<td>  A || B |  bool       | true if A is true <strong>OR</strong> B is true. If the expressions A or B are not actually a boolean then it is converted (see below). Also worth noting is that if A is <strong>true</strong> then the expression for B is not evaluated. This is known as a shortcut operator we will describe this later. |</td>
-</tr>
-</tbody>
-</table>
-
+<p><code>
+| Operator  | Usage   | Result Type | Meaning                                                           |
+| ----------|---------|-------------|-------------------------------------------------------------------|
+|    !      |  !A     |  bool       | Not A. If A is true then false, if A is false then true.          |
+|           |         |             | If A us not a boolean type it is converted (see below)            |
+|    ==     |  A == B |  bool       | true if A and B logically equivalent, otherwise false.            |
+|    !=     |  A != B |  bool       | Should mean !(A == B)                                             |
+|    &lt;      |  A &lt;  B |  bool       | true if A is logically less than B.                               |
+|    &lt;=     |  A &lt;= B |  bool       | true if A is logically less than or equal to B.                   |
+|    &gt;      |  A &gt;  B |  bool       | true if A is logically greater than B.                            |
+|    &gt;=     |  a &gt;= B |  bool       | true if A is logically greater than or equal to B.                |
+|    &amp;&amp;     |  A &amp;&amp; B |  bool       | true if A is true **AND** B is true.                              |
+|           |         |             | If the expressions A or B are not actually boolean then           |
+|           |         |             | it is converted (see below). Also worth noting is that            |
+|           |         |             | if A is **false** then the expression for B is not evaluated.     |
+|           |         |             | This is known as a shortcut operator we will describe this later. |
+|    ||     |  A || B |  bool       | true if A is true **OR** B is true.                               |
+|           |         |             | If the expressions A or B are not actually a boolean then         |
+|           |         |             | it is converted (see below). Also worth noting is that            |
+|           |         |             | if A is **true** then the expression for B is not evaluated.      |
+|           |         |             | This is known as a shortcut operator we will describe this later. |
+|-----------|---------|-------------|-------------------------------------------------------------------|
+</code></p>
 
 <p>If the expression you use in <code>&lt;bool&gt;</code> does not actually result in a boolean value the compiler will attempt to insert a conversion that will result in a boolean (true/false).</p>
 
-<table>
-<thead>
-<tr>
-<th></th>
-<th> Type             </th>
-<th> false      </th>
-<th> true            </th>
-<th> Notes                                   </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td> bool             </td>
-<td> false      </td>
-<td> true            </td>
-<td> Should be obvious: No actual conversion used. |</td>
-</tr>
-<tr>
-<td></td>
-<td> Integers         </td>
-<td> 0          </td>
-<td> (anything else) </td>
-<td> Integer short for (char/short/int/long) |</td>
-</tr>
-<tr>
-<td></td>
-<td> Pointers         </td>
-<td> NULL       </td>
-<td> (anything else) </td>
-<td> Will discuss pointers in detail later.  |</td>
-</tr>
-<tr>
-<td></td>
-<td> User Define Type </td>
-<td> ?          </td>
-<td> ?               </td>
-<td> If a cast operator to bool/int/pointer exists, this will be used. |</td>
-</tr>
-</tbody>
-</table>
-
+<p><code>
+| Type             | false      | true            | Notes                                               |
+|------------------|------------|-----------------|-----------------------------------------------------|
+| bool             | false      | true            | Should be obvious: No actual conversion used.       |
+| Integers         | 0          | (anything else) | Integer short for (char/short/int/long)             |
+| Pointers         | NULL       | (anything else) | Will discuss pointers in detail later.              |
+| User Define Type | ?          | ?               | If a cast operator to bool/int/pointer exists,      |
+|                  |            |                 | this will be used.                                  |
+|------------------|------------|-----------------|-----------------------------------------------------|
+</code></p>
 
 <p>``` cpp itest.cpp</p>
 
