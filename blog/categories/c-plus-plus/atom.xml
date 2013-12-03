@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2013-12-02T18:02:03-08:00</updated>
+  <updated>2013-12-02T18:11:17-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -30,7 +30,7 @@
 ``` cpp ifstatement.cpp</p>
 
 <pre><code>// First versin of "If Statement"
-// Execute code if test is true.
+// Execute code if &lt;Condition&gt; is true.
 //
 if (&lt;Condition&gt;)
 {
@@ -39,7 +39,7 @@ if (&lt;Condition&gt;)
 
 
 // Second version of "If Statement"
-// Execute code1 if test is true or code2 if test is false 
+// Execute code1 if &lt;Condition&gt; is true or code2 if &lt;Condition&gt; is false 
 //
 if (&lt;Condition&gt;)
 {
@@ -55,7 +55,7 @@ else
 
 <p>The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types. On user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below (the language does not enforce this, <strong>BUT</strong> if you don&rsquo;t follow this suggestion your types will scare people and they will not be used (so follow the expected behavior)).</p>
 
-<p><code>cpp Conditional Operators
+<p><code>cpp Standard Comparison Operators
 /*
 | Operator  | Usage   | Result Type | Meaning                                                           |
 | ----------|---------|-------------|-------------------------------------------------------------------|
@@ -81,7 +81,7 @@ else
 */
 </code></p>
 
-<p>If the expression you use in <strong><Condition></strong> does not actually result in a bool value the compiler will attempt to insert a conversion that will result in a bool (true/false).</p>
+<p>If the expression you use in **&lt;Condition&gt; does not actually result in a bool value the compiler will insert a conversion that will result in a bool (true/false) value. If no conversion is possible it results in a compile time error.</p>
 
 <p><code>cpp Type conversion
 /*
@@ -96,7 +96,8 @@ else
 */
 </code></p>
 
-<p>``` cpp itest.cpp</p>
+<p>An example of using an <strong>If Statement</strong>:
+``` cpp itest.cpp</p>
 
 <pre><code>std::string    name;
 std::cout &lt;&lt; "Please enter your name\n";
@@ -124,7 +125,7 @@ if (value) // integer value converted to bool
 
 <h3>Switch Statement</h3>
 
-<p>The <strong>&ldquo;Switch Statement&rdquo;</strong> is an alternative to the <strong>&ldquo;If Statement&rdquo;</strong>. Prefer the switch when you  have lots of options derived from the same expression. Unlike other high level language C++ can only use <strong>Integer</strong> types in a switch statement (Thus in all <code>Case &lt;Value&gt;:</code> the <Value> must be an integer type).</p>
+<p>The <strong>&ldquo;Switch Statement&rdquo;</strong> is an alternative to the <strong>&ldquo;If Statement&rdquo;</strong>. Prefer the switch when you have lots of options derived from the same expression. Unlike other high level language C++ can only use <strong>Integer</strong> types in a switch statement (Thus in all `Case &lt;Value&gt; the &lt;Value&gt; must be an integer <strong>literal</strong> value).</p>
 
 <p>``` cpp switch.cpp</p>
 
