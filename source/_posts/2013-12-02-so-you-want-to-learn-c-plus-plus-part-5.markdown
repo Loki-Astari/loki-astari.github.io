@@ -14,6 +14,8 @@ So far we have demonstrated basic programs that just do a single task without ma
 
 C++ provides two forms of branching. The **"If Statement"** and the **"Switch Statement"** .
 
+Note: Looping is also a form of branching. The looping concept is extensive enough that we will deal with looping separately in its own article.
+
 ### If Statement
 
 The **"If Statement"** allows code to be executed when a certain condition is fulfilled and optionally an alternative piece of code otherwise.
@@ -41,7 +43,7 @@ The **"If Statement"** allows code to be executed when a certain condition is fu
     }
 ```
 
-The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types. On user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below (the language does not enforce this, **BUT** if you don't follow this suggestion your types will scare people and they will not be used (so follow the expected behavior)).
+The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types. On user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below; the language does not enforce this, **BUT** if you don't follow this suggestion your types will scare people and they will not be used, so follow the expected behavior.
 
 ``` cpp Standard Comparison Operators
 /*
@@ -86,31 +88,37 @@ If the expression you use in **&lt;Condition&gt; does not actually result in a b
 
 An example of using an **If Statement**:
 ``` cpp itest.cpp
-    std::string    name;
-    std::cout << "Please enter your name\n";
-    std::cin >> name;
+    #include <iostream>
+    #include <string>
 
-    if (name == "Loki")
+    int main()
     {
-        std::cout << "Hello Admin\n";
-    }
-    else
-    {
-        std::cout << "Hello Muggle\n";
-    }
+        std::string    name;
+        std::cout << "Please enter your name\n";
+        std::cin >> name;
 
-    int   value;
-    std::cin >> value;
-    std::cout << "Please enter a non zero integer value\n";
-    if (value) // integer value converted to bool
-    {
-        std::cout << "You got it correct. Must use a non zero value.\n";
+        if (name == "Loki")
+        {
+            std::cout << "Hello Admin\n";
+        }
+        else
+        {
+            std::cout << "Hello Muggle\n";
+        }
+
+        int   value;
+        std::cin >> value;
+        std::cout << "Please enter a non zero integer value\n";
+        if (value) // integer value converted to bool
+        {
+            std::cout << "You got it correct. Must use a non zero value.\n";
+        }
     }
 ```
 
 ### Switch Statement
 
-The **"Switch Statement"** is an alternative to the **"If Statement"**. Prefer the switch when you have lots of options derived from the same expression. Unlike other high level language C++ can only use **Integer** types in a switch statement (Thus in all `Case &lt;Value&gt; the &lt;Value&gt; must be an integer **literal** value).
+The **"Switch Statement"** is an alternative to the **"If Statement"**. Prefer the switch when you have lots of options derived from the same expression. Unlike other high level language C++ can only use **Integer** types in a switch statement; thus in all `Case &lt;Value&gt; the &lt;Value&gt; must be an integer **literal** value.
 
 ``` cpp switch.cpp
 
@@ -169,25 +177,29 @@ The **"Switch Statement"** is an alternative to the **"If Statement"**. Prefer t
 If you use a non Integer expression in the switch statement the compiler will try and convert the value to an integer. If this is not possible it generates a compile time error.
 
 ``` cpp switch.cpp
+    #include <iostream>
 
-    int  value;
-    std::cout << "Input a value between 0 and 5\n";
-    std::cin >> value;
-
-    switch(value)
+    int main()
     {
-        case 0: {std::cout << "You used zero\n";    break;}
-        case 1: {std::cout << "You used one\n";     break;}
-        case 2: {std::cout << "You used two\n";     break;}
-        case 3: {std::cout << "You used three\n";   break;}
-        case 4: {std::cout << "You used four\n";    break;}
-        case 5: {std::cout << "You used five\n";    break;}
-        default: {std::cout << "You failed to follow instructions\n";break;}
+        int  value;
+        std::cout << "Input a value between 0 and 5\n";
+        std::cin >> value;
+
+        switch(value)
+        {
+            case 0: {std::cout << "You used zero\n";    break;}
+            case 1: {std::cout << "You used one\n";     break;}
+            case 2: {std::cout << "You used two\n";     break;}
+            case 3: {std::cout << "You used three\n";   break;}
+            case 4: {std::cout << "You used four\n";    break;}
+            case 5: {std::cout << "You used five\n";    break;}
+            default: {std::cout << "You failed to follow instructions\n";break;}
+        }
     }
 ```
 
-Note I: The language does not require you to use a **Break Statement** in each block. **BUT** you should (and compilers will warn you when you don't).  
-Note II: You should always use a **Default Statement** . If the value does not hit a value specified in a **Case Statement** then the **Default Statement** is used; If the **Default Statement** is not defined in this situation it results in undefined behavior. To avoid problems you should always define the **Default Statement** (even if all this does is generate an error). This will avoid maintenance issues down the road.
+Note I: The language does not require you to use a **Break Statement** in each block. **BUT** you should and compilers will warn you when you don't.  
+Note II: You should always use a **Default Statement** . If the value does not hit a value specified in a **Case Statement** then the **Default Statement** is used; If the **Default Statement** is not defined in this situation it results in undefined behavior. To avoid problems you should always define the **Default Statement**, even if all this does is generate an error. This will avoid maintenance issues down the road.
 
 
 
