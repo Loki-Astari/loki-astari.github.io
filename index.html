@@ -722,6 +722,8 @@ Note II: You should always use a <strong>Default Statement</strong> . If the val
 
 <p></p>
 
+<p>If a function has <code>void</code> return type then you don&rsquo;t need to <strong>Return Statement</strong>. With any other return type your function must exit by using a <strong>Return Statement</strong>. The <strong>Return Statement</strong> determines the value returned to the caller from the function. The one exception to this rule (and their has to be an exception to make it a rule) is <code>int main()</code>. If you don&rsquo;t explicitly have a <strong>Return Statement</strong> int <code>int main()</code> the compiler will plant <code>return 0;</code> for you.</p>
+
 <h3>Forward Declaration</h3>
 
 <p>One thing to note about a function is that you can not use it before a declaration. We rewrite the original example above as:</p>
