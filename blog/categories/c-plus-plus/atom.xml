@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2013-12-02T17:45:19-08:00</updated>
+  <updated>2013-12-02T18:02:03-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -26,41 +26,41 @@
 
 <h3>If Statement</h3>
 
-<p>The <strong>&ldquo;If Statement&rdquo;</strong> allows code to be executed when a certain conditions is fulfilled and optionally an alternative section of code when the condition is not meat.
+<p>The <strong>&ldquo;If Statement&rdquo;</strong> allows code to be executed when a certain condition is fulfilled and optionally an alternative piece of code otherwise.
 ``` cpp ifstatement.cpp</p>
 
 <pre><code>// First versin of "If Statement"
 // Execute code if test is true.
 //
-if (&lt;bool&gt;)
+if (&lt;Condition&gt;)
 {
-    &lt;code to execute if bool is true&gt;
+    &lt;code to execute if Condition is true&gt;
 }
 
 
 // Second version of "If Statement"
 // Execute code1 if test is true or code2 if test is false 
 //
-if (&lt;bool&gt;)
+if (&lt;Condition&gt;)
 {
-    &lt;code1 to execute if bool is true&gt;
+    &lt;code1: execute if Condition is true&gt;
 }
 else
 {
-    &lt;code2 to execute if bool is false&gt;
+    &lt;code2: execute if Condition is false&gt;
 }
 </code></pre>
 
 <p>```</p>
 
-<p>The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types and on user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below (the language does not enforce this, <strong>BUT</strong> if you don&rsquo;t follow the rules your types will scare people and they will not be used (so follow the expected behavior)).</p>
+<p>The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types. On user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below (the language does not enforce this, <strong>BUT</strong> if you don&rsquo;t follow this suggestion your types will scare people and they will not be used (so follow the expected behavior)).</p>
 
 <p><code>cpp Conditional Operators
 /*
 | Operator  | Usage   | Result Type | Meaning                                                           |
 | ----------|---------|-------------|-------------------------------------------------------------------|
 |    !      |  !A     |  bool       | Not A. If A is true then false, if A is false then true.          |
-|           |         |             | If A us not a boolean type it is converted (see below)            |
+|           |         |             | If A us not a bool type it is converted (see below)               |
 |    ==     |  A == B |  bool       | true if A and B logically equivalent, otherwise false.            |
 |    !=     |  A != B |  bool       | Should mean !(A == B)                                             |
 |    &lt;      |  A &lt;  B |  bool       | true if A is logically less than B.                               |
@@ -68,12 +68,12 @@ else
 |    &gt;      |  A &gt;  B |  bool       | true if A is logically greater than B.                            |
 |    &gt;=     |  a &gt;= B |  bool       | true if A is logically greater than or equal to B.                |
 |    &amp;&amp;     |  A &amp;&amp; B |  bool       | true if A is true **AND** B is true.                              |
-|           |         |             | If the expressions A or B are not actually boolean then           |
+|           |         |             | If the expressions A or B are not actually bool then              |
 |           |         |             | it is converted (see below). Also worth noting is that            |
 |           |         |             | if A is **false** then the expression for B is not evaluated.     |
 |           |         |             | This is known as a shortcut operator we will describe this later. |
 |    ||     |  A || B |  bool       | true if A is true **OR** B is true.                               |
-|           |         |             | If the expressions A or B are not actually a boolean then         |
+|           |         |             | If the expressions A or B are not actually a bool then            |
 |           |         |             | it is converted (see below). Also worth noting is that            |
 |           |         |             | if A is **true** then the expression for B is not evaluated.      |
 |           |         |             | This is known as a shortcut operator we will describe this later. |
@@ -81,16 +81,16 @@ else
 */
 </code></p>
 
-<p>If the expression you use in <code>&lt;bool&gt;</code> does not actually result in a boolean value the compiler will attempt to insert a conversion that will result in a boolean (true/false).</p>
+<p>If the expression you use in <strong><Condition></strong> does not actually result in a bool value the compiler will attempt to insert a conversion that will result in a bool (true/false).</p>
 
 <p><code>cpp Type conversion
 /*
 | Type             | false      | true            | Notes                                               |
 |------------------|------------|-----------------|-----------------------------------------------------|
 | bool             | false      | true            | Should be obvious: No actual conversion used.       |
-| Integers         | 0          | (anything else) | Integer short for (char/short/int/long)             |
+| Integers         | 0          | (anything else) | Integer shorthand for (char/short/int/long)         |
 | Pointers         | NULL       | (anything else) | Will discuss pointers in detail later.              |
-| User Define Type | ?          | ?               | If a cast operator to bool/int/pointer exists,      |
+| User Define Type | ?          | ?               | If a cast operator to bool/Integer/pointer exists   |
 |                  |            |                 | this will be used.                                  |
 |------------------|------------|-----------------|-----------------------------------------------------|
 */
@@ -114,7 +114,7 @@ else
 int   value;
 std::cin &gt;&gt; value;
 std::cout &lt;&lt; "Please enter a non zero integer value\n";
-if (value) // integer value converted to boolean
+if (value) // integer value converted to bool
 {
     std::cout &lt;&lt; "You got it correct. Must use a non zero value.\n";
 }
@@ -124,11 +124,11 @@ if (value) // integer value converted to boolean
 
 <h3>Switch Statement</h3>
 
-<p>The <strong>&ldquo;Switch Statement&rdquo;</strong> is an alternative to the <strong>&ldquo;If Statement&rdquo;</strong> when you have lots of options from the same variable. Unlike other high level language C++ can only use <code>Integer</code> types in a switch statement.</p>
+<p>The <strong>&ldquo;Switch Statement&rdquo;</strong> is an alternative to the <strong>&ldquo;If Statement&rdquo;</strong>. Prefer the switch when you  have lots of options derived from the same expression. Unlike other high level language C++ can only use <strong>Integer</strong> types in a switch statement (Thus in all <code>Case &lt;Value&gt;:</code> the <Value> must be an integer type).</p>
 
 <p>``` cpp switch.cpp</p>
 
-<pre><code>switch(&lt;integer&gt;)
+<pre><code>switch(&lt;Test Expression&gt;)
 {
     case &lt;value1&gt;:
     {
@@ -155,7 +155,7 @@ if (value) // integer value converted to boolean
 //
 // Equivalent "If Statement"
 
-int test = &lt;integer&gt;;
+int test = &lt;Test Expression&gt;;
 if (&lt;value1&gt; == test)
 {
     &lt;code1&gt;
@@ -182,7 +182,7 @@ else
 
 <p>```</p>
 
-<p>If you use a non Integer expression int the switch statement the compiler will try and convert the value to an integer for you.</p>
+<p>If you use a non Integer expression in the switch statement the compiler will try and convert the value to an integer. If this is not possible it generates a compile time error.</p>
 
 <p>``` cpp switch.cpp</p>
 
@@ -204,8 +204,8 @@ switch(value)
 
 <p>```</p>
 
-<p>Note I: The language does not require you to use a break in each block. <strong>BUT</strong> you should (and compilers will warn you when you don&rsquo;t).<br/>
-Note II: You should always use a <code>default</code> clause. If the value does not hit a value specified in a <code>Case Statement</code> then the <code>Default Statement is used. If the</code>Default Statement<code>is not defined it results in undefined behavior. To avoid problems you should always define the</code>Default Statement` even if all this does is generate an error. This will avoid maintenance issues down the road.</p>
+<p>Note I: The language does not require you to use a <strong>Break Statement</strong> in each block. <strong>BUT</strong> you should (and compilers will warn you when you don&rsquo;t).<br/>
+Note II: You should always use a <strong>Default Statement</strong> . If the value does not hit a value specified in a <strong>Case Statement</strong> then the <strong>Default Statement</strong> is used; If the <strong>Default Statement</strong> is not defined in this situation it results in undefined behavior. To avoid problems you should always define the <strong>Default Statement</strong> (even if all this does is generate an error). This will avoid maintenance issues down the road.</p>
 ]]></content>
   </entry>
   
