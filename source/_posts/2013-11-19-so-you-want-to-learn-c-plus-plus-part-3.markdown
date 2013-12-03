@@ -31,6 +31,7 @@ C++ is a strongly typed language. This means that each variable has a specific t
 
 ``` cpp Built in Types
     char                    // Represents a character.
+    bool                    // Represents a boolean true/false value.
     short                   // Represents an integer of at least 16 bits
     int                     // Represents an integer of at least 32 bits
     long                    // Represents an integer of at least 32 bits
@@ -53,7 +54,7 @@ C++ is a strongly typed language. This means that each variable has a specific t
     std::set<Key>           // Represents a set of keys of type 'Key'
 ```
 
-The list may seem a bit daunting at first, but while you are learning if you restrict yourselves to two built in types (**int** and **double**) and two standard types (**std::string** and **std::vector&lt;T&gt;**) you will be able to solve most beginner/training problems.
+The list may seem a bit daunting at first, but while you are learning if you restrict yourselves to three built in types (**bool**, **int** and **double**) and two standard types (**std::string** and **std::vector&lt;T&gt;**) you will be able to solve most beginner/training problems.
 
 The other built in types are usually used when you need larger range of values or need to save space. The additional standard type (shown above) are different types of container and provide different accesses characteristics (which will be explained later). We will cover all these types in due course.
 
