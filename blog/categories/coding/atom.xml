@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Coding | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/coding/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2013-12-02T22:24:10-08:00</updated>
+  <updated>2013-12-06T01:27:13-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[So you want to learn C++ Part-5]]></title>
+    <title type="html"><![CDATA[So You Want to Learn C++ Part-5]]></title>
     <link href="http://lokiastari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/"/>
     <updated>2013-12-02T12:00:11-08:00</updated>
     <id>http://lokiastari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5</id>
@@ -326,8 +326,6 @@ int main(int argc, char* argv[])
 </code></pre>
 
 <p>```</p>
-
-<p>If a function has <code>void</code> return type then you don&rsquo;t need to <strong>Return Statement</strong>. With any other return type your function must exit by using a <strong>Return Statement</strong>. The <strong>Return Statement</strong> determines the value returned to the caller from the function. The one exception to this rule (and their has to be an exception to make it a rule) is <code>int main()</code>. If you don&rsquo;t explicitly have a <strong>Return Statement</strong> int <code>int main()</code> the compiler will plant <code>return 0;</code> for you.</p>
 
 <h3>Forward Declaration</h3>
 
