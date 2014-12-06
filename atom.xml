@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2013-12-06T01:27:13-08:00</updated>
+  <updated>2014-12-06T12:10:27-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,6 +12,21 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Nearly New Year/New Resolution]]></title>
+    <link href="http://lokiastari.com/blog/2014/12/06/nearly-new-year-slash-new-resolution/"/>
+    <updated>2014-12-06T11:44:00-08:00</updated>
+    <id>http://lokiastari.com/blog/2014/12/06/nearly-new-year-slash-new-resolution</id>
+    <content type="html"><![CDATA[<h2>New Year/New Resolution</h2>
+
+<p>They say you can only get better at something by doing it.</p>
+
+<p>I want to get better at writing articles about what I do so I better keep trying. Reading the articles I wrote last year (with the hindsight of a year) it seems my pros are a bit dry and laborious. So I am going to try again with an eye on fixing this problem.</p>
+
+<p>My two main inspirations are colleges who do this rather well. <a href="http://katemats.com/">Kate Mate</a> a highly talented manager who&rsquo;s opinions I respect and <a href="http://moz.com/rand/">Rand Fiskin</a> the Wizard of Moz (though I am not sure he uses this tittle anymore). Both are highly respected in their fields and have the ability to write comprehensively and interestingly about subjects.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[So You Want to Learn C++ Part-5]]></title>
