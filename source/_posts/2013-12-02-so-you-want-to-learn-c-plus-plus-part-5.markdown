@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "So You Want to Learn C++ Part-5"
+title: "So you want to learn C++ Part-5"
 date: 2013-12-02 12:00:11 -0800
 comments: true
 categories: [C++, So-You-Want-To-Learn-C++, Coding]
