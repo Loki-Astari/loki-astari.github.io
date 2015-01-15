@@ -276,9 +276,9 @@ int main()
 <pre><code>            T* operator-&gt;() {return data;}
 </code></pre>
 
-<p>There are a couple of solutions to this problem. You can check <code>data</code> and throw an exception if it is a Null pointer, or alternatively you can make it a pre-condition on the usage of the smart pointer (ie it is the responsibility of the user to either know or check before using methods).</p>
+<p>There are a couple of solutions to this problem. You can check <code>data</code> and throw an exception if it is a Null pointer, or alternatively you can make it a pre-condition on the usage of the smart pointer (ie it is the responsibility of the user to either know or check the state of the smart pointer before using these methods).</p>
 
-<p>The standard has chosen to go with a pre-condition (a very common C++ practice: do not impose an overhead on all your users (to spare problems for the beginner), but rather provide a mechanism for those that need; so they can choose to pay the overhead when they need to and not every time). We can do the same here but we have not provided any mechanism for the user to check the state of the smart pointer.</p>
+<p>The standard has chosen to go with a pre-condition (a very common C++ practice: do not impose an overhead on all your users (to spare problems for the beginner), but rather provide a mechanism to check the state for those that need to do so; so they can choose to pay the overhead when they need to and not every time). We can do the same here but we have not provided any mechanism for the user to check the state of the smart pointer.</p>
 
 <h3>Problem 4: Const Correctness</h3>
 
@@ -314,7 +314,7 @@ int main()
                 delete data;
             }
             // Remove compiler generated methods.
-            UP(UP const&amp;)           = delete;
+            UP(UP const&amp;)            = delete;
             UP&amp; operator=(UP const&amp;) = delete;
 
             // Const correct access owned object
@@ -340,7 +340,7 @@ int main()
 
 <h2>Summary</h2>
 
-<p>So in this initial post we have looked at a typical first attempt at a smart pointer and summarized the common problems I often see in these home grown smart pointer implementations. We need to dig a bit deeper before we are finished though.</p>
+<p>So in this initial post we have looked at a typical first attempt at a smart pointer and summarized the common problems I often see in these home grown smart pointer implementations.</p>
 </div>
   
   
