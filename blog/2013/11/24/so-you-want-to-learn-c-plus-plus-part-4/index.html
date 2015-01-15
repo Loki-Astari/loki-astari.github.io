@@ -281,6 +281,8 @@
 
 <p></p>
 
+<p>If a function has <code>void</code> return type then you don&rsquo;t need to <strong>Return Statement</strong>. With any other return type your function must exit by using a <strong>Return Statement</strong>. The <strong>Return Statement</strong> determines the value returned to the caller from the function. The one exception to this rule (and their has to be an exception to make it a rule) is <code>int main()</code>. If you don&rsquo;t explicitly have a <strong>Return Statement</strong> int <code>int main()</code> the compiler will plant <code>return 0;</code> for you.</p>
+
 <h3>Forward Declaration</h3>
 
 <p>One thing to note about a function is that you can not use it before a declaration. We rewrite the original example above as:</p>
@@ -459,6 +461,10 @@
     <li class="nav-header">Recent Posts</li>
     
       <li class="post">
+        <a href="/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">C++ By Example: Smart Pointer</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/06/nearly-new-year-slash-new-resolution/">Nearly New Year/New Resolution</a>
       </li>
     
@@ -472,10 +478,6 @@
     
       <li class="post">
         <a href="/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/">So you want to learn C++ Part-4</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/">So you want to learn C++ Part-3</a>
       </li>
     
   </ul>
@@ -523,7 +525,7 @@
   </div>
   <footer role="contentinfo" class="page-footer"><hr>
 <p>
-  Copyright &copy; 2014 - Loki Astari -
+  Copyright &copy; 2015 - Loki Astari -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 <script>

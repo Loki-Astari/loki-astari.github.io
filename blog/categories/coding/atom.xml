@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Coding | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/coding/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2014-12-06T12:10:27-08:00</updated>
+  <updated>2015-01-14T17:05:29-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -326,6 +326,8 @@ int main(int argc, char* argv[])
 </code></pre>
 
 <p>```</p>
+
+<p>If a function has <code>void</code> return type then you don&rsquo;t need to <strong>Return Statement</strong>. With any other return type your function must exit by using a <strong>Return Statement</strong>. The <strong>Return Statement</strong> determines the value returned to the caller from the function. The one exception to this rule (and their has to be an exception to make it a rule) is <code>int main()</code>. If you don&rsquo;t explicitly have a <strong>Return Statement</strong> int <code>int main()</code> the compiler will plant <code>return 0;</code> for you.</p>
 
 <h3>Forward Declaration</h3>
 
