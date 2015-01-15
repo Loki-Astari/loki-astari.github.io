@@ -122,7 +122,7 @@
   </header>
 
 
-  <div class="entry-content"><p>On <a href="codereview.stackexchange.com">codereview.stackexchange.com</a> in the C++ tag it seems that a write of passage to implement your own version of a smart pointer. A quick search brings up the following:</p>
+  <div class="entry-content"><p>On <a href="codereview.stackexchange.com">codereview.stackexchange.com</a> in the C++ tag it seems that it is a write of passage to implement your own version of a smart pointer. A quick search brings up the following:</p>
 
 <ul>
 <li>02/Sep/2011 &ndash; <a href="http://codereview.stackexchange.com/q/4550/507">shared_ptr implementation</a></li>
@@ -142,11 +142,11 @@
 </ul>
 
 
-<p>Writing you own implementation of a smart pointer is a bad idea (IMO). The standardization and testing of smart pointers was a nine years process through <a href="http://www.boost.org/">boost</a> with <a href="http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/shared_ptr.htm">boost::shared_ptr</a> and <a href="http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/scoped_ptr.htm">boost::scoped_ptr</a>. This finally resulted in standardized versions being released in C++11: <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr">std::shared_ptr</a> and <a href="http://en.cppreference.com/w/cpp/memory/unique_ptr">std::unique_ptr</a>.</p>
+<p>Writing you own implementation of a smart pointer is a bad idea (IMO). The standardization and testing of smart pointers was a nine year process through <a href="http://www.boost.org/">boost</a>, with <a href="http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/shared_ptr.htm">boost::shared_ptr</a> and <a href="http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/scoped_ptr.htm">boost::scoped_ptr</a>, finally resulting in the standardized versions being released in C++11: <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr">std::shared_ptr</a> and <a href="http://en.cppreference.com/w/cpp/memory/unique_ptr">std::unique_ptr</a>.</p>
 
-<p>I would even say even dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) to get it working correctly in all contexts is rather a complex in-devour.</p>
+<p>I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) to get it working correctly in all contexts is rather a complex indevour.</p>
 
-<p>But; because it is such a frequent request for review I want take a look at smart pointers as a teaching exercise. So I want to step through the processes of building a smart pointer and look at some of the common mistakes that I see (and probably make a few as I go).</p>
+<p>But because it is such a frequent request for review; I want take a look at smart pointers as a teaching exercise. In the next couple of articles I will step through the processes of building a smart pointer and look at some of the common mistakes that I see (and probably make a few as I go).</p>
 
 <h2>First Bash</h2>
 
@@ -182,7 +182,7 @@
 
 <h3>Problem 1: Rule of Three Violation</h3>
 
-<p>The first problem here is that we are not obeying the &ldquo;rule of three&rdquo;. Since we have a destructor that does memory management we should also handle the copy constructor and assignment operator. Otherwise the following is allowed and will cause undefined behavior:</p>
+<p>The first problem here is that we are not obeying the &ldquo;<a href="http://stackoverflow.com/q/4172722/14065">rule of three</a>&rdquo;. Since we have a destructor that does memory management we should also handle the copy constructor and assignment operator. Otherwise the following is allowed and will cause undefined behavior:</p>
 
 <pre><code>int test1()
 {
@@ -222,7 +222,7 @@
  // Same issues with double delete as the copy constructor.
 </code></pre>
 
-<p>This is caused by the compiler atomically generating default implementations of certain methods (see discussion on the rule of three) if the user does not explicitly specify otherwise. I have heard this described as a language bug; but I have to disagree with that sentiment, as these compiler generated methods do exactly as you would expect in nearly all situations. The one exceptions is when the class contains &ldquo;owned raw pointers&rdquo;.</p>
+<p>This is caused by the compiler atomically generating default implementations of certain methods (see discussion on the <a href="http://stackoverflow.com/q/4172722/14065">rule of three</a>) if the user does not explicitly specify otherwise. I have heard this described as a language bug; but I have to disagree with that sentiment, as these compiler generated methods do exactly as you would expect in nearly all situations. The one exceptions is when the class contains &ldquo;owned raw pointers&rdquo;.</p>
 
 <h3>Problem 2: Implicit construction.</h3>
 
@@ -248,7 +248,7 @@ int main()
 
 <p>Though none of the functions in the example take an <code>int pointer</code> as a parameter; the compiler sees that it can convert an <code>int*</code> into an object of type <code>ThorsAnvil::UP&lt;int&gt;</code> via the single argument constructor and builds temporary objects to facilitate the calling of the function.</p>
 
-<p>In the case of smart pointers, that take ownership of the object passed in the constructor, this can be a problem because the lifetime of a temporary object is the containing statement (with a few exceptions that we will cover in another article). A a simple rule of thumb you can think of the lifespan of a temporary ending at the <code>';'</code>.</p>
+<p>In the case of smart pointers, that take ownership of the object passed in the constructor, this can be a problem because the lifetime of a temporary object is the containing statement (with a few exceptions that we will cover in another article). As a simple rule of thumb you can think of the lifespan of a temporary ending at the <code>';'</code>.</p>
 
 <pre><code>takeOwner1(data);
 
@@ -294,9 +294,53 @@ int main()
             T&amp; operator*()  const {return *data;}
 </code></pre>
 
+<h2>Fixed First Try</h2>
+
+<p>So given the problems described above we can update our implementation to compensate for these issues:</p>
+
+<pre><code>namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class UP
+    {
+        T*   data;
+        public:
+            // Explicit constructor
+            explicit UP(T* data)
+                : data(data)
+            {}
+            ~UP()
+            {
+                delete data;
+            }
+            // Remove compiler generated methods.
+            UP(UP const&amp;)           = delete;
+            UP&amp; operator=(UP const&amp;) = delete;
+
+            // Const correct access owned object
+            T* operator-&gt;() const {return data;}
+            T&amp; operator*()  const {return *data;}
+
+            // Access to smart pointer state
+            T* get()        const {return data;}
+            operator bool() const {return data;}
+
+            // Modify object state
+            T* release()
+            {
+                T* result = nullptr;
+                std::swap(result, data);
+                return result;
+            }
+    };
+}
+</code></pre>
+
+<p>If you are thinking this is not enough you are correct. We still have some more work to do. But lets leave it at that for version one.</p>
+
 <h2>Summary</h2>
 
-<p>So the in this initial post we have looked at a typical first attempt at a smart pointer and summarized the common problems I often see when people look to building their own smart pointer.</p>
+<p>So in this initial post we have looked at a typical first attempt at a smart pointer and summarized the common problems I often see in these home grown smart pointer implementations. We need to dig a bit deeper before we are finished though.</p>
 </div>
   
   
