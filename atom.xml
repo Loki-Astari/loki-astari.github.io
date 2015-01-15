@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2015-01-15T12:51:03-08:00</updated>
+  <updated>2015-01-15T13:53:39-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -204,7 +204,7 @@
 </span><span class='line'>            <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{}</span>
 </span><span class='line'>
-</span><span class='line'>        <span class="c1">// Compiler Generated Assignemtn Operator</span>
+</span><span class='line'>        <span class="c1">// Compiler Generated Assignment Operator</span>
 </span><span class='line'>        <span class="n">UP</span><span class="o">&amp;</span> <span class="n">UP</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">data</span>    <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
