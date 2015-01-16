@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Coding | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/coding/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2015-01-16T12:02:48-08:00</updated>
+  <updated>2015-01-16T12:12:37-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -146,7 +146,7 @@ There are two major techniques for tracking the shared owners of a pointer:</p>
 <pre><code>namespace ThorsAnvil
 {
      .....
-         explicit SP(T* data)
+             explicit SP(T* data)
                 : data(data)
                 , count(new (std::nothorw) int(1)) // use the no throw version of new.
             {
@@ -160,7 +160,8 @@ There are two major techniques for tracking the shared owners of a pointer:</p>
                 }
             }
             // or
-            explicit SP::SP(T* data)
+     .....
+            explicit SP(T* data)
             // The rarely used try/catch for exceptions in argument lists.
             try
                 : data(data)
@@ -272,7 +273,7 @@ Two portions of this look like other code pieces of code that have already been 
             }
             ~SP()
             {
-                --*count;
+                --(*count);
                 if (*count == 0)
                 {
                     delete data;
@@ -319,7 +320,7 @@ Two portions of this look like other code pieces of code that have already been 
 
 <h2>Summary</h2>
 
-<p>So in this second post we have looked at two implementation techniques of shared pointer and summarized the common problems problems usually overlooked. In the next article I want to look at a couple of other issues common to both types of smart pointers.</p>
+<p>So in this second post we have looked SP and mentioned the two main implementation techniques commonly used. We specifically looked in detail at some common problems usually overlooked in the counted implementation of SP. In the next article I want to look at a couple of other issues common to both types of smart pointers.</p>
 ]]></content>
   </entry>
   

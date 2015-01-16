@@ -351,10 +351,11 @@
 <span class='line-number'>29</span>
 <span class='line-number'>30</span>
 <span class='line-number'>31</span>
+<span class='line-number'>32</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
 </span><span class='line'><span class="p">{</span>
 </span><span class='line'>     <span class="p">.....</span>
-</span><span class='line'>         <span class="k">explicit</span> <span class="n">SP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
+</span><span class='line'>             <span class="k">explicit</span> <span class="n">SP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
 </span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </span><span class='line'>                <span class="p">,</span> <span class="n">count</span><span class="p">(</span><span class="k">new</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">nothorw</span><span class="p">)</span> <span class="kt">int</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="c1">// use the no throw version of new.</span>
 </span><span class='line'>            <span class="p">{</span>
@@ -368,7 +369,8 @@
 </span><span class='line'>                <span class="p">}</span>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>            <span class="c1">// or</span>
-</span><span class='line'>            <span class="k">explicit</span> <span class="n">SP</span><span class="o">::</span><span class="n">SP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
+</span><span class='line'>     <span class="p">.....</span>
+</span><span class='line'>            <span class="k">explicit</span> <span class="n">SP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
 </span><span class='line'>            <span class="c1">// The rarely used try/catch for exceptions in argument lists.</span>
 </span><span class='line'>            <span class="k">try</span>
 </span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -575,7 +577,7 @@
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>            <span class="o">~</span><span class="n">SP</span><span class="p">()</span>
 </span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="o">--*</span><span class="n">count</span><span class="p">;</span>
+</span><span class='line'>                <span class="o">--</span><span class="p">(</span><span class="o">*</span><span class="n">count</span><span class="p">);</span>
 </span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
 </span><span class='line'>                <span class="p">{</span>
 </span><span class='line'>                    <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
@@ -621,7 +623,7 @@
 
 <h2>Summary</h2>
 
-<p>So in this second post we have looked at two implementation techniques of shared pointer and summarized the common problems problems usually overlooked. In the next article I want to look at a couple of other issues common to both types of smart pointers.</p>
+<p>So in this second post we have looked SP and mentioned the two main implementation techniques commonly used. We specifically looked in detail at some common problems usually overlooked in the counted implementation of SP. In the next article I want to look at a couple of other issues common to both types of smart pointers.</p>
 </div>
 
 
