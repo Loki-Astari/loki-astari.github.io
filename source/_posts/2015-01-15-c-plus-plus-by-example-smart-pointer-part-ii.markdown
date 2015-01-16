@@ -124,7 +124,7 @@ So if an exception is thrown during construction (and thus the destructor will n
     namespace ThorsAnvil
     {
          .....
-             explicit SP(T* data)
+                 explicit SP(T* data)
                     : data(data)
                     , count(new (std::nothorw) int(1)) // use the no throw version of new.
                 {
@@ -138,7 +138,8 @@ So if an exception is thrown during construction (and thus the destructor will n
                     }
                 }
                 // or
-                explicit SP::SP(T* data)
+         .....
+                explicit SP(T* data)
                 // The rarely used try/catch for exceptions in argument lists.
                 try
                     : data(data)
@@ -236,7 +237,7 @@ So given the problems described above we can update our implementation to compen
                 }
                 ~SP()
                 {
-                    --*count;
+                    --(*count);
                     if (*count == 0)
                     {
                         delete data;
@@ -279,4 +280,4 @@ So given the problems described above we can update our implementation to compen
     }
 ```
 ##Summary
-So in this second post we have looked at two implementation techniques of shared pointer and summarized the common problems problems usually overlooked. In the next article I want to look at a couple of other issues common to both types of smart pointers.
+So in this second post we have looked SP and mentioned the two main implementation techniques commonly used. We specifically looked in detail at some common problems usually overlooked in the counted implementation of SP. In the next article I want to look at a couple of other issues common to both types of smart pointers.
