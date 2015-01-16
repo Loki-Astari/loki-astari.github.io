@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2015-01-15T13:53:39-08:00</updated>
+  <updated>2015-01-16T11:11:47-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,6 +12,316 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[C++ by Example: Smart Pointer Part II]]></title>
+    <link href="http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/"/>
+    <updated>2015-01-15T08:13:47-08:00</updated>
+    <id>http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii</id>
+    <content type="html"><![CDATA[<p>So in the previous article I covered a basic <code>unique</code> pointer where the smart pointer retained sole ownership of the pointer. The other common smart pointer we encounter is the <code>shared</code> pointer (SP). In this case the ownership of the pointer is shared across multiple instances of SP and the pointer is only released (deleted) when all SP instances have been destroyed.</p>
+
+<p>So not only do we have to store the pointer but we need a mechanism for keeping track of all the SP instances that are sharing ownership of the pointer. When the last SP instance is destroyed it also deletes the pointer (The last owner cleans up. A similar principle to the last one to leave the room turns out the lights).
+```cpp Shared Pointer contextual destructor</p>
+
+<pre><code>namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class SP
+    {
+        T*  data;
+        public:
+            ~SP()
+            {
+                if (amITheLastOwner())
+                {
+                    delete data;
+                }
+            }
+    };
+}
+</code></pre>
+
+<p>```
+There are two major techniques for tracking the shared owners of a pointer:</p>
+
+<ol>
+  <li>Keep a count:</li>
+  <ul>
+    <li>When the count is 1 you are the last owner.</li>
+    <li>This is a very simple and logical technique. You have a shared counter that is incremented/decrement as SP instances take/release ownership of the pointer. The disadvantages are that you need dynamically allocated memory that must be managed and in a threaded environment you need to serialize accesses to counter.</li>
+  </ul>
+  <li>Use a linked list of the owners:</li>
+  <ul>
+    <li>When you are the only member of the list you are the last owner.</li>
+    <li>When a SP instance take/releases ownership of the pointer they are added/removed to/from the linked list. This is slightly more complex as you need to maintain a circular linked list (for O(1)). The advantage is that you don't need to manage any separate memory for the count (A SP instance simply points at the next SP instance in the chain) and in a threaded environment adding/removing a shared pointer need not always be serialized (though you will still need to lock your neighbors to enforce integrity).</li>
+  </ul>
+</ol>
+
+
+<h2>Shared Count</h2>
+
+<p>The easier of the two to implement correctly is the list version. There are no real gotchas (that I have seen). Though people do struggle with insertion and removal of a link from a circular list. I have another article planned for that at some point so I will cover it then.</p>
+
+<p>The <em>Shared Count</em> is basically the technique used by the <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr"><code>std::shared_ptr</code></a> (though they store slightly more than the count to try and improve efficiency see <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared"><code>std::make_shared</code></a>).</p>
+
+<p>The main mistake I see from beginners is not using dynamically allocated counter (ie they keep the counter in the SP object). You <strong>must</strong> dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted).</p>
+
+<p>You must also serialize access to this counter to make sure that in a threaded environment the count is correctly maintained. In the first version for simplicity I will only consider single threaded environments and thus synchronization is not required.
+```cpp First Try</p>
+
+<pre><code>namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class SP
+    {
+        T*      data;
+        int*    count;
+        public:
+            // Remember from ThorsAnvil::UP that the constructor
+            // needs to be explicit to prevent the compiler creating
+            // temporary objects on the fly.
+            explicit SP(T* data)
+                : data(data)
+                , count(new int(1))
+            {}
+            ~SP()
+            {
+                --(*count);
+                if (*count == 0)
+                {
+                    delete data;
+                }
+            }
+            // Remember from ThorsAnvil::UP that we need to make sure we
+            // obey the rule of three. So we will implement the copy
+            // constructor and assignment operator.
+            SP(SP const&amp; copy)
+                : data(copy.data)
+                , count(copy.count)
+            {
+                ++(*count);
+            }
+            SP&amp; operator=(SP const&amp; rhs)
+            {
+                // Keep a copy of the old data
+                T*   oldData  = data;
+                int* oldCount = count;
+
+                // now we do an exception safe transfer;
+                data  = rhs.data;
+                count = rhs.count;
+
+                // Update the counters
+                ++(*count);
+                --(*oldCount);
+
+                // Finally delete the old pointer if required.
+                if (*oldCount == 0)
+                {
+                    delete oldData;
+                }
+            }
+            // Const correct access owned object
+            T* operator-&gt;() const {return data;}
+            T&amp; operator*()  const {return *data;}
+
+            // Access to smart pointer state
+            T* get()        const {return data;}
+            operator bool() const {return data;}
+    };
+}
+</code></pre>
+
+<p>```</p>
+
+<h3>Problem 1: Potential Constructor Failure</h3>
+
+<p>When a developer (attempts) to create a SP they are handing over ownership of the pointer to the SP instance. Once the constructor starts there is an expectation by the developer that no further checks are needed. But there is a problem with the code as written.</p>
+
+<p>In C++ memory allocation through new does not fail (unlike C where <code>malloc()</code> can return a Null on failure). In C++ a failure to allocate memory via the standard new generates a <code>std::bad_alloc</code> exception. Additionally if we throw an exception out of a constructor the destructor will never be called (the destructor is only called on fully formed objects) when the instance&rsquo;s lifespan ends.</p>
+
+<p>So if an exception is thrown during construction (and thus the destructor will not be called) we must assume responsibility for making sure that pointer is deleted before the exception escapes the constructor, otherwise there will be a resultant leak of the pointer.
+```cpp Constructor takes responsibility for pointer</p>
+
+<pre><code>namespace ThorsAnvil
+{
+     .....
+         explicit SP(T* data)
+                : data(data)
+                , count(new (std::nothorw) int(1)) // use the no throw version of new.
+            {
+                // Check if the pointer correctly allocated
+                if (count == nullptr)
+                {
+                    // If we failed then delete the pointer
+                    // and manually throw the exception.
+                    delete data;
+                    throw std::bad_alloc();
+                }
+            }
+            // or
+            explicit SP::SP(T* data)
+            // The rarely used try/catch for exceptions in argument lists.
+            try
+                : data(data)
+                , count(new int(1))
+            {}
+            catch(...)
+            {
+                // If we failed because of an exception
+                // delete the pointer and rethrow the exception.
+                delete data;
+                throw;
+            }
+}
+</code></pre>
+
+<p>```</p>
+
+<h3>Problem 2: DRY up the Assignment</h3>
+
+<p>Currently the assignment operator is exception safe and conforms to the strong exception guarantee so there is no real problem here. <strong>But</strong> there seems to be a lot of duplicated code in the class.
+```cpp Closer look at assignment</p>
+
+<pre><code>namespace ThorsAnvil
+{
+     .....
+            SP&amp; operator=(SP const&amp; rhs)
+            {
+                T*   oldData  = data;
+                int* oldCount = count;
+
+                data  = rhs.data;
+                count = rhs.count;                    
+                ++(*count);
+
+                --(*oldCount);
+                if (*oldCount == 0)
+                {
+                    delete oldData;
+                }
+            }
+}
+</code></pre>
+
+<p>```
+Two portions of this look like other code pieces of code that have already been written:</p>
+
+<pre><code>// This looks like the SP copy constructor.
+                data  = rhs.data;
+                count = rhs.count;                    
+                ++(*count);
+
+// This looks like the SP destructor.
+                --(*oldCount);
+                if (*oldCount == 0)
+                {
+                    delete oldData;
+                }
+</code></pre>
+
+<p>This observation is commonly referred to as the <strong><a href="http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom">Copy and Swap Idiom</a></strong>. I will not go through all the details of the transformation here. But we can re-write the assignment operator as:
+```cpp Copy and Swap Idiom</p>
+
+<pre><code>            SP&amp; operator=(SP const&amp; rhs)
+            {
+                // constructor of tmp handles increment.
+                SP tmp(rhs);
+
+                std::swap(data,  tmp.data);
+                std::swap(count, tmp.count);
+                return *this;
+            }   // the destructor of tmp is executed here.
+                // this handles the decrement and release of the pointer
+
+     // This is usually simplified further into
+            SP&amp; operator=(SP rhs) // Note implicit copy because of pass by value.
+            {
+                rhs.swap(*this);  // swaps moved to swap method.
+                return *this;
+            }
+</code></pre>
+
+<p>```</p>
+
+<h2>Fixed First Try</h2>
+
+<p>So given the problems described above we can update our implementation to compensate for these issues:
+```cpp Fixed First Try</p>
+
+<pre><code>namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class SP
+    {
+        T*      data;
+        int*    count;
+        public:
+            // Explicit constructor
+            explicit SP(T* data)
+            try
+                : data(data)
+                , count(new int(1))
+            {}
+            catch(...)
+            {
+                // If we failed because of an exception
+                // delete the pointer and rethrow the exception.
+                delete data;
+                throw;
+            }
+            ~SP()
+            {
+                --*count;
+                if (*count == 0)
+                {
+                    delete data;
+                }
+            }
+            SP(SP const&amp; copy)
+                : data(copy.data)
+                , count(copy.count)
+            {
+                ++(*count);
+            }
+            // Use the copy and swap idiom
+            // It works perfectly for this situation.
+            SP&amp; operator=(SP rhs)
+            {
+                rhs.swap(*this);
+                return *this;
+            }
+            SP&amp; operator=(T* newData)
+            {
+                SP tmp(newData);
+                tmp.swap(*this);
+                return *this;
+            }
+            // Always good to have a swap function
+            // Make sure it is noexcept
+            void swap(SP&amp; other) noexcept
+            {
+                std::swap(data,  other.data);
+                std::swap(count, other.count);
+            }
+            // Const correct access owned object
+            T* operator-&gt;() const {return data;}
+            T&amp; operator*()  const {return *data;}
+
+            // Access to smart pointer state
+            T* get()        const {return data;}
+            operator bool() const {return data;}
+        };
+}
+</code></pre>
+
+<p>```</p>
+
+<h2>Summary</h2>
+
+<p>So in this second post we have looked at two implementation techniques of shared pointer and summarized the common problems problems usually overlooked. In the next article I want to look at a couple of other issues common to both types of smart pointers.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[So You Want to Learn C++ Part-5]]></title>
@@ -593,90 +903,6 @@ int main(int argc, char* argv[])
 </code></pre>
 
 <p>```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[So you want to learn C++ Part-1]]></title>
-    <link href="http://lokiastari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1/"/>
-    <updated>2013-11-12T07:59:11-08:00</updated>
-    <id>http://lokiastari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1</id>
-    <content type="html"><![CDATA[<p>OK. Lets do this.</p>
-
-<p>I keep trying to think about something big and interesting to write about. But that is just not working. All my time is spent trying to think of the blockbuster idea; which just gets in the way of actually writing. So lets start with the small things. If I can get into the habit of writing something a couple of times a week. Then maybe we can work up to interesting stuff.</p>
-
-<p>Step one; write about something I know. C++; we now start the &ldquo;So you want to learn C++&rdquo; series of posts.</p>
-
-<p>I am going to assume two things.</p>
-
-<ul>
-<li>You know how to use the compiler</li>
-<li>That you have some basic programming experience C/Java/C#/Perl/Php (nealy anything) <br/>
-So you understand the basics of program but are unfamiliar with C++</li>
-</ul>
-
-
-<p>First thing everybody needs is to get something working; here is the classic &ldquo;Hello World&rdquo; in C++</p>
-
-<p>```c++ helloworld.cpp</p>
-
-<pre><code>#include &lt;iostream&gt;
-
-int main()
-{
-    std::cout &lt;&lt; "Hello World\n";
-}
-</code></pre>
-
-<p>```</p>
-
-<p>The next step is to accepts user input and generates a response based on that input. Lets move on to the not quite as classic &ldquo;Hi There Bob&rdquo; :&ndash;)</p>
-
-<p>```c++ hitherebob.cpp</p>
-
-<pre><code>#include &lt;iostream&gt;
-#include &lt;string&gt;
-
-int main()
-{
-    std::cout &lt;&lt; "Hi there what's your name?\n";
-
-    std::string  line;
-    std::getline(std::cin, line);
-
-    std::cout &lt;&lt; "It was good to meet you " &lt;&lt; line &lt;&lt; "\n";
-}
-</code></pre>
-
-<p>```</p>
-
-<p>The above code is relatively simple and only a few things to note:</p>
-
-<ul>
-<li><code>#include &lt;iostream&gt;</code> <br/>
-Imports the standard input and output facilities so you can print messages to the user and read user input.
-
-<ul>
-<li><code>std::cin</code>  <br/>
-Is the standard input stream. From this you can read user input.</li>
-<li><code>std::cout</code>  <br/>
-Is the standard output stream. You can print text to the user console.</li>
-</ul>
-</li>
-<li><code>#include &lt;string&gt;</code> <br/>
-Imports the standard string handling function. Most importantly it imports the type <code>std::string</code>.
-
-<ul>
-<li><code>std::string</code> <br/>
-This is one of the standard types and holds strings (a list of characters). We will go over types (and variables) in a lot more details in subsequent articles. But for just accept that <code>line</code> is a variable (of type std::string) used to hold a line of user input.</li>
-<li><code>std::getline()</code> <br/>
-This is a function that reads a line of text from a <code>std::istream</code> into a <code>std::string</code>. In this case we use <code>std::cin</code> as the input stream (it is a specialization of a std::istream and can thus be used as the input). Thus we read <code>a line</code> of input from the user.</li>
-</ul>
-</li>
-</ul>
-
-
-<p>There are a lot of other concepts encapsulated above that I don&rsquo;t want to get into quite yet. But don&rsquo;t worry I will cover them all.</p>
 ]]></content>
   </entry>
   

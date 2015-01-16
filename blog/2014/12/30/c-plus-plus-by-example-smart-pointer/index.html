@@ -301,19 +301,21 @@
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
+<span class='line-number'>15</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="k">namespace</span> <span class="n">ThorsAnvil</span>
 </span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="c1">// Compiler Generated Copy Constructor</span>
-</span><span class='line'>        <span class="n">UP</span><span class="o">::</span><span class="n">UP</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
-</span><span class='line'>            <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{}</span>
+</span><span class='line'>        <span class="p">.....</span>
+</span><span class='line'>            <span class="c1">// Compiler Generated Copy Constructor</span>
+</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
+</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{}</span>
 </span><span class='line'>
-</span><span class='line'>        <span class="c1">// Compiler Generated Assignment Operator</span>
-</span><span class='line'>        <span class="n">UP</span><span class="o">&amp;</span> <span class="n">UP</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="n">data</span>    <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
-</span><span class='line'>            <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>            <span class="c1">// Compiler Generated Assignment Operator</span>
+</span><span class='line'>            <span class="n">UP</span><span class="o">&amp;</span> <span class="n">UP</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">data</span>    <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>    <span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -560,6 +562,10 @@
       
       <li><a href="/blog/archives">Blog Archives</a></li>
       
+      <li class="next"><a class="basic-alignment right" href="/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/"
+        title="Next Post: C++ by Example: Smart Pointer Part II">C++ by Example: Smart Pointer Part II
+        &raquo;</a></li>
+      
     </ul>
   </footer>
 </article>
@@ -569,6 +575,10 @@
     <section class="well">
   <ul id="recent_posts" class="nav nav-list">
     <li class="nav-header">Recent Posts</li>
+    
+      <li class="post">
+        <a href="/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/">C++ by Example: Smart Pointer Part II</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">C++ By Example: Smart Pointer</a>
@@ -584,10 +594,6 @@
     
       <li class="post">
         <a href="/blog/2013/11/30/switching-to-octopress/">Switching to OctoPress</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/">So you want to learn C++ Part-4</a>
       </li>
     
   </ul>
