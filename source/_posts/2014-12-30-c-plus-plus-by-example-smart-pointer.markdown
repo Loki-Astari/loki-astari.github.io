@@ -24,9 +24,12 @@ On [codereview.stackexchange.com](codereview.stackexchange.com) in the C++ tag i
 
 Writing you own implementation of a smart pointer is a bad idea (IMO). The standardization and testing of smart pointers was a nine year process through [boost](http://www.boost.org/), with [boost::shared_ptr](http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/shared_ptr.htm) and [boost::scoped_ptr](http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/scoped_ptr.htm), finally resulting in the standardized versions being released in C++11: [std::shared_ptr](http://en.cppreference.com/w/cpp/memory/shared_ptr) and [std::unique_ptr](http://en.cppreference.com/w/cpp/memory/unique_ptr). 
 
-I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) to get it working correctly in all contexts is rather a complex indevour.
+I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) getting it working correctly in all contexts is rather a complex endeavour.
 
 But because it is such a frequent request for review; I want take a look at smart pointers as a teaching exercise. In the next couple of articles I will step through the processes of building a smart pointer and look at some of the common mistakes that I see (and probably make a few as I go).
+
+###Warning:
+This article is not for absolute beginners. I assume you already know the basics of C++.
 
 ##First Bash 
 So lets get started. The two most common smart pointers are `unique` and `shared`. So lets start with the one that seems the simplest (`unique`)and see where we go.
@@ -101,7 +104,25 @@ The first problem here is that we are not obeying the "[rule of three](http://st
      }
      // Same issues with double delete as the copy constructor.
 ```
-This is caused by the compiler atomically generating default implementations of certain methods (see discussion on the [rule of three](http://stackoverflow.com/q/4172722/14065)) if the user does not explicitly specify otherwise. I have heard this described as a language bug; but I have to disagree with that sentiment, as these compiler generated methods do exactly as you would expect in nearly all situations. The one exceptions is when the class contains "owned raw pointers".
+This is caused by the compiler atomically generating default implementations of certain methods (see discussion on the [rule of three](http://stackoverflow.com/q/4172722/14065)) if the user does not explicitly specify otherwise. In this case the problem comes because of the compiler generated versions of the copy constructor and assignment operator (see below)
+```cpp Compiler Generated Methods.
+
+    namespace ThorsAnvil
+    {
+        // Compiler Generated Copy Constructor
+        UP::UP(UP const& copy)
+            : data(copy.data)
+        {}
+
+        // Compiler Generated Assignment Operator
+        UP& UP::operator=(UP const& rhs)
+        {
+            data    = rhs.data;
+            return *this;
+        }
+    }
+```
+I have heard this described as a language bug; but I have to disagree with that sentiment, as these compiler generated methods do exactly as you would expect in nearly all situations. The one exceptions is when the class contains "owned raw pointers".
 ###Problem 2: Implicit construction.
 The next issue is caused by C++ tendency to eagerly convert one type to another if given half a chance. If your class contains a constructor that takes a single argument then the compiler will use this as a way of converting one type to another.
 ```cpp Example
@@ -153,7 +174,7 @@ There are a couple of solutions to this problem. You can check `data` and throw 
 
 The standard has chosen to go with a pre-condition (a very common C++ practice: do not impose an overhead on all your users (to spare problems for the beginner), but rather provide a mechanism to check the state for those that need to do so; so they can choose to pay the overhead when they need to and not every time). We can do the same here but we have not provided any mechanism for the user to check the state of the smart pointer.
 ###Problem 4: Const Correctness
-When accessing the owned object via a smart pointer we are not affecting the state of our smart pointer so any member that basically returns the object (without changing the state of the smart pointer) should be marked cost.
+When accessing the owned object via a smart pointer we are not affecting the state of our smart pointer so any member that basically returns the object (without changing the state of the smart pointer) should be marked const.
 ```cpp Not const
 
                 T* operator->() {return data;}
