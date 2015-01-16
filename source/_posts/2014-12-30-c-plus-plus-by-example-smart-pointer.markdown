@@ -109,17 +109,18 @@ This is caused by the compiler atomically generating default implementations of 
 
     namespace ThorsAnvil
     {
-        // Compiler Generated Copy Constructor
-        UP::UP(UP const& copy)
-            : data(copy.data)
-        {}
+        .....
+            // Compiler Generated Copy Constructor
+            UP(UP const& copy)
+                : data(copy.data)
+            {}
 
-        // Compiler Generated Assignment Operator
-        UP& UP::operator=(UP const& rhs)
-        {
-            data    = rhs.data;
-            return *this;
-        }
+            // Compiler Generated Assignment Operator
+            UP& UP::operator=(UP const& rhs)
+            {
+                data    = rhs.data;
+                return *this;
+            }
     }
 ```
 I have heard this described as a language bug; but I have to disagree with that sentiment, as these compiler generated methods do exactly as you would expect in nearly all situations. The one exceptions is when the class contains "owned raw pointers".

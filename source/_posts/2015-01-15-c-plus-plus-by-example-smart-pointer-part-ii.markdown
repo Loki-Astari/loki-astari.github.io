@@ -11,7 +11,6 @@ So in the previous article I covered a basic `unique` pointer where the smart po
 
 So not only do we have to store the pointer but we need a mechanism for keeping track of all the SP instances that are sharing ownership of the pointer. When the last SP instance is destroyed it also deletes the pointer (The last owner cleans up. A similar principle to the last one to leave the room turns out the lights).
 ```cpp Shared Pointer contextual destructor
-
     namespace ThorsAnvil
     {
         template<typename T>
@@ -44,14 +43,15 @@ There are two major techniques for tracking the shared owners of a pointer:
   </ul>
 </ol>
 
-###Shared Count
-This is basically the technique used by the [`std::shared_ptr`](http://en.cppreference.com/w/cpp/memory/shared_ptr) (though they store slightly more than the count to try and improve efficiency see [`std::make_shared`](http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared)).
+##Shared Count
+The easier of the two to implement correctly is the list version. There are no real gotchas (that I have seen). Though people do struggle with insertion and removal of a link from a circular list. I have another article planned for that at some point so I will cover it then.
+
+The *Shared Count* is basically the technique used by the [`std::shared_ptr`](http://en.cppreference.com/w/cpp/memory/shared_ptr) (though they store slightly more than the count to try and improve efficiency see [`std::make_shared`](http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared)).
 
 The main mistake I see from beginners is not using dynamically allocated counter (ie they keep the counter in the SP object). You **must** dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted). 
 
-You must also serialize access to this counter to make sure that in a threaded environment the count is correctly maintained. In the following article for simplicity I will only consider single threaded environments. But with C++11 and `std::atomic` that should be relatively simple.
+You must also serialize access to this counter to make sure that in a threaded environment the count is correctly maintained. In the first version for simplicity I will only consider single threaded environments and thus synchronization is not required.
 ```cpp First Try
-
     namespace ThorsAnvil
     {
         template<typename T>
@@ -86,20 +86,19 @@ You must also serialize access to this counter to make sure that in a threaded e
                 }
                 SP& operator=(SP const& rhs)
                 {
-                    if (&rhs == this)
-                    {
-                         // return early on self assignment.
-                         return *this;
-                    }
+                    // Keep a copy of the old data
                     T*   oldData  = data;
                     int* oldCount = count;
                     
                     // now we do an exception safe transfer;
                     data  = rhs.data;
                     count = rhs.count;
+                    
+                    // Update the counters
                     ++(*count);
-
                     --(*oldCount);
+                    
+                    // Finally delete the old pointer if required.
                     if (*oldCount == 0)
                     {
                         delete oldData;
@@ -115,17 +114,17 @@ You must also serialize access to this counter to make sure that in a threaded e
         };
     }
 ```
-##Problem 1: Potential Constructor Failure
+###Problem 1: Potential Constructor Failure
 When a developer (attempts) to create a SP they are handing over ownership of the pointer to the SP instance. Once the constructor starts there is an expectation by the developer that no further checks are needed. But there is a problem with the code as written.
 
-In C++ memory allocation through new does not fail (unlike C where `malloc()` can return a Null on failure). In C++ a failure to allocate memory via the standard new generates a `std::bad_alloc` exception. Additionally if we throw an exception out of a constructor the destructor will never be called (the destructor is only called on fully formed objects) when the instances lifespan ends.
+In C++ memory allocation through new does not fail (unlike C where `malloc()` can return a Null on failure). In C++ a failure to allocate memory via the standard new generates a `std::bad_alloc` exception. Additionally if we throw an exception out of a constructor the destructor will never be called (the destructor is only called on fully formed objects) when the instance's lifespan ends.
 
 So if an exception is thrown during construction (and thus the destructor will not be called) we must assume responsibility for making sure that pointer is deleted before the exception escapes the constructor, otherwise there will be a resultant leak of the pointer.
 ```cpp Constructor takes responsibility for pointer
-
     namespace ThorsAnvil
     {
-             explicit SP::SP(T* data)
+         .....
+             explicit SP(T* data)
                     : data(data)
                     , count(new (std::nothorw) int(1)) // use the no throw version of new.
                 {
@@ -133,18 +132,18 @@ So if an exception is thrown during construction (and thus the destructor will n
                     if (count == nullptr)
                     {
                         // If we failed then delete the pointer
-                        // and throw the exception.
+                        // and manually throw the exception.
                         delete data;
                         throw std::bad_alloc();
                     }
                 }
                 // or
                 explicit SP::SP(T* data)
+                // The rarely used try/catch for exceptions in argument lists.
                 try
                     : data(data)
                     , count(new int(1))
                 {}
-                // The rarely used catch for exceptions in argument lists.
                 catch(...)
                 {
                     // If we failed because of an exception
@@ -152,38 +151,68 @@ So if an exception is thrown during construction (and thus the destructor will n
                     delete data;
                     throw;
                 }
-
     }
 ```
-##Problem 2: DRY up the Assignment
-Currently the assignment operators are exception safe and conform to the strong exception guarantee so there is no real problem here. **But** there seems to be a lot of duplicated code in the class.
-```cpp Closer look at assignment start:6 mark:8-9
+###Problem 2: DRY up the Assignment
+Currently the assignment operator is exception safe and conforms to the strong exception guarantee so there is no real problem here. **But** there seems to be a lot of duplicated code in the class.
+```cpp Closer look at assignment
+    namespace ThorsAnvil
+    {
+         .....
                 SP& operator=(SP const& rhs)
                 {
-                    if (&rhs == this)
-                    {
-                         // return early on self assignment.
-                         return *this;
-                    }
                     T*   oldData  = data;
                     int* oldCount = count;
                     
-                    // now we do an exception safe transfer;
                     data  = rhs.data;
-                    count = rhs.count;
+                    count = rhs.count;                    
                     ++(*count);
-
+                    
                     --(*oldCount);
                     if (*oldCount == 0)
                     {
                         delete oldData;
                     }
                 }
+    }
 ```
+Two portions of this look like other code pieces of code that have already been written:
+
+    // This looks like the SP copy constructor.
+                    data  = rhs.data;
+                    count = rhs.count;                    
+                    ++(*count);
+
+    // This looks like the SP destructor.
+                    --(*oldCount);
+                    if (*oldCount == 0)
+                    {
+                        delete oldData;
+                    }
+This observation is commonly referred to as the **[Copy and Swap Idiom](http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom)**. I will not go through all the details of the transformation here. But we can re-write the assignment operator as:
+```cpp Copy and Swap Idiom
+                SP& operator=(SP const& rhs)
+                {
+                    // constructor of tmp handles increment.
+                    SP tmp(rhs);
+                    
+                    std::swap(data,  tmp.data);
+                    std::swap(count, tmp.count);
+                    return *this;
+                }   // the destructor of tmp is executed here.
+                    // this handles the decrement and release of the pointer
+                
+         // This is usually simplified further into
+                SP& operator=(SP rhs) // Note implicit copy because of pass by value.
+                {
+                    rhs.swap(*this);  // swaps moved to swap method.
+                    return *this;
+                }
+```
+
 ##Fixed First Try
 So given the problems described above we can update our implementation to compensate for these issues:
 ```cpp Fixed First Try
-
     namespace ThorsAnvil
     {
         template<typename T>
