@@ -1,15 +1,16 @@
 ---
 layout: post
-title: "So you want to learn C++ Part-2"
+title: "Common Mistakes"
 date: 2013-11-18 08:58:28 -0800
 comments: true
 categories: 
 categories: [C++, So-You-Want-To-Learn-C++, Coding]
 sharing: true
 footer: true
+subtitle: So you want to learn C++
+author: Loki Astari, (C)2013,
+description: C++ for beginners. Part 2 Common Mistakes
 ---
-
-##Common Mistakes
 
 ###1: using namspace
 

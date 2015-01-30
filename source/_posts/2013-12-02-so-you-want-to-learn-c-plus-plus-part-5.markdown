@@ -1,14 +1,15 @@
 ---
 layout: post
-title: "So You Want to Learn C++ Part-5"
+title: "Control Flow"
 date: 2013-12-02 12:00:11 -0800
 comments: true
 categories: [C++, So-You-Want-To-Learn-C++, Coding]
 sharing: true
 footer: true
+subtitle: So you want to learn C++
+author: Loki Astari, (C)2013,
+description: C++ for beginners. Part 5 Control Flow
 ---
-
-##Control Flow
 
 So far we have demonstrated basic programs that just do a single task without making any decisions. Most (all but the most trivial) programming languages provide constructs for decision making (Conditional Branching).
 

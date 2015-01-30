@@ -1,12 +1,15 @@
 ---
 layout: post
-title: "So you want to learn C++ Part-3"
+title: "Variables"
 date: 2013-11-19 09:15:16 -0800
 comments: true
 categories: 
 categories: [C++, So-You-Want-To-Learn-C++, Coding]
 sharing: true
 footer: true
+subtitle: So you want to learn C++
+author: Loki Astari, (C)2013,
+description: C++ for beginners. Part 3 Variables
 ---
 
 ##Variables

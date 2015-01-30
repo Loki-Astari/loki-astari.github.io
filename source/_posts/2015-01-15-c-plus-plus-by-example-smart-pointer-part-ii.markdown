@@ -1,13 +1,16 @@
 ---
 layout: post
-title: "C++ by Example: Smart Pointer Part II"
+title: "Shared Pointer"
 date: 2015-01-15 08:13:47 -0800
-categories: [C++, C++-By-Example, Coding]
 comments: true
+categories: [C++, C++-By-Example, Coding]
 sharing: true
 footer: true
+subtitle: C++ By Example
+author: Loki Astari, (C)2013,
+description: C++ By Example. Part 2 Shared Pointer
 ---
-So in the previous article I covered a basic `unique` pointer where the smart pointer retained sole ownership of the pointer. The other common smart pointer we encounter is the `shared` pointer (SP). In this case the ownership of the pointer is shared across multiple instances of SP and the pointer is only released (deleted) when all SP instances have been destroyed.
+So in [the previous article](http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/) I covered a basic `unique` pointer where the smart pointer retained sole ownership of the pointer. The other common smart pointer we encounter is the `shared` pointer (SP). In this case the ownership of the pointer is shared across multiple instances of SP and the pointer is only released (deleted) when all SP instances have been destroyed.
 
 So not only do we have to store the pointer but we need a mechanism for keeping track of all the SP instances that are sharing ownership of the pointer. When the last SP instance is destroyed it also deletes the pointer (The last owner cleans up. A similar principle to the last one to leave the room turns out the lights).
 ```cpp Shared Pointer contextual destructor
