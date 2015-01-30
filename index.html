@@ -124,13 +124,13 @@
   </header>
 
 
-  <div class="entry-content"><p>In this article we will have a look at constructors that are often missed or overlooked. When used they provide some nice additional features.</p>
+  <div class="entry-content"><p>In this article we examine constructors that are often missed or overlooked. This article looks at the use cases for these constructors and explains why the added functionality provides a meaningful addition in relation to smart pointers.</p>
 
 <h2>Default Constructor</h2>
 
-<p>Most people get the default constructor (a zero argument constructor), but every now and then it gets missed.</p>
+<p>Most people remember the default constructor (a zero argument constructor), but every now and then it gets missed.</p>
 
-<p>When ever you object is used in a context where a library needs to instantiate some of your object automatically the default constructor is used (an example is a container resized will potentially expand the container with new members that need initialization).</p>
+<p>The default constructor is useful when the type is used in a context where objects of the type need to be instantiated dynamically by another library (an example is a container resized; when a container is made larger by a resize, new members will need to be constructed, it is the default constructor that will provide these extra instances).</p>
 
 <p>The default constructor is usually very trivial and thus worth the investment.</p>
 
@@ -167,7 +167,7 @@
 
 <p>In C++11 the <code>nullptr</code> was introduced to replace the old broken <code>NULL</code> and/or the even more broken <code>0</code> for use in contexts where you want a pointer that points at nothing. The <code>nullptr</code> is automatically convert to any pointer type or a boolean; but fixed the previous bug (or bad feature) and will not convert to a numeric type.</p>
 
-<figure class='code'><figcaption><span>Null Usage Example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>nullptr Usage Example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -206,7 +206,7 @@
 
 <p>The <code>nullptr</code> provides some opportunities to make the code shorter/cleaner when initialize smart pointers to be empty. Because we are using explicit one argument constructors the compiler can not convert a <code>nullptr</code> into a smart pointer automatically, it must be done explicitly by the developer.</p>
 
-<figure class='code'><figcaption><span>Example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>nullptr failing on Smart Pointer</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -233,7 +233,7 @@
 
 <p>This is overly verbose, there is no danger involved in forming a smart pointer around a <code>nullptr</code> automatically. Because <code>nullptr</code> has its own type <code>std::nullptr_t</code> we can add a constructor to explicitly simplify this case make the use case simpler to read.</p>
 
-<figure class='code'><figcaption><span>Example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>Smart Pointer with std::nullptr_t constructor</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -352,9 +352,9 @@
 </span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">src</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>            <span class="c1">// It is a good idea to make your move constructor `noexcept`</span>
-</span><span class='line'>            <span class="c1">// In this case it actually makes no difference but to maintain</span>
-</span><span class='line'>            <span class="c1">// good practice I still think it is a good idea to mark it</span>
-</span><span class='line'>            <span class="c1">// with `noexcept`.</span>
+</span><span class='line'>            <span class="c1">// In this case it actually makes no difference (because there</span>
+</span><span class='line'>            <span class="c1">// no copy constructor) but to maintain good practice I still</span>
+</span><span class='line'>            <span class="c1">// think it is a good idea to mark it with `noexcept`.</span>
 </span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span> <span class="n">noexcept</span>
 </span><span class='line'>            <span class="p">{</span>
 </span><span class='line'>                <span class="n">moving</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
@@ -432,7 +432,7 @@
 
 <p>If we try the same code with the constructors we currently have we will get compile errors.</p>
 
-<figure class='code'><figcaption><span>Derived Example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>Derived Example with Smart Pointers</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -636,96 +636,98 @@
 <span class='line-number'>88</span>
 <span class='line-number'>89</span>
 <span class='line-number'>90</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="k">namespace</span> <span class="n">ThorsAnvil</span>
+<span class='line-number'>91</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">UP</span>
 </span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'>        <span class="k">class</span> <span class="nc">UP</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">*</span>   <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>            <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>                <span class="n">UP</span><span class="p">()</span>
-</span><span class='line'>                    <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{}</span>
-</span><span class='line'>                <span class="c1">// Explicit constructor</span>
-</span><span class='line'>                <span class="k">explicit</span> <span class="n">UP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
-</span><span class='line'>                    <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{}</span>
-</span><span class='line'>                <span class="o">~</span><span class="n">UP</span><span class="p">()</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>        <span class="n">T</span><span class="o">*</span>   <span class="n">data</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">UP</span><span class="p">()</span>
+</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{}</span>
+</span><span class='line'>            <span class="c1">// Explicit constructor</span>
+</span><span class='line'>            <span class="k">explicit</span> <span class="n">UP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
+</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{}</span>
+</span><span class='line'>            <span class="o">~</span><span class="n">UP</span><span class="p">()</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>                <span class="c1">// Constructor/Assignment that binds to nullptr</span>
-</span><span class='line'>                <span class="c1">// This makes usage with null ptr cleaner</span>
-</span><span class='line'>                <span class="n">UP</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">nullptr_t</span><span class="p">)</span>
-</span><span class='line'>                    <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{}</span>
-</span><span class='line'>                <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">nullptr_t</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="n">T</span><span class="o">*</span> <span class="n">tmp</span>  <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>
-</span><span class='line'>                    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
-</span><span class='line'>                    <span class="k">delete</span> <span class="n">tmp</span><span class="p">;</span>
-</span><span class='line'>                    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="c1">// Constructor/Assignment that binds to nullptr</span>
+</span><span class='line'>            <span class="c1">// This makes usage with nullptr cleaner</span>
+</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">nullptr_t</span><span class="p">)</span>
+</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{}</span>
+</span><span class='line'>            <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">nullptr_t</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">reset</span><span class="p">();</span>
+</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>                <span class="c1">// Constructor/Assignment that allows move semantics</span>
-</span><span class='line'>                <span class="n">UP</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span> <span class="n">noexcept</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="n">moving</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span> <span class="n">noexcept</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="n">moving</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>                    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="c1">// Constructor/Assignment that allows move semantics</span>
+</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span> <span class="n">noexcept</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">moving</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span> <span class="n">noexcept</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">moving</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>                <span class="c1">// Constructor/Assignment for use with types derived from T</span>
-</span><span class='line'>                <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
-</span><span class='line'>                <span class="n">UP</span><span class="p">(</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>   <span class="n">tmp</span><span class="p">(</span><span class="n">moving</span><span class="p">.</span><span class="n">release</span><span class="p">());</span>
-</span><span class='line'>                    <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
-</span><span class='line'>                <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>    <span class="n">tmp</span><span class="p">(</span><span class="n">moving</span><span class="p">.</span><span class="n">release</span><span class="p">());</span>
-</span><span class='line'>                    <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>                    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="c1">// Constructor/Assignment for use with types derived from T</span>
+</span><span class='line'>            <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>   <span class="n">tmp</span><span class="p">(</span><span class="n">moving</span><span class="p">.</span><span class="n">release</span><span class="p">());</span>
+</span><span class='line'>                <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>    <span class="n">tmp</span><span class="p">(</span><span class="n">moving</span><span class="p">.</span><span class="n">release</span><span class="p">());</span>
+</span><span class='line'>                <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>                <span class="c1">// Remove compiler generated copy semantics.</span>
-</span><span class='line'>                <span class="n">UP</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">)</span>            <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
-</span><span class='line'>                <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+</span><span class='line'>            <span class="c1">// Remove compiler generated copy semantics.</span>
+</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">)</span>            <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>                <span class="c1">// Const correct access owned object</span>
-</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>                <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>            <span class="c1">// Const correct access owned object</span>
+</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>            <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
 </span><span class='line'>
-</span><span class='line'>                <span class="c1">// Access to smart pointer state</span>
-</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>        <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>                <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>            <span class="c1">// Access to smart pointer state</span>
+</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>        <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>            <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
 </span><span class='line'>
-</span><span class='line'>                <span class="c1">// Modify object state</span>
-</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">release</span><span class="p">()</span> <span class="n">noexcept</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="n">T</span><span class="o">*</span> <span class="n">result</span> <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>
-</span><span class='line'>                    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
-</span><span class='line'>                    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;</span> <span class="n">src</span><span class="p">)</span> <span class="n">noexcept</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">src</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>        <span class="p">};</span>
-</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">rhs</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="n">lhs</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">rhs</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>            <span class="c1">// Modify object state</span>
+</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">release</span><span class="p">()</span> <span class="n">noexcept</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">result</span> <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;</span> <span class="n">src</span><span class="p">)</span> <span class="n">noexcept</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">src</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="kt">void</span> <span class="n">reset</span><span class="p">()</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">releae</span><span class="p">();</span>
+</span><span class='line'>                <span class="k">delete</span> <span class="n">tmp</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">rhs</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">lhs</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">rhs</span><span class="p">);</span>
 </span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 

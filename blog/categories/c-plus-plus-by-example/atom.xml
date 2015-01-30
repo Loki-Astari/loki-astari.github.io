@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2015-01-30T15:05:17-08:00</updated>
+  <updated>2015-01-30T15:26:41-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -18,17 +18,16 @@
     <link href="http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/"/>
     <updated>2015-01-23T16:33:14-08:00</updated>
     <id>http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii</id>
-    <content type="html"><![CDATA[<p>In this article we will have a look at constructors that are often missed or overlooked. When used they provide some nice additional features.</p>
+    <content type="html"><![CDATA[<p>In this article we examine constructors that are often missed or overlooked. This article looks at the use cases for these constructors and explains why the added functionality provides a meaningful addition in relation to smart pointers.</p>
 
 <h2>Default Constructor</h2>
 
-<p>Most people get the default constructor (a zero argument constructor), but every now and then it gets missed.</p>
+<p>Most people remember the default constructor (a zero argument constructor), but every now and then it gets missed.</p>
 
-<p>When ever you object is used in a context where a library needs to instantiate some of your object automatically the default constructor is used (an example is a container resized will potentially expand the container with new members that need initialization).</p>
+<p>The default constructor is useful when the type is used in a context where objects of the type need to be instantiated dynamically by another library (an example is a container resized; when a container is made larger by a resize, new members will need to be constructed, it is the default constructor that will provide these extra instances).</p>
 
-<p>The default constructor is usually very trivial and thus worth the investment.</p>
-
-<p>```cpp Smart Pointer Default Constructor</p>
+<p>The default constructor is usually very trivial and thus worth the investment.
+```cpp Smart Pointer Default Constructor</p>
 
 <pre><code>namespace ThorsAnvil
 {
@@ -50,7 +49,7 @@
 <h2>The nullptr</h2>
 
 <p>In C++11 the <code>nullptr</code> was introduced to replace the old broken <code>NULL</code> and/or the even more broken <code>0</code> for use in contexts where you want a pointer that points at nothing. The <code>nullptr</code> is automatically convert to any pointer type or a boolean; but fixed the previous bug (or bad feature) and will not convert to a numeric type.
-```cpp Null Usage Example</p>
+```cpp nullptr Usage Example</p>
 
 <h1>include <string></h1>
 
@@ -74,7 +73,7 @@
 
 <p><code>
 The `nullptr` provides some opportunities to make the code shorter/cleaner when initialize smart pointers to be empty. Because we are using explicit one argument constructors the compiler can not convert a `nullptr` into a smart pointer automatically, it must be done explicitly by the developer.
-</code>cpp Example</p>
+</code>cpp nullptr failing on Smart Pointer</p>
 
 <pre><code>void workWithSP(ThorsAnvil::UP&lt;int&gt;&amp;&amp; sp)
 { /* STUFF*/ }
@@ -91,7 +90,7 @@ int main()
 
 <p><code>
 This is overly verbose, there is no danger involved in forming a smart pointer around a `nullptr` automatically. Because `nullptr` has its own type `std::nullptr_t` we can add a constructor to explicitly simplify this case make the use case simpler to read.
-</code>cpp Example</p>
+</code>cpp Smart Pointer with std::nullptr_t constructor</p>
 
 <pre><code>namespace ThorsAnvil
 {
@@ -149,9 +148,9 @@ int main()
                 std::swap(data, src.data);
             }
             // It is a good idea to make your move constructor `noexcept`
-            // In this case it actually makes no difference but to maintain
-            // good practice I still think it is a good idea to mark it
-            // with `noexcept`.
+            // In this case it actually makes no difference (because there
+            // no copy constructor) but to maintain good practice I still
+            // think it is a good idea to mark it with `noexcept`.
             UP(UP&amp;&amp; moving) noexcept
             {
                 moving.swap(*this);
@@ -206,7 +205,7 @@ int main(int argc, char* argv[])
 
 <p><code>
 If we try the same code with the constructors we currently have we will get compile errors.
-</code>cpp Derived Example</p>
+</code>cpp Derived Example with Smart Pointers</p>
 
 <pre><code>int main(int argc, char* argv[])
 {
@@ -295,15 +294,13 @@ This is because C++ considers</code>ThorsAnvil::UP<Derived1><code>,</code>ThorsA
             }
 
             // Constructor/Assignment that binds to nullptr
-            // This makes usage with null ptr cleaner
+            // This makes usage with nullptr cleaner
             UP(std::nullptr_t)
                 : data(nullptr)
             {}
             UP&amp; operator=(std::nullptr_t)
             {
-                T* tmp  = nullptr;
-                std::swap(tmp, data);
-                delete tmp;
+                reset();
                 return *this;
             }
 
@@ -356,8 +353,11 @@ This is because C++ considers</code>ThorsAnvil::UP<Derived1><code>,</code>ThorsA
             {
                 std::swap(data, src.data);
             }
-
-
+            void reset()
+            {
+                T* tmp = releae();
+                delete tmp;
+            }
     };
     template&lt;typename T&gt;
     void swap(UP&lt;T&gt;&amp; lhs, UP&lt;T&gt;&amp; rhs)
