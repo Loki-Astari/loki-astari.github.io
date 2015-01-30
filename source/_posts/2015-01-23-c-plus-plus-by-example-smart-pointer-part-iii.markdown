@@ -7,18 +7,17 @@ categories: [C++, C++-By-Example, Coding]
 sharing: true
 footer: true
 subtitle: C++ By Example
-author: Loki Astari, (C)2013,
+author: Loki Astari, (C)2014,
 description: C++ By Example. Part 3 Smart Pointer Constructors
 ---
-In this article we will have a look at constructors that are often missed or overlooked. When used they provide some nice additional features.
+In this article we examine constructors that are often missed or overlooked. This article looks at the use cases for these constructors and explains why the added functionality provides a meaningful addition in relation to smart pointers.
 
 ##Default Constructor
-Most people get the default constructor (a zero argument constructor), but every now and then it gets missed.
+Most people remember the default constructor (a zero argument constructor), but every now and then it gets missed.
 
-When ever you object is used in a context where a library needs to instantiate some of your object automatically the default constructor is used (an example is a container resized will potentially expand the container with new members that need initialization).
+The default constructor is useful when the type is used in a context where objects of the type need to be instantiated dynamically by another library (an example is a container resized; when a container is made larger by a resize, new members will need to be constructed, it is the default constructor that will provide these extra instances).
 
 The default constructor is usually very trivial and thus worth the investment.
-
 ```cpp Smart Pointer Default Constructor
     namespace ThorsAnvil
     {
@@ -34,10 +33,9 @@ The default constructor is usually very trivial and thus worth the investment.
         };
     }
 ```
-
 ##The nullptr
 In C++11 the `nullptr` was introduced to replace the old broken `NULL` and/or the even more broken `0` for use in contexts where you want a pointer that points at nothing. The `nullptr` is automatically convert to any pointer type or a boolean; but fixed the previous bug (or bad feature) and will not convert to a numeric type.
-```cpp Null Usage Example
+```cpp nullptr Usage Example
 #include <string>
     int main()
     {
@@ -57,7 +55,7 @@ In C++11 the `nullptr` was introduced to replace the old broken `NULL` and/or th
     }
 ```
 The `nullptr` provides some opportunities to make the code shorter/cleaner when initialize smart pointers to be empty. Because we are using explicit one argument constructors the compiler can not convert a `nullptr` into a smart pointer automatically, it must be done explicitly by the developer.
-```cpp Example
+```cpp nullptr failing on Smart Pointer
     void workWithSP(ThorsAnvil::UP<int>&& sp)
     { /* STUFF*/ }
     
@@ -71,7 +69,7 @@ The `nullptr` provides some opportunities to make the code shorter/cleaner when 
     }
 ```
 This is overly verbose, there is no danger involved in forming a smart pointer around a `nullptr` automatically. Because `nullptr` has its own type `std::nullptr_t` we can add a constructor to explicitly simplify this case make the use case simpler to read.
-```cpp Example
+```cpp Smart Pointer with std::nullptr_t constructor
     namespace ThorsAnvil
     {
         template<typename T>
@@ -123,9 +121,9 @@ Move semantics say that the source object may be left in an undefined (but must 
                     std::swap(data, src.data);
                 }
                 // It is a good idea to make your move constructor `noexcept`
-                // In this case it actually makes no difference but to maintain
-                // good practice I still think it is a good idea to mark it
-                // with `noexcept`.
+                // In this case it actually makes no difference (because there
+                // no copy constructor) but to maintain good practice I still
+                // think it is a good idea to mark it with `noexcept`.
                 UP(UP&& moving) noexcept
                 {
                     moving.swap(*this);
@@ -173,7 +171,7 @@ Assigning derived class pointers to a base class pointer object is quite common 
     }
 ```
 If we try the same code with the constructors we currently have we will get compile errors.
-```cpp Derived Example
+```cpp Derived Example with Smart Pointers
     int main(int argc, char* argv[])
     {
         ThorsAnvil::UP<Derived1>    action1 = new Derived1;
@@ -233,7 +231,6 @@ To solve this we need to allow different types of smart pointer be constructed f
 ##Updated Unique Pointer
 Combine the constructor/assignment operators discussed in this article with the `ThorsAnvil::UP` that we defined in the first article in the series: [Unique Pointer](http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/) we obtain the following:
 ```cpp ThorsAnvil::UP Version 3
-
     namespace ThorsAnvil
     {
         template<typename T>
@@ -254,15 +251,13 @@ Combine the constructor/assignment operators discussed in this article with the 
                 }
                 
                 // Constructor/Assignment that binds to nullptr
-                // This makes usage with null ptr cleaner
+                // This makes usage with nullptr cleaner
                 UP(std::nullptr_t)
                     : data(nullptr)
                 {}
                 UP& operator=(std::nullptr_t)
                 {
-                    T* tmp  = nullptr;
-                    std::swap(tmp, data);
-                    delete tmp;
+                    reset();
                     return *this;
                 }
                 
@@ -315,8 +310,11 @@ Combine the constructor/assignment operators discussed in this article with the 
                 {
                     std::swap(data, src.data);
                 }
-
-
+                void reset()
+                {
+                    T* tmp = releae();
+                    delete tmp;
+                }
         };
         template<typename T>
         void swap(UP<T>& lhs, UP<T>& rhs)
@@ -325,7 +323,6 @@ Combine the constructor/assignment operators discussed in this article with the 
         }
     }
 ```
-
 ##Summary
 In the last two articles ([Unique Pointer](http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/) and [Shared Pointer](http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/)) we covered some basic mistakes that I have often seen developers make when attempting to creating their own smart pointer. I also introduce four important C++ concepts:
 
