@@ -4,7 +4,7 @@
   <title><![CDATA[Category: So-You-Want-To-Learn-C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/so-you-want-to-learn-c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2015-01-19T11:16:44-08:00</updated>
+  <updated>2015-01-30T15:05:17-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -14,13 +14,11 @@
 
   
   <entry>
-    <title type="html"><![CDATA[So You Want to Learn C++ Part-5]]></title>
+    <title type="html"><![CDATA[Control Flow]]></title>
     <link href="http://lokiastari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/"/>
     <updated>2013-12-02T12:00:11-08:00</updated>
     <id>http://lokiastari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5</id>
-    <content type="html"><![CDATA[<h2>Control Flow</h2>
-
-<p>So far we have demonstrated basic programs that just do a single task without making any decisions. Most (all but the most trivial) programming languages provide constructs for decision making (Conditional Branching).</p>
+    <content type="html"><![CDATA[<p>So far we have demonstrated basic programs that just do a single task without making any decisions. Most (all but the most trivial) programming languages provide constructs for decision making (Conditional Branching).</p>
 
 <p>C++ provides two forms of branching. The <strong>&ldquo;If Statement&rdquo;</strong> and the <strong>&ldquo;Switch Statement&rdquo;</strong> .</p>
 
@@ -224,13 +222,11 @@ Note II: You should always use a <strong>Default Statement</strong> . If the val
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[So you want to learn C++ Part-4]]></title>
+    <title type="html"><![CDATA[Functions]]></title>
     <link href="http://lokiastari.com/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/"/>
     <updated>2013-11-24T09:22:04-08:00</updated>
     <id>http://lokiastari.com/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4</id>
-    <content type="html"><![CDATA[<h2>Functions</h2>
-
-<h3>Usage</h3>
+    <content type="html"><![CDATA[<h3>Usage</h3>
 
 <p>All C++ applications must have at least one function; this is called <code>main()</code>. Additionally, you can have user defined functions that encapsulate individual tasks, thus allowing the code to be cleaner and easier to read. Therefore, this is a useful feature if you repeat the same task many time with only slight variations:</p>
 
@@ -398,7 +394,7 @@ std::string getNameFor(std::string who)
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[So you want to learn C++ Part-3]]></title>
+    <title type="html"><![CDATA[Variables]]></title>
     <link href="http://lokiastari.com/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/"/>
     <updated>2013-11-19T09:15:16-08:00</updated>
     <id>http://lokiastari.com/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3</id>
@@ -486,13 +482,11 @@ int main()
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[So you want to learn C++ Part-2]]></title>
+    <title type="html"><![CDATA[Common Mistakes]]></title>
     <link href="http://lokiastari.com/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/"/>
     <updated>2013-11-18T08:58:28-08:00</updated>
     <id>http://lokiastari.com/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2</id>
-    <content type="html"><![CDATA[<h2>Common Mistakes</h2>
-
-<h3>1: using namspace</h3>
+    <content type="html"><![CDATA[<h3>1: using namspace</h3>
 
 <p>Every new developer that comes to C++ always starts writing code like this:
 ``` cpp myfirstprog.cpp</p>
@@ -597,11 +591,12 @@ int main(int argc, char* argv[])
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[So you want to learn C++ Part-1]]></title>
+    <title type="html"><![CDATA[Hello World]]></title>
     <link href="http://lokiastari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1/"/>
     <updated>2013-11-12T07:59:11-08:00</updated>
     <id>http://lokiastari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1</id>
-    <content type="html"><![CDATA[<p>OK. Lets do this.</p>
+    <content type="html"><![CDATA[<p>This is the first article in the series
+OK. Lets do this.</p>
 
 <p>I keep trying to think about something big and interesting to write about. But that is just not working. All my time is spent trying to think of the blockbuster idea; which just gets in the way of actually writing. So lets start with the small things. If I can get into the habit of writing something a couple of times a week. Then maybe we can work up to interesting stuff.</p>
 
