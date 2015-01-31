@@ -54,7 +54,7 @@ In C++11 the `nullptr` was introduced to replace the old broken `NULL` and/or th
                                          // reported by the compiler).
     }
 ```
-The `nullptr` provides some opportunities to make the code shorter/cleaner when initialize smart pointers to be empty. Because we are using explicit one argument constructors the compiler can not convert a `nullptr` into a smart pointer automatically, it must be done explicitly by the developer.
+The `nullptr` provides some opportunities to make the code shorter/cleaner when initializing smart pointers to be empty. Because we are using explicit one argument constructors the compiler can not convert a `nullptr` into a smart pointer automatically, it must be done explicitly by the developer.
 ```cpp nullptr failing on Smart Pointer
     void workWithSP(ThorsAnvil::UP<int>&& sp)
     { /* STUFF*/ }
@@ -68,7 +68,7 @@ The `nullptr` provides some opportunities to make the code shorter/cleaner when 
         workWithSP(ThorsAnvil::UP<int>(nullptr));
     }
 ```
-This is overly verbose, there is no danger involved in forming a smart pointer around a `nullptr` automatically. Because `nullptr` has its own type `std::nullptr_t` we can add a constructor to explicitly simplify this case make the use case simpler to read.
+This is overly verbose, there is no danger involved in forming a smart pointer around a `nullptr` automatically. Because `nullptr` has its own type `std::nullptr_t` we can add a constructor to explicitly simplify this case, which makes it easier to read.
 ```cpp Smart Pointer with std::nullptr_t constructor
     namespace ThorsAnvil
     {
