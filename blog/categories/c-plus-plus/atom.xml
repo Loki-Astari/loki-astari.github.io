@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2015-01-30T15:26:41-08:00</updated>
+  <updated>2015-01-30T16:10:49-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -72,7 +72,7 @@
 </code></pre>
 
 <p><code>
-The `nullptr` provides some opportunities to make the code shorter/cleaner when initialize smart pointers to be empty. Because we are using explicit one argument constructors the compiler can not convert a `nullptr` into a smart pointer automatically, it must be done explicitly by the developer.
+The `nullptr` provides some opportunities to make the code shorter/cleaner when initializing smart pointers to be empty. Because we are using explicit one argument constructors the compiler can not convert a `nullptr` into a smart pointer automatically, it must be done explicitly by the developer.
 </code>cpp nullptr failing on Smart Pointer</p>
 
 <pre><code>void workWithSP(ThorsAnvil::UP&lt;int&gt;&amp;&amp; sp)
@@ -89,7 +89,7 @@ int main()
 </code></pre>
 
 <p><code>
-This is overly verbose, there is no danger involved in forming a smart pointer around a `nullptr` automatically. Because `nullptr` has its own type `std::nullptr_t` we can add a constructor to explicitly simplify this case make the use case simpler to read.
+This is overly verbose, there is no danger involved in forming a smart pointer around a `nullptr` automatically. Because `nullptr` has its own type `std::nullptr_t` we can add a constructor to explicitly simplify this case, which makes it easier to read.
 </code>cpp Smart Pointer with std::nullptr_t constructor</p>
 
 <pre><code>namespace ThorsAnvil
