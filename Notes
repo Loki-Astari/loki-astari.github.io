@@ -1,0 +1,10 @@
+##Create a new blog post
+
+
+#rake new_post["title"]
+
+
+## Post blog
+
+#rake generate
+#rake deploy

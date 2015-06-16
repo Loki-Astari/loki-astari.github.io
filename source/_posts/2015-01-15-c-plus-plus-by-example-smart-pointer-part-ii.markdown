@@ -112,8 +112,8 @@ You must also serialize access to this counter to make sure that in a threaded e
                 T& operator*()  const {return *data;}
                 
                 // Access to smart pointer state
-                T* get()        const {return data;}
-                operator bool() const {return data;}
+                T* get()                 const {return data;}
+                explicit operator bool() const {return data;}
         };
     }
 ```
@@ -277,8 +277,8 @@ So given the problems described above we can update our implementation to compen
                 T& operator*()  const {return *data;}
                 
                 // Access to smart pointer state
-                T* get()        const {return data;}
-                operator bool() const {return data;}
+                T* get()                 const {return data;}
+                explicit operator bool() const {return data;}
             };
     }
 ```
