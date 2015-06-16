@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2015-01-30T16:10:49-08:00</updated>
+  <updated>2015-06-15T21:49:20-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -425,7 +425,7 @@ There are two major techniques for tracking the shared owners of a pointer:</p>
   <li>Use a linked list of the owners:</li>
   <ul>
     <li>When you are the only member of the list you are the last owner.</li>
-    <li>When a SP instance take/releases ownership of the pointer they are added/removed to/from the linked list. This is slightly more complex as you need to maintain a circular linked list (for O(1)). The advantage is that you don't need to manage any separate memory for the count (A SP instance simply points at the next SP instance in the chain) and in a threaded environment adding/removing a shared pointer need not always be serialized (though you will still need to lock your neighbors to enforce integrity).</li>
+    <li>When a SP instance take/releases ownership of the pointer they are added/removed to/from the linked list. This is slightly more complex as you need to maintain a circular linked list (for O(1)). The advantage is that you do not need to manage any separate memory for the count (A SP instance simply points at the next SP instance in the chain) and in a threaded environment adding/removing a shared pointer need not always be serialized (though you will still need to lock your neighbors to enforce integrity).</li>
   </ul>
 </ol>
 
@@ -723,7 +723,7 @@ Two portions of this look like other code pieces of code that have already been 
 
 <p>Writing you own implementation of a smart pointer is a bad idea (IMO). The standardization and testing of smart pointers was a nine year process through <a href="http://www.boost.org/">boost</a>, with <a href="http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/shared_ptr.htm">boost::shared_ptr</a> and <a href="http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/scoped_ptr.htm">boost::scoped_ptr</a>, finally resulting in the standardized versions being released in C++11: <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr">std::shared_ptr</a> and <a href="http://en.cppreference.com/w/cpp/memory/unique_ptr">std::unique_ptr</a>.</p>
 
-<p>I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) getting it working correctly in all contexts is rather a complex endeavour.</p>
+<p>I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) getting it working correctly in all contexts is rather a complex endeavor.</p>
 
 <p>But because it is such a frequent request for review; I want take a look at smart pointers as a teaching exercise. In the next couple of articles I will step through the processes of building a smart pointer and look at some of the common mistakes that I see (and probably make a few as I go).</p>
 
@@ -760,6 +760,8 @@ Two portions of this look like other code pieces of code that have already been 
                 std::swap(result, data);
                 return result;
             }
+            // So it can be used in conditional expression
+            operator bool() {return data;}
     };
 }
 </code></pre>
@@ -880,7 +882,7 @@ The problem here is that when</code>tmp<code>goes out of scope its destructor wi
 
 <h3>Problem 3: Null de-referencing</h3>
 
-<p>I think it is obvious that <code>operator*</code> has an issue with dereferencing a Null pointer here:
+<p>I think it is obvious that <code>operator*</code> has an issue with de-referencing a Null pointer here:
 ```cpp operator*()</p>
 
 <pre><code>            T&amp; operator*()  {return *data;}
@@ -917,6 +919,53 @@ So these two methods should really be declared as:
 
 <p>```</p>
 
+<h3>Problem 5: Bool conversion to easy</h3>
+
+<p>The current <code>operator bool()</code> works as required in bool expressions.
+```cpp Check for value</p>
+
+<pre><code>ThorsAnvil::UP&lt;int&gt;    value(new int(4));
+
+if (value) {
+    std::cout &lt;&lt; "Not empty\n";
+}
+</code></pre>
+
+<p><code>
+But the compiler will also use the conversion operators when it is trying to coerce objects that nearly match. For example you can now test two `UP` with `operator==` even though there does not exists an actual `operator==` for the `UP&lt;&gt;` class. This is because the compiler can convert both `UP&lt;&gt;` objects to bool and these can be compared.
+</code>cpp Auto conversion is bad (mostly)</p>
+
+<pre><code>ThorsAnvil::UP&lt;int&gt;    value1(int(8));
+ThorsAnvil::UP&lt;int&gt;    value2(int(9));
+
+if (value1 == value2) {
+    // unfortunately this will print "They match".
+    // Because both values are converted to bool (in this case true).
+    // Then the test is done.
+    std::cout &lt;&lt; "They match\n";
+}
+</code></pre>
+
+<p><code>
+In C++03 there was a nasty work around using pointers to members. But in C++11 there was added new functionality to make the conversion operator only fire in a boolean context otherwise it must be explicitly called.
+</code>cpp explicit converter</p>
+
+<pre><code>    explicit operator bool() {return data;}
+...
+ThorsAnvil::UP&lt;int&gt;    value1(int(8));
+ThorsAnvil::UP&lt;int&gt;    value2(int(9));
+
+if (value1) { // This is expecting a boolean expression.
+    std::cout &lt;&lt; "Not nullptr\n";
+}
+
+if (static_cast&lt;bool&gt;(value1) == static_cast&lt;bool&gt;(value2)) { // Need to be explicit
+    std::cout &lt;&lt; "Both are either nullptr or not\n";
+}
+</code></pre>
+
+<p>```</p>
+
 <h2>Fixed First Try</h2>
 
 <p>So given the problems described above we can update our implementation to compensate for these issues:
@@ -946,8 +995,8 @@ So these two methods should really be declared as:
             T&amp; operator*()  const {return *data;}
 
             // Access to smart pointer state
-            T* get()        const {return data;}
-            operator bool() const {return data;}
+            T* get()                 const {return data;}
+            explicit operator bool() const {return data;}
 
             // Modify object state
             T* release()

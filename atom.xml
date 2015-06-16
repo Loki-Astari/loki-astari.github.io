@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2015-01-30T16:10:49-08:00</updated>
+  <updated>2015-06-15T21:49:20-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -696,7 +696,7 @@
   <li>Use a linked list of the owners:</li>
   <ul>
     <li>When you are the only member of the list you are the last owner.</li>
-    <li>When a SP instance take/releases ownership of the pointer they are added/removed to/from the linked list. This is slightly more complex as you need to maintain a circular linked list (for O(1)). The advantage is that you don&#8217;t need to manage any separate memory for the count (A SP instance simply points at the next SP instance in the chain) and in a threaded environment adding/removing a shared pointer need not always be serialized (though you will still need to lock your neighbors to enforce integrity).</li>
+    <li>When a SP instance take/releases ownership of the pointer they are added/removed to/from the linked list. This is slightly more complex as you need to maintain a circular linked list (for O(1)). The advantage is that you do not need to manage any separate memory for the count (A SP instance simply points at the next SP instance in the chain) and in a threaded environment adding/removing a shared pointer need not always be serialized (though you will still need to lock your neighbors to enforce integrity).</li>
   </ul>
 </ol>
 
@@ -1178,7 +1178,7 @@
 
 <p>Writing you own implementation of a smart pointer is a bad idea (IMO). The standardization and testing of smart pointers was a nine year process through <a href="http://www.boost.org/">boost</a>, with <a href="http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/shared_ptr.htm">boost::shared_ptr</a> and <a href="http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/scoped_ptr.htm">boost::scoped_ptr</a>, finally resulting in the standardized versions being released in C++11: <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr">std::shared_ptr</a> and <a href="http://en.cppreference.com/w/cpp/memory/unique_ptr">std::unique_ptr</a>.</p>
 
-<p>I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) getting it working correctly in all contexts is rather a complex endeavour.</p>
+<p>I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) getting it working correctly in all contexts is rather a complex endeavor.</p>
 
 <p>But because it is such a frequent request for review; I want take a look at smart pointers as a teaching exercise. In the next couple of articles I will step through the processes of building a smart pointer and look at some of the common mistakes that I see (and probably make a few as I go).</p>
 
@@ -1216,6 +1216,8 @@
 <span class='line-number'>22</span>
 <span class='line-number'>23</span>
 <span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="k">namespace</span> <span class="n">ThorsAnvil</span>
 </span><span class='line'>    <span class="p">{</span>
 </span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
@@ -1238,6 +1240,8 @@
 </span><span class='line'>                    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
 </span><span class='line'>                    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
 </span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="c1">// So it can be used in conditional expression</span>
+</span><span class='line'>                <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
 </span><span class='line'>        <span class="p">};</span>
 </span><span class='line'>    <span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
@@ -1420,7 +1424,7 @@
 
 <h3>Problem 3: Null de-referencing</h3>
 
-<p>I think it is obvious that <code>operator*</code> has an issue with dereferencing a Null pointer here:</p>
+<p>I think it is obvious that <code>operator*</code> has an issue with de-referencing a Null pointer here:</p>
 
 <figure class='code'><figcaption><span>operator*()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'>                <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
@@ -1455,6 +1459,75 @@
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
 </span><span class='line'>                <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Problem 5: Bool conversion to easy</h3>
+
+<p>The current <code>operator bool()</code> works as required in bool expressions.</p>
+
+<figure class='code'><figcaption><span>Check for value</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>    <span class="n">value</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">4</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Not empty</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But the compiler will also use the conversion operators when it is trying to coerce objects that nearly match. For example you can now test two <code>UP</code> with <code>operator==</code> even though there does not exists an actual <code>operator==</code> for the <code>UP&lt;&gt;</code> class. This is because the compiler can convert both <code>UP&lt;&gt;</code> objects to bool and these can be compared.</p>
+
+<figure class='code'><figcaption><span>Auto conversion is bad (mostly)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>    <span class="n">value1</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="mi">8</span><span class="p">));</span>
+</span><span class='line'><span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>    <span class="n">value2</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="mi">9</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">value1</span> <span class="o">==</span> <span class="n">value2</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// unfortunately this will print &quot;They match&quot;.</span>
+</span><span class='line'>    <span class="c1">// Because both values are converted to bool (in this case true).</span>
+</span><span class='line'>    <span class="c1">// Then the test is done.</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;They match</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In C++03 there was a nasty work around using pointers to members. But in C++11 there was added new functionality to make the conversion operator only fire in a boolean context otherwise it must be explicitly called.</p>
+
+<figure class='code'><figcaption><span>explicit converter</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>        <span class="k">explicit</span> <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>    <span class="n">value1</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="mi">8</span><span class="p">));</span>
+</span><span class='line'>    <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>    <span class="n">value2</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="mi">9</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">value1</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// This is expecting a boolean expression.</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Not nullptr</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value1</span><span class="p">)</span> <span class="o">==</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value2</span><span class="p">))</span> <span class="p">{</span> <span class="c1">// Need to be explicit</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Both are either nullptr or not</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -1522,8 +1595,8 @@
 </span><span class='line'>                <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
 </span><span class='line'>
 </span><span class='line'>                <span class="c1">// Access to smart pointer state</span>
-</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>        <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>                <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>                 <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>                <span class="k">explicit</span> <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
 </span><span class='line'>
 </span><span class='line'>                <span class="c1">// Modify object state</span>
 </span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">release</span><span class="p">()</span>
@@ -1556,7 +1629,7 @@
 
 <p>I want to get better at writing articles about what I do so I better keep trying. Reading the articles I wrote last year (with the hindsight of a year) it seems my pros are a bit dry and laborious. So I am going to try again with an eye on fixing this problem.</p>
 
-<p>My two main inspirations are colleges who do this rather well. <a href="http://katemats.com/">Kate Mate</a> a highly talented manager who&rsquo;s opinions I respect and <a href="http://moz.com/rand/">Rand Fiskin</a> the Wizard of Moz (though I am not sure he uses this tittle anymore). Both are highly respected in their fields and have the ability to write comprehensively and interestingly about subjects.</p>
+<p>My two main inspirations are colleges who do this rather well. <a href="http://katemats.com/">Kate Mate</a> a highly talented manager whose opinions I respect and <a href="http://moz.com/rand/">Rand Fiskin</a> the Wizard of Moz (though I am not sure he uses this tittle anymore). Both are highly respected in their fields and have the ability to write comprehensively and interestingly about subjects.</p>
 ]]></content>
   </entry>
   
