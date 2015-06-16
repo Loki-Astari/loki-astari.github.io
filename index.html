@@ -702,8 +702,8 @@
 </span><span class='line'>            <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
 </span><span class='line'>
 </span><span class='line'>            <span class="c1">// Access to smart pointer state</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>        <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>            <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>                 <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>            <span class="k">explicit</span> <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
 </span><span class='line'>
 </span><span class='line'>            <span class="c1">// Modify object state</span>
 </span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">release</span><span class="p">()</span> <span class="n">noexcept</span>
@@ -964,8 +964,8 @@
 </span><span class='line'>            <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
 </span><span class='line'>
 </span><span class='line'>            <span class="c1">// Access to smart pointer state</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>        <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>            <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>                 <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>            <span class="k">explicit</span> <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
 </span><span class='line'>    <span class="p">};</span>
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
@@ -1273,8 +1273,8 @@
 </span><span class='line'>            <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
 </span><span class='line'>
 </span><span class='line'>            <span class="c1">// Access to smart pointer state</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>        <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>            <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>                 <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>            <span class="k">explicit</span> <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
 </span><span class='line'>        <span class="p">};</span>
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>

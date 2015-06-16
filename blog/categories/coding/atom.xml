@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Coding | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/coding/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2015-06-15T21:49:20-07:00</updated>
+  <updated>2015-06-15T21:55:17-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -339,8 +339,8 @@ This is because C++ considers</code>ThorsAnvil::UP<Derived1><code>,</code>ThorsA
             T&amp; operator*()  const {return *data;}
 
             // Access to smart pointer state
-            T* get()        const {return data;}
-            operator bool() const {return data;}
+            T* get()                 const {return data;}
+            explicit operator bool() const {return data;}
 
             // Modify object state
             T* release() noexcept
@@ -498,8 +498,8 @@ There are two major techniques for tracking the shared owners of a pointer:</p>
             T&amp; operator*()  const {return *data;}
 
             // Access to smart pointer state
-            T* get()        const {return data;}
-            operator bool() const {return data;}
+            T* get()                 const {return data;}
+            explicit operator bool() const {return data;}
     };
 }
 </code></pre>
@@ -682,8 +682,8 @@ Two portions of this look like other code pieces of code that have already been 
             T&amp; operator*()  const {return *data;}
 
             // Access to smart pointer state
-            T* get()        const {return data;}
-            operator bool() const {return data;}
+            T* get()                 const {return data;}
+            explicit operator bool() const {return data;}
         };
 }
 </code></pre>
