@@ -29,7 +29,7 @@ On [codereview.stackexchange.com](codereview.stackexchange.com) in the C++ tag i
 
 Writing you own implementation of a smart pointer is a bad idea (IMO). The standardization and testing of smart pointers was a nine year process through [boost](http://www.boost.org/), with [boost::shared_ptr](http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/shared_ptr.htm) and [boost::scoped_ptr](http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/scoped_ptr.htm), finally resulting in the standardized versions being released in C++11: [std::shared_ptr](http://en.cppreference.com/w/cpp/memory/shared_ptr) and [std::unique_ptr](http://en.cppreference.com/w/cpp/memory/unique_ptr). 
 
-I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) getting it working correctly in all contexts is rather a complex endeavour.
+I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) getting it working correctly in all contexts is rather a complex endeavor.
 
 But because it is such a frequent request for review; I want take a look at smart pointers as a teaching exercise. In the next couple of articles I will step through the processes of building a smart pointer and look at some of the common mistakes that I see (and probably make a few as I go).
 
@@ -64,6 +64,8 @@ It would seem that we could bash out a quick unique pointer like this:
                     std::swap(result, data);
                     return result;
                 }
+                // So it can be used in conditional expression
+                operator bool() {return data;}
         };
     }
 ```
@@ -166,7 +168,7 @@ The problem here is that when `tmp` goes out of scope its destructor will call d
 
 This feature can be quite useful (when you want this conversion to happen easily, see std::string). But you should definitely be aware of it and think carefully about creating single argument constructors.
 ###Problem 3: Null de-referencing
-I think it is obvious that `operator*` has an issue with dereferencing a Null pointer here:
+I think it is obvious that `operator*` has an issue with de-referencing a Null pointer here:
 ```cpp operator*()
 
                 T& operator*()  {return *data;}
@@ -191,6 +193,43 @@ So these two methods should really be declared as:
 
                 T* operator->() const {return data;}
                 T& operator*()  const {return *data;}
+```
+###Problem 5: Bool conversion to easy
+The current `operator bool()` works as required in bool expressions. 
+```cpp Check for value
+    ThorsAnvil::UP<int>    value(new int(4));
+
+    if (value) {
+        std::cout << "Not empty\n";
+    }
+```
+But the compiler will also use the conversion operators when it is trying to coerce objects that nearly match. For example you can now test two `UP` with `operator==` even though there does not exists an actual `operator==` for the `UP<>` class. This is because the compiler can convert both `UP<>` objects to bool and these can be compared.
+```cpp Auto conversion is bad (mostly)
+    ThorsAnvil::UP<int>    value1(int(8));
+    ThorsAnvil::UP<int>    value2(int(9));
+
+    if (value1 == value2) {
+        // unfortunately this will print "They match".
+        // Because both values are converted to bool (in this case true).
+        // Then the test is done.
+        std::cout << "They match\n";
+    }
+```
+In C++03 there was a nasty work around using pointers to members. But in C++11 there was added new functionality to make the conversion operator only fire in a boolean context otherwise it must be explicitly called.
+```cpp explicit converter
+
+        explicit operator bool() {return data;}
+    ...
+    ThorsAnvil::UP<int>    value1(int(8));
+    ThorsAnvil::UP<int>    value2(int(9));
+
+    if (value1) { // This is expecting a boolean expression.
+        std::cout << "Not nullptr\n";
+    }
+
+    if (static_cast<bool>(value1) == static_cast<bool>(value2)) { // Need to be explicit
+        std::cout << "Both are either nullptr or not\n";
+    }
 ```
 ##Fixed First Try
 So given the problems described above we can update our implementation to compensate for these issues:
@@ -220,8 +259,8 @@ So given the problems described above we can update our implementation to compen
                 T& operator*()  const {return *data;}
                 
                 // Access to smart pointer state
-                T* get()        const {return data;}
-                operator bool() const {return data;}
+                T* get()                 const {return data;}
+                explicit operator bool() const {return data;}
 
                 // Modify object state
                 T* release()
