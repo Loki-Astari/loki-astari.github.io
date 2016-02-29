@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2015-06-15T21:55:17-07:00</updated>
+  <updated>2016-02-29T08:03:49-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,6 +12,676 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Vector - Part 1: Resource Management]]></title>
+    <link href="http://lokiastari.com/blog/2016/02/27/vector/"/>
+    <updated>2016-02-27T12:00:31-08:00</updated>
+    <id>http://lokiastari.com/blog/2016/02/27/vector</id>
+    <content type="html"><![CDATA[<p>Looking at <a href="http://CodeReview.stackexchange.com">CodeReview.stackexchange.com</a>; reimplementing the vector class is a common goal for a first project.</p>
+
+<ul>
+<li>2011/Nov/07 &ndash; <em><a href="http://codereview.stackexchange.com/q/5856/507">Mathematical Vector2 class implementation</a></em></li>
+<li>2012/May/21 &ndash; <em><a href="http://codereview.stackexchange.com/q/11934/507">C++ Vector2 Class Review</a></em></li>
+<li>2012/Aug/17 &ndash; <a href="http://codereview.stackexchange.com/q/14784/507">Templated Matrix class</a></li>
+<li>2013/Jan/07 &ndash; <a href="http://codereview.stackexchange.com/q/20243/507">Vector implementation &ndash; simple replacement</a></li>
+<li>2013/May/25 &ndash; <a href="http://codereview.stackexchange.com/q/26608/507">Review of 2d Vector class</a></li>
+<li>2013/Jun/19 &ndash; <a href="http://codereview.stackexchange.com/q/27573/507">Simple matrix class</a></li>
+<li>2013/Jun/21 &ndash; <em><a href="http://codereview.stackexchange.com/q/27625/507">Matrix and Vector4 classes</a></em></li>
+<li>2013/Jun/25 &ndash; <em><a href="http://codereview.stackexchange.com/q/27752/507">Simple matrix class &ndash; version 2</a></em></li>
+<li>2013/Aug/03 &ndash; <em><a href="http://codereview.stackexchange.com/q/29331/507">Template vector class</a></em></li>
+<li>2014/Feb/20 &ndash; <a href="http://codereview.stackexchange.com/q/42297/507">C++ vector implementation</a></li>
+<li>2014/Mar/01 &ndash; <a href="http://codereview.stackexchange.com/q/43136/507">Reimplementation of C++ vector</a></li>
+<li>2014/Mar/12 &ndash; <a href="http://codereview.stackexchange.com/q/44167/507">3D mathematical vector class</a></li>
+<li>2014/May/17 &ndash; <a href="http://codereview.stackexchange.com/q/50975/507">Creating a custom Vector class</a></li>
+<li>2014/Aug/19 &ndash; <a href="http://codereview.stackexchange.com/q/60484/507">STL vector implementation</a></li>
+<li>2014/Sep/12 &ndash; <a href="http://codereview.stackexchange.com/a/62774/507">C++ 3D Vector Implementation</a></li>
+<li>2014/Sep/26 &ndash; <a href="http://codereview.stackexchange.com/q/63970/507">Custom mathematical vector class</a></li>
+<li>2014/Oct/19 &ndash; <a href="http://codereview.stackexchange.com/q/67209/507">Vector backed by memory pages</a></li>
+<li>2014/Oct/31 &ndash; <a href="http://codereview.stackexchange.com/q/68486/507">Custom matrix class</a></li>
+<li>2014/Nov/25 &ndash; <a href="http://codereview.stackexchange.com/q/70815/507">Vector/matrix class</a></li>
+<li>2014/Dec/22 &ndash; <a href="http://codereview.stackexchange.com/q/74521/507">Vector implementation</a></li>
+<li>2015/Feb/17 &ndash; <a href="http://codereview.stackexchange.com/q/81751/507">Mathematical matrices implementation</a></li>
+<li>2015/Mar/01 &ndash; <a href="http://codereview.stackexchange.com/q/82906/507">C++ vector implementation errors</a></li>
+<li>2015/Jun/20 &ndash; <a href="http://codereview.stackexchange.com/q/94211/507">Implementation of std::vector class</a></li>
+<li>2015/Jul/08 &ndash; <a href="http://codereview.stackexchange.com/q/96253/507">Second implementation of std::vector</a></li>
+<li>2015/Oct/17 &ndash; <a href="http://codereview.stackexchange.com/q/107877/507">Simple multi-dimensional Array class in C++11</a></li>
+<li>2015/Oct/19 &ndash; <a href="http://codereview.stackexchange.com/q/108072/507">Creating n-dimensional mathematical vector classes through inheritance</a></li>
+<li>2015/Oct/20 &ndash; <a href="http://codereview.stackexchange.com/q/108140/507">Implementation of Vector in C++</a></li>
+<li>2015/Oct/23 &ndash; <a href="http://codereview.stackexchange.com/q/108558/507">Simple multi-dimensional Array class in C++11 &ndash; follow-up</a></li>
+<li>2015/Nov/18 &ndash; <a href="http://codereview.stackexchange.com/q/111114/507">Custom vector that uses less memory than std::vector</a></li>
+<li>2015/Nov/24 &ndash; <a href="http://codereview.stackexchange.com/q/111746/507">Attempt at templates by creating a class for N-dimensional mathematical vectors</a></li>
+<li>2016/Jan/10 &ndash; <a href="http://codereview.stackexchange.com/q/116377/507">Vector Implementation C++</a></li>
+</ul>
+
+
+<h1>Rule of Zero</h1>
+
+<p>You will notice that half the attempts above are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasis the <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a>. An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass <code>std::vector&lt;int&gt;</code> would be a good choice).</p>
+
+<p>In C++ the compiler generates a couple of methods for free.</p>
+
+<ul>
+<li>Destructor</li>
+<li>Copy Constructor</li>
+<li>Copy Assignment Operator</li>
+<li>Move Constructor</li>
+<li>Move Assignment Operator</li>
+</ul>
+
+
+<p>These methods usually work perfectly well; <strong>unless</strong> your class contains a pointer (or a pointer like resource object). But if your class is doing business logic then it should not contain a pointer. So classes that handle business logic therefore should bot be defining any of these compiler generated methods (just let the compiler generated ones work for you). Occasionally you want to delete them, to prevent copying or movement, but it is very unusual for these to need specialized implementations.</p>
+
+<p>Conversely classes that do resource management usually contain a pointer (or pointer like resource object). These classes should define all the above methods to correctly handle the resource. This is where ownership semantics of the resource are defined. The owner of the resource is responsible for destroying the resource when its lifespan is over (in terms of pointers this means the owner is responsible for calling <code>delete</code> on the pointer (usually in the destructor)). If you are not the owner of a resource you should not have access to the resource object directly (as it may be destroyed by the owner without other objects knowing).</p>
+
+<h1><a href="http://stackoverflow.com/q/4172722/14065">Rule of three</a></h1>
+
+<h2>Version-1 Simple Resource Management</h2>
+
+<p>When creating a class to manage resources; the first version created by beginner usually looks like this:</p>
+
+<p>```cpp Rule of three first pass
+template<typename T>
+class Vector
+{</p>
+
+<pre><code>std::size_t     size;
+T*              buffer;
+Vector(int size = 100)
+    : size(size)
+    , buffer(new T[size])   // Allocate the resource
+{}
+~Vector()
+{
+    delete [] buffer;       // Clean up the resource
+}
+</code></pre>
+
+<p>};
+```
+The trouble here is that this version has a fundamental flaw because of the way the <a href="http://stackoverflow.com/a/4044360/14065">compiler generated</a> copy constructor and copy assignment operator work with pointers (commonly refereed to as the <a href="http://stackoverflow.com/q/2344664/14065">shallow copy problem</a>).</p>
+
+<p>```cpp Shallow copy problem.
+int main()
+{</p>
+
+<pre><code>Vector&lt;int&gt;   x;
+Vector&lt;int&gt;   y(x);     // Compiler generate copy constructure does
+                        // an element wise shallow copy of each element.
+                        // This means both `x` and `y` have a buffer
+                        // member that points at the same area in memory.
+                        //
+                        // When the objects go out of scope both will
+                        // try and call delete on the memory resulting
+                        // in a double delete of the memory.
+
+Vector&lt;int&gt;   z;        // Same problem after an assignment.
+z=x;
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Version-2 Rule of Three</h2>
+
+<p>The rule of three simply stated is: If you define any of the methods Destructor/Copy Constructor/Copy Assignment Operator then you should define all three. When done correctly this resolves the shallow copy problem. <code>Vector</code> defines the destructor so we also need to define the copy constructor and copy assignment operator.</p>
+
+<p>I see this as an initial attempt at defining the rule of three for vectors very often.</p>
+
+<p>```cpp Rule of three second pass
+template<typename T>
+class Vector
+{</p>
+
+<pre><code>std::size_t     size;
+T*              buffer;
+Vector(int size = 100)
+    : size(size)
+    , buffer(new T[size])
+{}
+~Vector()
+{
+    delete [] buffer;
+}
+Vector(Vector const&amp; copy)
+    : size(copy.size)
+    , buffer(new T[size])
+{
+    // Copy constructor is simple.
+    // We create a new resource area of the required size.
+    // Then we copy the data from the old buffer to the new buffer.
+    std::copy(copy.buffer, copy.buffer + copy.size, copy);
+}
+Vector&amp; operator=(Vector const&amp; copy)
+{
+    // Copy Object (more detail below)
+    // This is relatively easy. But I want to cover this in detail below.
+    // So hold on for now.
+    return *this;
+}
+</code></pre>
+
+<p>};
+```</p>
+
+<h2>Version-3 Lazy Construction of elements.</h2>
+
+<p>The problem with the previous version is that it forces initialization of all elements in the buffer immediately. Thus forces the requirement that members of the <code>Vector</code> (i.e. type <code>T</code>) must be default constructable. It also has two efficiency constraints imposed on the vector:</p>
+
+<ul>
+<li>You can&rsquo;t pre-allocate space for future members.
+
+<ul>
+<li>So resizing (larger or smaller) becomes very expensive as each resize requires copy all the elements to the newly re-sized buffer.</li>
+<li>Alternatively pre-creating all the elements you need can also be expensive especially if construction of <code>T</code> is expensive.</li>
+</ul>
+</li>
+<li>The copy constructor is twice as expensive as it should be. Each element must be:
+
+<ul>
+<li>Default constructed (when the buffer is created).</li>
+<li>Then copy constructed with the value from the source vector.</li>
+</ul>
+</li>
+</ul>
+
+
+<p>This attempt improves on that by allowing efficient pre-allocating of space (<code>capacity</code>) for the buffer. New members are then added by constructing in place using <a href="http://stackoverflow.com/questions/362953/what-are-uses-of-the-c-construct-placement-new">placement new</a>.</p>
+
+<p>```cpp Rule of three third pass
+template<typename T>
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+Vector(int capacity)
+    : capacity(capacity = 100)
+    , length(0)
+    // Allocates space but does not call the constructor
+    , buffer(static_cast&lt;int*&gt;(::operator new(sizeof(T) * capacity)))
+    // Useful if the type T has an expensive constructor
+    // We preallocate space without initializing it giving
+    // room to grow and shrink the buffer without re-allocating.
+{}
+~Vector()
+{
+    // Because elements are constructed in place using
+    // placement new. Then we must manually call the destructor
+    // on the elements.
+    for(int loop = 0; loop &lt; length; ++loop)
+    {
+        // Note we destroy the elements in reverse order.
+        buffer[length - 1 - loop].~T();
+    }
+    ::operator delete(buffer);
+}
+Vector(Vector const&amp; copy)
+    : capacity(copy.length)
+    , length(0)
+    , buffer(static_cast&lt;int*&gt;(::operator new(sizeof(T) * capacity)))
+{
+    // Copy constructor is simple.
+    // We create a new resource area of the required length.
+    // But these elements are not initialized so we use push_back to copy them
+    // into the new object. This is an improvement because we
+    // only construct the members of the vector once.
+    for(int loop = 0; loop &lt; copy.length; ++loop)
+    {
+        push_back(copy.buffer[loop]);
+    }
+}
+Vector&amp; operator=(Vector const&amp; copy)
+{
+    // Copy Object (more detail below)
+    // This is relatively easy. But I want to cover this in detail below.
+    // So hold on for now.
+    return *this;
+}
+void push_back(T const&amp; value)
+{
+    // Use placement new to copy buffer into the new buffer
+    new (buffer + length) T(value);
+    ++length;
+
+    // Note we will handle growing the capacity later.
+}
+void pop_back()
+{
+    // When removing elements need to manually call the destructor
+    // because we created them using placement new.
+    --length;
+    buffer[length].~T();
+}
+</code></pre>
+
+<p>};
+```</p>
+
+<h1><a href="http://stackoverflow.com/q/3279543/14065">Copy And Swap Idiom</a></h1>
+
+<p>The copy and swap idiom is about dealing with copy assignment operator. It provides a technique for providing the <a href="https://en.wikipedia.org/wiki/Exception_safety">strong exception guarantee</a>. This section walk through the processes of writing a copy assignment operator that provides the strong exception guarantee. Showing why it is an important technique.</p>
+
+<p>This is often the first version of a copy constructor seen:</p>
+
+<p>```cpp Copy Assignment (Try 1)
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+// STUFF
+Vector&amp; operator=(Vector const&amp; copy)
+{
+    if (&amp;copy == this)
+    {
+        // Early exit for self assignment
+        return *this;
+    }
+    // First we have to destroy all the current elements.
+    for(int loop = 0; loop &lt; length; ++loop)
+    {
+        buffer[length - 1 - loop].~T();
+    }
+    // Now the buffer is empty so reset size to zero.
+    length = 0;
+
+    // Now copy all the elements from the source into this object
+    for(int loop = 0; loop &lt; copy.length; ++loop)
+    {
+        push_back(copy.buffer[loop]);
+    }
+    return *this;
+}
+</code></pre>
+
+<p>};
+```</p>
+
+<p>The problem is that this does not provide the strong exception guarantee. If any of the constructors/destructor throw then the object will be left in an inconsistent state, with no way to restore the original state. The strong exception guarantee basically means that the operation works or does not change the state of the object. To do this we must create the copy into a new temporary buffer that can be thrown away if things go wrong.</p>
+
+<p>```cpp Copy Assignment (Try 2)
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+// STUFF
+Vector&amp; operator=(Vector const&amp; copy)
+{
+    if (&amp;copy == this)
+    {
+        // Early exit for self assignment
+        return *this;
+    }
+    // Part-1 Create a copy of the src object.
+    std::size_t tmpCap    = copy.length;
+    std::size_t tmpSize   = 0;
+    T*          tmpBuffer = static_cast&lt;int*&gt;(::operator new(sizeof(T) * tmpCap));
+
+    // Now copy all the elements from the source into the temporary object
+    for(int loop = 0; loop &lt; copy.length; ++loop)
+    {
+        new (tmpBuffer + tmpSize) T(copy.buffer[loop]);
+        ++tmpSize;
+    }
+
+    // Part-2 Swap the state
+    // We have successfully created the new version of this object
+    // So swap the temporary and object states.
+    std::swap(tmpCap,    capacity);
+    std::swap(tmpSize,   length);
+    std::swap(tmpBuffer, buffer);
+
+    // Part-3 Destroy the old state.
+    // Now we have to delete the old state.
+    // If this fails it does not matter the state of the object is consistent
+    for(int loop = 0; loop &lt; tmpSize; ++loop)
+    {
+        tmpBuffer[tmpSize - 1 - loop].~T();
+    }
+    ::operator delete(tmpBuffer);
+    return *this;
+}
+</code></pre>
+
+<p>};
+```
+This is a better attempt. But it still leaks if an exception is throw. But before we add exception handling lets take a closer look at the three sections of the assignment operator.</p>
+
+<p>Part-1 looks exactly like the copy constructor of Vector.</p>
+
+<p>```cpp Copy Assignment Part 1</p>
+
+<pre><code>    std::size_t tmpCap    = copy.length;
+    std::size_t tmpSize   = 0;
+    T*          tmpBuffer = static_cast&lt;int*&gt;(::operator new(sizeof(T) * tmpCap));
+
+    // Now copy all the elements from the source into the temporary object
+    for(int loop = 0; loop &lt; copy.length; ++loop)
+    {
+        // This looks exactly like push_back()
+        new (tmpBuffer + tmpSize) T(copy.buffer[loop]);
+        ++tmpSize;
+    }
+</code></pre>
+
+<p>```</p>
+
+<p>Part-3 looks exactly like destructor of Vector.
+```cpp Copy Assignment Part 3</p>
+
+<pre><code>    // Now we have to delete the old state.
+    for(int loop = 0; loop &lt; tmpSize; ++loop)
+    {
+        tmpBuffer[tmpSize - 1 - loop].~T();
+    }
+    ::operator delete(tmpBuffer);
+</code></pre>
+
+<p>```</p>
+
+<p>Using these two observations we have a re-write of the copy assignment operator.</p>
+
+<p>```cpp Copy Assignment (Try 3)
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+// STUFF
+Vector&amp; operator=(Vector const&amp; copy)
+{
+    if (&amp;copy == this)
+    {
+        // Early exit for self assignment
+        return *this;
+    }
+    // Part-1 Create a copy
+    Vector  tmp(copy);
+
+    // Part-2 Swap the state
+    std::swap(tmp.capacity, capacity);
+    std::swap(tmp.length,   length);
+    std::swap(tmp.buffer,   buffer);
+
+    return *this;
+    // Part-3 Destructor called at end of scope.
+    // No actual code required here.
+}
+</code></pre>
+
+<p>};
+```</p>
+
+<p>The above code works perfectly. But Part-2 the swap looks like a normal swap operation so we can just pull that out into its own method. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse. But it make the normal operation even more efficient. Since the occurrences of self assignment are so extremely rare I would not prematurely optimize for them and make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.</p>
+
+<p>```cpp Copy Assignment (Try 4)
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+// STUFF
+Vector&amp; operator=(Vector const&amp; copy)
+{
+    Vector  tmp(copy);
+    tmp.swap(*this);
+    return *this;
+}
+void swap(Vector&amp; other) noexcept
+{
+    std::swap(other.capacity, capacity);
+    std::swap(other.length,   length);
+    std::swap(other.buffer,   buffer);
+}
+</code></pre>
+
+<p>};
+```</p>
+
+<h1>Rule of Five</h1>
+
+<p>In C++11 the language add the concept of &ldquo;Move Semantics&rdquo;. Rather than having to copy an object (especially on return from a function) we could &ldquo;move&rdquo; an object. The concept here is that movement is supposed to be much cheaper than copy because you move the internal data structure of an object rather than all the elements. A good example is a std::vector. Pre C++11 a return by value means copying the object. The constructor of the new object allocates a new internal buffer and then copies all the elements from the original objects buffer to the new objects buffer. On the other hand a move simply gives the new object the internal buffer of the old object (we just move the pointer to the internal buffer). When an object is moved to another object the old object should be left in a valid state, but for efficiency the standard rarely specifies the state of an object after it has been the source of a move. Thus using an object after a move is a bad idea unless you are setting it to a specific state.</p>
+
+<p>There are two new method that allow us to specify move semantics on a class.</p>
+
+<p>```cpp Vector Move Semantics.
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+// STUFF    
+
+// Move Constructor
+Vector(Vector&amp;&amp; move) noexcept;
+
+// Move Assignment Operator
+Vector&amp; operator=(Vector&amp;&amp; move) noexcept;
+</code></pre>
+
+<p>};
+```</p>
+
+<p>Notice the <code>&amp;&amp;</code> operator. This donates an r-value reference and means that your object is the destination of a move operation. The parameter passed is the source object and the state you should use to define your new objects state. After the move the source object must be left in a valid (but can be undefined state). For a vector this means it must no longer be the owner of the internal buffer that you are now using in your buffer.</p>
+
+<p>The simplest way to achieve this goal is to set up the object in a valid (but very cheap to achieve state) and then swap the current object with the destination object.</p>
+
+<p>```cpp Vector Move Semantics Implementation
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+// STUFF    
+
+// Move Constructor
+Vector(Vector&amp;&amp; move) noexcept
+    : capacity(0)
+    , length(0)
+    , buffer(nullptr)
+{
+    // The source object now has a nullptr/
+    // This object has taken the state of the source object.
+    move.swap(*this);
+}
+
+// Move Assignment Operator
+Vector&amp; operator=(Vector&amp;&amp; move) noexcept
+{
+    // In this case simply swap the source object
+    // and this object around.
+    move.swap(*this);
+}
+</code></pre>
+
+<p>};
+```</p>
+
+<p>Note I marked both move operators <code>noexcept</code>. Assuming the operations are guaranteed not to throw you should mark them as <code>noexcept</code>. If we know that certain operations are exception safe them we can optimize resize operations and maintain the strong exception guarantee. This and some other optimizations will be documented in a subsequent post.</p>
+
+<h1>Allocating more storage</h1>
+
+<p>When pushing data into the array we need to verify that capacity has not been exceeded. If it has then we to allocate more capacity then copy the current content into the new buffer. This operation is exceedingly similar to the copy assignment operator. As a result the best solution looks very similar and we use a temporary object to hold the new state while we are creating it. Then swap the state of the current object with the temporary on completion. The temporary objects destructor will then take care of clean up (even if there is an exception).</p>
+
+<p>```cpp Vector Reallocating Buffer
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+// STUFF    
+void resizeIfRequire()
+{
+    if (length == capacity)
+    {
+        // Create a temporary object with a larger capacity.
+        std::size_t     newCapacity  = capacity * 1.62;
+        Vector&lt;T&gt;  tmpBuffer(newCapacity);
+
+        // Copy the state of this object into the new object.
+        std::for_each(buffer, buffer + length, [&amp;tmpBuffer](T const&amp; item){tmpBuffer.push_back(item);});
+
+        // All the work has been successfully done. So swap
+        // the state of the temporary and the current object.
+        tmpBuffer.swap(*this);
+
+        // The temporary object goes out of scope here and
+        // tidies up the state that is no longer needed.
+    }
+}
+</code></pre>
+
+<p>};
+```</p>
+
+<p>So the final version is now:</p>
+
+<p>```cpp Vector Final Version
+template<typename T>
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+
+struct Deleter
+{
+    void operator()(T* buffer) const
+    {
+        ::operator delete(buffer);
+    }
+};
+
+public:
+    Vector(int capacity)
+        : capacity(capacity)
+        , length(0)
+        , buffer(static_cast&lt;int*&gt;(::operator new(sizeof(T) * capacity)))
+    {}
+    ~Vector()
+    {
+        // Make sure the buffer is deleted even with exceptions
+        // This will be called to release the pointer at the end
+        // of scope.
+        std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+
+        // Call the destructor on all the members in reverse order
+        for(int loop = 0; loop &lt; length; ++loop)
+        {
+            // Note we destroy the elements in reverse order.
+            buffer[length - 1 - loop].~T();
+        }
+    }
+    Vector(Vector const&amp; copy)
+        : capacity(copy.length)
+        , length(0)
+        , buffer(static_cast&lt;int*&gt;(::operator new(sizeof(T) * capacity)))
+    {
+        try
+        {
+            for(int loop = 0; loop &lt; copy.length; ++loop)
+            {
+                push_backValue(copy.buffer[loop]);
+            }
+        }
+        catch(...)
+        {
+            // If there was an exception then destroy everything
+            // that was created to make it exception safe.
+            for(int loop = 0; loop &lt; length; ++loop)
+            {
+                buffer[length - 1 - loop].~T();
+            }
+            ::operator delete(buffer);
+
+            // Make sure the exceptions continue propagating after
+            // the cleanup has completed.
+            throw;
+        }
+    }
+    Vector&amp; operator=(Vector const&amp; copy)
+    {
+        // Copy and Swap idiom
+        Vector&lt;T&gt;  tmp(copy);
+        tmp.swap(*this);
+        return *this;
+    }
+    Vector(Vector&amp;&amp; move)
+        : capacity(0)
+        , length(0)
+        , buffer(nullptr)
+    {
+        move.swap(*this);
+    }
+    Vector&amp; operator=(Vector&amp;&amp; move)
+    {
+        move.swap(*this);
+        return *this;
+    }
+    void swap(Vector&amp; other) noexcept
+    {
+        using std::swap;
+        swap(capacity,      other.capacity);
+        swap(length,        other.length);
+        swap(buffer,        other.buffer);
+    }
+    void push_back(T const&amp; value)
+    {
+        resizeIfRequire();
+        new (buffer + length) T(value);
+        ++length;
+    }
+    void pop_back()
+    {
+        --length;
+        buffer[length].~T();
+    }
+private:
+    void resizeIfRequire()
+    {
+        if (length == capacity)
+        {
+            std::size_t     newCapacity  = capacity * 1.62;
+            Vector&lt;T&gt;  tmpBuffer(newCapacity);
+            std::for_each(buffer, buffer + length, [&amp;tmpBuffer](T const&amp; item){tmpBuffer.push_back(item);});
+
+            tmpBuffer.swap(*this);
+        }
+    }
+</code></pre>
+
+<p>};
+```</p>
+
+<p>This article has shown how to handle the basic resource management required by a vector. It has covered several important principles for C++ programmers.</p>
+
+<ul>
+<li>Separation Of Concerns</li>
+<li>Rule of Zero</li>
+<li>Rule of Three</li>
+<li>Rule of Five</li>
+<li>Default compiler generated methods</li>
+<li>Shallow Copy Problem</li>
+<li>Placement New</li>
+<li>Copy and Swap Idiom</li>
+<li>Exception Grantees</li>
+</ul>
+
+
+<p>The next article will cover some fundamental methods used by the vector and why they are implemented in a particular way in the C++ standard library. A subsequent article will then look at potential optimizations that can be applied automatically to the code.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Smart Pointer Constructors]]></title>
@@ -1223,178 +1893,6 @@ int main()
 
 <p>Note I: The language does not require you to use a <strong>Break Statement</strong> in each block. <strong>BUT</strong> you should and compilers will warn you when you don&rsquo;t.<br/>
 Note II: You should always use a <strong>Default Statement</strong> . If the value does not hit a value specified in a <strong>Case Statement</strong> then the <strong>Default Statement</strong> is used; If the <strong>Default Statement</strong> is not defined in this situation it results in undefined behavior. To avoid problems you should always define the <strong>Default Statement</strong>, even if all this does is generate an error. This will avoid maintenance issues down the road.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Functions]]></title>
-    <link href="http://lokiastari.com/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/"/>
-    <updated>2013-11-24T09:22:04-08:00</updated>
-    <id>http://lokiastari.com/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4</id>
-    <content type="html"><![CDATA[<h3>Usage</h3>
-
-<p>All C++ applications must have at least one function; this is called <code>main()</code>. Additionally, you can have user defined functions that encapsulate individual tasks, thus allowing the code to be cleaner and easier to read. Therefore, this is a useful feature if you repeat the same task many time with only slight variations:</p>
-
-<p>``` cpp function1.cpp</p>
-
-<pre><code>#include &lt;string&gt;
-#include &lt;iostream&gt;
-
-int main(int argc, char* argv[])
-{
-     std::cout &lt;&lt; "What is your first name?\n";
-     std::string firstName;
-     std::cin &gt;&gt; firstName;
-
-     std::cout &lt;&lt; "What is your second name?\n";
-     std::string secondName;
-     std::cin &gt;&gt; secondName;
-
-     std::cout &lt;&lt; "What is your Mother's name?\n";
-     std::string motherName;
-     std::cin &gt;&gt; motherName;
-
-     std::cout &lt;&lt; "What is your Father's name?\n";
-     std::string fatherName;
-     std::cin &gt;&gt; fatherName;
-}
-</code></pre>
-
-<p>```</p>
-
-<p>It is easy to spot the obvious repetition here. We can simplify this code by using a function that does all the common work. Anything that is unique we can pass as parameters to the function.</p>
-
-<p>``` cpp function2.cpp</p>
-
-<pre><code>#include &lt;string&gt;
-#include &lt;iostream&gt;
-
-std::string getNameFor(std::string who)
-{
-    std::cout &lt;&lt; "What is your " &lt;&lt; who &lt;&lt; " name?\n";
-    std::string result;
-    std::cin &gt;&gt; result;
-    return result;
-}
-
-int main(int argc, char* argv[])
-{
-     std::string firstName  = getNameFor("first");
-     std::string secondName = getNameFor("second");
-     std::string motherName = getNameFor("Mother's");
-     std::string fatherName = getNameFor("Father's");
-}
-</code></pre>
-
-<p>```</p>
-
-<h3>Definition</h3>
-
-<p>OK. We have seen an example but what is the exact format of a function</p>
-
-<p>``` cpp function3.cpp</p>
-
-<pre><code>// A function definition is very simple
-&lt;ReturnType&gt;  &lt;FunctionName&gt;(&lt;OptionalArgumentList&gt;)
-{
-    &lt;OptionalCode&gt;
-}
-
-//  ReturnType:            This is the name of any type (built in or user defined)
-//                         At the end of function you must have a statement
-//                         that returns an object of this type.
-//  
-//  FunctionName:          A unique name that identifies the function.
-//
-//  OptionalArgumentList:  This is either empty.
-//                         Or a comma separated list of parameters.
-//                         Because C++ is strongly typed each parameter is defined
-//                         with both a type and a name.
-//
-//  OptionalCode:          We will be discussing this in more detail throught
-//                         these articles. But the new statement to learn is
-//                         `return &lt;Value&gt;`. This is the value returned by the
-//                         function to the original caller.
-//
-//  Value:                 Notice that above I use the term `Value` and not object.
-//                         A `Value` here can be an explicit object or the result
-//                         of evaluating an expression (temporary object). Note
-//                         one type of expression is a function call.
-//
-//                         return "An explicit String Object";
-//
-//                         return theResultOfAFunctionCall("Get A Result");
-</code></pre>
-
-<p>```</p>
-
-<p>If a function has <code>void</code> return type then you don&rsquo;t need to <strong>Return Statement</strong>. With any other return type your function must exit by using a <strong>Return Statement</strong>. The <strong>Return Statement</strong> determines the value returned to the caller from the function. The one exception to this rule (and their has to be an exception to make it a rule) is <code>int main()</code>. If you don&rsquo;t explicitly have a <strong>Return Statement</strong> int <code>int main()</code> the compiler will plant <code>return 0;</code> for you.</p>
-
-<h3>Forward Declaration</h3>
-
-<p>One thing to note about a function is that you can not use it before a declaration. We rewrite the original example above as:</p>
-
-<p>``` cpp function4.cpp</p>
-
-<pre><code>#include &lt;string&gt;
-#include &lt;iostream&gt;
-
-int main(int argc, char* argv[])
-{
-     std::string firstName  = getNameFor("first");
-     std::string secondName = getNameFor("second");
-     std::string motherName = getNameFor("Mother's");
-     std::string fatherName = getNameFor("Father's");
-}
-
-std::string getNameFor(std::string who)
-{
-    std::cout &lt;&lt; "What is your " &lt;&lt; who &lt;&lt; " name?\n";
-    std::string result;
-    std::cin &gt;&gt; result;
-    return result;
-}
-</code></pre>
-
-<p>```</p>
-
-<p>The only difference from above here is that I have moved the <code>main()</code> function before the <code>getNameFor()</code> function. This will generate a compilation error as you are using the function <code>getNameFor()</code> before a declaration. This may seem a potential problem but it is a deliberate technique that makes sure you spell things correctly before use. In the above situation the only change you need to make is a forward declaration. This allows you to declare a function before you define it. The utility of this will become clear when we start defining modules.</p>
-
-<p>``` cpp function5.cpp</p>
-
-<pre><code>#include &lt;string&gt;
-#include &lt;iostream&gt;
-
-// Add a forward declaration
-extern std::string getNameFor(std::string who);
-
-// A forward declaration is basically a function declaration without a body.
-// Add an extern prefix and a semicolon on the end (the rest you should copy
-// and paste from the function definition).
-//
-//
-// Note: For the languages lawyers who want to complain about the extern.
-//       Just hold your horses we will get to the intricacies in due course;
-//       this is only lesson 4.
-
-int main(int argc, char* argv[])
-{
-     std::string firstName  = getNameFor("first");
-     std::string secondName = getNameFor("second");
-     std::string motherName = getNameFor("Mother's");
-     std::string fatherName = getNameFor("Father's");
-}
-
-std::string getNameFor(std::string who)
-{
-    std::cout &lt;&lt; "What is your " &lt;&lt; who &lt;&lt; " name?\n";
-    std::string result;
-    std::cin &gt;&gt; result;
-    return result;
-}
-</code></pre>
-
-<p>```</p>
 ]]></content>
   </entry>
   

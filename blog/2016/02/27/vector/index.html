@@ -1,0 +1,1381 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Vector - Part 1: Resource Management - Loki Astari</title>
+  <meta name="author" content="Loki Astari">
+
+  
+  <meta name="description" content="C++ By Example. The Vector">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lokiastari.com/blog/2016/02/27/vector">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/bootstrap/bootstrap.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/bootstrap/responsive.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/syntax/syntax.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <style type="text/css">
+    body {
+      padding-bottom: 40px;
+    }
+    h1 {
+      margin-bottom: 15px;
+    }
+    img {
+      max-width: 100%;
+    }
+    .sharing, .meta, .pager {
+      margin: 20px 0px 20px 0px;
+    }
+    .page-footer p {
+      text-align: center;
+    }
+  </style>
+  <script src="/javascripts/libs/jquery.js"></script>
+  <script src="/javascripts/libs/modernizr-2.0.js"></script>
+  <script src="/javascripts/libs/bootstrap.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+  
+  
+
+</head>
+
+<body   >
+  <nav role="navigation"><div class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+
+      <a class="brand" href="/">Loki Astari</a>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/about/">About</a></li>
+  <li><a href="/so-you-want-to-learn-c-plus-plus/">So you want to learn C++</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+
+        <ul class="nav pull-right" data-subscription="rss">
+          <li><a href="http://feeds.feedburner.com/LokiAstari" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+          
+        </ul>
+
+        
+          <form class="pull-right navbar-search" action="http://google.com/search" method="get">
+            <fieldset role="search">
+              <input type="hidden" name="q" value="site:lokiastari.com" />
+              <input class="search-query" type="text" name="q" results="0" placeholder="Search"/>
+            </fieldset>
+          </form>
+        
+      </div>
+    </div>
+  </div>
+</div>
+</nav>
+  <div class="container">
+    <div class="row-fluid">
+      
+<article class="hentry span9" role="article">
+
+  
+  <header class="page-header">
+    
+      <h1 class="entry-title">Vector - Part 1: Resource Management</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-02-27T12:00:31-08:00" pubdate data-updated="true">Feb 27<span>th</span>, 2016</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Looking at <a href="http://CodeReview.stackexchange.com">CodeReview.stackexchange.com</a>; reimplementing the vector class is a common goal for a first project.</p>
+
+<ul>
+<li>2011/Nov/07 &ndash; <em><a href="http://codereview.stackexchange.com/q/5856/507">Mathematical Vector2 class implementation</a></em></li>
+<li>2012/May/21 &ndash; <em><a href="http://codereview.stackexchange.com/q/11934/507">C++ Vector2 Class Review</a></em></li>
+<li>2012/Aug/17 &ndash; <a href="http://codereview.stackexchange.com/q/14784/507">Templated Matrix class</a></li>
+<li>2013/Jan/07 &ndash; <a href="http://codereview.stackexchange.com/q/20243/507">Vector implementation &ndash; simple replacement</a></li>
+<li>2013/May/25 &ndash; <a href="http://codereview.stackexchange.com/q/26608/507">Review of 2d Vector class</a></li>
+<li>2013/Jun/19 &ndash; <a href="http://codereview.stackexchange.com/q/27573/507">Simple matrix class</a></li>
+<li>2013/Jun/21 &ndash; <em><a href="http://codereview.stackexchange.com/q/27625/507">Matrix and Vector4 classes</a></em></li>
+<li>2013/Jun/25 &ndash; <em><a href="http://codereview.stackexchange.com/q/27752/507">Simple matrix class &ndash; version 2</a></em></li>
+<li>2013/Aug/03 &ndash; <em><a href="http://codereview.stackexchange.com/q/29331/507">Template vector class</a></em></li>
+<li>2014/Feb/20 &ndash; <a href="http://codereview.stackexchange.com/q/42297/507">C++ vector implementation</a></li>
+<li>2014/Mar/01 &ndash; <a href="http://codereview.stackexchange.com/q/43136/507">Reimplementation of C++ vector</a></li>
+<li>2014/Mar/12 &ndash; <a href="http://codereview.stackexchange.com/q/44167/507">3D mathematical vector class</a></li>
+<li>2014/May/17 &ndash; <a href="http://codereview.stackexchange.com/q/50975/507">Creating a custom Vector class</a></li>
+<li>2014/Aug/19 &ndash; <a href="http://codereview.stackexchange.com/q/60484/507">STL vector implementation</a></li>
+<li>2014/Sep/12 &ndash; <a href="http://codereview.stackexchange.com/a/62774/507">C++ 3D Vector Implementation</a></li>
+<li>2014/Sep/26 &ndash; <a href="http://codereview.stackexchange.com/q/63970/507">Custom mathematical vector class</a></li>
+<li>2014/Oct/19 &ndash; <a href="http://codereview.stackexchange.com/q/67209/507">Vector backed by memory pages</a></li>
+<li>2014/Oct/31 &ndash; <a href="http://codereview.stackexchange.com/q/68486/507">Custom matrix class</a></li>
+<li>2014/Nov/25 &ndash; <a href="http://codereview.stackexchange.com/q/70815/507">Vector/matrix class</a></li>
+<li>2014/Dec/22 &ndash; <a href="http://codereview.stackexchange.com/q/74521/507">Vector implementation</a></li>
+<li>2015/Feb/17 &ndash; <a href="http://codereview.stackexchange.com/q/81751/507">Mathematical matrices implementation</a></li>
+<li>2015/Mar/01 &ndash; <a href="http://codereview.stackexchange.com/q/82906/507">C++ vector implementation errors</a></li>
+<li>2015/Jun/20 &ndash; <a href="http://codereview.stackexchange.com/q/94211/507">Implementation of std::vector class</a></li>
+<li>2015/Jul/08 &ndash; <a href="http://codereview.stackexchange.com/q/96253/507">Second implementation of std::vector</a></li>
+<li>2015/Oct/17 &ndash; <a href="http://codereview.stackexchange.com/q/107877/507">Simple multi-dimensional Array class in C++11</a></li>
+<li>2015/Oct/19 &ndash; <a href="http://codereview.stackexchange.com/q/108072/507">Creating n-dimensional mathematical vector classes through inheritance</a></li>
+<li>2015/Oct/20 &ndash; <a href="http://codereview.stackexchange.com/q/108140/507">Implementation of Vector in C++</a></li>
+<li>2015/Oct/23 &ndash; <a href="http://codereview.stackexchange.com/q/108558/507">Simple multi-dimensional Array class in C++11 &ndash; follow-up</a></li>
+<li>2015/Nov/18 &ndash; <a href="http://codereview.stackexchange.com/q/111114/507">Custom vector that uses less memory than std::vector</a></li>
+<li>2015/Nov/24 &ndash; <a href="http://codereview.stackexchange.com/q/111746/507">Attempt at templates by creating a class for N-dimensional mathematical vectors</a></li>
+<li>2016/Jan/10 &ndash; <a href="http://codereview.stackexchange.com/q/116377/507">Vector Implementation C++</a></li>
+</ul>
+
+
+<h1>Rule of Zero</h1>
+
+<p>You will notice that half the attempts above are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasis the <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a>. An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass <code>std::vector&lt;int&gt;</code> would be a good choice).</p>
+
+<p>In C++ the compiler generates a couple of methods for free.</p>
+
+<ul>
+<li>Destructor</li>
+<li>Copy Constructor</li>
+<li>Copy Assignment Operator</li>
+<li>Move Constructor</li>
+<li>Move Assignment Operator</li>
+</ul>
+
+
+<p>These methods usually work perfectly well; <strong>unless</strong> your class contains a pointer (or a pointer like resource object). But if your class is doing business logic then it should not contain a pointer. So classes that handle business logic therefore should bot be defining any of these compiler generated methods (just let the compiler generated ones work for you). Occasionally you want to delete them, to prevent copying or movement, but it is very unusual for these to need specialized implementations.</p>
+
+<p>Conversely classes that do resource management usually contain a pointer (or pointer like resource object). These classes should define all the above methods to correctly handle the resource. This is where ownership semantics of the resource are defined. The owner of the resource is responsible for destroying the resource when its lifespan is over (in terms of pointers this means the owner is responsible for calling <code>delete</code> on the pointer (usually in the destructor)). If you are not the owner of a resource you should not have access to the resource object directly (as it may be destroyed by the owner without other objects knowing).</p>
+
+<h1><a href="http://stackoverflow.com/q/4172722/14065">Rule of three</a></h1>
+
+<h2>Version-1 Simple Resource Management</h2>
+
+<p>When creating a class to manage resources; the first version created by beginner usually looks like this:</p>
+
+<figure class='code'><figcaption><span>Rule of three first pass</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">size</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="p">(</span><span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'>        <span class="o">:</span> <span class="n">size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="k">new</span> <span class="n">T</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>   <span class="c1">// Allocate the resource</span>
+</span><span class='line'>    <span class="p">{}</span>
+</span><span class='line'>    <span class="o">~</span><span class="n">Vector</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">delete</span> <span class="p">[]</span> <span class="n">buffer</span><span class="p">;</span>       <span class="c1">// Clean up the resource</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The trouble here is that this version has a fundamental flaw because of the way the <a href="http://stackoverflow.com/a/4044360/14065">compiler generated</a> copy constructor and copy assignment operator work with pointers (commonly refereed to as the <a href="http://stackoverflow.com/q/2344664/14065">shallow copy problem</a>).</p>
+
+<figure class='code'><figcaption><span>Shallow copy problem.</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>   <span class="n">x</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>   <span class="n">y</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>     <span class="c1">// Compiler generate copy constructure does</span>
+</span><span class='line'>                            <span class="c1">// an element wise shallow copy of each element.</span>
+</span><span class='line'>                            <span class="c1">// This means both `x` and `y` have a buffer</span>
+</span><span class='line'>                            <span class="c1">// member that points at the same area in memory.</span>
+</span><span class='line'>                            <span class="c1">//</span>
+</span><span class='line'>                            <span class="c1">// When the objects go out of scope both will</span>
+</span><span class='line'>                            <span class="c1">// try and call delete on the memory resulting</span>
+</span><span class='line'>                            <span class="c1">// in a double delete of the memory.</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>   <span class="n">z</span><span class="p">;</span>        <span class="c1">// Same problem after an assignment.</span>
+</span><span class='line'>    <span class="n">z</span><span class="o">=</span><span class="n">x</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Version-2 Rule of Three</h2>
+
+<p>The rule of three simply stated is: If you define any of the methods Destructor/Copy Constructor/Copy Assignment Operator then you should define all three. When done correctly this resolves the shallow copy problem. <code>Vector</code> defines the destructor so we also need to define the copy constructor and copy assignment operator.</p>
+
+<p>I see this as an initial attempt at defining the rule of three for vectors very often.</p>
+
+<figure class='code'><figcaption><span>Rule of three second pass</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">size</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="p">(</span><span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'>        <span class="o">:</span> <span class="n">size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="k">new</span> <span class="n">T</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>
+</span><span class='line'>    <span class="p">{}</span>
+</span><span class='line'>    <span class="o">~</span><span class="n">Vector</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">delete</span> <span class="p">[]</span> <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
+</span><span class='line'>        <span class="o">:</span> <span class="n">size</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">size</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="k">new</span> <span class="n">T</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Copy constructor is simple.</span>
+</span><span class='line'>        <span class="c1">// We create a new resource area of the required size.</span>
+</span><span class='line'>        <span class="c1">// Then we copy the data from the old buffer to the new buffer.</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">copy</span><span class="p">.</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">copy</span><span class="p">.</span><span class="n">size</span><span class="p">,</span> <span class="n">copy</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Copy Object (more detail below)</span>
+</span><span class='line'>        <span class="c1">// This is relatively easy. But I want to cover this in detail below.</span>
+</span><span class='line'>        <span class="c1">// So hold on for now.</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Version-3 Lazy Construction of elements.</h2>
+
+<p>The problem with the previous version is that it forces initialization of all elements in the buffer immediately. Thus forces the requirement that members of the <code>Vector</code> (i.e. type <code>T</code>) must be default constructable. It also has two efficiency constraints imposed on the vector:</p>
+
+<ul>
+<li>You can&rsquo;t pre-allocate space for future members.
+
+<ul>
+<li>So resizing (larger or smaller) becomes very expensive as each resize requires copy all the elements to the newly re-sized buffer.</li>
+<li>Alternatively pre-creating all the elements you need can also be expensive especially if construction of <code>T</code> is expensive.</li>
+</ul>
+</li>
+<li>The copy constructor is twice as expensive as it should be. Each element must be:
+
+<ul>
+<li>Default constructed (when the buffer is created).</li>
+<li>Then copy constructed with the value from the source vector.</li>
+</ul>
+</li>
+</ul>
+
+
+<p>This attempt improves on that by allowing efficient pre-allocating of space (<code>capacity</code>) for the buffer. New members are then added by constructing in place using <a href="http://stackoverflow.com/questions/362953/what-are-uses-of-the-c-construct-placement-new">placement new</a>.</p>
+
+<figure class='code'><figcaption><span>Rule of three third pass</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="p">(</span><span class="kt">int</span> <span class="n">capacity</span><span class="p">)</span>
+</span><span class='line'>        <span class="o">:</span> <span class="n">capacity</span><span class="p">(</span><span class="n">capacity</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="c1">// Allocates space but does not call the constructor</span>
+</span><span class='line'>        <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">capacity</span><span class="p">)))</span>
+</span><span class='line'>        <span class="c1">// Useful if the type T has an expensive constructor</span>
+</span><span class='line'>        <span class="c1">// We preallocate space without initializing it giving</span>
+</span><span class='line'>        <span class="c1">// room to grow and shrink the buffer without re-allocating.</span>
+</span><span class='line'>    <span class="p">{}</span>
+</span><span class='line'>    <span class="o">~</span><span class="n">Vector</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Because elements are constructed in place using</span>
+</span><span class='line'>        <span class="c1">// placement new. Then we must manually call the destructor</span>
+</span><span class='line'>        <span class="c1">// on the elements.</span>
+</span><span class='line'>        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Note we destroy the elements in reverse order.</span>
+</span><span class='line'>            <span class="n">buffer</span><span class="p">[</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">loop</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
+</span><span class='line'>        <span class="o">:</span> <span class="n">capacity</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">capacity</span><span class="p">)))</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Copy constructor is simple.</span>
+</span><span class='line'>        <span class="c1">// We create a new resource area of the required length.</span>
+</span><span class='line'>        <span class="c1">// But these elements are not initialized so we use push_back to copy them</span>
+</span><span class='line'>        <span class="c1">// into the new object. This is an improvement because we</span>
+</span><span class='line'>        <span class="c1">// only construct the members of the vector once.</span>
+</span><span class='line'>        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">push_back</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">loop</span><span class="p">]);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Copy Object (more detail below)</span>
+</span><span class='line'>        <span class="c1">// This is relatively easy. But I want to cover this in detail below.</span>
+</span><span class='line'>        <span class="c1">// So hold on for now.</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Use placement new to copy buffer into the new buffer</span>
+</span><span class='line'>        <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+</span><span class='line'>        <span class="o">++</span><span class="n">length</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Note we will handle growing the capacity later.</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="kt">void</span> <span class="n">pop_back</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// When removing elements need to manually call the destructor</span>
+</span><span class='line'>        <span class="c1">// because we created them using placement new.</span>
+</span><span class='line'>        <span class="o">--</span><span class="n">length</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">buffer</span><span class="p">[</span><span class="n">length</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1><a href="http://stackoverflow.com/q/3279543/14065">Copy And Swap Idiom</a></h1>
+
+<p>The copy and swap idiom is about dealing with copy assignment operator. It provides a technique for providing the <a href="https://en.wikipedia.org/wiki/Exception_safety">strong exception guarantee</a>. This section walk through the processes of writing a copy assignment operator that provides the strong exception guarantee. Showing why it is an important technique.</p>
+
+<p>This is often the first version of a copy constructor seen:</p>
+
+<figure class='code'><figcaption><span>Copy Assignment (Try 1)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// STUFF</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">copy</span> <span class="o">==</span> <span class="k">this</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Early exit for self assignment</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="c1">// First we have to destroy all the current elements.</span>
+</span><span class='line'>        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">buffer</span><span class="p">[</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">loop</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="c1">// Now the buffer is empty so reset size to zero.</span>
+</span><span class='line'>        <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Now copy all the elements from the source into this object</span>
+</span><span class='line'>        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">push_back</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">loop</span><span class="p">]);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The problem is that this does not provide the strong exception guarantee. If any of the constructors/destructor throw then the object will be left in an inconsistent state, with no way to restore the original state. The strong exception guarantee basically means that the operation works or does not change the state of the object. To do this we must create the copy into a new temporary buffer that can be thrown away if things go wrong.</p>
+
+<figure class='code'><figcaption><span>Copy Assignment (Try 2)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// STUFF</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">copy</span> <span class="o">==</span> <span class="k">this</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Early exit for self assignment</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="c1">// Part-1 Create a copy of the src object.</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">tmpCap</span>    <span class="o">=</span> <span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">tmpSize</span>   <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">T</span><span class="o">*</span>          <span class="n">tmpBuffer</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">tmpCap</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Now copy all the elements from the source into the temporary object</span>
+</span><span class='line'>        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">tmpBuffer</span> <span class="o">+</span> <span class="n">tmpSize</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">loop</span><span class="p">]);</span>
+</span><span class='line'>            <span class="o">++</span><span class="n">tmpSize</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Part-2 Swap the state</span>
+</span><span class='line'>        <span class="c1">// We have successfully created the new version of this object</span>
+</span><span class='line'>        <span class="c1">// So swap the temporary and object states.</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">tmpCap</span><span class="p">,</span>    <span class="n">capacity</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">tmpSize</span><span class="p">,</span>   <span class="n">length</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">tmpBuffer</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Part-3 Destroy the old state.</span>
+</span><span class='line'>        <span class="c1">// Now we have to delete the old state.</span>
+</span><span class='line'>        <span class="c1">// If this fails it does not matter the state of the object is consistent</span>
+</span><span class='line'>        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">tmpSize</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">tmpBuffer</span><span class="p">[</span><span class="n">tmpSize</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">loop</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">tmpBuffer</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is a better attempt. But it still leaks if an exception is throw. But before we add exception handling lets take a closer look at the three sections of the assignment operator.</p>
+
+<p>Part-1 looks exactly like the copy constructor of Vector.</p>
+
+<figure class='code'><figcaption><span>Copy Assignment Part 1</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">tmpCap</span>    <span class="o">=</span> <span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">tmpSize</span>   <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span>          <span class="n">tmpBuffer</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">tmpCap</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Now copy all the elements from the source into the temporary object</span>
+</span><span class='line'>    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// This looks exactly like push_back()</span>
+</span><span class='line'>        <span class="k">new</span> <span class="p">(</span><span class="n">tmpBuffer</span> <span class="o">+</span> <span class="n">tmpSize</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">loop</span><span class="p">]);</span>
+</span><span class='line'>        <span class="o">++</span><span class="n">tmpSize</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Part-3 looks exactly like destructor of Vector.</p>
+
+<figure class='code'><figcaption><span>Copy Assignment Part 3</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="c1">// Now we have to delete the old state.</span>
+</span><span class='line'>    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">tmpSize</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">tmpBuffer</span><span class="p">[</span><span class="n">tmpSize</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">loop</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">tmpBuffer</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Using these two observations we have a re-write of the copy assignment operator.</p>
+
+<figure class='code'><figcaption><span>Copy Assignment (Try 3)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// STUFF</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">copy</span> <span class="o">==</span> <span class="k">this</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Early exit for self assignment</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="c1">// Part-1 Create a copy</span>
+</span><span class='line'>        <span class="n">Vector</span>  <span class="n">tmp</span><span class="p">(</span><span class="n">copy</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Part-2 Swap the state</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">tmp</span><span class="p">.</span><span class="n">capacity</span><span class="p">,</span> <span class="n">capacity</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">tmp</span><span class="p">.</span><span class="n">length</span><span class="p">,</span>   <span class="n">length</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">tmp</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span>   <span class="n">buffer</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>        <span class="c1">// Part-3 Destructor called at end of scope.</span>
+</span><span class='line'>        <span class="c1">// No actual code required here.</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The above code works perfectly. But Part-2 the swap looks like a normal swap operation so we can just pull that out into its own method. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse. But it make the normal operation even more efficient. Since the occurrences of self assignment are so extremely rare I would not prematurely optimize for them and make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.</p>
+
+<figure class='code'><figcaption><span>Copy Assignment (Try 4)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// STUFF</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">Vector</span>  <span class="n">tmp</span><span class="p">(</span><span class="n">copy</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="n">noexcept</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">capacity</span><span class="p">,</span> <span class="n">capacity</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">length</span><span class="p">,</span>   <span class="n">length</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span>   <span class="n">buffer</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Rule of Five</h1>
+
+<p>In C++11 the language add the concept of &ldquo;Move Semantics&rdquo;. Rather than having to copy an object (especially on return from a function) we could &ldquo;move&rdquo; an object. The concept here is that movement is supposed to be much cheaper than copy because you move the internal data structure of an object rather than all the elements. A good example is a std::vector. Pre C++11 a return by value means copying the object. The constructor of the new object allocates a new internal buffer and then copies all the elements from the original objects buffer to the new objects buffer. On the other hand a move simply gives the new object the internal buffer of the old object (we just move the pointer to the internal buffer). When an object is moved to another object the old object should be left in a valid state, but for efficiency the standard rarely specifies the state of an object after it has been the source of a move. Thus using an object after a move is a bad idea unless you are setting it to a specific state.</p>
+
+<p>There are two new method that allow us to specify move semantics on a class.</p>
+
+<figure class='code'><figcaption><span>Vector Move Semantics.</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// STUFF    </span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Move Constructor</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;&amp;</span> <span class="n">move</span><span class="p">)</span> <span class="n">noexcept</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Move Assignment Operator</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;&amp;</span> <span class="n">move</span><span class="p">)</span> <span class="n">noexcept</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Notice the <code>&amp;&amp;</code> operator. This donates an r-value reference and means that your object is the destination of a move operation. The parameter passed is the source object and the state you should use to define your new objects state. After the move the source object must be left in a valid (but can be undefined state). For a vector this means it must no longer be the owner of the internal buffer that you are now using in your buffer.</p>
+
+<p>The simplest way to achieve this goal is to set up the object in a valid (but very cheap to achieve state) and then swap the current object with the destination object.</p>
+
+<figure class='code'><figcaption><span>Vector Move Semantics Implementation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// STUFF    </span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Move Constructor</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;&amp;</span> <span class="n">move</span><span class="p">)</span> <span class="n">noexcept</span>
+</span><span class='line'>        <span class="o">:</span> <span class="n">capacity</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// The source object now has a nullptr/</span>
+</span><span class='line'>        <span class="c1">// This object has taken the state of the source object.</span>
+</span><span class='line'>        <span class="n">move</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Move Assignment Operator</span>
+</span><span class='line'>    <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;&amp;</span> <span class="n">move</span><span class="p">)</span> <span class="n">noexcept</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// In this case simply swap the source object</span>
+</span><span class='line'>        <span class="c1">// and this object around.</span>
+</span><span class='line'>        <span class="n">move</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note I marked both move operators <code>noexcept</code>. Assuming the operations are guaranteed not to throw you should mark them as <code>noexcept</code>. If we know that certain operations are exception safe them we can optimize resize operations and maintain the strong exception guarantee. This and some other optimizations will be documented in a subsequent post.</p>
+
+<h1>Allocating more storage</h1>
+
+<p>When pushing data into the array we need to verify that capacity has not been exceeded. If it has then we to allocate more capacity then copy the current content into the new buffer. This operation is exceedingly similar to the copy assignment operator. As a result the best solution looks very similar and we use a temporary object to hold the new state while we are creating it. Then swap the state of the current object with the temporary on completion. The temporary objects destructor will then take care of clean up (even if there is an exception).</p>
+
+<figure class='code'><figcaption><span>Vector Reallocating Buffer</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// STUFF    </span>
+</span><span class='line'>    <span class="kt">void</span> <span class="n">resizeIfRequire</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">length</span> <span class="o">==</span> <span class="n">capacity</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Create a temporary object with a larger capacity.</span>
+</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">newCapacity</span>  <span class="o">=</span> <span class="n">capacity</span> <span class="o">*</span> <span class="mf">1.62</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">tmpBuffer</span><span class="p">(</span><span class="n">newCapacity</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Copy the state of this object into the new object.</span>
+</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span> <span class="p">[</span><span class="o">&amp;</span><span class="n">tmpBuffer</span><span class="p">](</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">item</span><span class="p">){</span><span class="n">tmpBuffer</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">item</span><span class="p">);});</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// All the work has been successfully done. So swap</span>
+</span><span class='line'>            <span class="c1">// the state of the temporary and the current object.</span>
+</span><span class='line'>            <span class="n">tmpBuffer</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// The temporary object goes out of scope here and</span>
+</span><span class='line'>            <span class="c1">// tidies up the state that is no longer needed.</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So the final version is now:</p>
+
+<figure class='code'><figcaption><span>Vector Final Version</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">Deleter</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="k">operator</span><span class="p">()(</span><span class="n">T</span><span class="o">*</span> <span class="n">buffer</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">Vector</span><span class="p">(</span><span class="kt">int</span> <span class="n">capacity</span><span class="p">)</span>
+</span><span class='line'>            <span class="o">:</span> <span class="n">capacity</span><span class="p">(</span><span class="n">capacity</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">capacity</span><span class="p">)))</span>
+</span><span class='line'>        <span class="p">{}</span>
+</span><span class='line'>        <span class="o">~</span><span class="n">Vector</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Make sure the buffer is deleted even with exceptions</span>
+</span><span class='line'>            <span class="c1">// This will be called to release the pointer at the end</span>
+</span><span class='line'>            <span class="c1">// of scope.</span>
+</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Deleter</span><span class="o">&gt;</span>     <span class="n">deleter</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">Deleter</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Call the destructor on all the members in reverse order</span>
+</span><span class='line'>            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="c1">// Note we destroy the elements in reverse order.</span>
+</span><span class='line'>                <span class="n">buffer</span><span class="p">[</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">loop</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">Vector</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
+</span><span class='line'>            <span class="o">:</span> <span class="n">capacity</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">capacity</span><span class="p">)))</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">try</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="n">push_backValue</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">loop</span><span class="p">]);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">catch</span><span class="p">(...)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="c1">// If there was an exception then destroy everything</span>
+</span><span class='line'>                <span class="c1">// that was created to make it exception safe.</span>
+</span><span class='line'>                <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="n">buffer</span><span class="p">[</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">loop</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// Make sure the exceptions continue propagating after</span>
+</span><span class='line'>                <span class="c1">// the cleanup has completed.</span>
+</span><span class='line'>                <span class="k">throw</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Copy and Swap idiom</span>
+</span><span class='line'>            <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">tmp</span><span class="p">(</span><span class="n">copy</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">Vector</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;&amp;</span> <span class="n">move</span><span class="p">)</span>
+</span><span class='line'>            <span class="o">:</span> <span class="n">capacity</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">move</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;&amp;</span> <span class="n">move</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">move</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="n">noexcept</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">swap</span><span class="p">(</span><span class="n">capacity</span><span class="p">,</span>      <span class="n">other</span><span class="p">.</span><span class="n">capacity</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">swap</span><span class="p">(</span><span class="n">length</span><span class="p">,</span>        <span class="n">other</span><span class="p">.</span><span class="n">length</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">swap</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span>        <span class="n">other</span><span class="p">.</span><span class="n">buffer</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">resizeIfRequire</span><span class="p">();</span>
+</span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+</span><span class='line'>            <span class="o">++</span><span class="n">length</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">pop_back</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="o">--</span><span class="n">length</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">buffer</span><span class="p">[</span><span class="n">length</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="k">private</span><span class="o">:</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">resizeIfRequire</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">length</span> <span class="o">==</span> <span class="n">capacity</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">newCapacity</span>  <span class="o">=</span> <span class="n">capacity</span> <span class="o">*</span> <span class="mf">1.62</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">tmpBuffer</span><span class="p">(</span><span class="n">newCapacity</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span> <span class="p">[</span><span class="o">&amp;</span><span class="n">tmpBuffer</span><span class="p">](</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">item</span><span class="p">){</span><span class="n">tmpBuffer</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">item</span><span class="p">);});</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">tmpBuffer</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This article has shown how to handle the basic resource management required by a vector. It has covered several important principles for C++ programmers.</p>
+
+<ul>
+<li>Separation Of Concerns</li>
+<li>Rule of Zero</li>
+<li>Rule of Three</li>
+<li>Rule of Five</li>
+<li>Default compiler generated methods</li>
+<li>Shallow Copy Problem</li>
+<li>Placement New</li>
+<li>Copy and Swap Idiom</li>
+<li>Exception Grantees</li>
+</ul>
+
+
+<p>The next article will cover some fundamental methods used by the vector and why they are implemented in a particular way in the C++ standard library. A subsequent article will then look at potential optimizations that can be applied automatically to the code.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Loki Astari, (C)2016,</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-02-27T12:00:31-08:00" pubdate data-updated="true">Feb 27<span>th</span>, 2016</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/c-plus-plus/'>C++</a>, <a class='category' href='/blog/categories/c-plus-plus-by-example/'>C++-By-Example</a>, <a class='category' href='/blog/categories/coding/'>Coding</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lokiastari.com/blog/2016/02/27/vector/" data-via="LokiAstari" data-counturl="http://lokiastari.com/blog/2016/02/27/vector/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    
+    <section>
+      <h1>Comments</h1>
+      <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+    </section>
+    
+    <ul class="pager">
+      
+      <li class="previous"><a class="basic-alignment left"
+        href="/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/" title="Previous Post:
+        Smart Pointer Constructors">&laquo; Smart Pointer Constructors</a></li>
+      
+      <li><a href="/blog/archives">Blog Archives</a></li>
+      
+    </ul>
+  </footer>
+</article>
+
+<aside class="sidebar-nav span3">
+  
+    <section class="well">
+  <ul id="recent_posts" class="nav nav-list">
+    <li class="nav-header">Recent Posts</li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/27/vector/">Vector - Part 1: Resource Management</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/">Smart Pointer Constructors</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/">Shared Pointer</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Unique Pointer</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/06/nearly-new-year-slash-new-resolution/">Nearly New Year/New Resolution</a>
+      </li>
+    
+  </ul>
+</section>
+<section class="well">
+  <ul id="recent_posts" class="nav nav-list">
+    <li class="nav-header">Twitter</li>
+    <li class="post">
+        <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </li>
+  </ul>
+</section>
+
+<section class="well">
+  <ul id="gh_repos" class="nav">
+    <li class="nav-header">GitHub Repos</li>
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/asides/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo" class="page-footer"><hr>
+<p>
+  Copyright &copy; 2016 - Loki Astari -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45976821-1', 'lokiastari.com');
+  ga('send', 'pageview');
+
+</script>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://lokiastari.com/blog/2016/02/27/vector/';
+        var disqus_url = 'http://lokiastari.com/blog/2016/02/27/vector/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
