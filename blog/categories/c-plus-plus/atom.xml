@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-02-29T12:26:27-08:00</updated>
+  <updated>2016-02-29T12:32:01-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -14,14 +14,207 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Vector - Part 1: Resource Management]]></title>
+    <title type="html"><![CDATA[Vector - Part 2: Resource Management Copy Assignment]]></title>
+    <link href="http://lokiastari.com/blog/2016/02/29/vector-resource-management-ii-copy-assignment/"/>
+    <updated>2016-02-29T12:29:20-08:00</updated>
+    <id>http://lokiastari.com/blog/2016/02/29/vector-resource-management-ii-copy-assignment</id>
+    <content type="html"><![CDATA[<h1><a href="http://stackoverflow.com/q/3279543/14065">Copy And Swap Idiom</a></h1>
+
+<p>The copy and swap idiom is about dealing with copy assignment operator. It provides a technique for providing the <a href="https://en.wikipedia.org/wiki/Exception_safety">strong exception guarantee</a>. This section walks through the processes of writing a copy assignment operator that provides the strong exception guarantee. Showing why it is an important technique.</p>
+
+<p>This is often the first version of a copy constructor seen:</p>
+
+<p>```cpp Copy Assignment (Try 1)
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+// STUFF
+Vector&amp; operator=(Vector const&amp; copy)
+{
+    if (&amp;copy == this)
+    {
+        // Early exit for self assignment
+        return *this;
+    }
+    // First we have to destroy all the current elements.
+    for(int loop = 0; loop &lt; length; ++loop)
+    {
+        buffer[length - 1 - loop].~T();
+    }
+    // Now the buffer is empty so reset size to zero.
+    length = 0;
+
+    // Now copy all the elements from the source into this object
+    for(int loop = 0; loop &lt; copy.length; ++loop)
+    {
+        push_back(copy.buffer[loop]);
+    }
+    return *this;
+}
+</code></pre>
+
+<p>};
+```</p>
+
+<p>The problem is that this does not provide the strong exception guarantee. If any of the constructors/destructor throw then the object will be left in an inconsistent state, with no way to restore the original state. The strong exception guarantee basically means that the operation works or does not change the state of the object. To do this we must create the copy into a new temporary buffer that can be thrown away if things go wrong.</p>
+
+<p>```cpp Copy Assignment (Try 2)
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+// STUFF
+Vector&amp; operator=(Vector const&amp; copy)
+{
+    if (&amp;copy == this)
+    {
+        // Early exit for self assignment
+        return *this;
+    }
+    // Part-1 Create a copy of the src object.
+    std::size_t tmpCap    = copy.length;
+    std::size_t tmpSize   = 0;
+    T*          tmpBuffer = static_cast&lt;int*&gt;(::operator new(sizeof(T) * tmpCap));
+
+    // Now copy all the elements from the source into the temporary object
+    for(int loop = 0; loop &lt; copy.length; ++loop)
+    {
+        new (tmpBuffer + tmpSize) T(copy.buffer[loop]);
+        ++tmpSize;
+    }
+
+    // Part-2 Swap the state
+    // We have successfully created the new version of this object
+    // So swap the temporary and object states.
+    std::swap(tmpCap,    capacity);
+    std::swap(tmpSize,   length);
+    std::swap(tmpBuffer, buffer);
+
+    // Part-3 Destroy the old state.
+    // Now we have to delete the old state.
+    // If this fails it does not matter the state of the object is consistent
+    for(int loop = 0; loop &lt; tmpSize; ++loop)
+    {
+        tmpBuffer[tmpSize - 1 - loop].~T();
+    }
+    ::operator delete(tmpBuffer);
+    return *this;
+}
+</code></pre>
+
+<p>};
+```
+This is a better attempt. But it still leaks if an exception is throw. But before we add exception handling, let us take a closer look at the three sections of the assignment operator.</p>
+
+<p>Part-1 looks exactly like the copy constructor of Vector.</p>
+
+<p>```cpp Copy Assignment Part 1</p>
+
+<pre><code>    std::size_t tmpCap    = copy.length;
+    std::size_t tmpSize   = 0;
+    T*          tmpBuffer = static_cast&lt;int*&gt;(::operator new(sizeof(T) * tmpCap));
+
+    // Now copy all the elements from the source into the temporary object
+    for(int loop = 0; loop &lt; copy.length; ++loop)
+    {
+        // This looks exactly like push_back()
+        new (tmpBuffer + tmpSize) T(copy.buffer[loop]);
+        ++tmpSize;
+    }
+</code></pre>
+
+<p>```</p>
+
+<p>Part-3 looks exactly like destructor of Vector.
+```cpp Copy Assignment Part 3</p>
+
+<pre><code>    // Now we have to delete the old state.
+    for(int loop = 0; loop &lt; tmpSize; ++loop)
+    {
+        tmpBuffer[tmpSize - 1 - loop].~T();
+    }
+    ::operator delete(tmpBuffer);
+</code></pre>
+
+<p>```</p>
+
+<p>Using these two observations we have a re-write of the copy assignment operator.</p>
+
+<p>```cpp Copy Assignment (Try 3)
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+// STUFF
+Vector&amp; operator=(Vector const&amp; copy)
+{
+    if (&amp;copy == this)
+    {
+        // Early exit for self assignment
+        return *this;
+    }
+    // Part-1 Create a copy
+    Vector  tmp(copy);
+
+    // Part-2 Swap the state
+    std::swap(tmp.capacity, capacity);
+    std::swap(tmp.length,   length);
+    std::swap(tmp.buffer,   buffer);
+
+    return *this;
+    // Part-3 Destructor called at end of scope.
+    // No actual code required here.
+}
+</code></pre>
+
+<p>};
+```</p>
+
+<p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation, so we can just pull that out into its own method. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it make the normal operation even more efficient. Since the occurrences of self assignment are so extremely rare I would not prematurely optimize for them and make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.</p>
+
+<p>```cpp Copy Assignment (Try 4)
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+// STUFF
+Vector&amp; operator=(Vector const&amp; copy)
+{
+    Vector  tmp(copy);
+    tmp.swap(*this);
+    return *this;
+}
+void swap(Vector&amp; other) noexcept
+{
+    std::swap(other.capacity, capacity);
+    std::swap(other.length,   length);
+    std::swap(other.buffer,   buffer);
+}
+</code></pre>
+
+<p>};
+```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Vector - Part 1: Resource Management Allocation]]></title>
     <link href="http://lokiastari.com/blog/2016/02/27/vector/"/>
     <updated>2016-02-27T12:00:31-08:00</updated>
     <id>http://lokiastari.com/blog/2016/02/27/vector</id>
     <content type="html"><![CDATA[<p>A lot of new developers to C++ attempt to build a <code>Vector</code> like container as a learning processes. Getting a simple version of this working for POD types (like int) is not that complicated. The next step in getting this working for arbitrary data types takes a significant leap forward in thinking in C++ especially when you start looking at efficiency. This set of four articles looks at building an efficient <code>Vector</code> implementation. I show some of the common mistakes and explain why and how to resolve the problems:</p>
 
 <ol>
-<li>Resource Management I:   Aloocation</li>
+<li>Resource Management I:   Allocation</li>
 <li>Resource Management II:  Copy Assignment</li>
 <li>Resource Management III: Simple Optimizations</li>
 <li>Container Concepts.</li>
@@ -263,192 +456,6 @@ void pop_back()
     // because we created them using placement new.
     --length;
     buffer[length].~T();
-}
-</code></pre>
-
-<p>};
-```</p>
-
-<h1><a href="http://stackoverflow.com/q/3279543/14065">Copy And Swap Idiom</a></h1>
-
-<p>The copy and swap idiom is about dealing with copy assignment operator. It provides a technique for providing the <a href="https://en.wikipedia.org/wiki/Exception_safety">strong exception guarantee</a>. This section walks through the processes of writing a copy assignment operator that provides the strong exception guarantee. Showing why it is an important technique.</p>
-
-<p>This is often the first version of a copy constructor seen:</p>
-
-<p>```cpp Copy Assignment (Try 1)
-class Vector
-{</p>
-
-<pre><code>std::size_t     capacity;
-std::size_t     length;
-T*              buffer;
-// STUFF
-Vector&amp; operator=(Vector const&amp; copy)
-{
-    if (&amp;copy == this)
-    {
-        // Early exit for self assignment
-        return *this;
-    }
-    // First we have to destroy all the current elements.
-    for(int loop = 0; loop &lt; length; ++loop)
-    {
-        buffer[length - 1 - loop].~T();
-    }
-    // Now the buffer is empty so reset size to zero.
-    length = 0;
-
-    // Now copy all the elements from the source into this object
-    for(int loop = 0; loop &lt; copy.length; ++loop)
-    {
-        push_back(copy.buffer[loop]);
-    }
-    return *this;
-}
-</code></pre>
-
-<p>};
-```</p>
-
-<p>The problem is that this does not provide the strong exception guarantee. If any of the constructors/destructor throw then the object will be left in an inconsistent state, with no way to restore the original state. The strong exception guarantee basically means that the operation works or does not change the state of the object. To do this we must create the copy into a new temporary buffer that can be thrown away if things go wrong.</p>
-
-<p>```cpp Copy Assignment (Try 2)
-class Vector
-{</p>
-
-<pre><code>std::size_t     capacity;
-std::size_t     length;
-T*              buffer;
-// STUFF
-Vector&amp; operator=(Vector const&amp; copy)
-{
-    if (&amp;copy == this)
-    {
-        // Early exit for self assignment
-        return *this;
-    }
-    // Part-1 Create a copy of the src object.
-    std::size_t tmpCap    = copy.length;
-    std::size_t tmpSize   = 0;
-    T*          tmpBuffer = static_cast&lt;int*&gt;(::operator new(sizeof(T) * tmpCap));
-
-    // Now copy all the elements from the source into the temporary object
-    for(int loop = 0; loop &lt; copy.length; ++loop)
-    {
-        new (tmpBuffer + tmpSize) T(copy.buffer[loop]);
-        ++tmpSize;
-    }
-
-    // Part-2 Swap the state
-    // We have successfully created the new version of this object
-    // So swap the temporary and object states.
-    std::swap(tmpCap,    capacity);
-    std::swap(tmpSize,   length);
-    std::swap(tmpBuffer, buffer);
-
-    // Part-3 Destroy the old state.
-    // Now we have to delete the old state.
-    // If this fails it does not matter the state of the object is consistent
-    for(int loop = 0; loop &lt; tmpSize; ++loop)
-    {
-        tmpBuffer[tmpSize - 1 - loop].~T();
-    }
-    ::operator delete(tmpBuffer);
-    return *this;
-}
-</code></pre>
-
-<p>};
-```
-This is a better attempt. But it still leaks if an exception is throw. But before we add exception handling, let us take a closer look at the three sections of the assignment operator.</p>
-
-<p>Part-1 looks exactly like the copy constructor of Vector.</p>
-
-<p>```cpp Copy Assignment Part 1</p>
-
-<pre><code>    std::size_t tmpCap    = copy.length;
-    std::size_t tmpSize   = 0;
-    T*          tmpBuffer = static_cast&lt;int*&gt;(::operator new(sizeof(T) * tmpCap));
-
-    // Now copy all the elements from the source into the temporary object
-    for(int loop = 0; loop &lt; copy.length; ++loop)
-    {
-        // This looks exactly like push_back()
-        new (tmpBuffer + tmpSize) T(copy.buffer[loop]);
-        ++tmpSize;
-    }
-</code></pre>
-
-<p>```</p>
-
-<p>Part-3 looks exactly like destructor of Vector.
-```cpp Copy Assignment Part 3</p>
-
-<pre><code>    // Now we have to delete the old state.
-    for(int loop = 0; loop &lt; tmpSize; ++loop)
-    {
-        tmpBuffer[tmpSize - 1 - loop].~T();
-    }
-    ::operator delete(tmpBuffer);
-</code></pre>
-
-<p>```</p>
-
-<p>Using these two observations we have a re-write of the copy assignment operator.</p>
-
-<p>```cpp Copy Assignment (Try 3)
-class Vector
-{</p>
-
-<pre><code>std::size_t     capacity;
-std::size_t     length;
-T*              buffer;
-// STUFF
-Vector&amp; operator=(Vector const&amp; copy)
-{
-    if (&amp;copy == this)
-    {
-        // Early exit for self assignment
-        return *this;
-    }
-    // Part-1 Create a copy
-    Vector  tmp(copy);
-
-    // Part-2 Swap the state
-    std::swap(tmp.capacity, capacity);
-    std::swap(tmp.length,   length);
-    std::swap(tmp.buffer,   buffer);
-
-    return *this;
-    // Part-3 Destructor called at end of scope.
-    // No actual code required here.
-}
-</code></pre>
-
-<p>};
-```</p>
-
-<p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation, so we can just pull that out into its own method. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it make the normal operation even more efficient. Since the occurrences of self assignment are so extremely rare I would not prematurely optimize for them and make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.</p>
-
-<p>```cpp Copy Assignment (Try 4)
-class Vector
-{</p>
-
-<pre><code>std::size_t     capacity;
-std::size_t     length;
-T*              buffer;
-// STUFF
-Vector&amp; operator=(Vector const&amp; copy)
-{
-    Vector  tmp(copy);
-    tmp.swap(*this);
-    return *this;
-}
-void swap(Vector&amp; other) noexcept
-{
-    std::swap(other.capacity, capacity);
-    std::swap(other.length,   length);
-    std::swap(other.buffer,   buffer);
 }
 </code></pre>
 
@@ -1697,214 +1704,6 @@ If you are thinking this is not enough you are correct. We still have some more 
 <h2>Summary</h2>
 
 <p>So in this initial post we have looked at a typical first attempt at a smart pointer and summarized the common problems I often see in these home grown smart pointer implementations.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Control Flow]]></title>
-    <link href="http://lokiastari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/"/>
-    <updated>2013-12-02T12:00:11-08:00</updated>
-    <id>http://lokiastari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5</id>
-    <content type="html"><![CDATA[<p>So far we have demonstrated basic programs that just do a single task without making any decisions. Most (all but the most trivial) programming languages provide constructs for decision making (Conditional Branching).</p>
-
-<p>C++ provides two forms of branching. The <strong>&ldquo;If Statement&rdquo;</strong> and the <strong>&ldquo;Switch Statement&rdquo;</strong> .</p>
-
-<p>Note: Looping is also a form of branching. The looping concept is extensive enough that we will deal with looping separately in its own article.</p>
-
-<h3>If Statement</h3>
-
-<p>The <strong>&ldquo;If Statement&rdquo;</strong> allows code to be executed when a certain condition is fulfilled and optionally an alternative piece of code otherwise.
-``` cpp ifstatement.cpp</p>
-
-<pre><code>// First versin of "If Statement"
-// Execute code if &lt;Condition&gt; is true.
-//
-if (&lt;Condition&gt;)
-{
-    &lt;code to execute if Condition is true&gt;
-}
-
-
-// Second version of "If Statement"
-// Execute code1 if &lt;Condition&gt; is true or code2 if &lt;Condition&gt; is false 
-//
-if (&lt;Condition&gt;)
-{
-    &lt;code1: execute if Condition is true&gt;
-}
-else
-{
-    &lt;code2: execute if Condition is false&gt;
-}
-</code></pre>
-
-<p>```</p>
-
-<p>The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types. On user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below; the language does not enforce this, <strong>BUT</strong> if you don&rsquo;t follow this suggestion your types will scare people and they will not be used, so follow the expected behavior.</p>
-
-<p><code>cpp Standard Comparison Operators
-/*
-| Operator  | Usage   | Result Type | Meaning                                                           |
-| ----------|---------|-------------|-------------------------------------------------------------------|
-|    !      |  !A     |  bool       | Not A. If A is true then false, if A is false then true.          |
-|           |         |             | If A us not a bool type it is converted (see below)               |
-|    ==     |  A == B |  bool       | true if A and B logically equivalent, otherwise false.            |
-|    !=     |  A != B |  bool       | Should mean !(A == B)                                             |
-|    &lt;      |  A &lt;  B |  bool       | true if A is logically less than B.                               |
-|    &lt;=     |  A &lt;= B |  bool       | true if A is logically less than or equal to B.                   |
-|    &gt;      |  A &gt;  B |  bool       | true if A is logically greater than B.                            |
-|    &gt;=     |  a &gt;= B |  bool       | true if A is logically greater than or equal to B.                |
-|    &amp;&amp;     |  A &amp;&amp; B |  bool       | true if A is true **AND** B is true.                              |
-|           |         |             | If the expressions A or B are not actually bool then              |
-|           |         |             | it is converted (see below). Also worth noting is that            |
-|           |         |             | if A is **false** then the expression for B is not evaluated.     |
-|           |         |             | This is known as a shortcut operator we will describe this later. |
-|    ||     |  A || B |  bool       | true if A is true **OR** B is true.                               |
-|           |         |             | If the expressions A or B are not actually a bool then            |
-|           |         |             | it is converted (see below). Also worth noting is that            |
-|           |         |             | if A is **true** then the expression for B is not evaluated.      |
-|           |         |             | This is known as a shortcut operator we will describe this later. |
-|-----------|---------|-------------|-------------------------------------------------------------------|
-*/
-</code></p>
-
-<p>If the expression you use in **&lt;Condition&gt; does not actually result in a bool value the compiler will insert a conversion that will result in a bool (true/false) value. If no conversion is possible it results in a compile time error.</p>
-
-<p><code>cpp Type conversion
-/*
-| Type             | false      | true            | Notes                                               |
-|------------------|------------|-----------------|-----------------------------------------------------|
-| bool             | false      | true            | Should be obvious: No actual conversion used.       |
-| Integers         | 0          | (anything else) | Integer shorthand for (char/short/int/long)         |
-| Pointers         | NULL       | (anything else) | Will discuss pointers in detail later.              |
-| User Define Type | ?          | ?               | If a cast operator to bool/Integer/pointer exists   |
-|                  |            |                 | this will be used.                                  |
-|------------------|------------|-----------------|-----------------------------------------------------|
-*/
-</code></p>
-
-<p>An example of using an <strong>If Statement</strong>:
-``` cpp itest.cpp</p>
-
-<pre><code>#include &lt;iostream&gt;
-#include &lt;string&gt;
-
-int main()
-{
-    std::string    name;
-    std::cout &lt;&lt; "Please enter your name\n";
-    std::cin &gt;&gt; name;
-
-    if (name == "Loki")
-    {
-        std::cout &lt;&lt; "Hello Admin\n";
-    }
-    else
-    {
-        std::cout &lt;&lt; "Hello Muggle\n";
-    }
-
-    int   value;
-    std::cin &gt;&gt; value;
-    std::cout &lt;&lt; "Please enter a non zero integer value\n";
-    if (value) // integer value converted to bool
-    {
-        std::cout &lt;&lt; "You got it correct. Must use a non zero value.\n";
-    }
-}
-</code></pre>
-
-<p>```</p>
-
-<h3>Switch Statement</h3>
-
-<p>The <strong>&ldquo;Switch Statement&rdquo;</strong> is an alternative to the <strong>&ldquo;If Statement&rdquo;</strong>. Prefer the switch when you have lots of options derived from the same expression. Unlike other high level language C++ can only use <strong>Integer</strong> types in a switch statement; thus in all `Case &lt;Value&gt; the &lt;Value&gt; must be an integer <strong>literal</strong> value.</p>
-
-<p>``` cpp switch.cpp</p>
-
-<pre><code>switch(&lt;Test Expression&gt;)
-{
-    case &lt;value1&gt;:
-    {
-        &lt;code1&gt;
-        break;
-    }
-    case &lt;value2&gt;:
-    {
-        &lt;code2&gt;
-        break;
-    }
-    case &lt;value3&gt;:
-    {
-        &lt;code3&gt;
-        break;
-    }
-    default:
-    {
-        &lt;code Default&gt;
-        break
-    }
-}
-//
-//
-// Equivalent "If Statement"
-
-int test = &lt;Test Expression&gt;;
-if (&lt;value1&gt; == test)
-{
-    &lt;code1&gt;
-}
-else
-{
-    if (&lt;value2&gt; == test)
-    {
-        &lt;code2&gt;
-    }
-    else
-    {
-        if (&lt;value3&gt; == test)
-        {
-            &lt;code3&gt;
-        }
-        else
-        {
-            &lt;code Default&gt;
-        }
-    }
-}
-</code></pre>
-
-<p>```</p>
-
-<p>If you use a non Integer expression in the switch statement the compiler will try and convert the value to an integer. If this is not possible it generates a compile time error.</p>
-
-<p>``` cpp switch.cpp</p>
-
-<pre><code>#include &lt;iostream&gt;
-
-int main()
-{
-    int  value;
-    std::cout &lt;&lt; "Input a value between 0 and 5\n";
-    std::cin &gt;&gt; value;
-
-    switch(value)
-    {
-        case 0: {std::cout &lt;&lt; "You used zero\n";    break;}
-        case 1: {std::cout &lt;&lt; "You used one\n";     break;}
-        case 2: {std::cout &lt;&lt; "You used two\n";     break;}
-        case 3: {std::cout &lt;&lt; "You used three\n";   break;}
-        case 4: {std::cout &lt;&lt; "You used four\n";    break;}
-        case 5: {std::cout &lt;&lt; "You used five\n";    break;}
-        default: {std::cout &lt;&lt; "You failed to follow instructions\n";break;}
-    }
-}
-</code></pre>
-
-<p>```</p>
-
-<p>Note I: The language does not require you to use a <strong>Break Statement</strong> in each block. <strong>BUT</strong> you should and compilers will warn you when you don&rsquo;t.<br/>
-Note II: You should always use a <strong>Default Statement</strong> . If the value does not hit a value specified in a <strong>Case Statement</strong> then the <strong>Default Statement</strong> is used; If the <strong>Default Statement</strong> is not defined in this situation it results in undefined behavior. To avoid problems you should always define the <strong>Default Statement</strong>, even if all this does is generate an error. This will avoid maintenance issues down the road.</p>
 ]]></content>
   </entry>
   

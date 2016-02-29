@@ -56,7 +56,13 @@
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2016/02/27/vector/</loc>
-        <lastmod>2016-02-29T12:16:32-08:00</lastmod>
+        <lastmod>2016-02-29T12:30:35-08:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://lokiastari.com/blog/2016/02/29/vector-resource-management-ii-copy-assignment/
+        </loc>
+        <lastmod>2016-02-29T12:31:49-08:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/about/</loc>
@@ -64,11 +70,11 @@
     </url>
     <url>
         <loc>http://lokiastari.com/blog/archives/</loc>
-        <lastmod>2016-02-29T12:16:32-08:00</lastmod>
+        <lastmod>2016-02-29T12:31:49-08:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/</loc>
-        <lastmod>2016-02-29T12:16:32-08:00</lastmod>
+        <lastmod>2016-02-29T12:31:49-08:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/robots.txt</loc>
