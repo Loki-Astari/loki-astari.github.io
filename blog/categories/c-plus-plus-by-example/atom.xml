@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-02-29T12:55:45-08:00</updated>
+  <updated>2016-02-29T12:57:01-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -129,9 +129,8 @@ Vector(Vector const&amp; copy)
 }
 Vector&amp; operator=(Vector const&amp; copy)
 {
-    // Copy Object (more detail below)
-    // This is relatively easy. But I want to cover this in detail below.
-    // So hold on for now.
+    // Copy Object
+    // This is relatively easy. But I want to cover this in detail in a subsquent post.
     return *this;
 }
 </code></pre>
@@ -209,9 +208,8 @@ Vector(Vector const&amp; copy)
 }
 Vector&amp; operator=(Vector const&amp; copy)
 {
-    // Copy Object (more detail below)
-    // This is relatively easy. But I want to cover this in detail below.
-    // So hold on for now.
+    // Copy Object
+    // This is relatively easy. But I want to cover this in detail in a subsquent post.
     return *this;
 }
 void push_back(T const&amp; value)
