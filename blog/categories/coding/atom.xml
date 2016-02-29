@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Coding | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/coding/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-02-29T08:03:49-08:00</updated>
+  <updated>2016-02-29T12:26:27-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -18,7 +18,17 @@
     <link href="http://lokiastari.com/blog/2016/02/27/vector/"/>
     <updated>2016-02-27T12:00:31-08:00</updated>
     <id>http://lokiastari.com/blog/2016/02/27/vector</id>
-    <content type="html"><![CDATA[<p>Looking at <a href="http://CodeReview.stackexchange.com">CodeReview.stackexchange.com</a>; reimplementing the vector class is a common goal for a first project.</p>
+    <content type="html"><![CDATA[<p>A lot of new developers to C++ attempt to build a <code>Vector</code> like container as a learning processes. Getting a simple version of this working for POD types (like int) is not that complicated. The next step in getting this working for arbitrary data types takes a significant leap forward in thinking in C++ especially when you start looking at efficiency. This set of four articles looks at building an efficient <code>Vector</code> implementation. I show some of the common mistakes and explain why and how to resolve the problems:</p>
+
+<ol>
+<li>Resource Management I:   Aloocation</li>
+<li>Resource Management II:  Copy Assignment</li>
+<li>Resource Management III: Simple Optimizations</li>
+<li>Container Concepts.</li>
+</ol>
+
+
+<p>Looking at <a href="http://CodeReview.stackexchange.com">CodeReview.stackexchange.com</a>; reimplementing the vector class is a common goal for a first project.</p>
 
 <ul>
 <li>2011/Nov/07 &ndash; <em><a href="http://codereview.stackexchange.com/q/5856/507">Mathematical Vector2 class implementation</a></em></li>
@@ -57,7 +67,7 @@
 
 <h1>Rule of Zero</h1>
 
-<p>You will notice that half the attempts above are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasis the <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a>. An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass <code>std::vector&lt;int&gt;</code> would be a good choice).</p>
+<p>You will notice that half the attempts above are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasize the <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a>. An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass <code>std::vector&lt;int&gt;</code> would be a good choice).</p>
 
 <p>In C++ the compiler generates a couple of methods for free.</p>
 
@@ -70,9 +80,9 @@
 </ul>
 
 
-<p>These methods usually work perfectly well; <strong>unless</strong> your class contains a pointer (or a pointer like resource object). But if your class is doing business logic then it should not contain a pointer. So classes that handle business logic therefore should bot be defining any of these compiler generated methods (just let the compiler generated ones work for you). Occasionally you want to delete them, to prevent copying or movement, but it is very unusual for these to need specialized implementations.</p>
+<p>These methods usually work perfectly well; <strong>unless</strong> your class contains a pointer (or a pointer like resource object). But if your class is doing business logic then it should not contain a pointer. So classes that handle business logic therefore should not be defining any of these compiler generated methods (just let the compiler generated ones work for you). Occasionally you want to delete them, to prevent copying or movement, but it is very unusual for these to need specialized implementations.</p>
 
-<p>Conversely classes that do resource management usually contain a pointer (or pointer like resource object). These classes should define all the above methods to correctly handle the resource. This is where ownership semantics of the resource are defined. The owner of the resource is responsible for destroying the resource when its lifespan is over (in terms of pointers this means the owner is responsible for calling <code>delete</code> on the pointer (usually in the destructor)). If you are not the owner of a resource you should not have access to the resource object directly (as it may be destroyed by the owner without other objects knowing).</p>
+<p>Conversely, classes that do resource management usually contain a pointer (or pointer like resource object). These classes should define all the above methods to correctly handle the resource. This is where ownership semantics of the resource are defined. The owner of the resource is responsible for destroying the resource when its lifespan is over (in terms of pointers this means the owner is responsible for calling <code>delete</code> on the pointer, usually in the destructor). If you are not the owner of a resource you should not have access to the resource object directly, as it may be destroyed by the owner without other objects knowing.</p>
 
 <h1><a href="http://stackoverflow.com/q/4172722/14065">Rule of three</a></h1>
 
@@ -99,7 +109,7 @@ Vector(int size = 100)
 
 <p>};
 ```
-The trouble here is that this version has a fundamental flaw because of the way the <a href="http://stackoverflow.com/a/4044360/14065">compiler generated</a> copy constructor and copy assignment operator work with pointers (commonly refereed to as the <a href="http://stackoverflow.com/q/2344664/14065">shallow copy problem</a>).</p>
+The trouble here is that this version has a fundamental flaw because of the way the <a href="http://stackoverflow.com/a/4044360/14065">compiler generated</a> copy constructor and copy assignment operator work with pointers (commonly referred to as the <a href="http://stackoverflow.com/q/2344664/14065">shallow copy problem</a>).</p>
 
 <p>```cpp Shallow copy problem.
 int main()
@@ -166,7 +176,7 @@ Vector&amp; operator=(Vector const&amp; copy)
 
 <h2>Version-3 Lazy Construction of elements.</h2>
 
-<p>The problem with the previous version is that it forces initialization of all elements in the buffer immediately. Thus forces the requirement that members of the <code>Vector</code> (i.e. type <code>T</code>) must be default constructable. It also has two efficiency constraints imposed on the vector:</p>
+<p>The problem with the previous version is that it forces initialization of all elements in the buffer immediately. This forces the requirement that members of the <code>Vector</code> (i.e. type <code>T</code>) must be default constructable. It also has two efficiency constraints imposed on the vector:</p>
 
 <ul>
 <li>You can&rsquo;t pre-allocate space for future members.
@@ -261,7 +271,7 @@ void pop_back()
 
 <h1><a href="http://stackoverflow.com/q/3279543/14065">Copy And Swap Idiom</a></h1>
 
-<p>The copy and swap idiom is about dealing with copy assignment operator. It provides a technique for providing the <a href="https://en.wikipedia.org/wiki/Exception_safety">strong exception guarantee</a>. This section walk through the processes of writing a copy assignment operator that provides the strong exception guarantee. Showing why it is an important technique.</p>
+<p>The copy and swap idiom is about dealing with copy assignment operator. It provides a technique for providing the <a href="https://en.wikipedia.org/wiki/Exception_safety">strong exception guarantee</a>. This section walks through the processes of writing a copy assignment operator that provides the strong exception guarantee. Showing why it is an important technique.</p>
 
 <p>This is often the first version of a copy constructor seen:</p>
 
@@ -350,7 +360,7 @@ Vector&amp; operator=(Vector const&amp; copy)
 
 <p>};
 ```
-This is a better attempt. But it still leaks if an exception is throw. But before we add exception handling lets take a closer look at the three sections of the assignment operator.</p>
+This is a better attempt. But it still leaks if an exception is throw. But before we add exception handling, let us take a closer look at the three sections of the assignment operator.</p>
 
 <p>Part-1 looks exactly like the copy constructor of Vector.</p>
 
@@ -418,7 +428,7 @@ Vector&amp; operator=(Vector const&amp; copy)
 <p>};
 ```</p>
 
-<p>The above code works perfectly. But Part-2 the swap looks like a normal swap operation so we can just pull that out into its own method. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse. But it make the normal operation even more efficient. Since the occurrences of self assignment are so extremely rare I would not prematurely optimize for them and make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.</p>
+<p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation, so we can just pull that out into its own method. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it make the normal operation even more efficient. Since the occurrences of self assignment are so extremely rare I would not prematurely optimize for them and make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.</p>
 
 <p>```cpp Copy Assignment (Try 4)
 class Vector
@@ -506,7 +516,7 @@ Vector&amp; operator=(Vector&amp;&amp; move) noexcept
 <p>};
 ```</p>
 
-<p>Note I marked both move operators <code>noexcept</code>. Assuming the operations are guaranteed not to throw you should mark them as <code>noexcept</code>. If we know that certain operations are exception safe them we can optimize resize operations and maintain the strong exception guarantee. This and some other optimizations will be documented in a subsequent post.</p>
+<p>Note I marked both move operators <code>noexcept</code>. Assuming the operations are guaranteed not to throw you should mark them as <code>noexcept</code>. If we know that certain operations are exception safe, then we can optimize resize operations and maintain the strong exception guarantee. This and some other optimizations will be documented in a subsequent post.</p>
 
 <h1>Allocating more storage</h1>
 
@@ -544,7 +554,7 @@ void resizeIfRequire()
 <p>};
 ```</p>
 
-<p>So the final version is now:</p>
+<h1>Final Version</h1>
 
 <p>```cpp Vector Final Version
 template<typename T>
@@ -663,6 +673,8 @@ private:
 
 <p>};
 ```</p>
+
+<h1>Summary</h1>
 
 <p>This article has shown how to handle the basic resource management required by a vector. It has covered several important principles for C++ programmers.</p>
 
