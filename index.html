@@ -135,6 +135,8 @@
 </ol>
 
 
+<p>Note: This is not meant to replace <code>std::vector&lt;&gt;</code> this simply meant as a teaching processes.</p>
+
 <h1>Rule of Zero</h1>
 
 <p>You will notice that half the attempts above are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasize the <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a>. An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass <code>std::vector&lt;int&gt;</code> would be a good choice).</p>
