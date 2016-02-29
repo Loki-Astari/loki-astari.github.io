@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-02-29T12:35:51-08:00</updated>
+  <updated>2016-02-29T12:38:04-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -649,8 +649,6 @@
 <span class='line-number'>108</span>
 <span class='line-number'>109</span>
 <span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
 </span><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
 </span><span class='line'><span class="p">{</span>
@@ -715,9 +713,7 @@
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>        <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// Copy and Swap idiom</span>
-</span><span class='line'>            <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">tmp</span><span class="p">(</span><span class="n">copy</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>            <span class="c1">// Covered in Part 2</span>
 </span><span class='line'>            <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>        <span class="n">Vector</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;&amp;</span> <span class="n">move</span><span class="p">)</span>
@@ -778,7 +774,6 @@
 <li>Default compiler generated methods</li>
 <li>Shallow Copy Problem</li>
 <li>Placement New</li>
-<li>Copy and Swap Idiom</li>
 <li>Exception Grantees</li>
 </ul>
 

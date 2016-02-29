@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Coding | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/coding/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-02-29T12:35:51-08:00</updated>
+  <updated>2016-02-29T12:38:04-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -436,9 +436,7 @@ public:
     }
     Vector&amp; operator=(Vector const&amp; copy)
     {
-        // Copy and Swap idiom
-        Vector&lt;T&gt;  tmp(copy);
-        tmp.swap(*this);
+        // Covered in Part 2
         return *this;
     }
     Vector(Vector&amp;&amp; move)
@@ -500,7 +498,6 @@ private:
 <li>Default compiler generated methods</li>
 <li>Shallow Copy Problem</li>
 <li>Placement New</li>
-<li>Copy and Swap Idiom</li>
 <li>Exception Grantees</li>
 </ul>
 
