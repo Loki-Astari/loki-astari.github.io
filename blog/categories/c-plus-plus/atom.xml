@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-02-29T12:47:08-08:00</updated>
+  <updated>2016-02-29T12:49:14-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -26,43 +26,6 @@
 <li>Resource Management III: Simple Optimizations</li>
 <li>Container Concepts.</li>
 </ol>
-
-
-<p>Looking at <a href="http://CodeReview.stackexchange.com">CodeReview.stackexchange.com</a>; reimplementing the vector class is a common goal for a first project.</p>
-
-<ul>
-<li>2011/Nov/07 &ndash; <em><a href="http://codereview.stackexchange.com/q/5856/507">Mathematical Vector2 class implementation</a></em></li>
-<li>2012/May/21 &ndash; <em><a href="http://codereview.stackexchange.com/q/11934/507">C++ Vector2 Class Review</a></em></li>
-<li>2012/Aug/17 &ndash; <a href="http://codereview.stackexchange.com/q/14784/507">Templated Matrix class</a></li>
-<li>2013/Jan/07 &ndash; <a href="http://codereview.stackexchange.com/q/20243/507">Vector implementation &ndash; simple replacement</a></li>
-<li>2013/May/25 &ndash; <a href="http://codereview.stackexchange.com/q/26608/507">Review of 2d Vector class</a></li>
-<li>2013/Jun/19 &ndash; <a href="http://codereview.stackexchange.com/q/27573/507">Simple matrix class</a></li>
-<li>2013/Jun/21 &ndash; <em><a href="http://codereview.stackexchange.com/q/27625/507">Matrix and Vector4 classes</a></em></li>
-<li>2013/Jun/25 &ndash; <em><a href="http://codereview.stackexchange.com/q/27752/507">Simple matrix class &ndash; version 2</a></em></li>
-<li>2013/Aug/03 &ndash; <em><a href="http://codereview.stackexchange.com/q/29331/507">Template vector class</a></em></li>
-<li>2014/Feb/20 &ndash; <a href="http://codereview.stackexchange.com/q/42297/507">C++ vector implementation</a></li>
-<li>2014/Mar/01 &ndash; <a href="http://codereview.stackexchange.com/q/43136/507">Reimplementation of C++ vector</a></li>
-<li>2014/Mar/12 &ndash; <a href="http://codereview.stackexchange.com/q/44167/507">3D mathematical vector class</a></li>
-<li>2014/May/17 &ndash; <a href="http://codereview.stackexchange.com/q/50975/507">Creating a custom Vector class</a></li>
-<li>2014/Aug/19 &ndash; <a href="http://codereview.stackexchange.com/q/60484/507">STL vector implementation</a></li>
-<li>2014/Sep/12 &ndash; <a href="http://codereview.stackexchange.com/a/62774/507">C++ 3D Vector Implementation</a></li>
-<li>2014/Sep/26 &ndash; <a href="http://codereview.stackexchange.com/q/63970/507">Custom mathematical vector class</a></li>
-<li>2014/Oct/19 &ndash; <a href="http://codereview.stackexchange.com/q/67209/507">Vector backed by memory pages</a></li>
-<li>2014/Oct/31 &ndash; <a href="http://codereview.stackexchange.com/q/68486/507">Custom matrix class</a></li>
-<li>2014/Nov/25 &ndash; <a href="http://codereview.stackexchange.com/q/70815/507">Vector/matrix class</a></li>
-<li>2014/Dec/22 &ndash; <a href="http://codereview.stackexchange.com/q/74521/507">Vector implementation</a></li>
-<li>2015/Feb/17 &ndash; <a href="http://codereview.stackexchange.com/q/81751/507">Mathematical matrices implementation</a></li>
-<li>2015/Mar/01 &ndash; <a href="http://codereview.stackexchange.com/q/82906/507">C++ vector implementation errors</a></li>
-<li>2015/Jun/20 &ndash; <a href="http://codereview.stackexchange.com/q/94211/507">Implementation of std::vector class</a></li>
-<li>2015/Jul/08 &ndash; <a href="http://codereview.stackexchange.com/q/96253/507">Second implementation of std::vector</a></li>
-<li>2015/Oct/17 &ndash; <a href="http://codereview.stackexchange.com/q/107877/507">Simple multi-dimensional Array class in C++11</a></li>
-<li>2015/Oct/19 &ndash; <a href="http://codereview.stackexchange.com/q/108072/507">Creating n-dimensional mathematical vector classes through inheritance</a></li>
-<li>2015/Oct/20 &ndash; <a href="http://codereview.stackexchange.com/q/108140/507">Implementation of Vector in C++</a></li>
-<li>2015/Oct/23 &ndash; <a href="http://codereview.stackexchange.com/q/108558/507">Simple multi-dimensional Array class in C++11 &ndash; follow-up</a></li>
-<li>2015/Nov/18 &ndash; <a href="http://codereview.stackexchange.com/q/111114/507">Custom vector that uses less memory than std::vector</a></li>
-<li>2015/Nov/24 &ndash; <a href="http://codereview.stackexchange.com/q/111746/507">Attempt at templates by creating a class for N-dimensional mathematical vectors</a></li>
-<li>2016/Jan/10 &ndash; <a href="http://codereview.stackexchange.com/q/116377/507">Vector Implementation C++</a></li>
-</ul>
 
 
 <h1>Rule of Zero</h1>
@@ -503,6 +466,45 @@ private:
 
 
 <p>The next article will cover some fundamental methods used by the vector and why they are implemented in a particular way in the C++ standard library. A subsequent article will then look at potential optimizations that can be applied automatically to the code.</p>
+
+<h1>Sources</h1>
+
+<p>Looking at <a href="http://CodeReview.stackexchange.com">CodeReview.stackexchange.com</a>; reimplementing the vector class is a common goal for a first project.</p>
+
+<ul>
+<li>2011/Nov/07 &ndash; <em><a href="http://codereview.stackexchange.com/q/5856/507">Mathematical Vector2 class implementation</a></em></li>
+<li>2012/May/21 &ndash; <em><a href="http://codereview.stackexchange.com/q/11934/507">C++ Vector2 Class Review</a></em></li>
+<li>2012/Aug/17 &ndash; <a href="http://codereview.stackexchange.com/q/14784/507">Templated Matrix class</a></li>
+<li>2013/Jan/07 &ndash; <a href="http://codereview.stackexchange.com/q/20243/507">Vector implementation &ndash; simple replacement</a></li>
+<li>2013/May/25 &ndash; <a href="http://codereview.stackexchange.com/q/26608/507">Review of 2d Vector class</a></li>
+<li>2013/Jun/19 &ndash; <a href="http://codereview.stackexchange.com/q/27573/507">Simple matrix class</a></li>
+<li>2013/Jun/21 &ndash; <em><a href="http://codereview.stackexchange.com/q/27625/507">Matrix and Vector4 classes</a></em></li>
+<li>2013/Jun/25 &ndash; <em><a href="http://codereview.stackexchange.com/q/27752/507">Simple matrix class &ndash; version 2</a></em></li>
+<li>2013/Aug/03 &ndash; <em><a href="http://codereview.stackexchange.com/q/29331/507">Template vector class</a></em></li>
+<li>2014/Feb/20 &ndash; <a href="http://codereview.stackexchange.com/q/42297/507">C++ vector implementation</a></li>
+<li>2014/Mar/01 &ndash; <a href="http://codereview.stackexchange.com/q/43136/507">Reimplementation of C++ vector</a></li>
+<li>2014/Mar/12 &ndash; <a href="http://codereview.stackexchange.com/q/44167/507">3D mathematical vector class</a></li>
+<li>2014/May/17 &ndash; <a href="http://codereview.stackexchange.com/q/50975/507">Creating a custom Vector class</a></li>
+<li>2014/Aug/19 &ndash; <a href="http://codereview.stackexchange.com/q/60484/507">STL vector implementation</a></li>
+<li>2014/Sep/12 &ndash; <a href="http://codereview.stackexchange.com/a/62774/507">C++ 3D Vector Implementation</a></li>
+<li>2014/Sep/26 &ndash; <a href="http://codereview.stackexchange.com/q/63970/507">Custom mathematical vector class</a></li>
+<li>2014/Oct/19 &ndash; <a href="http://codereview.stackexchange.com/q/67209/507">Vector backed by memory pages</a></li>
+<li>2014/Oct/31 &ndash; <a href="http://codereview.stackexchange.com/q/68486/507">Custom matrix class</a></li>
+<li>2014/Nov/25 &ndash; <a href="http://codereview.stackexchange.com/q/70815/507">Vector/matrix class</a></li>
+<li>2014/Dec/22 &ndash; <a href="http://codereview.stackexchange.com/q/74521/507">Vector implementation</a></li>
+<li>2015/Feb/17 &ndash; <a href="http://codereview.stackexchange.com/q/81751/507">Mathematical matrices implementation</a></li>
+<li>2015/Mar/01 &ndash; <a href="http://codereview.stackexchange.com/q/82906/507">C++ vector implementation errors</a></li>
+<li>2015/Jun/20 &ndash; <a href="http://codereview.stackexchange.com/q/94211/507">Implementation of std::vector class</a></li>
+<li>2015/Jul/08 &ndash; <a href="http://codereview.stackexchange.com/q/96253/507">Second implementation of std::vector</a></li>
+<li>2015/Oct/17 &ndash; <a href="http://codereview.stackexchange.com/q/107877/507">Simple multi-dimensional Array class in C++11</a></li>
+<li>2015/Oct/19 &ndash; <a href="http://codereview.stackexchange.com/q/108072/507">Creating n-dimensional mathematical vector classes through inheritance</a></li>
+<li>2015/Oct/20 &ndash; <a href="http://codereview.stackexchange.com/q/108140/507">Implementation of Vector in C++</a></li>
+<li>2015/Oct/23 &ndash; <a href="http://codereview.stackexchange.com/q/108558/507">Simple multi-dimensional Array class in C++11 &ndash; follow-up</a></li>
+<li>2015/Nov/18 &ndash; <a href="http://codereview.stackexchange.com/q/111114/507">Custom vector that uses less memory than std::vector</a></li>
+<li>2015/Nov/24 &ndash; <a href="http://codereview.stackexchange.com/q/111746/507">Attempt at templates by creating a class for N-dimensional mathematical vectors</a></li>
+<li>2016/Jan/10 &ndash; <a href="http://codereview.stackexchange.com/q/116377/507">Vector Implementation C++</a></li>
+</ul>
+
 ]]></content>
   </entry>
   
