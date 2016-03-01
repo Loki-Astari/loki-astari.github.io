@@ -1,0 +1,355 @@
+---
+layout: post
+title: "Vector - Part 2: Resource Management Copy Assignment"
+date: 2016-02-29 12:29:20 -0800
+comments: true
+categories: [C++, C++-By-Example, Coding]
+sharing: true
+footer: true
+subtitle: C++ By Example
+author: Loki Astari, (C)2016,
+description: C++ By Example. The Vector
+published: false
+---
+
+In the previous article I went over basic allocation for a `Vector` like class. In this article I want to put some detail around the copy assignment operator. Unlike the other methods previously discussed this has to deal with both construction and destruction of elements and the potential of exceptions interrupting the processes. The goal is to provide an exception safe method that provides the strong exception guarantee for the object and does not leak resources.
+
+#First Try
+This is a very common first attempt at a copy constructor.  
+It simply calls the destructor on all elements currently in the object. Then uses the existing `push_back()` method to copy member elements from the source object, thus allowing the object to automatically re-size if required.
+
+```cpp Copy Assignment (Try 1)
+class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+    // STUFF
+    Vector& operator=(Vector const& copy)
+    {
+        if (&copy == this)
+        {
+            // Early exit for self assignment
+            return *this;
+        }
+        // First we have to destroy all the current elements.
+        for(int loop = 0; loop < length; ++loop)
+        {
+            buffer[length - 1 - loop].~T();
+        }
+        // Now the buffer is empty so reset size to zero.
+        length = 0;
+
+        // Now copy all the elements from the source into this object
+        for(int loop = 0; loop < copy.length; ++loop)
+        {
+            push_back(copy.buffer[loop]);
+        }
+        return *this;
+    }
+};
+```
+
+#Strong Exception Guarantee
+The obvious problems about efficiency when a resize is required is a minor issue here. The real problem is that this does not provide the strong exception guarantee. If any of the constructors/destructor throw then the object will be left in an inconsistent state, with no way to restore the original state. The strong exception guarantee basically means that the operation works or does not change the state of the object. The easiest technique to achieve this we must create the copy into a new temporary buffer that can be thrown away if things go wrong (leaving the current object untouched). If the copy succeeds then we use it and can throw away the original data.
+
+```cpp Copy Assignment (Try 2)
+class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+    // STUFF
+    Vector& operator=(Vector const& copy)
+    {
+        if (&copy == this)
+        {
+            // Early exit for self assignment
+            return *this;
+        }
+        // Part-1 Create a copy of the src object.
+        std::size_t tmpCap    = copy.length;
+        std::size_t tmpSize   = 0;
+        T*          tmpBuffer = static_cast<int*>(::operator new(sizeof(T) * tmpCap));
+
+        // Now copy all the elements from the source into the temporary object
+        for(int loop = 0; loop < copy.length; ++loop)
+        {
+            new (tmpBuffer + tmpSize) T(copy.buffer[loop]);
+            ++tmpSize;
+        }
+
+        // Part-2 Swap the state
+        // We have successfully created the new version of this object
+        // So swap the temporary and object states.
+        std::swap(tmpCap,    capacity);
+        std::swap(tmpSize,   length);
+        std::swap(tmpBuffer, buffer);
+
+        // Part-3 Destroy the old state.
+        // Now we have to delete the old state.
+        // If this fails it does not matter the state of the object is consistent
+        for(int loop = 0; loop < tmpSize; ++loop)
+        {
+            tmpBuffer[tmpSize - 1 - loop].~T();
+        }
+        ::operator delete(tmpBuffer);
+        return *this;
+    }
+};
+```
+
+# XXX
+This is a better attempt. But it still leaks if an exception is throw. But before we add exception handling, let us take a closer look at the three sections of the assignment operator.
+
+Part-1 looks exactly like the copy constructor of Vector.
+
+```cpp Copy Assignment Part 1
+        std::size_t tmpCap    = copy.length;
+        std::size_t tmpSize   = 0;
+        T*          tmpBuffer = static_cast<int*>(::operator new(sizeof(T) * tmpCap));
+
+        // Now copy all the elements from the source into the temporary object
+        for(int loop = 0; loop < copy.length; ++loop)
+        {
+            // This looks exactly like push_back()
+            new (tmpBuffer + tmpSize) T(copy.buffer[loop]);
+            ++tmpSize;
+        }
+```
+
+Part-3 looks exactly like destructor of Vector.
+```cpp Copy Assignment Part 3
+        // Now we have to delete the old state.
+        for(int loop = 0; loop < tmpSize; ++loop)
+        {
+            tmpBuffer[tmpSize - 1 - loop].~T();
+        }
+        ::operator delete(tmpBuffer);
+```
+
+Using these two observations we have a re-write of the copy assignment operator.
+
+```cpp Copy Assignment (Try 3)
+class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+    // STUFF
+    Vector& operator=(Vector const& copy)
+    {
+        if (&copy == this)
+        {
+            // Early exit for self assignment
+            return *this;
+        }
+        // Part-1 Create a copy
+        Vector  tmp(copy);
+
+        // Part-2 Swap the state
+        std::swap(tmp.capacity, capacity);
+        std::swap(tmp.length,   length);
+        std::swap(tmp.buffer,   buffer);
+
+        return *this;
+        // Part-3 Destructor called at end of scope.
+        // No actual code required here.
+    }
+};
+```
+#[Copy And Swap Idiom](http://stackoverflow.com/q/3279543/14065)
+
+The copy and swap idiom is about dealing with copy assignment operator. It provides a technique for providing the [strong exception guarantee](https://en.wikipedia.org/wiki/Exception_safety). This section walks through the processes of writing a copy assignment operator that provides the strong exception guarantee. Showing why it is an important technique.
+
+The above code works perfectly. But in Part-2 the swap looks like a normal swap operation, so we can just pull that out into its own method. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it make the normal operation even more efficient. Since the occurrences of self assignment are so extremely rare I would not prematurely optimize for them and make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.
+
+```cpp Copy Assignment (Try 4)
+class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+    // STUFF
+    Vector& operator=(Vector const& copy)
+    {
+        Vector  tmp(copy);
+        tmp.swap(*this);
+        return *this;
+    }
+    void swap(Vector& other) noexcept
+    {
+        std::swap(other.capacity, capacity);
+        std::swap(other.length,   length);
+        std::swap(other.buffer,   buffer);
+    }
+};
+```
+
+# Allocating more storage
+
+When pushing data into the array we need to verify that capacity has not been exceeded. If it has then we to allocate more capacity then copy the current content into the new buffer. This operation is exceedingly similar to the copy assignment operator. As a result the best solution looks very similar and we use a temporary object to hold the new state while we are creating it. Then swap the state of the current object with the temporary on completion. The temporary objects destructor will then take care of clean up (even if there is an exception).
+
+```cpp Vector Reallocating Buffer
+class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+    // STUFF    
+    void resizeIfRequire()
+    {
+        if (length == capacity)
+        {
+            // Create a temporary object with a larger capacity.
+            std::size_t     newCapacity  = capacity * 1.62;
+            Vector<T>  tmpBuffer(newCapacity);
+
+            // Copy the state of this object into the new object.
+            std::for_each(buffer, buffer + length, [&tmpBuffer](T const& item){tmpBuffer.push_back(item);});
+
+            // All the work has been successfully done. So swap
+            // the state of the temporary and the current object.
+            tmpBuffer.swap(*this);
+
+            // The temporary object goes out of scope here and
+            // tidies up the state that is no longer needed.
+        }
+    }
+};
+```
+
+#Final Version
+
+```cpp Vector Final Version
+template<typename T>
+class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+
+    struct Deleter
+    {
+        void operator()(T* buffer) const
+        {
+            ::operator delete(buffer);
+        }
+    };
+
+    public:
+        Vector(int capacity)
+            : capacity(capacity)
+            , length(0)
+            , buffer(static_cast<int*>(::operator new(sizeof(T) * capacity)))
+        {}
+        ~Vector()
+        {
+            // Make sure the buffer is deleted even with exceptions
+            // This will be called to release the pointer at the end
+            // of scope.
+            std::unique_ptr<T, Deleter>     deleter(buffer, Deleter());
+
+            // Call the destructor on all the members in reverse order
+            for(int loop = 0; loop < length; ++loop)
+            {
+                // Note we destroy the elements in reverse order.
+                buffer[length - 1 - loop].~T();
+            }
+        }
+        Vector(Vector const& copy)
+            : capacity(copy.length)
+            , length(0)
+            , buffer(static_cast<int*>(::operator new(sizeof(T) * capacity)))
+        {
+            try
+            {
+                for(int loop = 0; loop < copy.length; ++loop)
+                {
+                    push_backValue(copy.buffer[loop]);
+                }
+            }
+            catch(...)
+            {
+                // If there was an exception then destroy everything
+                // that was created to make it exception safe.
+                for(int loop = 0; loop < length; ++loop)
+                {
+                    buffer[length - 1 - loop].~T();
+                }
+                ::operator delete(buffer);
+
+                // Make sure the exceptions continue propagating after
+                // the cleanup has completed.
+                throw;
+            }
+        }
+        Vector& operator=(Vector const& copy)
+        {
+            // Copy and Swap idiom
+            Vector<T>  tmp(copy);
+            tmp.swap(*this);
+            return *this;
+        }
+        Vector(Vector&& move)
+            : capacity(0)
+            , length(0)
+            , buffer(nullptr)
+        {
+            move.swap(*this);
+        }
+        Vector& operator=(Vector&& move)
+        {
+            move.swap(*this);
+            return *this;
+        }
+        void swap(Vector& other) noexcept
+        {
+            using std::swap;
+            swap(capacity,      other.capacity);
+            swap(length,        other.length);
+            swap(buffer,        other.buffer);
+        }
+        void push_back(T const& value)
+        {
+            resizeIfRequire();
+            new (buffer + length) T(value);
+            ++length;
+        }
+        void pop_back()
+        {
+            --length;
+            buffer[length].~T();
+        }
+    private:
+        void resizeIfRequire()
+        {
+            if (length == capacity)
+            {
+                std::size_t     newCapacity  = capacity * 1.62;
+                Vector<T>  tmpBuffer(newCapacity);
+                std::for_each(buffer, buffer + length, [&tmpBuffer](T const& item){tmpBuffer.push_back(item);});
+
+                tmpBuffer.swap(*this);
+            }
+        }
+};
+```
+
+#Summary
+This article has shown how to handle the basic resource management required by a vector. It has covered several important principles for C++ programmers.
+
+* Separation Of Concerns
+* Rule of Zero
+* Rule of Three
+* Rule of Five
+* Default compiler generated methods
+* Shallow Copy Problem
+* Placement New
+* Copy and Swap Idiom
+* Exception Grantees
+
+The next article will cover some fundamental methods used by the vector and why they are implemented in a particular way in the C++ standard library. A subsequent article will then look at potential optimizations that can be applied automatically to the code.
+
+
+
