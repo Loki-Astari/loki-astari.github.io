@@ -13,4 +13,5 @@ footer: true
     * [Smart Pointer Constructors]({{ root_url }}/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/)
 * Vector
     * [Resource Management: Allocation]({{ root_url }}/blog/2016/02/27/vector/)
+    * [Resource Management: Copy and Swap]({{ root_url }}/blog/2016/02/29/vector-resource-management-ii-copy-assignment/)
 

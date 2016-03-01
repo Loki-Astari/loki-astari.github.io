@@ -374,8 +374,6 @@ This article has shown how to handle the basic resource management required by a
 * Placement New
 * Exception Grantees
 
-The next article will cover some fundamental methods used by the vector and why they are implemented in a particular way in the C++ standard library. A subsequent article will then look at potential optimizations that can be applied automatically to the code.
-
 #Sources
 Looking at [CodeReview.stackexchange.com](http://CodeReview.stackexchange.com); reimplementing the vector class is a common goal for a first project.
 
