@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-01T11:24:30-08:00</updated>
+  <updated>2016-03-04T03:03:25-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,6 +12,91 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Vector - Part 3: Resource Management Optimization]]></title>
+    <link href="http://lokiastari.com/blog/2016/03/01/vector-part-3-optimization/"/>
+    <updated>2016-03-01T14:50:53-08:00</updated>
+    <id>http://lokiastari.com/blog/2016/03/01/vector-part-3-optimization</id>
+    <content type="html"><![CDATA[<p>In the previous two articles I have described the basic resource management required for a <code>Vector</code> like class so that it provides the strong exception guarantee and does not leak resources. The complexities that crop up are due to potential problems that may happen in object Constructor/Destructor where these methods are defined by the user. But if you have a <code>Vector</code> of a POD objects (i.e. <code>int</code>) these problems do not exist and the class can be a lot simpler and thus more efficient.</p>
+
+<p>```cpp Vector for POD types
+template<typename T>                                            template<typename T>
+class Vector                                                    class Vector
+{                                                               {</p>
+
+<pre><code>std::size_t     capacity;                                           std::size_t     capacity;
+std::size_t     length;                                             std::size_t     length;
+T*              buffer;                                             T*              buffer;
+
+public:                                                         public:
+    Vector(int capacity)                                            Vector(int capacity)
+        : capacity(capacity)                                            : capacity(capacity)
+        , length(0)                                                     , length(0)
+        , buffer(new T[capacity]())                                     , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {}                                                              {}
+    ~Vector()                                                       ~Vector()
+    {                                                               {
+                                                                        // Make sure the buffer is deleted even with exceptions
+                                                                        // This will be called to release the pointer at the end of scope
+        delete [] buffer;                                               std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+
+                                                                        // Call the destructor on all the members in reverse order
+                                                                        for(int loop = 0; loop &lt; length; ++loop)
+                                                                        {
+                                                                            // Note we destroy the elements in reverse order.
+                                                                            buffer[length - 1 - loop].~T();
+                                                                        }
+    }                                                               }
+    Vector(Vector const&amp; copy)                                      Vector(Vector const&amp; copy)
+        : capacity(copy.length)                                         : capacity(copy.length)
+        , length(0)                                                     , length(0)
+        , buffer(new T[capacity]())                                     , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {                                                               {
+                                                                        try
+                                                                        {
+        for(int loop = 0; loop &lt; copy.length; ++loop)                       for(int loop = 0; loop &lt; copy.length; ++loop)
+        {                                                                   {
+            push_back(copy.buffer[loop]);                                       push_back(copy.buffer[loop]);
+        }                                                                   }
+                                                                        }
+                                                                        catch(...)
+                                                                        {
+                                                                            // If there was an exception then destroy everything
+                                                                            // that was created to make it exception safe.
+                                                                            for(int loop = 0; loop &lt; length; ++loop)
+                                                                            {
+                                                                                buffer[length - 1 - loop].~T();
+                                                                            }
+                                                                            ::operator delete(buffer);
+
+                                                                            // Make sure the exceptions continue propagating after
+                                                                            // the cleanup has completed.
+                                                                            throw;
+                                                                        }
+    }                                                               }
+    Vector&amp; operator=(Vector const&amp; copy)                           Vector&amp; operator=(Vector const&amp; copy)
+    {                                                               {
+        length  = 0;                                                    // Copy and Swap idiom
+        if (copy.length &gt; capacity)                                     Vector&lt;T&gt;  tmp(copy);
+        {                                                               tmp.swap(*this);
+            reserveCapacity(copy.length);
+        }
+        for(int loop = 0; loop &lt; copy.length; ++loop)
+        {
+            push_back(copy.buffer[loop]);
+        }
+        return *this;                                                   return *this;
+    }                                                               }
+    // 
+    // The rest of the class is identical
+    //
+</code></pre>
+
+<p>};                                                              };
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Vector - Part 2: Resource Management Copy Swap]]></title>
@@ -85,7 +170,7 @@ Vector&amp; operator=(Vector const&amp; copy)
     // Part-1 Create a copy of the src object.
     std::size_t tmpCap    = copy.length;
     std::size_t tmpSize   = 0;
-    T*          tmpBuffer = static_cast&lt;int*&gt;(::operator new(sizeof(T) * tmpCap));
+    T*          tmpBuffer = static_cast&lt;T*&gt;(::operator new(sizeof(T) * tmpCap));
 
     // Now copy all the elements from the source into the temporary object
     for(int loop = 0; loop &lt; copy.length; ++loop)
@@ -126,7 +211,7 @@ Vector&amp; operator=(Vector const&amp; copy)
 
 <pre><code>    std::size_t tmpCap    = copy.length;
     std::size_t tmpSize   = 0;
-    T*          tmpBuffer = static_cast&lt;int*&gt;(::operator new(sizeof(T) * tmpCap));
+    T*          tmpBuffer = static_cast&lt;T*&gt;(::operator new(sizeof(T) * tmpCap));
 
     // Now copy all the elements from the source into the temporary object
     for(int loop = 0; loop &lt; copy.length; ++loop)
@@ -280,7 +365,7 @@ public:
     Vector(int capacity)
         : capacity(capacity)
         , length(0)
-        , buffer(static_cast&lt;int*&gt;(::operator new(sizeof(T) * capacity)))
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
     {}
     ~Vector()
     {
@@ -299,13 +384,13 @@ public:
     Vector(Vector const&amp; copy)
         : capacity(copy.length)
         , length(0)
-        , buffer(static_cast&lt;int*&gt;(::operator new(sizeof(T) * capacity)))
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
     {
         try
         {
             for(int loop = 0; loop &lt; copy.length; ++loop)
             {
-                push_backValue(copy.buffer[loop]);
+                push_back(copy.buffer[loop]);
             }
         }
         catch(...)
@@ -330,14 +415,14 @@ public:
         tmp.swap(*this);
         return *this;
     }
-    Vector(Vector&amp;&amp; move)
+    Vector(Vector&amp;&amp; move) noexcept
         : capacity(0)
         , length(0)
         , buffer(nullptr)
     {
         move.swap(*this);
     }
-    Vector&amp; operator=(Vector&amp;&amp; move)
+    Vector&amp; operator=(Vector&amp;&amp; move) noexcept
     {
         move.swap(*this);
         return *this;
@@ -366,11 +451,16 @@ private:
         if (length == capacity)
         {
             std::size_t     newCapacity  = capacity * 1.62;
-            Vector&lt;T&gt;  tmpBuffer(newCapacity);
-            std::for_each(buffer, buffer + length, [&amp;tmpBuffer](T const&amp; item){tmpBuffer.push_back(item);});
-
-            tmpBuffer.swap(*this);
+            reserveCapacity(newCapacity);
         }
+    }
+    void reserveCapacity(std::size_t newCapacity)
+    {
+        Vector&lt;T&gt;  tmpBuffer(newCapacity);
+        std::copy(buffer, buffer + length, tmpBuffer.beffer);
+        tmpBuffer.length = length;
+
+        tmpBuffer.swap(*this);
     }
 </code></pre>
 
@@ -551,7 +641,7 @@ Vector(int capacity)
     : capacity(capacity = 100)
     , length(0)
     // Allocates space but does not call the constructor
-    , buffer(static_cast&lt;int*&gt;(::operator new(sizeof(T) * capacity)))
+    , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
     // Useful if the type T has an expensive constructor
     // We preallocate space without initializing it giving
     // room to grow and shrink the buffer without re-allocating.
@@ -571,7 +661,7 @@ Vector(int capacity)
 Vector(Vector const&amp; copy)
     : capacity(copy.length)
     , length(0)
-    , buffer(static_cast&lt;int*&gt;(::operator new(sizeof(T) * capacity)))
+    , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
 {
     // Copy constructor is simple.
     // We create a new resource area of the required length.
@@ -695,7 +785,7 @@ public:
     Vector(int capacity)
         : capacity(capacity)
         , length(0)
-        , buffer(static_cast&lt;int*&gt;(::operator new(sizeof(T) * capacity)))
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
     {}
     ~Vector()
     {
@@ -714,13 +804,13 @@ public:
     Vector(Vector const&amp; copy)
         : capacity(copy.length)
         , length(0)
-        , buffer(static_cast&lt;int*&gt;(::operator new(sizeof(T) * capacity)))
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
     {
         try
         {
             for(int loop = 0; loop &lt; copy.length; ++loop)
             {
-                push_backValue(copy.buffer[loop]);
+                push_back(copy.buffer[loop]);
             }
         }
         catch(...)
@@ -743,14 +833,14 @@ public:
         // Covered in Part 2
         return *this;
     }
-    Vector(Vector&amp;&amp; move)
+    Vector(Vector&amp;&amp; move) noexcept
         : capacity(0)
         , length(0)
         , buffer(nullptr)
     {
         move.swap(*this);
     }
-    Vector&amp; operator=(Vector&amp;&amp; move)
+    Vector&amp; operator=(Vector&amp;&amp; move) noexcept
     {
         move.swap(*this);
         return *this;
@@ -1523,328 +1613,6 @@ Two portions of this look like other code pieces of code that have already been 
 <h2>Summary</h2>
 
 <p>So in this second post we have looked SP and mentioned the two main implementation techniques commonly used. We specifically looked in detail at some common problems usually overlooked in the counted implementation of SP. In the next article I want to look at a couple of other issues common to both types of smart pointers.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Unique Pointer]]></title>
-    <link href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/"/>
-    <updated>2014-12-30T18:41:42-08:00</updated>
-    <id>http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer</id>
-    <content type="html"><![CDATA[<p>On <a href="codereview.stackexchange.com">codereview.stackexchange.com</a> in the C++ tag it seems that it is a write of passage to implement your own version of a smart pointer. A quick search brings up the following:</p>
-
-<ul>
-<li>02/Sep/2011 &ndash; <a href="http://codereview.stackexchange.com/q/4550/507">shared_ptr implementation</a></li>
-<li>26/Nov/2011 &ndash; <a href="http://codereview.stackexchange.com/q/6320/507">Shared Pointer implementation</a></li>
-<li>18/Apr/2013 &ndash; <a href="http://codereview.stackexchange.com/q/25214/507">Request for review: reference counting smart pointer</a></li>
-<li>20/May/2013 &ndash; <a href="http://codereview.stackexchange.com/q/26353/507">Efficient smart pointer implementation in C++</a></li>
-<li>11/Aug/2013 &ndash; <a href="http://codereview.stackexchange.com/q/29629/507">C++98 Unique Pointer Implementation</a></li>
-<li>14/Aug/2013 &ndash; <a href="http://codereview.stackexchange.com/q/29734/507">I wrote a class to implement auto_ptr</a></li>
-<li>28/Aug/2013 &ndash; <a href="http://codereview.stackexchange.com/q/30398/507">yet another shared pointer</a></li>
-<li>04/Mar/2014 &ndash; <a href="http://codereview.stackexchange.com/q/43472/507">Smart pointer implementation</a></li>
-<li>13/May/2014 &ndash; <a href="http://codereview.stackexchange.com/q/49672/507">One more shared pointer</a></li>
-<li>14/Jun/2014 &ndash; <a href="http://codereview.stackexchange.com/q/54220/507">Is this a meaningful Intrusive Pointer Class?</a></li>
-<li>04/Aug/2014 &ndash; <a href="http://codereview.stackexchange.com/q/59004/507">Simple shared pointer</a></li>
-<li>08/Oct/2014 &ndash; <a href="http://codereview.stackexchange.com/q/65127/507">Smart but simple pointers</a></li>
-<li>15/Nov/2014 &ndash; <a href="http://codereview.stackexchange.com/q/69943/507">Simple auto_ptr</a></li>
-<li>19/Dec/2014 &ndash; <a href="http://codereview.stackexchange.com/q/74166/507">Yet another smart pointer implementation for learning</a></li>
-</ul>
-
-
-<p>Writing you own implementation of a smart pointer is a bad idea (IMO). The standardization and testing of smart pointers was a nine year process through <a href="http://www.boost.org/">boost</a>, with <a href="http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/shared_ptr.htm">boost::shared_ptr</a> and <a href="http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/scoped_ptr.htm">boost::scoped_ptr</a>, finally resulting in the standardized versions being released in C++11: <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr">std::shared_ptr</a> and <a href="http://en.cppreference.com/w/cpp/memory/unique_ptr">std::unique_ptr</a>.</p>
-
-<p>I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) getting it working correctly in all contexts is rather a complex endeavor.</p>
-
-<p>But because it is such a frequent request for review; I want take a look at smart pointers as a teaching exercise. In the next couple of articles I will step through the processes of building a smart pointer and look at some of the common mistakes that I see (and probably make a few as I go).</p>
-
-<h3>Warning:</h3>
-
-<p>This article is not for absolute beginners. I assume you already know the basics of C++.</p>
-
-<h2>First Bash</h2>
-
-<p>So lets get started. The two most common smart pointers are <code>unique</code> and <code>shared</code>. So lets start with the one that seems the simplest (<code>unique</code>)and see where we go.</p>
-
-<p>It would seem that we could bash out a quick unique pointer like this:
-```cpp ThorsAnvil::UP Version 1</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class UP
-    {
-        T*   data;
-        public:
-            UP(T* data)
-                : data(data)
-            {}
-            ~UP()
-            {
-                delete data;
-            }
-            T* operator-&gt;() {return data;}
-            T&amp; operator*()  {return *data;}
-            T* release()
-            {
-                T* result = nullptr;
-                std::swap(result, data);
-                return result;
-            }
-            // So it can be used in conditional expression
-            operator bool() {return data;}
-    };
-}
-</code></pre>
-
-<p>```</p>
-
-<h3>Problem 1: Rule of Three Violation</h3>
-
-<p>The first problem here is that we are not obeying the &ldquo;<a href="http://stackoverflow.com/q/4172722/14065">rule of three</a>&rdquo;. Since we have a destructor that does memory management we should also handle the copy constructor and assignment operator. Otherwise the following is allowed and will cause undefined behavior:
-```cpp Rule of Three Copy Constructor</p>
-
-<pre><code>int test1()
-{
-    ThorsAnvil::SP   sp1&lt;int&gt;(new int(5));
-    ThorsAnvil::SP   sp2&lt;int&gt;(sp1);  // copy construction
-
-             // Here the compiler generated copy constructor
-             // kicks in and does a member wise copy of sp1
-             // into sp2. That in itself is not a problem.
- }
- // But when sp2 goes out of scope its destructor kicks in
- // and deletes the pointer. When sp1 subsequently follows
- // sp2 out of scope it will also call delete on the same
- // pointer (as they share a copy of the pointer).
- // 
- // This is known as a double delete and causes
- // undefined behavior (UB).
-</code></pre>
-
-<p>```</p>
-
-<p> The assignment operator is slightly worse:
-```cpp Rule of Three Assignment Operator</p>
-
-<pre><code>int test2()
-{
-    ThorsAnvil::SP   sp1&lt;int&gt;(new int(5));
-    ThorsAnvil::SP   sp2&lt;int&gt;(new int(6));
-
-    sp2 = sp1; // Assignment operation.
-
-             // Here the compiler generated assignment 
-             // operator kicks in and does a member wise 
-             // assignment of sp1 into sp2.
-             //
-             // The main problem with the assignment here
-             // is that we have lost the original pointer
-             // that sp2 was holding.
- }
- // Same issues with double delete as the copy constructor.
-</code></pre>
-
-<p><code>
-This is caused by the compiler atomically generating default implementations of certain methods (see discussion on the [rule of three](http://stackoverflow.com/q/4172722/14065)) if the user does not explicitly specify otherwise. In this case the problem comes because of the compiler generated versions of the copy constructor and assignment operator (see below)
-</code>cpp Compiler Generated Methods.</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    .....
-        // Compiler Generated Copy Constructor
-        UP(UP const&amp; copy)
-            : data(copy.data)
-        {}
-
-        // Compiler Generated Assignment Operator
-        UP&amp; UP::operator=(UP const&amp; rhs)
-        {
-            data    = rhs.data;
-            return *this;
-        }
-}
-</code></pre>
-
-<p>```
-I have heard this described as a language bug; but I have to disagree with that sentiment, as these compiler generated methods do exactly as you would expect in nearly all situations. The one exceptions is when the class contains &ldquo;owned raw pointers&rdquo;.</p>
-
-<h3>Problem 2: Implicit construction.</h3>
-
-<p>The next issue is caused by C++ tendency to eagerly convert one type to another if given half a chance. If your class contains a constructor that takes a single argument then the compiler will use this as a way of converting one type to another.
-```cpp Example</p>
-
-<pre><code>void takeOwner1(ThorsAnvil::UP&lt;int&gt; x)
-{}
-void takeOwner2(ThorsAnvil::UP&lt;int&gt; const&amp; x)
-{}
-void takeOwner3(ThorsAnvil::UP&lt;int&gt;&amp;&amp; x)
-{}
-int main()
-{
-    int*   data = new int(7);
-
-    takeOwner1(data);
-    takeOwner2(data);
-    takeOwner3(data);
-}
-</code></pre>
-
-<p><code>``
-Though none of the functions in the example take an</code>int pointer<code>as a parameter; the compiler sees that it can convert an</code>int*<code>into an object of type</code>ThorsAnvil::UP<int>` via the single argument constructor and builds temporary objects to facilitate the calling of the function.</p>
-
-<p>In the case of smart pointers, that take ownership of the object passed in the constructor, this can be a problem because the lifetime of a temporary object is the containing statement (with a few exceptions that we will cover in another article). As a simple rule of thumb you can think of the lifespan of a temporary ending at the <code>';'</code>.
-```cpp Temporary Object</p>
-
-<pre><code>takeOwner1(data);
-
-// You can think of this as functionally equivalent to:
-
-{
-    ThorsAnvil::UP&lt;int&gt; tmp(data);
-    takeOwner1(tmp);
-}
-</code></pre>
-
-<p><code>``
-The problem here is that when</code>tmp<code>goes out of scope its destructor will call delete on the pointer. Thus</code>data<code>is now pointing at memory that has been destroyed (and thus no longer belongs to the application). Any further use of</code>data` is going to potentially cause problems (and I am being generous using the word potentially).</p>
-
-<p>This feature can be quite useful (when you want this conversion to happen easily, see std::string). But you should definitely be aware of it and think carefully about creating single argument constructors.</p>
-
-<h3>Problem 3: Null de-referencing</h3>
-
-<p>I think it is obvious that <code>operator*</code> has an issue with de-referencing a Null pointer here:
-```cpp operator*()</p>
-
-<pre><code>            T&amp; operator*()  {return *data;}
-</code></pre>
-
-<p><code>
-But it is not quite as obvious that `operator-&gt;` is also going to cause dereferencing of the pointer here:
-</code>cpp operator->()</p>
-
-<pre><code>            T* operator-&gt;() {return data;}
-</code></pre>
-
-<p><code>``
-There are a couple of solutions to this problem. You can check</code>data` and throw an exception if it is a Null pointer, or alternatively you can make it a pre-condition on the usage of the smart pointer (ie it is the responsibility of the user to either know or check the state of the smart pointer before using these methods).</p>
-
-<p>The standard has chosen to go with a pre-condition (a very common C++ practice: do not impose an overhead on all your users (to spare problems for the beginner), but rather provide a mechanism to check the state for those that need to do so; so they can choose to pay the overhead when they need to and not every time). We can do the same here but we have not provided any mechanism for the user to check the state of the smart pointer.</p>
-
-<h3>Problem 4: Const Correctness</h3>
-
-<p>When accessing the owned object via a smart pointer we are not affecting the state of our smart pointer so any member that basically returns the object (without changing the state of the smart pointer) should be marked const.
-```cpp Not const</p>
-
-<pre><code>            T* operator-&gt;() {return data;}
-            T&amp; operator*()  {return *data;}
-</code></pre>
-
-<p><code>
-So these two methods should really be declared as:
-</code>cpp Const Correct</p>
-
-<pre><code>            T* operator-&gt;() const {return data;}
-            T&amp; operator*()  const {return *data;}
-</code></pre>
-
-<p>```</p>
-
-<h3>Problem 5: Bool conversion to easy</h3>
-
-<p>The current <code>operator bool()</code> works as required in bool expressions.
-```cpp Check for value</p>
-
-<pre><code>ThorsAnvil::UP&lt;int&gt;    value(new int(4));
-
-if (value) {
-    std::cout &lt;&lt; "Not empty\n";
-}
-</code></pre>
-
-<p><code>
-But the compiler will also use the conversion operators when it is trying to coerce objects that nearly match. For example you can now test two `UP` with `operator==` even though there does not exists an actual `operator==` for the `UP&lt;&gt;` class. This is because the compiler can convert both `UP&lt;&gt;` objects to bool and these can be compared.
-</code>cpp Auto conversion is bad (mostly)</p>
-
-<pre><code>ThorsAnvil::UP&lt;int&gt;    value1(int(8));
-ThorsAnvil::UP&lt;int&gt;    value2(int(9));
-
-if (value1 == value2) {
-    // unfortunately this will print "They match".
-    // Because both values are converted to bool (in this case true).
-    // Then the test is done.
-    std::cout &lt;&lt; "They match\n";
-}
-</code></pre>
-
-<p><code>
-In C++03 there was a nasty work around using pointers to members. But in C++11 there was added new functionality to make the conversion operator only fire in a boolean context otherwise it must be explicitly called.
-</code>cpp explicit converter</p>
-
-<pre><code>    explicit operator bool() {return data;}
-...
-ThorsAnvil::UP&lt;int&gt;    value1(int(8));
-ThorsAnvil::UP&lt;int&gt;    value2(int(9));
-
-if (value1) { // This is expecting a boolean expression.
-    std::cout &lt;&lt; "Not nullptr\n";
-}
-
-if (static_cast&lt;bool&gt;(value1) == static_cast&lt;bool&gt;(value2)) { // Need to be explicit
-    std::cout &lt;&lt; "Both are either nullptr or not\n";
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>Fixed First Try</h2>
-
-<p>So given the problems described above we can update our implementation to compensate for these issues:
-```cpp ThorsAnvil::UP Version 2</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class UP
-    {
-        T*   data;
-        public:
-            // Explicit constructor
-            explicit UP(T* data)
-                : data(data)
-            {}
-            ~UP()
-            {
-                delete data;
-            }
-            // Remove compiler generated methods.
-            UP(UP const&amp;)            = delete;
-            UP&amp; operator=(UP const&amp;) = delete;
-
-            // Const correct access owned object
-            T* operator-&gt;() const {return data;}
-            T&amp; operator*()  const {return *data;}
-
-            // Access to smart pointer state
-            T* get()                 const {return data;}
-            explicit operator bool() const {return data;}
-
-            // Modify object state
-            T* release()
-            {
-                T* result = nullptr;
-                std::swap(result, data);
-                return result;
-            }
-    };
-}
-</code></pre>
-
-<p>```
-If you are thinking this is not enough you are correct. We still have some more work to do. But lets leave it at that for version one.</p>
-
-<h2>Summary</h2>
-
-<p>So in this initial post we have looked at a typical first attempt at a smart pointer and summarized the common problems I often see in these home grown smart pointer implementations.</p>
 ]]></content>
   </entry>
   
