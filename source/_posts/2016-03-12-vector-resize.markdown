@@ -1,0 +1,390 @@
+---
+layout: post
+title: "Vector - Part 3: Vector Resize"
+date: 2016-03-12 05:53:07 -0700
+comments: true
+categories: [C++, C++-By-Example, Coding]
+sharing: true
+footer: true
+subtitle: C++ By Example
+author: Loki Astari, (C)2016,
+description: C++ By Example. The Vector
+---
+Because resizing a vector is expensive; the `std::vector` class uses exponential growth to minimize the number of times that the vector is resized. A technique we copied in this version. But every now and then you still need to do resize the internal buffer.
+
+In the [current version](#VectorVersion-1), resizing the vector requires a new buffer be allocated and all the members copied into it. Basically we are using the copy and swap mechanism to provide the strong exception guarantee (If an exception is thrown all resources are cleaned up and the object remains unchanged).
+```cpp Vector Resize with Copy
+        void push_back_internal(T const& value)
+        {
+            new (buffer + length) T(value);
+            ++length;
+        }
+
+        void reserveCapacity(std::size_t newCapacity)
+        {
+            Vector<T>  tmpBuffer(newCapacity);
+            std::for_each(buffer, buffer + length,
+                          [&tmpBuffer](T const& v){tmpBuffer.push_back_internal(v);}
+                         );
+
+            tmpBuffer.swap(*this);
+        }
+```
+
+Thus resizing a `Vector` can be a very expensive operation because of all the copying that can happen.
+
+Using the move constructor rather than copy constructor during a resize operation could potentially be much more efficient. But the move constructor mutates the original object and thus if there is a problem we need to undo the mutations to maintain the strong exception guarantee.
+
+The first attempt at this is:
+```cpp Vector Resize with Move With Exceptions
+        void move_back_internal(T&& value)
+        {
+            new (buffer + length) T(std::forward<T>(value));
+            ++length;
+        }
+
+        void reserveCapacity(std::size_t newCapacity)
+        {
+            Vector<T>  tmpBuffer(newCapacity);
+            try
+            {
+                std::for_each(buffer, buffer + length,
+                              [&tmpBuffer](T& v){tmpBuffer.move_back_internal(std::move(v));}
+                             );
+            }
+            catch(...)
+            {
+                // If an exception is throw you need to move the objects back
+                // from the temporary buffer back to this object.
+                for(int loop=0; loop < tmpBuffer.length; ++loop)
+                {
+                    // The problem is here:
+                    // If the initial move can throw,
+                    // then trying to move any of the objects back can also throw.
+                    // which would leave the object in an inconsistent state.
+                    buffer[loop] = std::move(tmpBuffer[loop]);
+                }
+
+                // Then remember to rethrow the exception after we have fixed the state.
+                throw;
+            }
+
+            tmpBuffer.swap(*this);
+        }
+```
+As the above code shows; if the type `T` can throw during it's move constructor then you can't guarantee that the object gets returned to the original state (as moving the already moved elements back may cause another exception). So we can not use the move constructor to resize the vector if the type `T` can throw during move construction.
+
+But not all types throw when being moved. In fact it is recommended that move constructors never throw. If we can guarantee that the move constructor does not throw then we can simplify the above code considerably and still provide the strong exception guarantee.
+```cpp Vector Resize with Move
+        void reserveCapacity(std::size_t newCapacity)
+        {
+            Vector<T>  tmpBuffer(newCapacity);
+            std::for_each(buffer, buffer + length,
+                          [&tmpBuffer](T& v){tmpBuffer.move_back_internal(std::move(v));}
+                         );
+
+            tmpBuffer.swap(*this);
+        }
+        void move_back_internal(T&& value)
+        {
+            new (buffer + length) T(std::forward<T>(value));
+            ++length;
+        }
+```
+So now we have to write the code that decides at compile time which version we should use. The simplist way to do this is to use template specialization of a class using the standard class `std::is_nothrow_move_constructible<T>` to help deferentiate types that have a none throwing move constructor. This is simple enough:
+```cpp Template class Specialization
+    template<typename T, bool = std::is_nothrow_move_constructible<T>::value>
+    struct SimpleCopy
+    {
+        // Define two different versions of this class.
+        // The object is to copy all the elements from src to dst Vector
+        // using push_back_internal or move_back_internal
+        //
+        // SimpleCopy<T, false>:        Defines a version that use push_back_internal (copy constructor)
+        //                              This is always safe to use.
+        // SimpleCopy<T, true>:         Defines a version that uses move_back_internal (move constructor)
+        //                              Safe when move construction does not throw.
+        //
+        void operator()(Vector<T>& src, Vector<T>& dst) const;
+    };
+    template<typename T>
+    class Vector
+    {
+        public:
+            .....
+        private:
+            // We are using private methods for effeciency.
+            // So these classes need to be friends.
+            friend struct SimpleCopy<T, true>;
+            friend struct SimpleCopy<T, false>;
+
+            void reserveCapacity(std::size_t newCapacity)
+            {
+                Vector<T>  tmpBuffer(newCapacity);
+
+                // Create the copier object base on the type T.
+                // Note: The second parameter is automatically generated based
+                //       on if the type T is move constructable with no exception.
+                SimpleCopy<T>   copier;
+                copier(*this, tmpBuffer);
+
+                tmpBuffer.swap(*this);
+            }
+            void push_back_internal(T const& value)
+            {
+                new (buffer + length) T(value);
+                ++length;
+            }
+            void move_back_internal(T&& value)
+            {
+                new (buffer + length) T(std::forward<T>(value));
+                ++length;
+            }
+    }
+    // Define the two different types of copier
+    template<typename T>
+    struct SimpleCopy<T, false> // false: does not have nothrow move constructor
+    {
+        void operator()(Vector<T>& src, Vector<T>& dst) const
+        {
+            std::for_each(buffer, buffer + length,
+                          [&dst](T const& v){dst.push_back_internal(v);}
+                         );
+        }
+    };
+    template<typename T>
+    struct SimpleCopy<T, true> // true: has a nothrow move constructor
+    {
+        void operator()(Vector<T>& src, Vector<T>& dst) const
+        {
+            std::for_each(buffer, buffer + length,
+                          [&dst](T& v){dst.move_back_internal(std::move(v));}
+                         );
+        }
+    };
+```
+This has technique has a couple of issues.
+
+The type `SimpleClass` is publicly available and is a friend of `Vector<T>`. This makes it suseptable to accidently being used (even if not explicitly documented). Unfortunately it can't be included as a member class and also be specialized.
+
+Additionally it looks awful!!
+
+But we can also use [SFINAE](https://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error) and method overloading.
+
+SFINAE allows us to define several versions of method with exactly the same arguments, as long as only one of them is valid at compile time. So in the example below we define two versions of the method `SimpleCopy(Vector<T>& src, Vector<T>& dst)` but then use `std::enable_if` to make sure only one version of the function id valid at compile time.
+
+```cpp SFINAE method overload
+    template<typename T>
+    class Vector
+    {
+        public:
+            .....
+        private:
+            void reserveCapacity(std::size_t newCapacity)
+            {
+                Vector<T>  tmpBuffer(newCapacity);
+
+                SimpleCopy<T>(*this, tmpBuffer);
+
+                tmpBuffer.swap(*this);
+            }
+            void push_back_internal(T const& value)
+            {
+                new (buffer + length) T(value);
+                ++length;
+            }
+            void move_back_internal(T&& value)
+            {
+                new (buffer + length) T(std::forward<T>(value));
+                ++length;
+            }
+
+            template<typename X>
+            // Note: this defines the return type of the function.
+            //       But only one has a valid member `type` thus only
+            //       one of the following funcionts is actually valid.
+            typename std::enable_if<std::is_nothrow_move_constructible<X>::value == false>::type
+            simpleCopy(Vector<T>& src, Vector<T>& dst)
+            {
+                std::for_each(buffer, buffer + length,
+                              [&dst](T const& v){dst.push_back_internal(v);}
+                             );
+            }
+
+            template<typename X>
+            typename std::enable_if<std::is_nothrow_move_constructible<X>::value == true>::type
+            simpleCopy()(Vector<T>& src, Vector<T>& dst)
+            {
+                std::for_each(buffer, buffer + length,
+                              [&dst](T& v){dst.move_back_internal(std::move(v));}
+                             );
+            }
+    }
+```
+
+#Final Version <a id="VectorVersion-3"></a>
+
+```cpp Vector Final Version
+template<typename T>
+class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+
+    struct Deleter
+    {
+        void operator()(T* buffer) const
+        {
+            ::operator delete(buffer);
+        }
+    };
+
+    public:
+        Vector(int capacity = 10)
+            : capacity(capacity)
+            , length(0)
+            , buffer(static_cast<T*>(::operator new(sizeof(T) * capacity)))
+        {}
+        ~Vector()
+        {
+            // Make sure the buffer is deleted even with exceptions
+            // This will be called to release the pointer at the end
+            // of scope.
+            std::unique_ptr<T, Deleter>     deleter(buffer, Deleter());
+
+            // Call the destructor on all the members in reverse order
+            for(int loop = 0; loop < length; ++loop)
+            {
+                // Note we destroy the elements in reverse order.
+                buffer[length - 1 - loop].~T();
+            }
+        }
+        Vector(Vector const& copy)
+            : capacity(copy.length)
+            , length(0)
+            , buffer(static_cast<T*>(::operator new(sizeof(T) * capacity)))
+        {
+            try
+            {
+                for(int loop = 0; loop < copy.length; ++loop)
+                {
+                    push_back(copy.buffer[loop]);
+                }
+            }
+            catch(...)
+            {
+                // If there was an exception then destroy everything
+                // that was created to make it exception safe.
+                for(int loop = 0; loop < length; ++loop)
+                {
+                    buffer[length - 1 - loop].~T();
+                }
+                ::operator delete(buffer);
+
+                // Make sure the exceptions continue propagating after
+                // the cleanup has completed.
+                throw;
+            }
+        }
+        Vector& operator=(Vector const& copy)
+        {
+            // Copy and Swap idiom
+            Vector<T>  tmp(copy);
+            tmp.swap(*this);
+            return *this;
+        }
+        Vector(Vector&& move) noexcept
+            : capacity(0)
+            , length(0)
+            , buffer(nullptr)
+        {
+            move.swap(*this);
+        }
+        Vector& operator=(Vector&& move) noexcept
+        {
+            move.swap(*this);
+            return *this;
+        }
+        void swap(Vector& other) noexcept
+        {
+            using std::swap;
+            swap(capacity,      other.capacity);
+            swap(length,        other.length);
+            swap(buffer,        other.buffer);
+        }
+        void push_back(T const& value)
+        {
+            resizeIfRequire();
+            push_back_internal(value);
+        }
+        void pop_back()
+        {
+            --length;
+            buffer[length].~T();
+        }
+        void reserve(std::size_t capacityUpperBound)
+        {
+            if (capacityUpperBound > capacity)
+            {
+                reserveCapacity(capacityUpperBound);
+            }
+        }
+    private:
+        void resizeIfRequire()
+        {
+            if (length == capacity)
+            {
+                std::size_t     newCapacity  = capacity * 1.62;
+                reserveCapacity(newCapacity);
+            }
+        }
+        void reserveCapacity(std::size_t newCapacity)
+        {
+            Vector<T>  tmpBuffer(newCapacity);
+
+            simpleCopy<T>(*this, tmpBuffer);
+
+            tmpBuffer.swap(*this);
+        }
+        void push_back_internal(T const& value)
+        {
+            new (buffer + length) T(value);
+            ++length;
+        }
+        void move_back_internal(T&& value)
+        {
+            new (buffer + length) T(std::forward<T>(value));
+            ++length;
+        }
+
+        template<typename X>
+        typename std::enable_if<std::is_nothrow_move_constructible<X>::value == false>::type
+        simpleCopy(Vector<T>& src, Vector<T>& dst)
+        {
+            std::for_each(buffer, buffer + length,
+                          [&dst](T const& v){dst.push_back_internal(v);}
+                         );
+        }
+
+        template<typename X>
+        typename std::enable_if<std::is_nothrow_move_constructible<X>::value == true>::type
+        simpleCopy(Vector<T>& src, Vector<T>& dst)
+        {
+            std::for_each(buffer, buffer + length,
+                          [&dst](T& v){dst.move_back_internal(std::move(v));}
+                         );
+        }
+};
+```
+
+#Summary
+This article has gone over the design of the resiing the internal buffer. We have covered a couple of techniques on the way
+
+* Move Constructor Concepts
+* Template Class Specialization
+* SFINAE
+* std::is_nothrow_move_constructible&lt;&gt;
+* std::enable_if&lt;&gt;
+
+

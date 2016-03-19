@@ -71,7 +71,7 @@ class Vector
         // Part-1 Create a copy of the src object.
         std::size_t tmpCap    = copy.length;
         std::size_t tmpSize   = 0;
-        T*          tmpBuffer = static_cast<int*>(::operator new(sizeof(T) * tmpCap));
+        T*          tmpBuffer = static_cast<T*>(::operator new(sizeof(T) * tmpCap));
 
         // Now copy all the elements from the source into the temporary object
         for(int loop = 0; loop < copy.length; ++loop)
@@ -108,7 +108,7 @@ Part-1 looks exactly like the copy constructor of Vector.
 ```cpp Copy Assignment Part 1
         std::size_t tmpCap    = copy.length;
         std::size_t tmpSize   = 0;
-        T*          tmpBuffer = static_cast<int*>(::operator new(sizeof(T) * tmpCap));
+        T*          tmpBuffer = static_cast<T*>(::operator new(sizeof(T) * tmpCap));
 
         // Now copy all the elements from the source into the temporary object
         for(int loop = 0; loop < copy.length; ++loop)
@@ -223,7 +223,7 @@ class Vector
 };
 ```
 
-#Final Version
+#Final Version <a id="VectorVersion-2"></a>
 
 ```cpp Vector Final Version
 template<typename T>
@@ -242,10 +242,10 @@ class Vector
     };
 
     public:
-        Vector(int capacity)
+        Vector(int capacity = 10)
             : capacity(capacity)
             , length(0)
-            , buffer(static_cast<int*>(::operator new(sizeof(T) * capacity)))
+            , buffer(static_cast<T*>(::operator new(sizeof(T) * capacity)))
         {}
         ~Vector()
         {
@@ -264,13 +264,13 @@ class Vector
         Vector(Vector const& copy)
             : capacity(copy.length)
             , length(0)
-            , buffer(static_cast<int*>(::operator new(sizeof(T) * capacity)))
+            , buffer(static_cast<T*>(::operator new(sizeof(T) * capacity)))
         {
             try
             {
                 for(int loop = 0; loop < copy.length; ++loop)
                 {
-                    push_backValue(copy.buffer[loop]);
+                    push_back(copy.buffer[loop]);
                 }
             }
             catch(...)
@@ -295,14 +295,14 @@ class Vector
             tmp.swap(*this);
             return *this;
         }
-        Vector(Vector&& move)
+        Vector(Vector&& move) noexcept
             : capacity(0)
             , length(0)
             , buffer(nullptr)
         {
             move.swap(*this);
         }
-        Vector& operator=(Vector&& move)
+        Vector& operator=(Vector&& move) noexcept
         {
             move.swap(*this);
             return *this;
@@ -317,13 +317,19 @@ class Vector
         void push_back(T const& value)
         {
             resizeIfRequire();
-            new (buffer + length) T(value);
-            ++length;
+            push_back_internal(value);
         }
         void pop_back()
         {
             --length;
             buffer[length].~T();
+        }
+        void reserve(std::size_t capacityUpperBound)
+        {
+            if (capacityUpperBound > capacity)
+            {
+                reserveCapacity(capacityUpperBound);
+            }
         }
     private:
         void resizeIfRequire()
@@ -331,11 +337,20 @@ class Vector
             if (length == capacity)
             {
                 std::size_t     newCapacity  = capacity * 1.62;
-                Vector<T>  tmpBuffer(newCapacity);
-                std::for_each(buffer, buffer + length, [&tmpBuffer](T const& item){tmpBuffer.push_back(item);});
-
-                tmpBuffer.swap(*this);
+                reserveCapacity(newCapacity);
             }
+        }
+        void push_back_internal(T const& value)
+        {
+            new (buffer + length) T(value);
+            ++length;
+        }
+        void reserveCapacity(std::size_t newCapacity)
+        {
+            Vector<T>  tmpBuffer(newCapacity);
+            std::for_each(buffer, buffer + length, [&tmpBuffer](T const& v){tmpBuffer.push_back_internal(v);});
+
+            tmpBuffer.swap(*this);
         }
 };
 ```

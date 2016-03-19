@@ -13,16 +13,18 @@ description: C++ By Example. The Vector
 
 A lot of new developers to C++ attempt to build a `Vector` like container as a learning processes. Getting a simple version of this working for POD types (like int) is not that complicated. The next step in getting this working for arbitrary data types takes a significant leap forward in thinking in C++ especially when you start looking at efficiency and exception safety. This set of four articles looks at building an efficient `Vector` implementation. I show some of the common mistakes and explain why and how to resolve the problems:
 
+I will use three articles to cover the different parts I want to illustrate:
+
 1. Resource Management I:   Allocation
 2. Resource Management II:  Copy Assignment
-3. Resource Management III: Simple Optimizations
+3. Resource Management III: Resize
 4. Container Concepts.
 
 Note: This is not meant to replace `std::vector<>` this simply meant as a teaching processes.
 
-# Rule of Zero
+## Rule of Zero
 
-You will notice that half the attempts above are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasize the [Separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns). An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass `std::vector<int>` would be a good choice).
+You will notice that half the attempts below [Sources](#Sources) are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasize the [Separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns). An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass `std::vector<int>` would be a good choice).
 
 In C++ the compiler generates a couple of methods for free.
 
@@ -116,7 +118,7 @@ class Vector
 
 ##Version-3 Lazy Construction of elements.
 
-The problem with the previous version is that it forces initialization of all elements in the buffer immediately. This forces the requirement that members of the `Vector` (i.e. type `T`) must be default constructable. It also has two efficiency constraints imposed on the vector:
+The problem with the previous version is that it forces initialization of all elements in the buffer immediately. This forces the requirement that members of the `Vector` (i.e. type `T`) must be default constructable. It also has two efficiency constraints imposed on the Vector:
 
 * You can't pre-allocate space for future members.  
     + So resizing (larger or smaller) becomes very expensive as each resize requires copy all the elements to the newly re-sized buffer.
@@ -139,7 +141,7 @@ class Vector
         : capacity(capacity = 100)
         , length(0)
         // Allocates space but does not call the constructor
-        , buffer(static_cast<int*>(::operator new(sizeof(T) * capacity)))
+        , buffer(static_cast<T*>(::operator new(sizeof(T) * capacity)))
         // Useful if the type T has an expensive constructor
         // We preallocate space without initializing it giving
         // room to grow and shrink the buffer without re-allocating.
@@ -159,7 +161,7 @@ class Vector
     Vector(Vector const& copy)
         : capacity(copy.length)
         , length(0)
-        , buffer(static_cast<int*>(::operator new(sizeof(T) * capacity)))
+        , buffer(static_cast<T*>(::operator new(sizeof(T) * capacity)))
     {
         // Copy constructor is simple.
         // We create a new resource area of the required length.
@@ -252,7 +254,7 @@ class Vector
 
 Note I marked both move operators `noexcept`. Assuming the operations are guaranteed not to throw you should mark them as `noexcept`. If we know that certain operations are exception safe, then we can optimize resize operations and maintain the strong exception guarantee. This and some other optimizations will be documented in a subsequent post.
 
-#Final Version
+#Final Version <a id="VectorVersion-1"></a>
 
 ```cpp Vector Final Version
 template<typename T>
@@ -271,10 +273,10 @@ class Vector
     };
 
     public:
-        Vector(int capacity)
+        Vector(int capacity = 10)
             : capacity(capacity)
             , length(0)
-            , buffer(static_cast<int*>(::operator new(sizeof(T) * capacity)))
+            , buffer(static_cast<T*>(::operator new(sizeof(T) * capacity)))
         {}
         ~Vector()
         {
@@ -293,13 +295,13 @@ class Vector
         Vector(Vector const& copy)
             : capacity(copy.length)
             , length(0)
-            , buffer(static_cast<int*>(::operator new(sizeof(T) * capacity)))
+            , buffer(static_cast<T*>(::operator new(sizeof(T) * capacity)))
         {
             try
             {
                 for(int loop = 0; loop < copy.length; ++loop)
                 {
-                    push_backValue(copy.buffer[loop]);
+                    push_back(copy.buffer[loop]);
                 }
             }
             catch(...)
@@ -322,14 +324,14 @@ class Vector
             // Covered in Part 2
             return *this;
         }
-        Vector(Vector&& move)
+        Vector(Vector&& move) noexcept
             : capacity(0)
             , length(0)
             , buffer(nullptr)
         {
             move.swap(*this);
         }
-        Vector& operator=(Vector&& move)
+        Vector& operator=(Vector&& move) noexcept
         {
             move.swap(*this);
             return *this;
@@ -374,18 +376,18 @@ This article has shown how to handle the basic resource management required by a
 * Placement New
 * Exception Grantees
 
-#Sources
+#Sources  <a id="Sources"></a>
 Looking at [CodeReview.stackexchange.com](http://CodeReview.stackexchange.com); reimplementing the vector class is a common goal for a first project.
 
-* 2011/Nov/07 - *[Mathematical Vector2 class implementation](http://codereview.stackexchange.com/q/5856/507)*
-* 2012/May/21 - *[C++ Vector2 Class Review](http://codereview.stackexchange.com/q/11934/507)*
+* 2011/Nov/07 - [Mathematical Vector2 class implementation](http://codereview.stackexchange.com/q/5856/507)*
+* 2012/May/21 - [C++ Vector2 Class Review](http://codereview.stackexchange.com/q/11934/507)*
 * 2012/Aug/17 - [Templated Matrix class](http://codereview.stackexchange.com/q/14784/507)
 * 2013/Jan/07 - [Vector implementation - simple replacement](http://codereview.stackexchange.com/q/20243/507)
 * 2013/May/25 - [Review of 2d Vector class](http://codereview.stackexchange.com/q/26608/507)
 * 2013/Jun/19 - [Simple matrix class](http://codereview.stackexchange.com/q/27573/507)
-* 2013/Jun/21 - *[Matrix and Vector4 classes](http://codereview.stackexchange.com/q/27625/507)*
-* 2013/Jun/25 - *[Simple matrix class - version 2](http://codereview.stackexchange.com/q/27752/507)*
-* 2013/Aug/03 - *[Template vector class](http://codereview.stackexchange.com/q/29331/507)*
+* 2013/Jun/21 - [Matrix and Vector4 classes](http://codereview.stackexchange.com/q/27625/507)*
+* 2013/Jun/25 - [Simple matrix class - version 2](http://codereview.stackexchange.com/q/27752/507)*
+* 2013/Aug/03 - [Template vector class](http://codereview.stackexchange.com/q/29331/507)*
 * 2014/Feb/20 - [C++ vector implementation](http://codereview.stackexchange.com/q/42297/507)
 * 2014/Mar/01 - [Reimplementation of C++ vector](http://codereview.stackexchange.com/q/43136/507)
 * 2014/Mar/12 - [3D mathematical vector class](http://codereview.stackexchange.com/q/44167/507)
