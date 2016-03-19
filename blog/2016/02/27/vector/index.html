@@ -125,19 +125,21 @@
 
 <div class="entry-content"><p>A lot of new developers to C++ attempt to build a <code>Vector</code> like container as a learning processes. Getting a simple version of this working for POD types (like int) is not that complicated. The next step in getting this working for arbitrary data types takes a significant leap forward in thinking in C++ especially when you start looking at efficiency and exception safety. This set of four articles looks at building an efficient <code>Vector</code> implementation. I show some of the common mistakes and explain why and how to resolve the problems:</p>
 
+<p>I will use three articles to cover the different parts I want to illustrate:</p>
+
 <ol>
 <li>Resource Management I:   Allocation</li>
 <li>Resource Management II:  Copy Assignment</li>
-<li>Resource Management III: Simple Optimizations</li>
+<li>Resource Management III: Resize</li>
 <li>Container Concepts.</li>
 </ol>
 
 
 <p>Note: This is not meant to replace <code>std::vector&lt;&gt;</code> this simply meant as a teaching processes.</p>
 
-<h1>Rule of Zero</h1>
+<h2>Rule of Zero</h2>
 
-<p>You will notice that half the attempts above are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasize the <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a>. An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass <code>std::vector&lt;int&gt;</code> would be a good choice).</p>
+<p>You will notice that half the attempts below <a href="#Sources">Sources</a> are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasize the <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a>. An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass <code>std::vector&lt;int&gt;</code> would be a good choice).</p>
 
 <p>In C++ the compiler generates a couple of methods for free.</p>
 
@@ -295,7 +297,7 @@
 
 <h2>Version-3 Lazy Construction of elements.</h2>
 
-<p>The problem with the previous version is that it forces initialization of all elements in the buffer immediately. This forces the requirement that members of the <code>Vector</code> (i.e. type <code>T</code>) must be default constructable. It also has two efficiency constraints imposed on the vector:</p>
+<p>The problem with the previous version is that it forces initialization of all elements in the buffer immediately. This forces the requirement that members of the <code>Vector</code> (i.e. type <code>T</code>) must be default constructable. It also has two efficiency constraints imposed on the Vector:</p>
 
 <ul>
 <li>You can&rsquo;t pre-allocate space for future members.
@@ -544,7 +546,7 @@
 
 <p>Note I marked both move operators <code>noexcept</code>. Assuming the operations are guaranteed not to throw you should mark them as <code>noexcept</code>. If we know that certain operations are exception safe, then we can optimize resize operations and maintain the strong exception guarantee. This and some other optimizations will be documented in a subsequent post.</p>
 
-<h1>Final Version</h1>
+<h1>Final Version <a id="VectorVersion-1"></a></h1>
 
 <figure class='code'><figcaption><span>Vector Final Version</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -668,7 +670,7 @@
 </span><span class='line'>    <span class="p">};</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>        <span class="n">Vector</span><span class="p">(</span><span class="kt">int</span> <span class="n">capacity</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">Vector</span><span class="p">(</span><span class="kt">int</span> <span class="n">capacity</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 </span><span class='line'>            <span class="o">:</span> <span class="n">capacity</span><span class="p">(</span><span class="n">capacity</span><span class="p">)</span>
 </span><span class='line'>            <span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </span><span class='line'>            <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">capacity</span><span class="p">)))</span>
@@ -777,20 +779,20 @@
 </ul>
 
 
-<h1>Sources</h1>
+<h1>Sources  <a id="Sources"></a></h1>
 
 <p>Looking at <a href="http://CodeReview.stackexchange.com">CodeReview.stackexchange.com</a>; reimplementing the vector class is a common goal for a first project.</p>
 
 <ul>
-<li>2011/Nov/07 &ndash; <em><a href="http://codereview.stackexchange.com/q/5856/507">Mathematical Vector2 class implementation</a></em></li>
-<li>2012/May/21 &ndash; <em><a href="http://codereview.stackexchange.com/q/11934/507">C++ Vector2 Class Review</a></em></li>
+<li>2011/Nov/07 &ndash; <a href="http://codereview.stackexchange.com/q/5856/507">Mathematical Vector2 class implementation</a>*</li>
+<li>2012/May/21 &ndash; <a href="http://codereview.stackexchange.com/q/11934/507">C++ Vector2 Class Review</a>*</li>
 <li>2012/Aug/17 &ndash; <a href="http://codereview.stackexchange.com/q/14784/507">Templated Matrix class</a></li>
 <li>2013/Jan/07 &ndash; <a href="http://codereview.stackexchange.com/q/20243/507">Vector implementation &ndash; simple replacement</a></li>
 <li>2013/May/25 &ndash; <a href="http://codereview.stackexchange.com/q/26608/507">Review of 2d Vector class</a></li>
 <li>2013/Jun/19 &ndash; <a href="http://codereview.stackexchange.com/q/27573/507">Simple matrix class</a></li>
-<li>2013/Jun/21 &ndash; <em><a href="http://codereview.stackexchange.com/q/27625/507">Matrix and Vector4 classes</a></em></li>
-<li>2013/Jun/25 &ndash; <em><a href="http://codereview.stackexchange.com/q/27752/507">Simple matrix class &ndash; version 2</a></em></li>
-<li>2013/Aug/03 &ndash; <em><a href="http://codereview.stackexchange.com/q/29331/507">Template vector class</a></em></li>
+<li>2013/Jun/21 &ndash; <a href="http://codereview.stackexchange.com/q/27625/507">Matrix and Vector4 classes</a>*</li>
+<li>2013/Jun/25 &ndash; <a href="http://codereview.stackexchange.com/q/27752/507">Simple matrix class &ndash; version 2</a>*</li>
+<li>2013/Aug/03 &ndash; <a href="http://codereview.stackexchange.com/q/29331/507">Template vector class</a>*</li>
 <li>2014/Feb/20 &ndash; <a href="http://codereview.stackexchange.com/q/42297/507">C++ vector implementation</a></li>
 <li>2014/Mar/01 &ndash; <a href="http://codereview.stackexchange.com/q/43136/507">Reimplementation of C++ vector</a></li>
 <li>2014/Mar/12 &ndash; <a href="http://codereview.stackexchange.com/q/44167/507">3D mathematical vector class</a></li>
@@ -890,7 +892,7 @@
     <li class="nav-header">Recent Posts</li>
     
       <li class="post">
-        <a href="/blog/2016/03/01/vector-part-3-optimization/">Vector - Part 3: Resource Management Optimization</a>
+        <a href="/blog/2016/03/12/vector-resize/">Vector - Part 3: Vector Resize</a>
       </li>
     
       <li class="post">

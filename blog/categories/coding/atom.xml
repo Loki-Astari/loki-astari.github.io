@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Coding | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/coding/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-04T03:03:25-08:00</updated>
+  <updated>2016-03-19T15:10:37-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -14,87 +14,408 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Vector - Part 3: Resource Management Optimization]]></title>
-    <link href="http://lokiastari.com/blog/2016/03/01/vector-part-3-optimization/"/>
-    <updated>2016-03-01T14:50:53-08:00</updated>
-    <id>http://lokiastari.com/blog/2016/03/01/vector-part-3-optimization</id>
-    <content type="html"><![CDATA[<p>In the previous two articles I have described the basic resource management required for a <code>Vector</code> like class so that it provides the strong exception guarantee and does not leak resources. The complexities that crop up are due to potential problems that may happen in object Constructor/Destructor where these methods are defined by the user. But if you have a <code>Vector</code> of a POD objects (i.e. <code>int</code>) these problems do not exist and the class can be a lot simpler and thus more efficient.</p>
+    <title type="html"><![CDATA[Vector - Part 3: Vector Resize]]></title>
+    <link href="http://lokiastari.com/blog/2016/03/12/vector-resize/"/>
+    <updated>2016-03-12T04:53:07-08:00</updated>
+    <id>http://lokiastari.com/blog/2016/03/12/vector-resize</id>
+    <content type="html"><![CDATA[<p>Because resizing a vector is expensive; the <code>std::vector</code> class uses exponential growth to minimize the number of times that the vector is resized. A technique we copied in this version. But every now and then you still need to do resize the internal buffer.</p>
 
-<p>```cpp Vector for POD types
-template<typename T>                                            template<typename T>
-class Vector                                                    class Vector
-{                                                               {</p>
+<p>In the <a href="#VectorVersion-1">current version</a>, resizing the vector requires a new buffer be allocated and all the members copied into it. Basically we are using the copy and swap mechanism to provide the strong exception guarantee (If an exception is thrown all resources are cleaned up and the object remains unchanged).
+```cpp Vector Resize with Copy</p>
 
-<pre><code>std::size_t     capacity;                                           std::size_t     capacity;
-std::size_t     length;                                             std::size_t     length;
-T*              buffer;                                             T*              buffer;
+<pre><code>    void push_back_internal(T const&amp; value)
+    {
+        new (buffer + length) T(value);
+        ++length;
+    }
 
-public:                                                         public:
-    Vector(int capacity)                                            Vector(int capacity)
-        : capacity(capacity)                                            : capacity(capacity)
-        , length(0)                                                     , length(0)
-        , buffer(new T[capacity]())                                     , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
-    {}                                                              {}
-    ~Vector()                                                       ~Vector()
-    {                                                               {
-                                                                        // Make sure the buffer is deleted even with exceptions
-                                                                        // This will be called to release the pointer at the end of scope
-        delete [] buffer;                                               std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+    void reserveCapacity(std::size_t newCapacity)
+    {
+        Vector&lt;T&gt;  tmpBuffer(newCapacity);
+        std::for_each(buffer, buffer + length,
+                      [&amp;tmpBuffer](T const&amp; v){tmpBuffer.push_back_internal(v);}
+                     );
 
-                                                                        // Call the destructor on all the members in reverse order
-                                                                        for(int loop = 0; loop &lt; length; ++loop)
-                                                                        {
-                                                                            // Note we destroy the elements in reverse order.
-                                                                            buffer[length - 1 - loop].~T();
-                                                                        }
-    }                                                               }
-    Vector(Vector const&amp; copy)                                      Vector(Vector const&amp; copy)
-        : capacity(copy.length)                                         : capacity(copy.length)
-        , length(0)                                                     , length(0)
-        , buffer(new T[capacity]())                                     , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
-    {                                                               {
-                                                                        try
-                                                                        {
-        for(int loop = 0; loop &lt; copy.length; ++loop)                       for(int loop = 0; loop &lt; copy.length; ++loop)
-        {                                                                   {
-            push_back(copy.buffer[loop]);                                       push_back(copy.buffer[loop]);
-        }                                                                   }
-                                                                        }
-                                                                        catch(...)
-                                                                        {
-                                                                            // If there was an exception then destroy everything
-                                                                            // that was created to make it exception safe.
-                                                                            for(int loop = 0; loop &lt; length; ++loop)
-                                                                            {
-                                                                                buffer[length - 1 - loop].~T();
-                                                                            }
-                                                                            ::operator delete(buffer);
-
-                                                                            // Make sure the exceptions continue propagating after
-                                                                            // the cleanup has completed.
-                                                                            throw;
-                                                                        }
-    }                                                               }
-    Vector&amp; operator=(Vector const&amp; copy)                           Vector&amp; operator=(Vector const&amp; copy)
-    {                                                               {
-        length  = 0;                                                    // Copy and Swap idiom
-        if (copy.length &gt; capacity)                                     Vector&lt;T&gt;  tmp(copy);
-        {                                                               tmp.swap(*this);
-            reserveCapacity(copy.length);
-        }
-        for(int loop = 0; loop &lt; copy.length; ++loop)
-        {
-            push_back(copy.buffer[loop]);
-        }
-        return *this;                                                   return *this;
-    }                                                               }
-    // 
-    // The rest of the class is identical
-    //
+        tmpBuffer.swap(*this);
+    }
 </code></pre>
 
-<p>};                                                              };
+<p>```</p>
+
+<p>Thus resizing a <code>Vector</code> can be a very expensive operation because of all the copying that can happen.</p>
+
+<p>Using the move constructor rather than copy constructor during a resize operation could potentially be much more efficient. But the move constructor mutates the original object and thus if there is a problem we need to undo the mutations to maintain the strong exception guarantee.</p>
+
+<p>The first attempt at this is:
+```cpp Vector Resize with Move With Exceptions</p>
+
+<pre><code>    void move_back_internal(T&amp;&amp; value)
+    {
+        new (buffer + length) T(std::forward&lt;T&gt;(value));
+        ++length;
+    }
+
+    void reserveCapacity(std::size_t newCapacity)
+    {
+        Vector&lt;T&gt;  tmpBuffer(newCapacity);
+        try
+        {
+            std::for_each(buffer, buffer + length,
+                          [&amp;tmpBuffer](T&amp; v){tmpBuffer.move_back_internal(std::move(v));}
+                         );
+        }
+        catch(...)
+        {
+            // If an exception is throw you need to move the objects back
+            // from the temporary buffer back to this object.
+            for(int loop=0; loop &lt; tmpBuffer.length; ++loop)
+            {
+                // The problem is here:
+                // If the initial move can throw,
+                // then trying to move any of the objects back can also throw.
+                // which would leave the object in an inconsistent state.
+                buffer[loop] = std::move(tmpBuffer[loop]);
+            }
+
+            // Then remember to rethrow the exception after we have fixed the state.
+            throw;
+        }
+
+        tmpBuffer.swap(*this);
+    }
+</code></pre>
+
+<p><code>``
+As the above code shows; if the type</code>T<code>can throw during it's move constructor then you can't guarantee that the object gets returned to the original state (as moving the already moved elements back may cause another exception). So we can not use the move constructor to resize the vector if the type</code>T` can throw during move construction.</p>
+
+<p>But not all types throw when being moved. In fact it is recommended that move constructors never throw. If we can guarantee that the move constructor does not throw then we can simplify the above code considerably and still provide the strong exception guarantee.
+```cpp Vector Resize with Move</p>
+
+<pre><code>    void reserveCapacity(std::size_t newCapacity)
+    {
+        Vector&lt;T&gt;  tmpBuffer(newCapacity);
+        std::for_each(buffer, buffer + length,
+                      [&amp;tmpBuffer](T&amp; v){tmpBuffer.move_back_internal(std::move(v));}
+                     );
+
+        tmpBuffer.swap(*this);
+    }
+    void move_back_internal(T&amp;&amp; value)
+    {
+        new (buffer + length) T(std::forward&lt;T&gt;(value));
+        ++length;
+    }
+</code></pre>
+
+<p><code>
+So now we have to write the code that decides at compile time which version we should use. The simplist way to do this is to use template specialization of a class using the standard class `std::is_nothrow_move_constructible&lt;T&gt;` to help deferentiate types that have a none throwing move constructor. This is simple enough:
+</code>cpp Template class Specialization</p>
+
+<pre><code>template&lt;typename T, bool = std::is_nothrow_move_constructible&lt;T&gt;::value&gt;
+struct SimpleCopy
+{
+    // Define two different versions of this class.
+    // The object is to copy all the elements from src to dst Vector
+    // using push_back_internal or move_back_internal
+    //
+    // SimpleCopy&lt;T, false&gt;:        Defines a version that use push_back_internal (copy constructor)
+    //                              This is always safe to use.
+    // SimpleCopy&lt;T, true&gt;:         Defines a version that uses move_back_internal (move constructor)
+    //                              Safe when move construction does not throw.
+    //
+    void operator()(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst) const;
+};
+template&lt;typename T&gt;
+class Vector
+{
+    public:
+        .....
+    private:
+        // We are using private methods for effeciency.
+        // So these classes need to be friends.
+        friend struct SimpleCopy&lt;T, true&gt;;
+        friend struct SimpleCopy&lt;T, false&gt;;
+
+        void reserveCapacity(std::size_t newCapacity)
+        {
+            Vector&lt;T&gt;  tmpBuffer(newCapacity);
+
+            // Create the copier object base on the type T.
+            // Note: The second parameter is automatically generated based
+            //       on if the type T is move constructable with no exception.
+            SimpleCopy&lt;T&gt;   copier;
+            copier(*this, tmpBuffer);
+
+            tmpBuffer.swap(*this);
+        }
+        void push_back_internal(T const&amp; value)
+        {
+            new (buffer + length) T(value);
+            ++length;
+        }
+        void move_back_internal(T&amp;&amp; value)
+        {
+            new (buffer + length) T(std::forward&lt;T&gt;(value));
+            ++length;
+        }
+}
+// Define the two different types of copier
+template&lt;typename T&gt;
+struct SimpleCopy&lt;T, false&gt; // false: does not have nothrow move constructor
+{
+    void operator()(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst) const
+    {
+        std::for_each(buffer, buffer + length,
+                      [&amp;dst](T const&amp; v){dst.push_back_internal(v);}
+                     );
+    }
+};
+template&lt;typename T&gt;
+struct SimpleCopy&lt;T, true&gt; // true: has a nothrow move constructor
+{
+    void operator()(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst) const
+    {
+        std::for_each(buffer, buffer + length,
+                      [&amp;dst](T&amp; v){dst.move_back_internal(std::move(v));}
+                     );
+    }
+};
+</code></pre>
+
+<p>```
+This has technique has a couple of issues.</p>
+
+<p>The type <code>SimpleClass</code> is publicly available and is a friend of <code>Vector&lt;T&gt;</code>. This makes it suseptable to accidently being used (even if not explicitly documented). Unfortunately it can&rsquo;t be included as a member class and also be specialized.</p>
+
+<p>Additionally it looks awful!!</p>
+
+<p>But we can also use <a href="https://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error">SFINAE</a> and method overloading.</p>
+
+<p>SFINAE allows us to define several versions of method with exactly the same arguments, as long as only one of them is valid at compile time. So in the example below we define two versions of the method <code>SimpleCopy(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst)</code> but then use <code>std::enable_if</code> to make sure only one version of the function id valid at compile time.</p>
+
+<p>```cpp SFINAE method overload</p>
+
+<pre><code>template&lt;typename T&gt;
+class Vector
+{
+    public:
+        .....
+    private:
+        void reserveCapacity(std::size_t newCapacity)
+        {
+            Vector&lt;T&gt;  tmpBuffer(newCapacity);
+
+            SimpleCopy&lt;T&gt;(*this, tmpBuffer);
+
+            tmpBuffer.swap(*this);
+        }
+        void push_back_internal(T const&amp; value)
+        {
+            new (buffer + length) T(value);
+            ++length;
+        }
+        void move_back_internal(T&amp;&amp; value)
+        {
+            new (buffer + length) T(std::forward&lt;T&gt;(value));
+            ++length;
+        }
+
+        template&lt;typename X&gt;
+        // Note: this defines the return type of the function.
+        //       But only one has a valid member `type` thus only
+        //       one of the following funcionts is actually valid.
+        typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == false&gt;::type
+        simpleCopy(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst)
+        {
+            std::for_each(buffer, buffer + length,
+                          [&amp;dst](T const&amp; v){dst.push_back_internal(v);}
+                         );
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == true&gt;::type
+        simpleCopy()(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst)
+        {
+            std::for_each(buffer, buffer + length,
+                          [&amp;dst](T&amp; v){dst.move_back_internal(std::move(v));}
+                         );
+        }
+}
+</code></pre>
+
+<p>```</p>
+
+<h1>Final Version <a id="VectorVersion-3"></a></h1>
+
+<p>```cpp Vector Final Version
+template<typename T>
+class Vector
+{</p>
+
+<pre><code>std::size_t     capacity;
+std::size_t     length;
+T*              buffer;
+
+struct Deleter
+{
+    void operator()(T* buffer) const
+    {
+        ::operator delete(buffer);
+    }
+};
+
+public:
+    Vector(int capacity = 10)
+        : capacity(capacity)
+        , length(0)
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {}
+    ~Vector()
+    {
+        // Make sure the buffer is deleted even with exceptions
+        // This will be called to release the pointer at the end
+        // of scope.
+        std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+
+        // Call the destructor on all the members in reverse order
+        for(int loop = 0; loop &lt; length; ++loop)
+        {
+            // Note we destroy the elements in reverse order.
+            buffer[length - 1 - loop].~T();
+        }
+    }
+    Vector(Vector const&amp; copy)
+        : capacity(copy.length)
+        , length(0)
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {
+        try
+        {
+            for(int loop = 0; loop &lt; copy.length; ++loop)
+            {
+                push_back(copy.buffer[loop]);
+            }
+        }
+        catch(...)
+        {
+            // If there was an exception then destroy everything
+            // that was created to make it exception safe.
+            for(int loop = 0; loop &lt; length; ++loop)
+            {
+                buffer[length - 1 - loop].~T();
+            }
+            ::operator delete(buffer);
+
+            // Make sure the exceptions continue propagating after
+            // the cleanup has completed.
+            throw;
+        }
+    }
+    Vector&amp; operator=(Vector const&amp; copy)
+    {
+        // Copy and Swap idiom
+        Vector&lt;T&gt;  tmp(copy);
+        tmp.swap(*this);
+        return *this;
+    }
+    Vector(Vector&amp;&amp; move) noexcept
+        : capacity(0)
+        , length(0)
+        , buffer(nullptr)
+    {
+        move.swap(*this);
+    }
+    Vector&amp; operator=(Vector&amp;&amp; move) noexcept
+    {
+        move.swap(*this);
+        return *this;
+    }
+    void swap(Vector&amp; other) noexcept
+    {
+        using std::swap;
+        swap(capacity,      other.capacity);
+        swap(length,        other.length);
+        swap(buffer,        other.buffer);
+    }
+    void push_back(T const&amp; value)
+    {
+        resizeIfRequire();
+        push_back_internal(value);
+    }
+    void pop_back()
+    {
+        --length;
+        buffer[length].~T();
+    }
+    void reserve(std::size_t capacityUpperBound)
+    {
+        if (capacityUpperBound &gt; capacity)
+        {
+            reserveCapacity(capacityUpperBound);
+        }
+    }
+private:
+    void resizeIfRequire()
+    {
+        if (length == capacity)
+        {
+            std::size_t     newCapacity  = capacity * 1.62;
+            reserveCapacity(newCapacity);
+        }
+    }
+    void reserveCapacity(std::size_t newCapacity)
+    {
+        Vector&lt;T&gt;  tmpBuffer(newCapacity);
+
+        simpleCopy&lt;T&gt;(*this, tmpBuffer);
+
+        tmpBuffer.swap(*this);
+    }
+    void push_back_internal(T const&amp; value)
+    {
+        new (buffer + length) T(value);
+        ++length;
+    }
+    void move_back_internal(T&amp;&amp; value)
+    {
+        new (buffer + length) T(std::forward&lt;T&gt;(value));
+        ++length;
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == false&gt;::type
+    simpleCopy(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst)
+    {
+        std::for_each(buffer, buffer + length,
+                      [&amp;dst](T const&amp; v){dst.push_back_internal(v);}
+                     );
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == true&gt;::type
+    simpleCopy(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst)
+    {
+        std::for_each(buffer, buffer + length,
+                      [&amp;dst](T&amp; v){dst.move_back_internal(std::move(v));}
+                     );
+    }
+</code></pre>
+
+<p>};
 ```</p>
+
+<h1>Summary</h1>
+
+<p>This article has gone over the design of the resiing the internal buffer. We have covered a couple of techniques on the way</p>
+
+<ul>
+<li>Move Constructor Concepts</li>
+<li>Template Class Specialization</li>
+<li>SFINAE</li>
+<li>std::is_nothrow_move_constructible&lt;&gt;</li>
+<li>std::enable_if&lt;&gt;</li>
+</ul>
+
 ]]></content>
   </entry>
   
@@ -342,7 +663,7 @@ void resizeIfRequire()
 <p>};
 ```</p>
 
-<h1>Final Version</h1>
+<h1>Final Version <a id="VectorVersion-2"></a></h1>
 
 <p>```cpp Vector Final Version
 template<typename T>
@@ -362,7 +683,7 @@ struct Deleter
 };
 
 public:
-    Vector(int capacity)
+    Vector(int capacity = 10)
         : capacity(capacity)
         , length(0)
         , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
@@ -437,13 +758,19 @@ public:
     void push_back(T const&amp; value)
     {
         resizeIfRequire();
-        new (buffer + length) T(value);
-        ++length;
+        push_back_internal(value);
     }
     void pop_back()
     {
         --length;
         buffer[length].~T();
+    }
+    void reserve(std::size_t capacityUpperBound)
+    {
+        if (capacityUpperBound &gt; capacity)
+        {
+            reserveCapacity(capacityUpperBound);
+        }
     }
 private:
     void resizeIfRequire()
@@ -454,11 +781,15 @@ private:
             reserveCapacity(newCapacity);
         }
     }
+    void push_back_internal(T const&amp; value)
+    {
+        new (buffer + length) T(value);
+        ++length;
+    }
     void reserveCapacity(std::size_t newCapacity)
     {
         Vector&lt;T&gt;  tmpBuffer(newCapacity);
-        std::copy(buffer, buffer + length, tmpBuffer.beffer);
-        tmpBuffer.length = length;
+        std::for_each(buffer, buffer + length, [&amp;tmpBuffer](T const&amp; v){tmpBuffer.push_back_internal(v);});
 
         tmpBuffer.swap(*this);
     }
@@ -487,19 +818,21 @@ private:
     <id>http://lokiastari.com/blog/2016/02/27/vector</id>
     <content type="html"><![CDATA[<p>A lot of new developers to C++ attempt to build a <code>Vector</code> like container as a learning processes. Getting a simple version of this working for POD types (like int) is not that complicated. The next step in getting this working for arbitrary data types takes a significant leap forward in thinking in C++ especially when you start looking at efficiency and exception safety. This set of four articles looks at building an efficient <code>Vector</code> implementation. I show some of the common mistakes and explain why and how to resolve the problems:</p>
 
+<p>I will use three articles to cover the different parts I want to illustrate:</p>
+
 <ol>
 <li>Resource Management I:   Allocation</li>
 <li>Resource Management II:  Copy Assignment</li>
-<li>Resource Management III: Simple Optimizations</li>
+<li>Resource Management III: Resize</li>
 <li>Container Concepts.</li>
 </ol>
 
 
 <p>Note: This is not meant to replace <code>std::vector&lt;&gt;</code> this simply meant as a teaching processes.</p>
 
-<h1>Rule of Zero</h1>
+<h2>Rule of Zero</h2>
 
-<p>You will notice that half the attempts above are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasize the <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a>. An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass <code>std::vector&lt;int&gt;</code> would be a good choice).</p>
+<p>You will notice that half the attempts below <a href="#Sources">Sources</a> are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasize the <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a>. An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass <code>std::vector&lt;int&gt;</code> would be a good choice).</p>
 
 <p>In C++ the compiler generates a couple of methods for free.</p>
 
@@ -607,7 +940,7 @@ Vector&amp; operator=(Vector const&amp; copy)
 
 <h2>Version-3 Lazy Construction of elements.</h2>
 
-<p>The problem with the previous version is that it forces initialization of all elements in the buffer immediately. This forces the requirement that members of the <code>Vector</code> (i.e. type <code>T</code>) must be default constructable. It also has two efficiency constraints imposed on the vector:</p>
+<p>The problem with the previous version is that it forces initialization of all elements in the buffer immediately. This forces the requirement that members of the <code>Vector</code> (i.e. type <code>T</code>) must be default constructable. It also has two efficiency constraints imposed on the Vector:</p>
 
 <ul>
 <li>You can&rsquo;t pre-allocate space for future members.
@@ -762,7 +1095,7 @@ Vector&amp; operator=(Vector&amp;&amp; move) noexcept
 
 <p>Note I marked both move operators <code>noexcept</code>. Assuming the operations are guaranteed not to throw you should mark them as <code>noexcept</code>. If we know that certain operations are exception safe, then we can optimize resize operations and maintain the strong exception guarantee. This and some other optimizations will be documented in a subsequent post.</p>
 
-<h1>Final Version</h1>
+<h1>Final Version <a id="VectorVersion-1"></a></h1>
 
 <p>```cpp Vector Final Version
 template<typename T>
@@ -782,7 +1115,7 @@ struct Deleter
 };
 
 public:
-    Vector(int capacity)
+    Vector(int capacity = 10)
         : capacity(capacity)
         , length(0)
         , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
@@ -892,20 +1225,20 @@ private:
 </ul>
 
 
-<h1>Sources</h1>
+<h1>Sources  <a id="Sources"></a></h1>
 
 <p>Looking at <a href="http://CodeReview.stackexchange.com">CodeReview.stackexchange.com</a>; reimplementing the vector class is a common goal for a first project.</p>
 
 <ul>
-<li>2011/Nov/07 &ndash; <em><a href="http://codereview.stackexchange.com/q/5856/507">Mathematical Vector2 class implementation</a></em></li>
-<li>2012/May/21 &ndash; <em><a href="http://codereview.stackexchange.com/q/11934/507">C++ Vector2 Class Review</a></em></li>
+<li>2011/Nov/07 &ndash; <a href="http://codereview.stackexchange.com/q/5856/507">Mathematical Vector2 class implementation</a>*</li>
+<li>2012/May/21 &ndash; <a href="http://codereview.stackexchange.com/q/11934/507">C++ Vector2 Class Review</a>*</li>
 <li>2012/Aug/17 &ndash; <a href="http://codereview.stackexchange.com/q/14784/507">Templated Matrix class</a></li>
 <li>2013/Jan/07 &ndash; <a href="http://codereview.stackexchange.com/q/20243/507">Vector implementation &ndash; simple replacement</a></li>
 <li>2013/May/25 &ndash; <a href="http://codereview.stackexchange.com/q/26608/507">Review of 2d Vector class</a></li>
 <li>2013/Jun/19 &ndash; <a href="http://codereview.stackexchange.com/q/27573/507">Simple matrix class</a></li>
-<li>2013/Jun/21 &ndash; <em><a href="http://codereview.stackexchange.com/q/27625/507">Matrix and Vector4 classes</a></em></li>
-<li>2013/Jun/25 &ndash; <em><a href="http://codereview.stackexchange.com/q/27752/507">Simple matrix class &ndash; version 2</a></em></li>
-<li>2013/Aug/03 &ndash; <em><a href="http://codereview.stackexchange.com/q/29331/507">Template vector class</a></em></li>
+<li>2013/Jun/21 &ndash; <a href="http://codereview.stackexchange.com/q/27625/507">Matrix and Vector4 classes</a>*</li>
+<li>2013/Jun/25 &ndash; <a href="http://codereview.stackexchange.com/q/27752/507">Simple matrix class &ndash; version 2</a>*</li>
+<li>2013/Aug/03 &ndash; <a href="http://codereview.stackexchange.com/q/29331/507">Template vector class</a>*</li>
 <li>2014/Feb/20 &ndash; <a href="http://codereview.stackexchange.com/q/42297/507">C++ vector implementation</a></li>
 <li>2014/Mar/01 &ndash; <a href="http://codereview.stackexchange.com/q/43136/507">Reimplementation of C++ vector</a></li>
 <li>2014/Mar/12 &ndash; <a href="http://codereview.stackexchange.com/q/44167/507">3D mathematical vector class</a></li>
