@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-19T22:30:46-07:00</updated>
+  <updated>2016-03-19T22:33:47-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,15 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Vector - Part 5: The Other Stuff]]></title>
-    <link href="http://lokiastari.com/blog/2016/03/19/vector-the-other-stuff/"/>
-    <updated>2016-03-19T22:26:43-07:00</updated>
-    <id>http://lokiastari.com/blog/2016/03/19/vector-the-other-stuff</id>
-    <content type="html"><![CDATA[
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Vector - Part 4: Simple Optimizations]]></title>
@@ -1637,6 +1628,378 @@ private:
 <li>2016/Jan/10 &ndash; <a href="http://codereview.stackexchange.com/q/116377/507">Vector Implementation C++</a></li>
 </ul>
 
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Smart Pointer Constructors]]></title>
+    <link href="http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/"/>
+    <updated>2015-01-23T16:33:14-08:00</updated>
+    <id>http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii</id>
+    <content type="html"><![CDATA[<p>In this article we examine constructors that are often missed or overlooked. This article looks at the use cases for these constructors and explains why the added functionality provides a meaningful addition in relation to smart pointers.</p>
+
+<h2>Default Constructor</h2>
+
+<p>Most people remember the default constructor (a zero argument constructor), but every now and then it gets missed.</p>
+
+<p>The default constructor is useful when the type is used in a context where objects of the type need to be instantiated dynamically by another library (an example is a container resized; when a container is made larger by a resize, new members will need to be constructed, it is the default constructor that will provide these extra instances).</p>
+
+<p>The default constructor is usually very trivial and thus worth the investment.
+```cpp Smart Pointer Default Constructor</p>
+
+<pre><code>namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class UP
+    {
+        T*      data;
+        public:
+            UP()
+                : data(nullptr)
+            {}
+            .....
+    };
+}
+</code></pre>
+
+<p>```</p>
+
+<h2>The nullptr</h2>
+
+<p>In C++11 the <code>nullptr</code> was introduced to replace the old broken <code>NULL</code> and/or the even more broken <code>0</code> for use in contexts where you want a pointer that points at nothing. The <code>nullptr</code> is automatically convert to any pointer type or a boolean; but fixed the previous bug (or bad feature) and will not convert to a numeric type.
+```cpp nullptr Usage Example</p>
+
+<h1>include <string></h1>
+
+<pre><code>int main()
+{
+    char*           tmp = nullptr;   // converts the nullptr (type std::nullptr_t) to char*
+    std::string*    str = nullptr;   // hopefully you never do that! but it works.
+
+    bool            tst = nullptr;   // False. Yes I know it does not look that useful.
+                                     //        But when you consider all the funny things
+                                     //        that can happen with templates this can
+                                     //        be very useful.
+
+    int             val = nullptr;   // Fails to compile.
+    int             val = NULL;      // Pointer assigned to integer value.
+                                     // Works just fine. But very rarely was this a useful
+                                     // feature (more usually an over-site that was not
+                                     // reported by the compiler).
+}
+</code></pre>
+
+<p><code>
+The `nullptr` provides some opportunities to make the code shorter/cleaner when initializing smart pointers to be empty. Because we are using explicit one argument constructors the compiler can not convert a `nullptr` into a smart pointer automatically, it must be done explicitly by the developer.
+</code>cpp nullptr failing on Smart Pointer</p>
+
+<pre><code>void workWithSP(ThorsAnvil::UP&lt;int&gt;&amp;&amp; sp)
+{ /* STUFF*/ }
+
+int main()
+{
+    // This fails to compile.
+    workWithSP(nullptr);
+
+    // Need to be explicit with smart pointers
+    workWithSP(ThorsAnvil::UP&lt;int&gt;(nullptr));
+}
+</code></pre>
+
+<p><code>
+This is overly verbose, there is no danger involved in forming a smart pointer around a `nullptr` automatically. Because `nullptr` has its own type `std::nullptr_t` we can add a constructor to explicitly simplify this case, which makes it easier to read.
+</code>cpp Smart Pointer with std::nullptr_t constructor</p>
+
+<pre><code>namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class UP
+    {
+        public:
+            UP(std::nullptr_t)
+                : data(nullptr)
+            {}
+    ....
+    };
+}
+// Now we can simplify our use case
+void workWithSP(ThorsAnvil::UP&lt;int&gt;&amp;&amp; sp)
+{ /* STUFF*/ }
+
+int main()
+{
+    workWithSP(nullptr);
+
+    // Note this also allows:
+    ThorsAnvil::UP&lt;int&gt;   data  = nullptr;
+    // And
+    data = nullptr;       // Note here we have we convert nullptr to
+                          // smart pointer using the one argument
+                          // constructor that binds `nullptr` then
+                          // call the assignment operator.
+                          //
+                          // That seems like a lot extra work. So we
+                          // may as well define the assignment operator
+                          // to specifically user `nullptr`.
+}
+</code></pre>
+
+<p>```</p>
+
+<h2>Move Semantics</h2>
+
+<p>Move semantics were introduced with C++ 11. So though we can not copy the <code>ThorsAnvil::UP</code> object it can be moved. The compiler will generate a default move constructor for a class under certain situations; but because we have defined a destructor for <code>ThorsAnvil::UP</code> we must manually define the move constructor.</p>
+
+<p>Move semantics say that the source object may be left in an undefined (but must be valid) state. So the easiest way to implement this is simply to swap the state of the current object with the source object (we know our state is valid so just swap it with the incoming object state (its destructor will then take care of destroying the pointer we are holding)).
+```cpp Smart Pointer Move Semantics</p>
+
+<pre><code>namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class UP
+    {
+        T*      data;
+        public:
+            // Swap should always be `noexcept` operation
+            void swap(UP&amp; src) noexcept
+            {
+                std::swap(data, src.data);
+            }
+            // It is a good idea to make your move constructor `noexcept`
+            // In this case it actually makes no difference (because there
+            // no copy constructor) but to maintain good practice I still
+            // think it is a good idea to mark it with `noexcept`.
+            UP(UP&amp;&amp; moving) noexcept
+            {
+                moving.swap(*this);
+            }
+            UP&amp; operator=(UP&amp;&amp; moving) noexcept
+            {
+                moving.swap(*this);
+                return *this;
+            }
+            .....
+    };
+    template&lt;typename T&gt;
+    void swap(UP&lt;T&gt;&amp; lhs, UP&lt;T&gt;&amp; rhs)
+    {
+        lhs.swap(rhs);
+    }
+}
+</code></pre>
+
+<p>```</p>
+
+<h2>Derived Type Assignment.</h2>
+
+<p>Assigning derived class pointers to a base class pointer object is quite common feature in C++.
+```cpp Derived Example</p>
+
+<pre><code>class Base
+{
+    public:
+        virtual ~Base() {}
+        virtual void doAction() = 0;
+};
+class Derived1: public Base
+{
+    public:
+        virtual void doAction() override;
+};
+class Derived2: public Base
+{
+    public:
+        virtual void doAction() override;
+};
+int main(int argc, char* argv[])
+{
+    Derived1*   action1 = new Derived1;
+    Derived2*   action2 = new Derived2;
+
+    Base*       action   = (argc == 2) ? action1 : action2;
+    action-&gt;doAction();
+}
+</code></pre>
+
+<p><code>
+If we try the same code with the constructors we currently have we will get compile errors.
+</code>cpp Derived Example with Smart Pointers</p>
+
+<pre><code>int main(int argc, char* argv[])
+{
+    ThorsAnvil::UP&lt;Derived1&gt;    action1 = new Derived1;
+    ThorsAnvil::UP&lt;Derived2&gt;    action2 = new Derived2;
+
+    ThorsAnvil::UP&lt;Base&gt;        action   = std::move((argc == 2) ? action1 : action2);
+    action-&gt;doAction();
+}
+</code></pre>
+
+<p><code>``
+This is because C++ considers</code>ThorsAnvil::UP<Derived1><code>,</code>ThorsAnvil::UP<Derived2><code>and</code>ThorsAnvil::UP<Base>` are three distinct classes that are unrelated. As this kind of pointer usage is rather inherent in how C++ is used the smart pointer needs to be designed for this use case.</p>
+
+<p>To solve this we need to allow different types of smart pointer be constructed from other types of smart pointer, but only where the inclosed types are related.
+```cpp Derived Smart Pointer transfer</p>
+
+<pre><code>namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class UP
+    {
+        T*      data;
+        public:
+            // Release ownership of the pointer.
+            // Returning the pointer to the caller.
+            T*  release()
+            {
+                T* tmp = nullptr;
+                std::swap(tmp, data);
+                return tmp;
+            }
+            // Note: If you try calling this with a U that is not derived from
+            //       a T then the compiler will generate a compilation error as
+            //       the pointer assignments will not match correctly.
+            template&lt;typename U&gt;
+            UP(UP&lt;U&gt;&amp;&amp; moving)
+            {
+                // We can not use swap directly.
+                // Even though U is derived from T, the reverse is not true.
+                // So we have put it in a temporary locally first.
+
+                // Note: this is still exception safe.
+                //       The normal constructor will call delete even if it does
+                //       not finish constructing. So if release completes even
+                //       starting the call to the constructor guarantees its safety.
+                UP&lt;T&gt;   tmp(moving.release());
+                tmp.swap(*this);
+            }
+            template&lt;typename U&gt;
+            UP&amp; operator=(UP&lt;U&gt;&amp;&amp; moving)
+            {
+                UP&lt;T&gt;    tmp(moving.release());
+                tmp.swap(*this);
+                return *this;
+            }
+            .....
+    };
+}
+</code></pre>
+
+<p>```</p>
+
+<h2>Updated Unique Pointer</h2>
+
+<p>Combine the constructor/assignment operators discussed in this article with the <code>ThorsAnvil::UP</code> that we defined in the first article in the series: <a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Unique Pointer</a> we obtain the following:
+```cpp ThorsAnvil::UP Version 3</p>
+
+<pre><code>namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class UP
+    {
+        T*   data;
+        public:
+            UP()
+                : data(nullptr)
+            {}
+            // Explicit constructor
+            explicit UP(T* data)
+                : data(data)
+            {}
+            ~UP()
+            {
+                delete data;
+            }
+
+            // Constructor/Assignment that binds to nullptr
+            // This makes usage with nullptr cleaner
+            UP(std::nullptr_t)
+                : data(nullptr)
+            {}
+            UP&amp; operator=(std::nullptr_t)
+            {
+                reset();
+                return *this;
+            }
+
+            // Constructor/Assignment that allows move semantics
+            UP(UP&amp;&amp; moving) noexcept
+            {
+                moving.swap(*this);
+            }
+            UP&amp; operator=(UP&amp;&amp; moving) noexcept
+            {
+                moving.swap(*this);
+                return *this;
+            }
+
+            // Constructor/Assignment for use with types derived from T
+            template&lt;typename U&gt;
+            UP(UP&lt;U&gt;&amp;&amp; moving)
+            {
+                UP&lt;T&gt;   tmp(moving.release());
+                tmp.swap(*this);
+            }
+            template&lt;typename U&gt;
+            UP&amp; operator=(UP&lt;U&gt;&amp;&amp; moving)
+            {
+                UP&lt;T&gt;    tmp(moving.release());
+                tmp.swap(*this);
+                return *this;
+            }
+
+            // Remove compiler generated copy semantics.
+            UP(UP const&amp;)            = delete;
+            UP&amp; operator=(UP const&amp;) = delete;
+
+            // Const correct access owned object
+            T* operator-&gt;() const {return data;}
+            T&amp; operator*()  const {return *data;}
+
+            // Access to smart pointer state
+            T* get()                 const {return data;}
+            explicit operator bool() const {return data;}
+
+            // Modify object state
+            T* release() noexcept
+            {
+                T* result = nullptr;
+                std::swap(result, data);
+                return result;
+            }
+            void swap(UP&amp; src) noexcept
+            {
+                std::swap(data, src.data);
+            }
+            void reset()
+            {
+                T* tmp = releae();
+                delete tmp;
+            }
+    };
+    template&lt;typename T&gt;
+    void swap(UP&lt;T&gt;&amp; lhs, UP&lt;T&gt;&amp; rhs)
+    {
+        lhs.swap(rhs);
+    }
+}
+</code></pre>
+
+<p>```</p>
+
+<h2>Summary</h2>
+
+<p>In the last two articles (<a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Unique Pointer</a> and <a href="http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/">Shared Pointer</a>) we covered some basic mistakes that I have often seen developers make when attempting to creating their own smart pointer. I also introduce four important C++ concepts:</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/q/4172722/14065">Rule of Three</a></li>
+<li><a href="http://stackoverflow.com/q/3279543/14065">Copy and Swap Idiom</a></li>
+<li><a href="http://stackoverflow.com/a/121163/14065">Explicit One Argument Constructor</a></li>
+<li><a href="http://stackoverflow.com/q/12697625/14065">Try/Catch on Initialization List</a></li>
+</ul>
+
+
+<p>This article I focused on a couple of constructors/assignment operators that can be overlooked overlooked.</p>
 ]]></content>
   </entry>
   
