@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Vector - Part 4: Simple Optimizations - Loki Astari</title>
+  <title>Vector - Part 5: The Other Stuff - Loki Astari</title>
   <meta name="author" content="Loki Astari">
 
   
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations">
+  <link rel="canonical" href="http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/bootstrap/bootstrap.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/stylesheets/bootstrap/responsive.css" media="screen, projection" rel="stylesheet" type="text/css">
@@ -98,7 +98,7 @@
   
   <header class="page-header">
     
-      <h1 class="entry-title">Vector - Part 4: Simple Optimizations</h1>
+      <h1 class="entry-title">Vector - Part 5: The Other Stuff</h1>
     
     
       <p class="meta">
@@ -114,7 +114,7 @@
   
 
 
-<time datetime="2016-03-19T15:06:40-07:00" pubdate data-updated="true">Mar 19<span>th</span>, 2016</time>
+<time datetime="2016-03-20T22:26:43-07:00" pubdate data-updated="true">Mar 20<span>th</span>, 2016</time>
         
          | <a href="#disqus_thread">Comments</a>
         
@@ -123,261 +123,112 @@
   </header>
 
 
-<div class="entry-content"><p>So now that we have used <code>std::is_nothrow_move_constructible</code> we can also look at a couple of other types available in the template utility library.</p>
+<div class="entry-content"><p>So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an in-site into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).</p>
 
-<h1>Optimized Destruction</h1>
+<p>For details see the <a href="http://stackoverflow.com/a/4653479/14065">latest copy of the C++ standard</a>.</p>
 
-<p>Since we have to manually call the destructor on all objects in the container (because we are using placement new) we can look to see if we can optimize that. The type <code>std::is_trivially_destructible</code> detects if the type is <strong>Trivially</strong> destructible. This basically means that there will be no side affects from the destructor (See: Section 12.4 Paragraph 5 of the standard). For types we don&rsquo;t need to call the destructor of the object. For the <code>Vector</code> class this means we can eliminate the call to the destructor but more importantly the loop.</p>
-
-<figure class='code'><figcaption><span>Destroying Elements</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="o">~</span><span class="n">Vector</span><span class="p">()</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="c1">// STUFF..</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Call the destructor on all the members in reverse order</span>
-</span><span class='line'>        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// Note we destroy the elements in reverse order.</span>
-</span><span class='line'>            <span class="n">buffer</span><span class="p">[</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">loop</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="n">Vector</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
-</span><span class='line'>        <span class="o">:</span> <span class="n">capacity</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">capacity</span><span class="p">)))</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">try</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// STUFF 1 ...</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">catch</span><span class="p">(...)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// STUFF 2 ...</span>
-</span><span class='line'>            <span class="c1">// If there was an exception then destroy everything</span>
-</span><span class='line'>            <span class="c1">// that was created to make it exception safe.</span>
-</span><span class='line'>            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">buffer</span><span class="p">[</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">loop</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">throw</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<ul>
+<li>23.2.1  General container requirements [container.requirements.general]</li>
+<li>23.2.3  Sequence containers [sequence.reqmts]</li>
+</ul>
 
 
-<p>We can use the same SFINAE technique that we used in the previous article to remove the loops when the contained type is trivially destructible.</p>
+<h4>Internal Types</h4>
 
-<figure class='code'><figcaption><span>Destroying Elements</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="o">~</span><span class="n">Vector</span><span class="p">()</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="c1">// STUFF..</span>
-</span><span class='line'>        <span class="n">clearElements</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="n">Vector</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
-</span><span class='line'>        <span class="o">:</span> <span class="n">capacity</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">capacity</span><span class="p">)))</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">try</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// STUFF 1 ...</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">catch</span><span class="p">(...)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// STUFF 2 ...</span>
-</span><span class='line'>            <span class="n">clearElements</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
-</span><span class='line'>            <span class="k">throw</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">X</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="k">typename</span> <span class="n">std</span><span class="o">::</span><span class="n">enable_if</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">std</span><span class="o">::</span><span class="n">is_trivially_destructible</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">==</span> <span class="kc">false</span><span class="o">&gt;::</span><span class="n">type</span>
-</span><span class='line'>    <span class="n">clearElements</span><span class="p">()</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="c1">// Call the destructor on all the members in reverse order</span>
-</span><span class='line'>        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// Note we destroy the elements in reverse order.</span>
-</span><span class='line'>            <span class="n">buffer</span><span class="p">[</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">loop</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">X</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="k">typename</span> <span class="n">std</span><span class="o">::</span><span class="n">enable_if</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">std</span><span class="o">::</span><span class="n">is_trivially_destructible</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">==</span> <span class="kc">true</span><span class="o">&gt;::</span><span class="n">type</span>
-</span><span class='line'>    <span class="n">clearElements</span><span class="p">()</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="c1">// Trivially destructible objects can be re-used without using the destructor.</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<ul>
+<li>value&#95;type</li>
+<li>reference</li>
+<li>const&#95;reference</li>
+<li>iterator</li>
+<li>const&#95;iterator</li>
+<li>difference&#95;type</li>
+<li>size&#95;type</li>
+</ul>
 
 
-<h1>Optimized Assignment Operator</h1>
+<p>It is worth specifying the internal types defined here. As this allows you to abstract the implementation details of the container. This will allow you to change the implementation details without users having to change there implementation; as long as the changes still provide the same interface but the interface to reference/pointers/iterators are relatively trivial and well defined.</p>
 
-<p>The final optimization is because resource allocation is expensive. So if we can avoid the resource allocation completely and just re-use the space we currently have.</p>
+<h4>Constructors</h4>
 
-<figure class='code'><figcaption><span>Copy Assignment</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="c1">// Copy and Swap idiom</span>
-</span><span class='line'>        <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">tmp</span><span class="p">(</span><span class="n">copy</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<p>In C++11 the <code>std::initializer_list&lt;T&gt;</code> was introduced. This allows a better list initialization syntax to be used with user defined types. Since this is usually defined in terms of the range based construction we should probably add both of these constructors.</p>
+
+<ul>
+<li>Vector(std::initializer&#95;list<T> const&amp; list)</li>
+<li>Vector(I begin, I end)</li>
+</ul>
 
 
-<p>The copy and swap idiom is perfect for providing the strong exception guarantee in the presence of exceptions. <strong>But</strong> if there are no exceptions during destruction or construction then we can potentially just re-use the available memory. So if we re-wrote the assignment operator with the assumption that there were no exceptions it would look like the following (Note in the real code use SFINAE to do the optimization only when nesacery).</p>
+<h4>Iterators</h4>
 
-<figure class='code'><figcaption><span>Copy the easy way</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="c1">// Check for self assignment</span>
-</span><span class='line'>        <span class="c1">// As we are doing work anyway.</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="k">this</span> <span class="o">==</span> <span class="o">&amp;</span><span class="n">copy</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// If the length of the `copy` object exceeds</span>
-</span><span class='line'>        <span class="c1">// the capacity of the current object then</span>
-</span><span class='line'>        <span class="c1">// we have to do resource management. It costs</span>
-</span><span class='line'>        <span class="c1">// nothing extra to use the copy and swap idiom</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="n">capacity</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// Copy and Swap idiom</span>
-</span><span class='line'>            <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">tmp</span><span class="p">(</span><span class="n">copy</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// The optimization happens here.</span>
-</span><span class='line'>        <span class="c1">// We can reuse the buffer we already have.</span>
-</span><span class='line'>        <span class="n">clearElements</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>     <span class="c1">// use cearElements() as it probably does very little.</span>
-</span><span class='line'>        <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Now add the elements to this container as cheaply as possible.</span>
-</span><span class='line'>        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="n">pushBackInternal</span><span class="p">(</span><span class="n">copy</span><span class="p">[</span><span class="n">loop</span><span class="p">]);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
+<ul>
+<li>begin()</li>
+<li>rbegin()</li>
+<li>begin() const</li>
+<li>rbegin() const</li>
+<li>cbegin() const</li>
+<li>crbegin() const</li>
+<li>end()</li>
+<li>rend()</li>
+<li>end() const</li>
+<li>cend() const</li>
+<li>rend() const</li>
+<li>crend() const</li>
+</ul>
 
 
-<h1>Final Version <a id="VectorVersion-4"></a></h1>
+<p>The iterators are relatively easy to write. They also allow the container to be used with the new range based for that was added in C++14. So this becomes another easy add.</p>
 
-<p>The final version</p>
+<h4>Non-Mutating Member Functions</h4>
 
-<figure class='code'><figcaption><span>Vector Final Version</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<ul>
+<li>size() const</li>
+<li>bool() const</li>
+</ul>
+
+
+<p>These methods are useful to add as this allows you to provided non range checked access to the container. It is the responsibility of the container user to validate that access to elements in the container are in the correct range. This can make access to the container much more efficient as the container does not need to check every access to validate its range.</p>
+
+<h4>Member Access</h4>
+
+<ul>
+<li>operator&#91;&#93;(&lt;index&gt;)</li>
+<li>operator&#91;&#93;(&lt;index&gt;) const</li>
+<li>at(&lt;index&gt;)</li>
+<li>at(&lt;index&gt;) const</li>
+</ul>
+
+
+<p>We provide two methods of accesses to elements in the container. <code>operator[](&lt;index&gt;)</code> provides unchecked accesses. The user is supposed to validate the range is correct before use, while <code>at(&lt;index&gt;)</code> provides validated access to the container resulting in an exception if the index is out of range.</p>
+
+<h4>Comparitors</h4>
+
+<ul>
+<li>operator== const</li>
+<li>operator!= const</li>
+</ul>
+
+
+<h4>Optional Member Functions</h4>
+
+<ul>
+<li>front()</li>
+<li>back()</li>
+<li>front() const</li>
+<li>back() const</li>
+<li>push&#95;back(&lt;object-ref&gt;)</li>
+<li>push&#95;back(&lt;object-rvalue-ref&gt;)</li>
+<li>emplace&#95;front(&lt;args&hellip;&gt;)</li>
+<li>emplace&#95;back(&lt;args&hellip;&gt;)</li>
+<li>pop&#95;front()</li>
+<li>pop&#95;back()</li>
+</ul>
+
+
+<p>The following members are standard easy to implement methods of <code>std::vector</code> that I would expect to see in every implementation.</p>
+
+<h1>Final</h1>
+
+<figure class='code'><figcaption><span>Vector</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -571,26 +422,153 @@
 <span class='line-number'>192</span>
 <span class='line-number'>193</span>
 <span class='line-number'>194</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+<span class='line-number'>209</span>
+<span class='line-number'>210</span>
+<span class='line-number'>211</span>
+<span class='line-number'>212</span>
+<span class='line-number'>213</span>
+<span class='line-number'>214</span>
+<span class='line-number'>215</span>
+<span class='line-number'>216</span>
+<span class='line-number'>217</span>
+<span class='line-number'>218</span>
+<span class='line-number'>219</span>
+<span class='line-number'>220</span>
+<span class='line-number'>221</span>
+<span class='line-number'>222</span>
+<span class='line-number'>223</span>
+<span class='line-number'>224</span>
+<span class='line-number'>225</span>
+<span class='line-number'>226</span>
+<span class='line-number'>227</span>
+<span class='line-number'>228</span>
+<span class='line-number'>229</span>
+<span class='line-number'>230</span>
+<span class='line-number'>231</span>
+<span class='line-number'>232</span>
+<span class='line-number'>233</span>
+<span class='line-number'>234</span>
+<span class='line-number'>235</span>
+<span class='line-number'>236</span>
+<span class='line-number'>237</span>
+<span class='line-number'>238</span>
+<span class='line-number'>239</span>
+<span class='line-number'>240</span>
+<span class='line-number'>241</span>
+<span class='line-number'>242</span>
+<span class='line-number'>243</span>
+<span class='line-number'>244</span>
+<span class='line-number'>245</span>
+<span class='line-number'>246</span>
+<span class='line-number'>247</span>
+<span class='line-number'>248</span>
+<span class='line-number'>249</span>
+<span class='line-number'>250</span>
+<span class='line-number'>251</span>
+<span class='line-number'>252</span>
+<span class='line-number'>253</span>
+<span class='line-number'>254</span>
+<span class='line-number'>255</span>
+<span class='line-number'>256</span>
+<span class='line-number'>257</span>
+<span class='line-number'>258</span>
+<span class='line-number'>259</span>
+<span class='line-number'>260</span>
+<span class='line-number'>261</span>
+<span class='line-number'>262</span>
+<span class='line-number'>263</span>
+<span class='line-number'>264</span>
+<span class='line-number'>265</span>
+<span class='line-number'>266</span>
+<span class='line-number'>267</span>
+<span class='line-number'>268</span>
+<span class='line-number'>269</span>
+<span class='line-number'>270</span>
+<span class='line-number'>271</span>
+<span class='line-number'>272</span>
+<span class='line-number'>273</span>
+<span class='line-number'>274</span>
+<span class='line-number'>275</span>
+<span class='line-number'>276</span>
+<span class='line-number'>277</span>
+<span class='line-number'>278</span>
+<span class='line-number'>279</span>
+<span class='line-number'>280</span>
+<span class='line-number'>281</span>
+<span class='line-number'>282</span>
+<span class='line-number'>283</span>
+<span class='line-number'>284</span>
+<span class='line-number'>285</span>
+<span class='line-number'>286</span>
+<span class='line-number'>287</span>
+<span class='line-number'>288</span>
+<span class='line-number'>289</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;type_traits&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;memory&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;algorithm&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdexcept&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;iterator&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
 </span><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
 </span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">using</span> <span class="n">value_type</span>        <span class="o">=</span> <span class="n">T</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">using</span> <span class="n">reference</span>         <span class="o">=</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">using</span> <span class="n">const_reference</span>   <span class="o">=</span> <span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">using</span> <span class="n">pointer</span>           <span class="o">=</span> <span class="n">T</span><span class="o">*</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">using</span> <span class="n">const_pointer</span>     <span class="o">=</span> <span class="n">T</span> <span class="k">const</span><span class="o">*</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">using</span> <span class="n">iterator</span>          <span class="o">=</span> <span class="n">T</span><span class="o">*</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">using</span> <span class="n">const_iterator</span>    <span class="o">=</span> <span class="n">T</span> <span class="k">const</span><span class="o">*</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">using</span> <span class="n">difference_type</span>   <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">ptrdiff_t</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">using</span> <span class="n">size_type</span>         <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">size_t</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">Deleter</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="k">operator</span><span class="p">()(</span><span class="n">T</span><span class="o">*</span> <span class="n">buffer</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>    <span class="k">private</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">size_type</span>       <span class="n">capacity</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">size_type</span>       <span class="n">length</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">struct</span> <span class="n">Deleter</span>
 </span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>            <span class="kt">void</span> <span class="k">operator</span><span class="p">()(</span><span class="n">T</span><span class="o">*</span> <span class="n">buffer</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">};</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="k">public</span><span class="o">:</span>
 </span><span class='line'>        <span class="n">Vector</span><span class="p">(</span><span class="kt">int</span> <span class="n">capacity</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 </span><span class='line'>            <span class="o">:</span> <span class="n">capacity</span><span class="p">(</span><span class="n">capacity</span><span class="p">)</span>
 </span><span class='line'>            <span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </span><span class='line'>            <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">capacity</span><span class="p">)))</span>
+</span><span class='line'>        <span class="p">{}</span>
+</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">I</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="n">Vector</span><span class="p">(</span><span class="n">I</span> <span class="n">begin</span><span class="p">,</span> <span class="n">I</span> <span class="n">end</span><span class="p">)</span>
+</span><span class='line'>            <span class="o">:</span> <span class="n">capacity</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">distance</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">buffer</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">*</span> <span class="n">capacity</span><span class="p">)))</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">for</span><span class="p">(</span><span class="k">auto</span> <span class="n">loop</span> <span class="o">=</span> <span class="n">begin</span><span class="p">;</span><span class="n">loop</span> <span class="o">!=</span> <span class="n">end</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">pushBackInternal</span><span class="p">(</span><span class="o">*</span><span class="n">loop</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">Vector</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">list</span><span class="p">)</span>
+</span><span class='line'>            <span class="o">:</span> <span class="n">Vector</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">begin</span><span class="p">(</span><span class="n">list</span><span class="p">),</span> <span class="n">std</span><span class="o">::</span><span class="n">end</span><span class="p">(</span><span class="n">list</span><span class="p">))</span>
 </span><span class='line'>        <span class="p">{}</span>
 </span><span class='line'>        <span class="o">~</span><span class="n">Vector</span><span class="p">()</span>
 </span><span class='line'>        <span class="p">{</span>
@@ -647,17 +625,65 @@
 </span><span class='line'>            <span class="n">swap</span><span class="p">(</span><span class="n">length</span><span class="p">,</span>        <span class="n">other</span><span class="p">.</span><span class="n">length</span><span class="p">);</span>
 </span><span class='line'>            <span class="n">swap</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span>        <span class="n">other</span><span class="p">.</span><span class="n">buffer</span><span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">reference</span>           <span class="k">operator</span><span class="p">[](</span><span class="n">size_type</span> <span class="n">index</span><span class="p">)</span>         <span class="p">{</span><span class="k">return</span> <span class="n">buffer</span><span class="p">[</span><span class="n">index</span><span class="p">];}</span>
+</span><span class='line'>        <span class="n">const_reference</span>     <span class="k">operator</span><span class="p">[](</span><span class="n">size_type</span> <span class="n">index</span><span class="p">)</span> <span class="k">const</span>   <span class="p">{</span><span class="k">return</span> <span class="n">buffer</span><span class="p">[</span><span class="n">index</span><span class="p">];}</span>
+</span><span class='line'>        <span class="n">reference</span>           <span class="n">at</span><span class="p">(</span><span class="n">size_type</span> <span class="n">index</span><span class="p">)</span>                 <span class="p">{</span><span class="n">validateIndex</span><span class="p">(</span><span class="n">index</span><span class="p">);</span><span class="k">return</span> <span class="n">buffer</span><span class="p">[</span><span class="n">index</span><span class="p">];}</span>
+</span><span class='line'>        <span class="n">const_reference</span>     <span class="n">at</span><span class="p">(</span><span class="n">size_type</span> <span class="n">index</span><span class="p">)</span> <span class="k">const</span>           <span class="p">{</span><span class="n">validateIndex</span><span class="p">(</span><span class="n">index</span><span class="p">);</span><span class="k">return</span> <span class="n">buffer</span><span class="p">[</span><span class="n">index</span><span class="p">];}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">iterator</span>            <span class="n">begin</span><span class="p">()</span>                             <span class="p">{</span><span class="k">return</span> <span class="n">buffer</span><span class="p">;}</span>
+</span><span class='line'>        <span class="n">iterator</span>            <span class="n">rbegin</span><span class="p">()</span>                            <span class="p">{</span><span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">reverse_iterator</span><span class="o">&lt;</span><span class="n">iterator</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end</span><span class="p">());}</span>
+</span><span class='line'>        <span class="n">const_iterator</span>      <span class="n">begin</span><span class="p">()</span> <span class="k">const</span>                       <span class="p">{</span><span class="k">return</span> <span class="n">buffer</span><span class="p">;}</span>
+</span><span class='line'>        <span class="n">const_iterator</span>      <span class="n">rbegin</span><span class="p">()</span> <span class="k">const</span>                      <span class="p">{</span><span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">reverse_iterator</span><span class="o">&lt;</span><span class="n">iterator</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end</span><span class="p">());}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">iterator</span>            <span class="n">end</span><span class="p">()</span>                               <span class="p">{</span><span class="k">return</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">;}</span>
+</span><span class='line'>        <span class="n">iterator</span>            <span class="n">rend</span><span class="p">()</span>                              <span class="p">{</span><span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">reverse_iterator</span><span class="o">&lt;</span><span class="n">iterator</span><span class="o">&gt;</span><span class="p">(</span><span class="n">begin</span><span class="p">());}</span>
+</span><span class='line'>        <span class="n">const_iterator</span>      <span class="n">end</span><span class="p">()</span> <span class="k">const</span>                         <span class="p">{</span><span class="k">return</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">;}</span>
+</span><span class='line'>        <span class="n">const_iterator</span>      <span class="n">rend</span><span class="p">()</span> <span class="k">const</span>                        <span class="p">{</span><span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">reverse_iterator</span><span class="o">&lt;</span><span class="n">iterator</span><span class="o">&gt;</span><span class="p">(</span><span class="n">begin</span><span class="p">());}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">const_iterator</span>      <span class="n">cbegin</span><span class="p">()</span> <span class="k">const</span>                      <span class="p">{</span><span class="k">return</span> <span class="n">begin</span><span class="p">();}</span>
+</span><span class='line'>        <span class="n">const_iterator</span>      <span class="n">crbegin</span><span class="p">()</span> <span class="k">const</span>                     <span class="p">{</span><span class="k">return</span> <span class="n">rbegin</span><span class="p">();}</span>
+</span><span class='line'>        <span class="n">const_iterator</span>      <span class="n">cend</span><span class="p">()</span> <span class="k">const</span>                        <span class="p">{</span><span class="k">return</span> <span class="n">end</span><span class="p">();}</span>
+</span><span class='line'>        <span class="n">const_iterator</span>      <span class="n">crend</span><span class="p">()</span> <span class="k">const</span>                       <span class="p">{</span><span class="k">return</span> <span class="n">rend</span><span class="p">();}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">size_type</span>           <span class="n">size</span><span class="p">()</span> <span class="k">const</span>                        <span class="p">{</span><span class="k">return</span> <span class="n">length</span><span class="p">;}</span>
+</span><span class='line'>        <span class="kt">bool</span>                <span class="n">empty</span><span class="p">()</span> <span class="k">const</span>                       <span class="p">{</span><span class="k">return</span> <span class="n">length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">reference</span>           <span class="n">front</span><span class="p">()</span>                             <span class="p">{</span><span class="k">return</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">0</span><span class="p">];}</span>
+</span><span class='line'>        <span class="n">const_reference</span>     <span class="n">front</span><span class="p">()</span> <span class="k">const</span>                       <span class="p">{</span><span class="k">return</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">0</span><span class="p">];}</span>
+</span><span class='line'>        <span class="n">reference</span>           <span class="n">back</span><span class="p">()</span>                              <span class="p">{</span><span class="k">return</span> <span class="n">buffer</span><span class="p">[</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];}</span>
+</span><span class='line'>        <span class="n">const_reference</span>     <span class="n">back</span><span class="p">()</span> <span class="k">const</span>                        <span class="p">{</span><span class="k">return</span> <span class="n">buffer</span><span class="p">[</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">bool</span> <span class="k">operator</span><span class="o">!=</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">!</span><span class="p">(</span><span class="o">*</span><span class="k">this</span> <span class="o">==</span> <span class="n">rhs</span><span class="p">);}</span>
+</span><span class='line'>        <span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="p">(</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="n">rhs</span><span class="p">.</span><span class="n">size</span><span class="p">())</span>
+</span><span class='line'>                <span class="o">?</span>  <span class="n">std</span><span class="o">::</span><span class="n">equal</span><span class="p">(</span><span class="n">begin</span><span class="p">(),</span> <span class="n">end</span><span class="p">(),</span> <span class="n">rhs</span><span class="p">.</span><span class="n">begin</span><span class="p">())</span>
+</span><span class='line'>                <span class="o">:</span>  <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
 </span><span class='line'>        <span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">resizeIfRequire</span><span class="p">();</span>
 </span><span class='line'>            <span class="n">pushBackInternal</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">resizeIfRequire</span><span class="p">();</span>
+</span><span class='line'>            <span class="n">moveBackInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">emplace_back</span><span class="p">(</span><span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">resizeIfRequire</span><span class="p">();</span>
+</span><span class='line'>            <span class="n">constructBackInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...);</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>        <span class="kt">void</span> <span class="n">pop_back</span><span class="p">()</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="o">--</span><span class="n">length</span><span class="p">;</span>
 </span><span class='line'>            <span class="n">buffer</span><span class="p">[</span><span class="n">length</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
 </span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="n">reserve</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">capacityUpperBound</span><span class="p">)</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">reserve</span><span class="p">(</span><span class="n">size_type</span> <span class="n">capacityUpperBound</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">capacityUpperBound</span> <span class="o">&gt;</span> <span class="n">capacity</span><span class="p">)</span>
 </span><span class='line'>            <span class="p">{</span>
@@ -665,15 +691,23 @@
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>    <span class="k">private</span><span class="o">:</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">validateIndex</span><span class="p">(</span><span class="n">size_type</span> <span class="n">index</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="n">length</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">out_of_range</span><span class="p">(</span><span class="s">&quot;Out of Range&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
 </span><span class='line'>        <span class="kt">void</span> <span class="n">resizeIfRequire</span><span class="p">()</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">length</span> <span class="o">==</span> <span class="n">capacity</span><span class="p">)</span>
 </span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">newCapacity</span>  <span class="o">=</span> <span class="n">capacity</span> <span class="o">*</span> <span class="mf">1.62</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">size_type</span>     <span class="n">newCapacity</span>  <span class="o">=</span> <span class="n">capacity</span> <span class="o">*</span> <span class="mf">1.62</span><span class="p">;</span>
 </span><span class='line'>                <span class="n">reserveCapacity</span><span class="p">(</span><span class="n">newCapacity</span><span class="p">);</span>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="n">reserveCapacity</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">newCapacity</span><span class="p">)</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">reserveCapacity</span><span class="p">(</span><span class="n">size_type</span> <span class="n">newCapacity</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">tmpBuffer</span><span class="p">(</span><span class="n">newCapacity</span><span class="p">);</span>
 </span><span class='line'>
@@ -689,6 +723,12 @@
 </span><span class='line'>        <span class="kt">void</span> <span class="n">moveBackInternal</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
+</span><span class='line'>            <span class="o">++</span><span class="n">length</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">constructBackInternal</span><span class="p">(</span><span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Args</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...);</span>
 </span><span class='line'>            <span class="o">++</span><span class="n">length</span><span class="p">;</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>
@@ -731,7 +771,7 @@
 </span><span class='line'>
 </span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">X</span><span class="o">&gt;</span>
 </span><span class='line'>        <span class="k">typename</span> <span class="n">std</span><span class="o">::</span><span class="n">enable_if</span><span class="o">&lt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_nothrow_copy_constructible</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;::</span><span class="n">value</span>
-</span><span class='line'>                             <span class="o">&amp;&amp;</span>  <span class="n">std</span><span class="o">::</span><span class="n">is_nothrow_destructible</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="kc">true</span><span class="o">&gt;::</span><span class="n">type</span>
+</span><span class='line'>                            <span class="o">&amp;&amp;</span>  <span class="n">std</span><span class="o">::</span><span class="n">is_nothrow_destructible</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="kc">true</span><span class="o">&gt;::</span><span class="n">type</span>
 </span><span class='line'>        <span class="n">copyAssign</span><span class="p">(</span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;&amp;</span> <span class="n">copy</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="k">this</span> <span class="o">==</span> <span class="o">&amp;</span><span class="n">copy</span><span class="p">)</span>
@@ -755,6 +795,7 @@
 </span><span class='line'>                <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
 </span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">X</span><span class="o">&gt;</span>
 </span><span class='line'>        <span class="k">typename</span> <span class="n">std</span><span class="o">::</span><span class="n">enable_if</span><span class="o">&lt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_nothrow_copy_constructible</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;::</span><span class="n">value</span>
 </span><span class='line'>                             <span class="o">&amp;&amp;</span>  <span class="n">std</span><span class="o">::</span><span class="n">is_nothrow_destructible</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="kc">false</span><span class="o">&gt;::</span><span class="n">type</span>
@@ -767,8 +808,6 @@
 </span><span class='line'><span class="p">};</span>
 </span></code></pre></td></tr></table></div></figure>
 
-
-<h1>Summary</h1>
 </div>
 
 
@@ -791,7 +830,7 @@
   
 
 
-<time datetime="2016-03-19T15:06:40-07:00" pubdate data-updated="true">Mar 19<span>th</span>, 2016</time>
+<time datetime="2016-03-20T22:26:43-07:00" pubdate data-updated="true">Mar 20<span>th</span>, 2016</time>
       
 
 <span class="categories">
@@ -805,7 +844,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations/" data-via="LokiAstari" data-counturl="http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff/" data-via="LokiAstari" data-counturl="http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff/" >Tweet</a>
   
   
   
@@ -824,14 +863,10 @@
     <ul class="pager">
       
       <li class="previous"><a class="basic-alignment left"
-        href="/blog/2016/03/12/vector-resize/" title="Previous Post:
-        Vector - Part 3: Vector Resize">&laquo; Vector - Part 3: Vector Resize</a></li>
+        href="/blog/2016/03/19/vector-simple-optimizations/" title="Previous Post:
+        Vector - Part 4: Simple Optimizations">&laquo; Vector - Part 4: Simple Optimizations</a></li>
       
       <li><a href="/blog/archives">Blog Archives</a></li>
-      
-      <li class="next"><a class="basic-alignment right" href="/blog/2016/03/20/vector-the-other-stuff/"
-        title="Next Post: Vector - Part 5: The Other Stuff">Vector - Part 5: The Other Stuff
-        &raquo;</a></li>
       
     </ul>
   </footer>
@@ -930,8 +965,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations/';
-        var disqus_url = 'http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations/';
+        var disqus_identifier = 'http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff/';
+        var disqus_url = 'http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff/';
         var disqus_script = 'embed.js';
       
     (function () {

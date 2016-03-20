@@ -142,7 +142,7 @@
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="kt">void</span> <span class="n">push_back_internal</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="kt">void</span> <span class="n">pushBackInternal</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>    <span class="p">{</span>
 </span><span class='line'>        <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
 </span><span class='line'>        <span class="o">++</span><span class="n">length</span><span class="p">;</span>
@@ -152,13 +152,15 @@
 </span><span class='line'>    <span class="p">{</span>
 </span><span class='line'>        <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">tmpBuffer</span><span class="p">(</span><span class="n">newCapacity</span><span class="p">);</span>
 </span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span>
-</span><span class='line'>                      <span class="p">[</span><span class="o">&amp;</span><span class="n">tmpBuffer</span><span class="p">](</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">tmpBuffer</span><span class="p">.</span><span class="n">push_back_internal</span><span class="p">(</span><span class="n">v</span><span class="p">);}</span>
+</span><span class='line'>                      <span class="p">[</span><span class="o">&amp;</span><span class="n">tmpBuffer</span><span class="p">](</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">tmpBuffer</span><span class="p">.</span><span class="n">pushBackInternal</span><span class="p">(</span><span class="n">v</span><span class="p">);}</span>
 </span><span class='line'>                     <span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="n">tmpBuffer</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
 </span><span class='line'>    <span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
+
+<h1>Resize With Move Construction</h1>
 
 <p>Thus resizing a <code>Vector</code> can be a very expensive operation because of all the copying that can happen.</p>
 
@@ -200,7 +202,7 @@
 <span class='line-number'>32</span>
 <span class='line-number'>33</span>
 <span class='line-number'>34</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="kt">void</span> <span class="n">move_back_internal</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="kt">void</span> <span class="n">moveBackInternal</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>    <span class="p">{</span>
 </span><span class='line'>        <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
 </span><span class='line'>        <span class="o">++</span><span class="n">length</span><span class="p">;</span>
@@ -212,7 +214,7 @@
 </span><span class='line'>        <span class="k">try</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span>
-</span><span class='line'>                          <span class="p">[</span><span class="o">&amp;</span><span class="n">tmpBuffer</span><span class="p">](</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">tmpBuffer</span><span class="p">.</span><span class="n">move_back_internal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">v</span><span class="p">));}</span>
+</span><span class='line'>                          <span class="p">[</span><span class="o">&amp;</span><span class="n">tmpBuffer</span><span class="p">](</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">tmpBuffer</span><span class="p">.</span><span class="n">moveBackInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">v</span><span class="p">));}</span>
 </span><span class='line'>                         <span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>        <span class="k">catch</span><span class="p">(...)</span>
@@ -237,6 +239,8 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
+<h1>Resize With NoThrow Move Construction</h1>
+
 <p>As the above code shows; if the type <code>T</code> can throw during it&rsquo;s move constructor then you can&rsquo;t guarantee that the object gets returned to the original state (as moving the already moved elements back may cause another exception). So we can not use the move constructor to resize the vector if the type <code>T</code> can throw during move construction.</p>
 
 <p>But not all types throw when being moved. In fact it is recommended that move constructors never throw. If we can guarantee that the move constructor does not throw then we can simplify the above code considerably and still provide the strong exception guarantee.</p>
@@ -259,12 +263,12 @@
 </span><span class='line'>    <span class="p">{</span>
 </span><span class='line'>        <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">tmpBuffer</span><span class="p">(</span><span class="n">newCapacity</span><span class="p">);</span>
 </span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span>
-</span><span class='line'>                      <span class="p">[</span><span class="o">&amp;</span><span class="n">tmpBuffer</span><span class="p">](</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">tmpBuffer</span><span class="p">.</span><span class="n">move_back_internal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">v</span><span class="p">));}</span>
+</span><span class='line'>                      <span class="p">[</span><span class="o">&amp;</span><span class="n">tmpBuffer</span><span class="p">](</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">tmpBuffer</span><span class="p">.</span><span class="n">moveBackInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">v</span><span class="p">));}</span>
 </span><span class='line'>                     <span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="n">tmpBuffer</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
 </span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="kt">void</span> <span class="n">move_back_internal</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>    <span class="kt">void</span> <span class="n">moveBackInternal</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>    <span class="p">{</span>
 </span><span class='line'>        <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
 </span><span class='line'>        <span class="o">++</span><span class="n">length</span><span class="p">;</span>
@@ -348,11 +352,11 @@
 </span><span class='line'><span class="p">{</span>
 </span><span class='line'>    <span class="c1">// Define two different versions of this class.</span>
 </span><span class='line'>    <span class="c1">// The object is to copy all the elements from src to dst Vector</span>
-</span><span class='line'>    <span class="c1">// using push_back_internal or move_back_internal</span>
+</span><span class='line'>    <span class="c1">// using pushBackInternal or moveBackInternal</span>
 </span><span class='line'>    <span class="c1">//</span>
-</span><span class='line'>    <span class="c1">// SimpleCopy&lt;T, false&gt;:        Defines a version that use push_back_internal (copy constructor)</span>
+</span><span class='line'>    <span class="c1">// SimpleCopy&lt;T, false&gt;:        Defines a version that use pushBackInternal (copy constructor)</span>
 </span><span class='line'>    <span class="c1">//                              This is always safe to use.</span>
-</span><span class='line'>    <span class="c1">// SimpleCopy&lt;T, true&gt;:         Defines a version that uses move_back_internal (move constructor)</span>
+</span><span class='line'>    <span class="c1">// SimpleCopy&lt;T, true&gt;:         Defines a version that uses moveBackInternal (move constructor)</span>
 </span><span class='line'>    <span class="c1">//                              Safe when move construction does not throw.</span>
 </span><span class='line'>    <span class="c1">//</span>
 </span><span class='line'>    <span class="kt">void</span> <span class="k">operator</span><span class="p">()(</span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">src</span><span class="p">,</span> <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">dst</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
@@ -380,12 +384,12 @@
 </span><span class='line'>
 </span><span class='line'>            <span class="n">tmpBuffer</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="n">push_back_internal</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">pushBackInternal</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
 </span><span class='line'>            <span class="o">++</span><span class="n">length</span><span class="p">;</span>
 </span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="n">move_back_internal</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">moveBackInternal</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
 </span><span class='line'>            <span class="o">++</span><span class="n">length</span><span class="p">;</span>
@@ -398,7 +402,7 @@
 </span><span class='line'>    <span class="kt">void</span> <span class="k">operator</span><span class="p">()(</span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">src</span><span class="p">,</span> <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">dst</span><span class="p">)</span> <span class="k">const</span>
 </span><span class='line'>    <span class="p">{</span>
 </span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span>
-</span><span class='line'>                      <span class="p">[</span><span class="o">&amp;</span><span class="n">dst</span><span class="p">](</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">dst</span><span class="p">.</span><span class="n">push_back_internal</span><span class="p">(</span><span class="n">v</span><span class="p">);}</span>
+</span><span class='line'>                      <span class="p">[</span><span class="o">&amp;</span><span class="n">dst</span><span class="p">](</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">dst</span><span class="p">.</span><span class="n">pushBackInternal</span><span class="p">(</span><span class="n">v</span><span class="p">);}</span>
 </span><span class='line'>                     <span class="p">);</span>
 </span><span class='line'>    <span class="p">}</span>
 </span><span class='line'><span class="p">};</span>
@@ -408,12 +412,14 @@
 </span><span class='line'>    <span class="kt">void</span> <span class="k">operator</span><span class="p">()(</span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">src</span><span class="p">,</span> <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">dst</span><span class="p">)</span> <span class="k">const</span>
 </span><span class='line'>    <span class="p">{</span>
 </span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span>
-</span><span class='line'>                      <span class="p">[</span><span class="o">&amp;</span><span class="n">dst</span><span class="p">](</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">dst</span><span class="p">.</span><span class="n">move_back_internal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">v</span><span class="p">));}</span>
+</span><span class='line'>                      <span class="p">[</span><span class="o">&amp;</span><span class="n">dst</span><span class="p">](</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">dst</span><span class="p">.</span><span class="n">moveBackInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">v</span><span class="p">));}</span>
 </span><span class='line'>                     <span class="p">);</span>
 </span><span class='line'>    <span class="p">}</span>
 </span><span class='line'><span class="p">};</span>
 </span></code></pre></td></tr></table></div></figure>
 
+
+<h1>Resize With NoThrow SFINAE</h1>
 
 <p>This has technique has a couple of issues.</p>
 
@@ -485,12 +491,12 @@
 </span><span class='line'>
 </span><span class='line'>            <span class="n">tmpBuffer</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="n">push_back_internal</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">pushBackInternal</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
 </span><span class='line'>            <span class="o">++</span><span class="n">length</span><span class="p">;</span>
 </span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="n">move_back_internal</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">moveBackInternal</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
 </span><span class='line'>            <span class="o">++</span><span class="n">length</span><span class="p">;</span>
@@ -504,7 +510,7 @@
 </span><span class='line'>        <span class="n">simpleCopy</span><span class="p">(</span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">src</span><span class="p">,</span> <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">dst</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span>
-</span><span class='line'>                          <span class="p">[</span><span class="o">&amp;</span><span class="n">dst</span><span class="p">](</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">dst</span><span class="p">.</span><span class="n">push_back_internal</span><span class="p">(</span><span class="n">v</span><span class="p">);}</span>
+</span><span class='line'>                          <span class="p">[</span><span class="o">&amp;</span><span class="n">dst</span><span class="p">](</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">dst</span><span class="p">.</span><span class="n">pushBackInternal</span><span class="p">(</span><span class="n">v</span><span class="p">);}</span>
 </span><span class='line'>                         <span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>
@@ -513,7 +519,7 @@
 </span><span class='line'>        <span class="n">simpleCopy</span><span class="p">()(</span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">src</span><span class="p">,</span> <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">dst</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span>
-</span><span class='line'>                          <span class="p">[</span><span class="o">&amp;</span><span class="n">dst</span><span class="p">](</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">dst</span><span class="p">.</span><span class="n">move_back_internal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">v</span><span class="p">));}</span>
+</span><span class='line'>                          <span class="p">[</span><span class="o">&amp;</span><span class="n">dst</span><span class="p">](</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">dst</span><span class="p">.</span><span class="n">moveBackInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">v</span><span class="p">));}</span>
 </span><span class='line'>                         <span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'><span class="p">}</span>
@@ -764,7 +770,7 @@
 </span><span class='line'>        <span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">resizeIfRequire</span><span class="p">();</span>
-</span><span class='line'>            <span class="n">push_back_internal</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">pushBackInternal</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>        <span class="kt">void</span> <span class="n">pop_back</span><span class="p">()</span>
 </span><span class='line'>        <span class="p">{</span>
@@ -795,12 +801,12 @@
 </span><span class='line'>
 </span><span class='line'>            <span class="n">tmpBuffer</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="n">push_back_internal</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">pushBackInternal</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
 </span><span class='line'>            <span class="o">++</span><span class="n">length</span><span class="p">;</span>
 </span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="n">move_back_internal</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">moveBackInternal</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
 </span><span class='line'>            <span class="o">++</span><span class="n">length</span><span class="p">;</span>
@@ -811,7 +817,7 @@
 </span><span class='line'>        <span class="n">simpleCopy</span><span class="p">(</span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">dst</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span>
-</span><span class='line'>                          <span class="p">[</span><span class="o">&amp;</span><span class="n">dst</span><span class="p">](</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">dst</span><span class="p">.</span><span class="n">push_back_internal</span><span class="p">(</span><span class="n">v</span><span class="p">);}</span>
+</span><span class='line'>                          <span class="p">[</span><span class="o">&amp;</span><span class="n">dst</span><span class="p">](</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">dst</span><span class="p">.</span><span class="n">pushBackInternal</span><span class="p">(</span><span class="n">v</span><span class="p">);}</span>
 </span><span class='line'>                         <span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>
@@ -820,7 +826,7 @@
 </span><span class='line'>        <span class="n">simpleCopy</span><span class="p">(</span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">dst</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span>
-</span><span class='line'>                          <span class="p">[</span><span class="o">&amp;</span><span class="n">dst</span><span class="p">](</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">dst</span><span class="p">.</span><span class="n">move_back_internal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">v</span><span class="p">));}</span>
+</span><span class='line'>                          <span class="p">[</span><span class="o">&amp;</span><span class="n">dst</span><span class="p">](</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">dst</span><span class="p">.</span><span class="n">moveBackInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">v</span><span class="p">));}</span>
 </span><span class='line'>                         <span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'><span class="p">};</span>
@@ -914,6 +920,10 @@
     <li class="nav-header">Recent Posts</li>
     
       <li class="post">
+        <a href="/blog/2016/03/20/vector-the-other-stuff/">Vector - Part 5: The Other Stuff</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Part 4: Simple Optimizations</a>
       </li>
     
@@ -927,10 +937,6 @@
     
       <li class="post">
         <a href="/blog/2016/02/27/vector/">Vector - Part 1: Resource Management Allocation</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/">Smart Pointer Constructors</a>
       </li>
     
   </ul>

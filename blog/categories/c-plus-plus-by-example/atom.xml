@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-19T22:33:47-07:00</updated>
+  <updated>2016-03-20T12:03:27-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -14,11 +14,425 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Vector - Part 5: The Other Stuff]]></title>
+    <link href="http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff/"/>
+    <updated>2016-03-20T22:26:43-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff</id>
+    <content type="html"><![CDATA[<p>So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an in-site into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).</p>
+
+<p>For details see the <a href="http://stackoverflow.com/a/4653479/14065">latest copy of the C++ standard</a>.</p>
+
+<ul>
+<li>23.2.1  General container requirements [container.requirements.general]</li>
+<li>23.2.3  Sequence containers [sequence.reqmts]</li>
+</ul>
+
+
+<h4>Internal Types</h4>
+
+<ul>
+<li>value&#95;type</li>
+<li>reference</li>
+<li>const&#95;reference</li>
+<li>iterator</li>
+<li>const&#95;iterator</li>
+<li>difference&#95;type</li>
+<li>size&#95;type</li>
+</ul>
+
+
+<p>It is worth specifying the internal types defined here. As this allows you to abstract the implementation details of the container. This will allow you to change the implementation details without users having to change there implementation; as long as the changes still provide the same interface but the interface to reference/pointers/iterators are relatively trivial and well defined.</p>
+
+<h4>Constructors</h4>
+
+<p>In C++11 the <code>std::initializer_list&lt;T&gt;</code> was introduced. This allows a better list initialization syntax to be used with user defined types. Since this is usually defined in terms of the range based construction we should probably add both of these constructors.</p>
+
+<ul>
+<li>Vector(std::initializer&#95;list<T> const&amp; list)</li>
+<li>Vector(I begin, I end)</li>
+</ul>
+
+
+<h4>Iterators</h4>
+
+<ul>
+<li>begin()</li>
+<li>rbegin()</li>
+<li>begin() const</li>
+<li>rbegin() const</li>
+<li>cbegin() const</li>
+<li>crbegin() const</li>
+<li>end()</li>
+<li>rend()</li>
+<li>end() const</li>
+<li>cend() const</li>
+<li>rend() const</li>
+<li>crend() const</li>
+</ul>
+
+
+<p>The iterators are relatively easy to write. They also allow the container to be used with the new range based for that was added in C++14. So this becomes another easy add.</p>
+
+<h4>Non-Mutating Member Functions</h4>
+
+<ul>
+<li>size() const</li>
+<li>bool() const</li>
+</ul>
+
+
+<p>These methods are useful to add as this allows you to provided non range checked access to the container. It is the responsibility of the container user to validate that access to elements in the container are in the correct range. This can make access to the container much more efficient as the container does not need to check every access to validate its range.</p>
+
+<h4>Member Access</h4>
+
+<ul>
+<li>operator&#91;&#93;(&lt;index&gt;)</li>
+<li>operator&#91;&#93;(&lt;index&gt;) const</li>
+<li>at(&lt;index&gt;)</li>
+<li>at(&lt;index&gt;) const</li>
+</ul>
+
+
+<p>We provide two methods of accesses to elements in the container. <code>operator[](&lt;index&gt;)</code> provides unchecked accesses. The user is supposed to validate the range is correct before use, while <code>at(&lt;index&gt;)</code> provides validated access to the container resulting in an exception if the index is out of range.</p>
+
+<h4>Comparitors</h4>
+
+<ul>
+<li>operator== const</li>
+<li>operator!= const</li>
+</ul>
+
+
+<h4>Optional Member Functions</h4>
+
+<ul>
+<li>front()</li>
+<li>back()</li>
+<li>front() const</li>
+<li>back() const</li>
+<li>push&#95;back(&lt;object-ref&gt;)</li>
+<li>push&#95;back(&lt;object-rvalue-ref&gt;)</li>
+<li>emplace&#95;front(&lt;args&hellip;&gt;)</li>
+<li>emplace&#95;back(&lt;args&hellip;&gt;)</li>
+<li>pop&#95;front()</li>
+<li>pop&#95;back()</li>
+</ul>
+
+
+<p>The following members are standard easy to implement methods of <code>std::vector</code> that I would expect to see in every implementation.</p>
+
+<h1>Final</h1>
+
+<p>```cpp Vector</p>
+
+<h1>include &lt;type_traits></h1>
+
+<h1>include <memory></h1>
+
+<h1>include <algorithm></h1>
+
+<h1>include <stdexcept></h1>
+
+<h1>include <iterator></h1>
+
+<p>template<typename T>
+class Vector
+{</p>
+
+<pre><code>public:
+    using value_type        = T;
+    using reference         = T&amp;;
+    using const_reference   = T const&amp;;
+    using pointer           = T*;
+    using const_pointer     = T const*;
+    using iterator          = T*;
+    using const_iterator    = T const*;
+    using difference_type   = std::ptrdiff_t;
+    using size_type         = std::size_t;
+
+private:
+    size_type       capacity;
+    size_type       length;
+    T*              buffer;
+
+    struct Deleter
+    {
+        void operator()(T* buffer) const
+        {
+            ::operator delete(buffer);
+        }
+    };
+
+public:
+    Vector(int capacity = 10)
+        : capacity(capacity)
+        , length(0)
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {}
+    template&lt;typename I&gt;
+    Vector(I begin, I end)
+        : capacity(std::distance(begin, end))
+        , length(0)
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {
+        for(auto loop = begin;loop != end; ++loop)
+        {
+            pushBackInternal(*loop);
+        }
+    }
+    Vector(std::initializer_list&lt;T&gt; const&amp; list)
+        : Vector(std::begin(list), std::end(list))
+    {}
+    ~Vector()
+    {
+        // Make sure the buffer is deleted even with exceptions
+        // This will be called to release the pointer at the end
+        // of scope.
+        std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+
+        clearElements&lt;T&gt;();
+    }
+    Vector(Vector const&amp; copy)
+        : capacity(copy.length)
+        , length(0)
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {
+        try
+        {
+            for(int loop = 0; loop &lt; copy.length; ++loop)
+            {
+                push_back(copy.buffer[loop]);
+            }
+        }
+        catch(...)
+        {
+            clearElements&lt;T&gt;();
+            ::operator delete(buffer);
+
+            // Make sure the exceptions continue propagating after
+            // the cleanup has completed.
+            throw;
+        }
+    }
+    Vector&amp; operator=(Vector const&amp; copy)
+    {
+        copyAssign&lt;T&gt;(copy);
+        return *this;
+    }
+    Vector(Vector&amp;&amp; move) noexcept
+        : capacity(0)
+        , length(0)
+        , buffer(nullptr)
+    {
+        move.swap(*this);
+    }
+    Vector&amp; operator=(Vector&amp;&amp; move) noexcept
+    {
+        move.swap(*this);
+        return *this;
+    }
+    void swap(Vector&amp; other) noexcept
+    {
+        using std::swap;
+        swap(capacity,      other.capacity);
+        swap(length,        other.length);
+        swap(buffer,        other.buffer);
+    }
+
+    reference           operator[](size_type index)         {return buffer[index];}
+    const_reference     operator[](size_type index) const   {return buffer[index];}
+    reference           at(size_type index)                 {validateIndex(index);return buffer[index];}
+    const_reference     at(size_type index) const           {validateIndex(index);return buffer[index];}
+
+    iterator            begin()                             {return buffer;}
+    iterator            rbegin()                            {return std::reverse_iterator&lt;iterator&gt;(end());}
+    const_iterator      begin() const                       {return buffer;}
+    const_iterator      rbegin() const                      {return std::reverse_iterator&lt;iterator&gt;(end());}
+
+    iterator            end()                               {return buffer + length;}
+    iterator            rend()                              {return std::reverse_iterator&lt;iterator&gt;(begin());}
+    const_iterator      end() const                         {return buffer + length;}
+    const_iterator      rend() const                        {return std::reverse_iterator&lt;iterator&gt;(begin());}
+
+    const_iterator      cbegin() const                      {return begin();}
+    const_iterator      crbegin() const                     {return rbegin();}
+    const_iterator      cend() const                        {return end();}
+    const_iterator      crend() const                       {return rend();}
+
+    size_type           size() const                        {return length;}
+    bool                empty() const                       {return length == 0;}
+
+    reference           front()                             {return buffer[0];}
+    const_reference     front() const                       {return buffer[0];}
+    reference           back()                              {return buffer[length - 1];}
+    const_reference     back() const                        {return buffer[length - 1];}
+
+    bool operator!=(Vector const&amp; rhs) const {return !(*this == rhs);}
+    bool operator==(Vector const&amp; rhs) const
+    {
+        return (size() == rhs.size())
+            ?  std::equal(begin(), end(), rhs.begin())
+            :  false;
+    }
+
+    void push_back(T const&amp; value)
+    {
+        resizeIfRequire();
+        pushBackInternal(value);
+    }
+    void push_back(T&amp;&amp; value)
+    {
+        resizeIfRequire();
+        moveBackInternal(std::forward&lt;T&gt;(value));
+    }
+    template&lt;typename... Args&gt;
+    void emplace_back(Args&amp;&amp;... args)
+    {
+        resizeIfRequire();
+        constructBackInternal(std::forward&lt;T&gt;(args)...);
+    }
+    void pop_back()
+    {
+        --length;
+        buffer[length].~T();
+    }
+    void reserve(size_type capacityUpperBound)
+    {
+        if (capacityUpperBound &gt; capacity)
+        {
+            reserveCapacity(capacityUpperBound);
+        }
+    }
+private:
+    void validateIndex(size_type index)
+    {
+        if (index &gt;= length)
+        {
+            throw std::out_of_range("Out of Range");
+        }
+    }
+
+    void resizeIfRequire()
+    {
+        if (length == capacity)
+        {
+            size_type     newCapacity  = capacity * 1.62;
+            reserveCapacity(newCapacity);
+        }
+    }
+    void reserveCapacity(size_type newCapacity)
+    {
+        Vector&lt;T&gt;  tmpBuffer(newCapacity);
+
+        simpleCopy&lt;T&gt;(tmpBuffer);
+
+        tmpBuffer.swap(*this);
+    }
+    void pushBackInternal(T const&amp; value)
+    {
+        new (buffer + length) T(value);
+        ++length;
+    }
+    void moveBackInternal(T&amp;&amp; value)
+    {
+        new (buffer + length) T(std::forward&lt;T&gt;(value));
+        ++length;
+    }
+    template&lt;typename... Args&gt;
+    void constructBackInternal(Args&amp;&amp;... args)
+    {
+        new (buffer + length) T(std::forward&lt;Args&gt;(args)...);
+        ++length;
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == false&gt;::type
+    simpleCopy(Vector&lt;T&gt;&amp; dst)
+    {
+        std::for_each(buffer, buffer + length,
+                      [&amp;dst](T const&amp; v){dst.pushBackInternal(v);}
+                     );
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == true&gt;::type
+    simpleCopy(Vector&lt;T&gt;&amp; dst)
+    {
+        std::for_each(buffer, buffer + length,
+                      [&amp;dst](T&amp; v){dst.moveBackInternal(std::move(v));}
+                     );
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == false&gt;::type
+    clearElements()
+    {
+        // Call the destructor on all the members in reverse order
+        for(int loop = 0; loop &lt; length; ++loop)
+        {
+            // Note we destroy the elements in reverse order.
+            buffer[length - 1 - loop].~T();
+        }
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == true&gt;::type
+    clearElements()
+    {
+        // Trivially destructible objects can be re-used without using the destructor.
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
+                        &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == true&gt;::type
+    copyAssign(Vector&lt;X&gt;&amp; copy)
+    {
+        if (this == &amp;copy)
+        {
+            return;
+        }
+
+        if (capacity &lt;= copy.length)
+        {
+            clearElements&lt;T&gt;();
+            length = 0;
+            for(int loop = 0; loop &lt; copy.length; ++loop)
+            {
+                pushBackInternal(copy[loop]);
+            }
+        }
+        else
+        {
+            // Copy and Swap idiom
+            Vector&lt;T&gt;  tmp(copy);
+            tmp.swap(*this);
+        }
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
+                         &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == false&gt;::type
+    copyAssign(Vector&lt;X&gt;&amp; copy)
+    {
+        // Copy and Swap idiom
+        Vector&lt;T&gt;  tmp(copy);
+        tmp.swap(*this);
+    }
+</code></pre>
+
+<p>};
+```</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Vector - Part 4: Simple Optimizations]]></title>
     <link href="http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations/"/>
     <updated>2016-03-19T15:06:40-07:00</updated>
     <id>http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations</id>
     <content type="html"><![CDATA[<p>So now that we have used <code>std::is_nothrow_move_constructible</code> we can also look at a couple of other types available in the template utility library.</p>
+
+<h1>Optimized Destruction</h1>
 
 <p>Since we have to manually call the destructor on all objects in the container (because we are using placement new) we can look to see if we can optimize that. The type <code>std::is_trivially_destructible</code> detects if the type is <strong>Trivially</strong> destructible. This basically means that there will be no side affects from the destructor (See: Section 12.4 Paragraph 5 of the standard). For types we don&rsquo;t need to call the destructor of the object. For the <code>Vector</code> class this means we can eliminate the call to the destructor but more importantly the loop.</p>
 
@@ -108,6 +522,8 @@
 
 <p>```</p>
 
+<h1>Optimized Assignment Operator</h1>
+
 <p>The final optimization is because resource allocation is expensive. So if we can avoid the resource allocation completely and just re-use the space we currently have.</p>
 
 <p>```cpp Copy Assignment</p>
@@ -156,7 +572,7 @@
         // Now add the elements to this container as cheaply as possible.
         for(int loop = 0; loop &lt; copy.length; ++loop)
         {
-            push_back_internal(copy[loop]);
+            pushBackInternal(copy[loop]);
         }
         return *this;
     }
@@ -249,7 +665,7 @@ class Vector
         void push_back(T const&amp; value)
         {
             resizeIfRequire();
-            push_back_internal(value);
+            pushBackInternal(value);
         }
         void pop_back()
         {
@@ -280,12 +696,12 @@ class Vector
 
             tmpBuffer.swap(*this);
         }
-        void push_back_internal(T const&amp; value)
+        void pushBackInternal(T const&amp; value)
         {
             new (buffer + length) T(value);
             ++length;
         }
-        void move_back_internal(T&amp;&amp; value)
+        void moveBackInternal(T&amp;&amp; value)
         {
             new (buffer + length) T(std::forward&lt;T&gt;(value));
             ++length;
@@ -296,7 +712,7 @@ class Vector
         simpleCopy(Vector&lt;T&gt;&amp; dst)
         {
             std::for_each(buffer, buffer + length,
-                          [&amp;dst](T const&amp; v){dst.push_back_internal(v);}
+                          [&amp;dst](T const&amp; v){dst.pushBackInternal(v);}
                          );
         }
 
@@ -305,7 +721,7 @@ class Vector
         simpleCopy(Vector&lt;T&gt;&amp; dst)
         {
             std::for_each(buffer, buffer + length,
-                          [&amp;dst](T&amp; v){dst.move_back_internal(std::move(v));}
+                          [&amp;dst](T&amp; v){dst.moveBackInternal(std::move(v));}
                          );
         }
 
@@ -329,15 +745,8 @@ class Vector
         }
 
         template&lt;typename X&gt;
-        struct InSimpleTrivial
-        {
-            static constexpr bool value = 
-                    std::is_nothrow_copy_constructible&lt;X&gt;::value
-                &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value;
-        };
-
-        template&lt;typename X&gt;
-        typename std::enable_if&lt;InSimpleTrivial&lt;T&gt;::value == true&gt;::type
+        typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
+                             &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == true&gt;::type
         copyAssign(Vector&lt;X&gt;&amp; copy)
         {
             if (this == &amp;copy)
@@ -351,7 +760,7 @@ class Vector
                 length = 0;
                 for(int loop = 0; loop &lt; copy.length; ++loop)
                 {
-                    push_back_internal(copy[loop]);
+                    pushBackInternal(copy[loop]);
                 }
             }
             else
@@ -362,7 +771,8 @@ class Vector
             }
         }
         template&lt;typename X&gt;
-        typename std::enable_if&lt;InSimpleTrivial&lt;T&gt;::value == false&gt;::type
+        typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
+                             &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == false&gt;::type
         copyAssign(Vector&lt;X&gt;&amp; copy)
         {
             // Copy and Swap idiom
@@ -388,7 +798,7 @@ class Vector
 <p>In the <a href="#VectorVersion-1">current version</a>, resizing the vector requires a new buffer be allocated and all the members copied into it. Basically we are using the copy and swap mechanism to provide the strong exception guarantee (If an exception is thrown all resources are cleaned up and the object remains unchanged).
 ```cpp Vector Resize with Copy</p>
 
-<pre><code>    void push_back_internal(T const&amp; value)
+<pre><code>    void pushBackInternal(T const&amp; value)
     {
         new (buffer + length) T(value);
         ++length;
@@ -398,7 +808,7 @@ class Vector
     {
         Vector&lt;T&gt;  tmpBuffer(newCapacity);
         std::for_each(buffer, buffer + length,
-                      [&amp;tmpBuffer](T const&amp; v){tmpBuffer.push_back_internal(v);}
+                      [&amp;tmpBuffer](T const&amp; v){tmpBuffer.pushBackInternal(v);}
                      );
 
         tmpBuffer.swap(*this);
@@ -407,6 +817,8 @@ class Vector
 
 <p>```</p>
 
+<h1>Resize With Move Construction</h1>
+
 <p>Thus resizing a <code>Vector</code> can be a very expensive operation because of all the copying that can happen.</p>
 
 <p>Using the move constructor rather than copy constructor during a resize operation could potentially be much more efficient. But the move constructor mutates the original object and thus if there is a problem we need to undo the mutations to maintain the strong exception guarantee.</p>
@@ -414,7 +826,7 @@ class Vector
 <p>The first attempt at this is:
 ```cpp Vector Resize with Move With Exceptions</p>
 
-<pre><code>    void move_back_internal(T&amp;&amp; value)
+<pre><code>    void moveBackInternal(T&amp;&amp; value)
     {
         new (buffer + length) T(std::forward&lt;T&gt;(value));
         ++length;
@@ -426,7 +838,7 @@ class Vector
         try
         {
             std::for_each(buffer, buffer + length,
-                          [&amp;tmpBuffer](T&amp; v){tmpBuffer.move_back_internal(std::move(v));}
+                          [&amp;tmpBuffer](T&amp; v){tmpBuffer.moveBackInternal(std::move(v));}
                          );
         }
         catch(...)
@@ -450,8 +862,11 @@ class Vector
     }
 </code></pre>
 
-<p><code>``
-As the above code shows; if the type</code>T<code>can throw during it's move constructor then you can't guarantee that the object gets returned to the original state (as moving the already moved elements back may cause another exception). So we can not use the move constructor to resize the vector if the type</code>T` can throw during move construction.</p>
+<p>```</p>
+
+<h1>Resize With NoThrow Move Construction</h1>
+
+<p>As the above code shows; if the type <code>T</code> can throw during it&rsquo;s move constructor then you can&rsquo;t guarantee that the object gets returned to the original state (as moving the already moved elements back may cause another exception). So we can not use the move constructor to resize the vector if the type <code>T</code> can throw during move construction.</p>
 
 <p>But not all types throw when being moved. In fact it is recommended that move constructors never throw. If we can guarantee that the move constructor does not throw then we can simplify the above code considerably and still provide the strong exception guarantee.
 ```cpp Vector Resize with Move</p>
@@ -460,12 +875,12 @@ As the above code shows; if the type</code>T<code>can throw during it's move con
     {
         Vector&lt;T&gt;  tmpBuffer(newCapacity);
         std::for_each(buffer, buffer + length,
-                      [&amp;tmpBuffer](T&amp; v){tmpBuffer.move_back_internal(std::move(v));}
+                      [&amp;tmpBuffer](T&amp; v){tmpBuffer.moveBackInternal(std::move(v));}
                      );
 
         tmpBuffer.swap(*this);
     }
-    void move_back_internal(T&amp;&amp; value)
+    void moveBackInternal(T&amp;&amp; value)
     {
         new (buffer + length) T(std::forward&lt;T&gt;(value));
         ++length;
@@ -481,11 +896,11 @@ struct SimpleCopy
 {
     // Define two different versions of this class.
     // The object is to copy all the elements from src to dst Vector
-    // using push_back_internal or move_back_internal
+    // using pushBackInternal or moveBackInternal
     //
-    // SimpleCopy&lt;T, false&gt;:        Defines a version that use push_back_internal (copy constructor)
+    // SimpleCopy&lt;T, false&gt;:        Defines a version that use pushBackInternal (copy constructor)
     //                              This is always safe to use.
-    // SimpleCopy&lt;T, true&gt;:         Defines a version that uses move_back_internal (move constructor)
+    // SimpleCopy&lt;T, true&gt;:         Defines a version that uses moveBackInternal (move constructor)
     //                              Safe when move construction does not throw.
     //
     void operator()(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst) const;
@@ -513,12 +928,12 @@ class Vector
 
             tmpBuffer.swap(*this);
         }
-        void push_back_internal(T const&amp; value)
+        void pushBackInternal(T const&amp; value)
         {
             new (buffer + length) T(value);
             ++length;
         }
-        void move_back_internal(T&amp;&amp; value)
+        void moveBackInternal(T&amp;&amp; value)
         {
             new (buffer + length) T(std::forward&lt;T&gt;(value));
             ++length;
@@ -531,7 +946,7 @@ struct SimpleCopy&lt;T, false&gt; // false: does not have nothrow move construct
     void operator()(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst) const
     {
         std::for_each(buffer, buffer + length,
-                      [&amp;dst](T const&amp; v){dst.push_back_internal(v);}
+                      [&amp;dst](T const&amp; v){dst.pushBackInternal(v);}
                      );
     }
 };
@@ -541,14 +956,17 @@ struct SimpleCopy&lt;T, true&gt; // true: has a nothrow move constructor
     void operator()(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst) const
     {
         std::for_each(buffer, buffer + length,
-                      [&amp;dst](T&amp; v){dst.move_back_internal(std::move(v));}
+                      [&amp;dst](T&amp; v){dst.moveBackInternal(std::move(v));}
                      );
     }
 };
 </code></pre>
 
-<p>```
-This has technique has a couple of issues.</p>
+<p>```</p>
+
+<h1>Resize With NoThrow SFINAE</h1>
+
+<p>This has technique has a couple of issues.</p>
 
 <p>The type <code>SimpleClass</code> is publicly available and is a friend of <code>Vector&lt;T&gt;</code>. This makes it suseptable to accidently being used (even if not explicitly documented). Unfortunately it can&rsquo;t be included as a member class and also be specialized.</p>
 
@@ -574,12 +992,12 @@ class Vector
 
             tmpBuffer.swap(*this);
         }
-        void push_back_internal(T const&amp; value)
+        void pushBackInternal(T const&amp; value)
         {
             new (buffer + length) T(value);
             ++length;
         }
-        void move_back_internal(T&amp;&amp; value)
+        void moveBackInternal(T&amp;&amp; value)
         {
             new (buffer + length) T(std::forward&lt;T&gt;(value));
             ++length;
@@ -593,7 +1011,7 @@ class Vector
         simpleCopy(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst)
         {
             std::for_each(buffer, buffer + length,
-                          [&amp;dst](T const&amp; v){dst.push_back_internal(v);}
+                          [&amp;dst](T const&amp; v){dst.pushBackInternal(v);}
                          );
         }
 
@@ -602,7 +1020,7 @@ class Vector
         simpleCopy()(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst)
         {
             std::for_each(buffer, buffer + length,
-                          [&amp;dst](T&amp; v){dst.move_back_internal(std::move(v));}
+                          [&amp;dst](T&amp; v){dst.moveBackInternal(std::move(v));}
                          );
         }
 }
@@ -705,7 +1123,7 @@ public:
     void push_back(T const&amp; value)
     {
         resizeIfRequire();
-        push_back_internal(value);
+        pushBackInternal(value);
     }
     void pop_back()
     {
@@ -736,12 +1154,12 @@ private:
 
         tmpBuffer.swap(*this);
     }
-    void push_back_internal(T const&amp; value)
+    void pushBackInternal(T const&amp; value)
     {
         new (buffer + length) T(value);
         ++length;
     }
-    void move_back_internal(T&amp;&amp; value)
+    void moveBackInternal(T&amp;&amp; value)
     {
         new (buffer + length) T(std::forward&lt;T&gt;(value));
         ++length;
@@ -752,7 +1170,7 @@ private:
     simpleCopy(Vector&lt;T&gt;&amp; dst)
     {
         std::for_each(buffer, buffer + length,
-                      [&amp;dst](T const&amp; v){dst.push_back_internal(v);}
+                      [&amp;dst](T const&amp; v){dst.pushBackInternal(v);}
                      );
     }
 
@@ -761,7 +1179,7 @@ private:
     simpleCopy(Vector&lt;T&gt;&amp; dst)
     {
         std::for_each(buffer, buffer + length,
-                      [&amp;dst](T&amp; v){dst.move_back_internal(std::move(v));}
+                      [&amp;dst](T&amp; v){dst.moveBackInternal(std::move(v));}
                      );
     }
 </code></pre>
@@ -1123,7 +1541,7 @@ public:
     void push_back(T const&amp; value)
     {
         resizeIfRequire();
-        push_back_internal(value);
+        pushBackInternal(value);
     }
     void pop_back()
     {
@@ -1146,7 +1564,7 @@ private:
             reserveCapacity(newCapacity);
         }
     }
-    void push_back_internal(T const&amp; value)
+    void pushBackInternal(T const&amp; value)
     {
         new (buffer + length) T(value);
         ++length;
@@ -1154,7 +1572,7 @@ private:
     void reserveCapacity(std::size_t newCapacity)
     {
         Vector&lt;T&gt;  tmpBuffer(newCapacity);
-        std::for_each(buffer, buffer + length, [&amp;tmpBuffer](T const&amp; v){tmpBuffer.push_back_internal(v);});
+        std::for_each(buffer, buffer + length, [&amp;tmpBuffer](T const&amp; v){tmpBuffer.pushBackInternal(v);});
 
         tmpBuffer.swap(*this);
     }
@@ -1195,7 +1613,7 @@ private:
 
 <p>Note: This is not meant to replace <code>std::vector&lt;&gt;</code> this simply meant as a teaching processes.</p>
 
-<h2>Rule of Zero</h2>
+<h1>Rule of Zero</h1>
 
 <p>You will notice that half the attempts below <a href="#Sources">Sources</a> are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasize the <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a>. An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass <code>std::vector&lt;int&gt;</code> would be a good choice).</p>
 
@@ -1628,378 +2046,6 @@ private:
 <li>2016/Jan/10 &ndash; <a href="http://codereview.stackexchange.com/q/116377/507">Vector Implementation C++</a></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Smart Pointer Constructors]]></title>
-    <link href="http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/"/>
-    <updated>2015-01-23T16:33:14-08:00</updated>
-    <id>http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii</id>
-    <content type="html"><![CDATA[<p>In this article we examine constructors that are often missed or overlooked. This article looks at the use cases for these constructors and explains why the added functionality provides a meaningful addition in relation to smart pointers.</p>
-
-<h2>Default Constructor</h2>
-
-<p>Most people remember the default constructor (a zero argument constructor), but every now and then it gets missed.</p>
-
-<p>The default constructor is useful when the type is used in a context where objects of the type need to be instantiated dynamically by another library (an example is a container resized; when a container is made larger by a resize, new members will need to be constructed, it is the default constructor that will provide these extra instances).</p>
-
-<p>The default constructor is usually very trivial and thus worth the investment.
-```cpp Smart Pointer Default Constructor</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class UP
-    {
-        T*      data;
-        public:
-            UP()
-                : data(nullptr)
-            {}
-            .....
-    };
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>The nullptr</h2>
-
-<p>In C++11 the <code>nullptr</code> was introduced to replace the old broken <code>NULL</code> and/or the even more broken <code>0</code> for use in contexts where you want a pointer that points at nothing. The <code>nullptr</code> is automatically convert to any pointer type or a boolean; but fixed the previous bug (or bad feature) and will not convert to a numeric type.
-```cpp nullptr Usage Example</p>
-
-<h1>include <string></h1>
-
-<pre><code>int main()
-{
-    char*           tmp = nullptr;   // converts the nullptr (type std::nullptr_t) to char*
-    std::string*    str = nullptr;   // hopefully you never do that! but it works.
-
-    bool            tst = nullptr;   // False. Yes I know it does not look that useful.
-                                     //        But when you consider all the funny things
-                                     //        that can happen with templates this can
-                                     //        be very useful.
-
-    int             val = nullptr;   // Fails to compile.
-    int             val = NULL;      // Pointer assigned to integer value.
-                                     // Works just fine. But very rarely was this a useful
-                                     // feature (more usually an over-site that was not
-                                     // reported by the compiler).
-}
-</code></pre>
-
-<p><code>
-The `nullptr` provides some opportunities to make the code shorter/cleaner when initializing smart pointers to be empty. Because we are using explicit one argument constructors the compiler can not convert a `nullptr` into a smart pointer automatically, it must be done explicitly by the developer.
-</code>cpp nullptr failing on Smart Pointer</p>
-
-<pre><code>void workWithSP(ThorsAnvil::UP&lt;int&gt;&amp;&amp; sp)
-{ /* STUFF*/ }
-
-int main()
-{
-    // This fails to compile.
-    workWithSP(nullptr);
-
-    // Need to be explicit with smart pointers
-    workWithSP(ThorsAnvil::UP&lt;int&gt;(nullptr));
-}
-</code></pre>
-
-<p><code>
-This is overly verbose, there is no danger involved in forming a smart pointer around a `nullptr` automatically. Because `nullptr` has its own type `std::nullptr_t` we can add a constructor to explicitly simplify this case, which makes it easier to read.
-</code>cpp Smart Pointer with std::nullptr_t constructor</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class UP
-    {
-        public:
-            UP(std::nullptr_t)
-                : data(nullptr)
-            {}
-    ....
-    };
-}
-// Now we can simplify our use case
-void workWithSP(ThorsAnvil::UP&lt;int&gt;&amp;&amp; sp)
-{ /* STUFF*/ }
-
-int main()
-{
-    workWithSP(nullptr);
-
-    // Note this also allows:
-    ThorsAnvil::UP&lt;int&gt;   data  = nullptr;
-    // And
-    data = nullptr;       // Note here we have we convert nullptr to
-                          // smart pointer using the one argument
-                          // constructor that binds `nullptr` then
-                          // call the assignment operator.
-                          //
-                          // That seems like a lot extra work. So we
-                          // may as well define the assignment operator
-                          // to specifically user `nullptr`.
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>Move Semantics</h2>
-
-<p>Move semantics were introduced with C++ 11. So though we can not copy the <code>ThorsAnvil::UP</code> object it can be moved. The compiler will generate a default move constructor for a class under certain situations; but because we have defined a destructor for <code>ThorsAnvil::UP</code> we must manually define the move constructor.</p>
-
-<p>Move semantics say that the source object may be left in an undefined (but must be valid) state. So the easiest way to implement this is simply to swap the state of the current object with the source object (we know our state is valid so just swap it with the incoming object state (its destructor will then take care of destroying the pointer we are holding)).
-```cpp Smart Pointer Move Semantics</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class UP
-    {
-        T*      data;
-        public:
-            // Swap should always be `noexcept` operation
-            void swap(UP&amp; src) noexcept
-            {
-                std::swap(data, src.data);
-            }
-            // It is a good idea to make your move constructor `noexcept`
-            // In this case it actually makes no difference (because there
-            // no copy constructor) but to maintain good practice I still
-            // think it is a good idea to mark it with `noexcept`.
-            UP(UP&amp;&amp; moving) noexcept
-            {
-                moving.swap(*this);
-            }
-            UP&amp; operator=(UP&amp;&amp; moving) noexcept
-            {
-                moving.swap(*this);
-                return *this;
-            }
-            .....
-    };
-    template&lt;typename T&gt;
-    void swap(UP&lt;T&gt;&amp; lhs, UP&lt;T&gt;&amp; rhs)
-    {
-        lhs.swap(rhs);
-    }
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>Derived Type Assignment.</h2>
-
-<p>Assigning derived class pointers to a base class pointer object is quite common feature in C++.
-```cpp Derived Example</p>
-
-<pre><code>class Base
-{
-    public:
-        virtual ~Base() {}
-        virtual void doAction() = 0;
-};
-class Derived1: public Base
-{
-    public:
-        virtual void doAction() override;
-};
-class Derived2: public Base
-{
-    public:
-        virtual void doAction() override;
-};
-int main(int argc, char* argv[])
-{
-    Derived1*   action1 = new Derived1;
-    Derived2*   action2 = new Derived2;
-
-    Base*       action   = (argc == 2) ? action1 : action2;
-    action-&gt;doAction();
-}
-</code></pre>
-
-<p><code>
-If we try the same code with the constructors we currently have we will get compile errors.
-</code>cpp Derived Example with Smart Pointers</p>
-
-<pre><code>int main(int argc, char* argv[])
-{
-    ThorsAnvil::UP&lt;Derived1&gt;    action1 = new Derived1;
-    ThorsAnvil::UP&lt;Derived2&gt;    action2 = new Derived2;
-
-    ThorsAnvil::UP&lt;Base&gt;        action   = std::move((argc == 2) ? action1 : action2);
-    action-&gt;doAction();
-}
-</code></pre>
-
-<p><code>``
-This is because C++ considers</code>ThorsAnvil::UP<Derived1><code>,</code>ThorsAnvil::UP<Derived2><code>and</code>ThorsAnvil::UP<Base>` are three distinct classes that are unrelated. As this kind of pointer usage is rather inherent in how C++ is used the smart pointer needs to be designed for this use case.</p>
-
-<p>To solve this we need to allow different types of smart pointer be constructed from other types of smart pointer, but only where the inclosed types are related.
-```cpp Derived Smart Pointer transfer</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class UP
-    {
-        T*      data;
-        public:
-            // Release ownership of the pointer.
-            // Returning the pointer to the caller.
-            T*  release()
-            {
-                T* tmp = nullptr;
-                std::swap(tmp, data);
-                return tmp;
-            }
-            // Note: If you try calling this with a U that is not derived from
-            //       a T then the compiler will generate a compilation error as
-            //       the pointer assignments will not match correctly.
-            template&lt;typename U&gt;
-            UP(UP&lt;U&gt;&amp;&amp; moving)
-            {
-                // We can not use swap directly.
-                // Even though U is derived from T, the reverse is not true.
-                // So we have put it in a temporary locally first.
-
-                // Note: this is still exception safe.
-                //       The normal constructor will call delete even if it does
-                //       not finish constructing. So if release completes even
-                //       starting the call to the constructor guarantees its safety.
-                UP&lt;T&gt;   tmp(moving.release());
-                tmp.swap(*this);
-            }
-            template&lt;typename U&gt;
-            UP&amp; operator=(UP&lt;U&gt;&amp;&amp; moving)
-            {
-                UP&lt;T&gt;    tmp(moving.release());
-                tmp.swap(*this);
-                return *this;
-            }
-            .....
-    };
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>Updated Unique Pointer</h2>
-
-<p>Combine the constructor/assignment operators discussed in this article with the <code>ThorsAnvil::UP</code> that we defined in the first article in the series: <a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Unique Pointer</a> we obtain the following:
-```cpp ThorsAnvil::UP Version 3</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class UP
-    {
-        T*   data;
-        public:
-            UP()
-                : data(nullptr)
-            {}
-            // Explicit constructor
-            explicit UP(T* data)
-                : data(data)
-            {}
-            ~UP()
-            {
-                delete data;
-            }
-
-            // Constructor/Assignment that binds to nullptr
-            // This makes usage with nullptr cleaner
-            UP(std::nullptr_t)
-                : data(nullptr)
-            {}
-            UP&amp; operator=(std::nullptr_t)
-            {
-                reset();
-                return *this;
-            }
-
-            // Constructor/Assignment that allows move semantics
-            UP(UP&amp;&amp; moving) noexcept
-            {
-                moving.swap(*this);
-            }
-            UP&amp; operator=(UP&amp;&amp; moving) noexcept
-            {
-                moving.swap(*this);
-                return *this;
-            }
-
-            // Constructor/Assignment for use with types derived from T
-            template&lt;typename U&gt;
-            UP(UP&lt;U&gt;&amp;&amp; moving)
-            {
-                UP&lt;T&gt;   tmp(moving.release());
-                tmp.swap(*this);
-            }
-            template&lt;typename U&gt;
-            UP&amp; operator=(UP&lt;U&gt;&amp;&amp; moving)
-            {
-                UP&lt;T&gt;    tmp(moving.release());
-                tmp.swap(*this);
-                return *this;
-            }
-
-            // Remove compiler generated copy semantics.
-            UP(UP const&amp;)            = delete;
-            UP&amp; operator=(UP const&amp;) = delete;
-
-            // Const correct access owned object
-            T* operator-&gt;() const {return data;}
-            T&amp; operator*()  const {return *data;}
-
-            // Access to smart pointer state
-            T* get()                 const {return data;}
-            explicit operator bool() const {return data;}
-
-            // Modify object state
-            T* release() noexcept
-            {
-                T* result = nullptr;
-                std::swap(result, data);
-                return result;
-            }
-            void swap(UP&amp; src) noexcept
-            {
-                std::swap(data, src.data);
-            }
-            void reset()
-            {
-                T* tmp = releae();
-                delete tmp;
-            }
-    };
-    template&lt;typename T&gt;
-    void swap(UP&lt;T&gt;&amp; lhs, UP&lt;T&gt;&amp; rhs)
-    {
-        lhs.swap(rhs);
-    }
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>Summary</h2>
-
-<p>In the last two articles (<a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Unique Pointer</a> and <a href="http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/">Shared Pointer</a>) we covered some basic mistakes that I have often seen developers make when attempting to creating their own smart pointer. I also introduce four important C++ concepts:</p>
-
-<ul>
-<li><a href="http://stackoverflow.com/q/4172722/14065">Rule of Three</a></li>
-<li><a href="http://stackoverflow.com/q/3279543/14065">Copy and Swap Idiom</a></li>
-<li><a href="http://stackoverflow.com/a/121163/14065">Explicit One Argument Constructor</a></li>
-<li><a href="http://stackoverflow.com/q/12697625/14065">Try/Catch on Initialization List</a></li>
-</ul>
-
-
-<p>This article I focused on a couple of constructors/assignment operators that can be overlooked overlooked.</p>
 ]]></content>
   </entry>
   

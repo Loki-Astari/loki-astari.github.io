@@ -723,7 +723,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 </span><span class='line'>        <span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">resizeIfRequire</span><span class="p">();</span>
-</span><span class='line'>            <span class="n">push_back_internal</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">pushBackInternal</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>        <span class="kt">void</span> <span class="n">pop_back</span><span class="p">()</span>
 </span><span class='line'>        <span class="p">{</span>
@@ -746,7 +746,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 </span><span class='line'>                <span class="n">reserveCapacity</span><span class="p">(</span><span class="n">newCapacity</span><span class="p">);</span>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="n">push_back_internal</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">pushBackInternal</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
 </span><span class='line'>            <span class="o">++</span><span class="n">length</span><span class="p">;</span>
@@ -754,7 +754,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 </span><span class='line'>        <span class="kt">void</span> <span class="n">reserveCapacity</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">newCapacity</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>  <span class="n">tmpBuffer</span><span class="p">(</span><span class="n">newCapacity</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span> <span class="p">[</span><span class="o">&amp;</span><span class="n">tmpBuffer</span><span class="p">](</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">tmpBuffer</span><span class="p">.</span><span class="n">push_back_internal</span><span class="p">(</span><span class="n">v</span><span class="p">);});</span>
+</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">,</span> <span class="p">[</span><span class="o">&amp;</span><span class="n">tmpBuffer</span><span class="p">](</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">){</span><span class="n">tmpBuffer</span><span class="p">.</span><span class="n">pushBackInternal</span><span class="p">(</span><span class="n">v</span><span class="p">);});</span>
 </span><span class='line'>
 </span><span class='line'>            <span class="n">tmpBuffer</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
@@ -847,6 +847,10 @@ It simply calls the destructor on all elements currently in the object. Then use
     <li class="nav-header">Recent Posts</li>
     
       <li class="post">
+        <a href="/blog/2016/03/20/vector-the-other-stuff/">Vector - Part 5: The Other Stuff</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Part 4: Simple Optimizations</a>
       </li>
     
@@ -860,10 +864,6 @@ It simply calls the destructor on all elements currently in the object. Then use
     
       <li class="post">
         <a href="/blog/2016/02/27/vector/">Vector - Part 1: Resource Management Allocation</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/">Smart Pointer Constructors</a>
       </li>
     
   </ul>
