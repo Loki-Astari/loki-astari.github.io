@@ -15,4 +15,5 @@ footer: true
     * [Resource Management: Allocation]({{ root_url }}/blog/2016/02/27/vector/)
     * [Resource Management: Copy and Swap]({{ root_url }}/blog/2016/02/29/vector-resource-management-ii-copy-assignment/)
     * [Resource Management: Resize]({{ root_url }}/blog/2016/03/12/vector-resize/)
+    * [Resource Management: Simple Optimization]({{ root_url }}/blog/2016/03/19/vector-simple-optimizations/)
 

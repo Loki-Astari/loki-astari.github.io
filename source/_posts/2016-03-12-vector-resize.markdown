@@ -343,7 +343,7 @@ class Vector
         {
             Vector<T>  tmpBuffer(newCapacity);
 
-            simpleCopy<T>(*this, tmpBuffer);
+            simpleCopy<T>(tmpBuffer);
 
             tmpBuffer.swap(*this);
         }
@@ -360,7 +360,7 @@ class Vector
 
         template<typename X>
         typename std::enable_if<std::is_nothrow_move_constructible<X>::value == false>::type
-        simpleCopy(Vector<T>& src, Vector<T>& dst)
+        simpleCopy(Vector<T>& dst)
         {
             std::for_each(buffer, buffer + length,
                           [&dst](T const& v){dst.push_back_internal(v);}
@@ -369,7 +369,7 @@ class Vector
 
         template<typename X>
         typename std::enable_if<std::is_nothrow_move_constructible<X>::value == true>::type
-        simpleCopy(Vector<T>& src, Vector<T>& dst)
+        simpleCopy(Vector<T>& dst)
         {
             std::for_each(buffer, buffer + length,
                           [&dst](T& v){dst.move_back_internal(std::move(v));}
