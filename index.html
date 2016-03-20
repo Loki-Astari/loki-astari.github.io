@@ -618,8 +618,8 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>            <span class="k">catch</span><span class="p">(...)</span>
 </span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Deleter</span><span class="o">&gt;</span>     <span class="n">deleter</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">Deleter</span><span class="p">());</span>
 </span><span class='line'>                <span class="n">clearElements</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
-</span><span class='line'>                <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>                <span class="c1">// Make sure the exceptions continue propagating after</span>
 </span><span class='line'>                <span class="c1">// the cleanup has completed.</span>
@@ -1361,8 +1361,8 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>            <span class="k">catch</span><span class="p">(...)</span>
 </span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Deleter</span><span class="o">&gt;</span>     <span class="n">deleter</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">Deleter</span><span class="p">());</span>
 </span><span class='line'>                <span class="n">clearElements</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
-</span><span class='line'>                <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>                <span class="c1">// Make sure the exceptions continue propagating after</span>
 </span><span class='line'>                <span class="c1">// the cleanup has completed.</span>
@@ -2159,13 +2159,13 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>            <span class="k">catch</span><span class="p">(...)</span>
 </span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Deleter</span><span class="o">&gt;</span>     <span class="n">deleter</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">Deleter</span><span class="p">());</span>
 </span><span class='line'>                <span class="c1">// If there was an exception then destroy everything</span>
 </span><span class='line'>                <span class="c1">// that was created to make it exception safe.</span>
 </span><span class='line'>                <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
 </span><span class='line'>                <span class="p">{</span>
 </span><span class='line'>                    <span class="n">buffer</span><span class="p">[</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">loop</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
 </span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>                <span class="c1">// Make sure the exceptions continue propagating after</span>
 </span><span class='line'>                <span class="c1">// the cleanup has completed.</span>
@@ -2871,13 +2871,13 @@ It simply calls the destructor on all elements currently in the object. Then use
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>            <span class="k">catch</span><span class="p">(...)</span>
 </span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Deleter</span><span class="o">&gt;</span>     <span class="n">deleter</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">Deleter</span><span class="p">());</span>
 </span><span class='line'>                <span class="c1">// If there was an exception then destroy everything</span>
 </span><span class='line'>                <span class="c1">// that was created to make it exception safe.</span>
 </span><span class='line'>                <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
 </span><span class='line'>                <span class="p">{</span>
 </span><span class='line'>                    <span class="n">buffer</span><span class="p">[</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">loop</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
 </span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>                <span class="c1">// Make sure the exceptions continue propagating after</span>
 </span><span class='line'>                <span class="c1">// the cleanup has completed.</span>
@@ -3579,13 +3579,13 @@ It simply calls the destructor on all elements currently in the object. Then use
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>            <span class="k">catch</span><span class="p">(...)</span>
 </span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Deleter</span><span class="o">&gt;</span>     <span class="n">deleter</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">Deleter</span><span class="p">());</span>
 </span><span class='line'>                <span class="c1">// If there was an exception then destroy everything</span>
 </span><span class='line'>                <span class="c1">// that was created to make it exception safe.</span>
 </span><span class='line'>                <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
 </span><span class='line'>                <span class="p">{</span>
 </span><span class='line'>                    <span class="n">buffer</span><span class="p">[</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">loop</span><span class="p">].</span><span class="o">~</span><span class="n">T</span><span class="p">();</span>
 </span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>                <span class="c1">// Make sure the exceptions continue propagating after</span>
 </span><span class='line'>                <span class="c1">// the cleanup has completed.</span>

@@ -616,8 +616,8 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>            <span class="k">catch</span><span class="p">(...)</span>
 </span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">Deleter</span><span class="o">&gt;</span>     <span class="n">deleter</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">Deleter</span><span class="p">());</span>
 </span><span class='line'>                <span class="n">clearElements</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>
-</span><span class='line'>                <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>                <span class="c1">// Make sure the exceptions continue propagating after</span>
 </span><span class='line'>                <span class="c1">// the cleanup has completed.</span>
