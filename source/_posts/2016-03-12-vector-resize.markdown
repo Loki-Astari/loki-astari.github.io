@@ -93,6 +93,7 @@ But not all types throw when being moved. In fact it is recommended that move co
             ++length;
         }
 ```
+# Resize Template Specialization
 So now we have to write the code that decides at compile time which version we should use. The simplist way to do this is to use template specialization of a class using the standard class `std::is_nothrow_move_constructible<T>` to help deferentiate types that have a none throwing move constructor. This is simple enough:
 ```cpp Template class Specialization
     template<typename T, bool = std::is_nothrow_move_constructible<T>::value>
@@ -166,7 +167,7 @@ So now we have to write the code that decides at compile time which version we s
     };
 ```
 # Resize With NoThrow SFINAE
-This has technique has a couple of issues.
+The above technique has a couple of issues.
 
 The type `SimpleClass` is publicly available and is a friend of `Vector<T>`. This makes it suseptable to accidently being used (even if not explicitly documented). Unfortunately it can't be included as a member class and also be specialized.
 
