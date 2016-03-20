@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-20T14:27:30-07:00</updated>
+  <updated>2016-03-20T14:32:51-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -99,6 +99,8 @@ for(int loop = 0; loop &lt; d.size(); ++loop)
                             // bounds of the vector d.
 }
 </code></pre>
+
+<p>```</p>
 
 <p>There is also the <code>at()</code> method which does validate the index provided before accessing the element (throwing an exception if the index is out of range).</p>
 
