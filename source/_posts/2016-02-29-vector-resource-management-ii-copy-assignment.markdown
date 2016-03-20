@@ -13,8 +13,8 @@ description: C++ By Example. The Vector
 
 In the previous article I went over basic allocation for a `Vector` like class. In this article I want to put some detail around the copy assignment operator and re-sizing the underlying `Vector`. Unlike the other methods previously discussed these methods have to deal with both construction and destruction of elements and the potential of exceptions interrupting the processes. The goal is to provide an exception safe methods that provides the strong exception guarantee for the object and do not leak resources.
 
-#Copy Assignment
-##First Try
+# Copy Assignment
+## First Try
 This is a very common first attempt at a copy constructor.  
 It simply calls the destructor on all elements currently in the object. Then uses the existing `push_back()` method to copy member elements from the source object, thus allowing the object to automatically re-size if required.
 
@@ -51,7 +51,7 @@ class Vector
 };
 ```
 
-##Strong Exception Guarantee
+## Strong Exception Guarantee
 The obvious problems about efficiency when a resize is required is a minor issue here. The real problem is that this does not provide the strong exception guarantee. If any of the constructors/destructor throw then the object will be left in an inconsistent state, with no way to restore the original state. The strong exception guarantee basically means that the operation works or does not change the state of the object. The easiest technique to achieve this we must create the copy into a new temporary buffer that can be thrown away if things go wrong (leaving the current object untouched). If the copy succeeds then we use it and can throw away the original data.
 
 ```cpp Copy Assignment (Try 2)
@@ -100,7 +100,7 @@ class Vector
 };
 ```
 
-##Copy and Swap
+## Copy and Swap
 This second attempt is a better attempt. But it still leaks if an exception is throw. But before we add exception handling, let us take a closer look at the three sections of the assignment operator.
 
 Part-1 looks exactly like the copy constructor of Vector.
@@ -159,7 +159,7 @@ class Vector
     }
 };
 ```
-##[Copy And Swap Idiom](http://stackoverflow.com/q/3279543/14065)
+## [Copy And Swap Idiom](http://stackoverflow.com/q/3279543/14065)
 
 The copy and swap idiom is about dealing with replacing an object state from another object. It is very commonly used in the copy assignment operator but has application whenever state is being changed and the [strong exception guarantee](https://en.wikipedia.org/wiki/Exception_safety) is required.
 
@@ -187,11 +187,11 @@ class Vector
 };
 ```
 
-#Resizing Underling buffer
+# Resizing Underling buffer
 
 When pushing data into the array we need to verify that capacity has not been exceeded. If it has then we to allocate more capacity then copy the current content into the new buffer and destroy the old buffer, after calling the destructor on all elements.
 
-##Using Copy and Swap
+## Using Copy and Swap
 This operation is exceedingly similar to the description we did with the copy assignment operator. As a result the best solution looks very similar and used the Copy and Swap Idiom. 
 
 ```cpp Vector Reallocating Buffer
@@ -223,7 +223,7 @@ class Vector
 };
 ```
 
-#Final Version <a id="VectorVersion-2"></a>
+# Final Version <a id="VectorVersion-2"></a>
 
 ```cpp Vector Final Version
 template<typename T>
@@ -317,7 +317,7 @@ class Vector
         void push_back(T const& value)
         {
             resizeIfRequire();
-            push_back_internal(value);
+            pushBackInternal(value);
         }
         void pop_back()
         {
@@ -340,7 +340,7 @@ class Vector
                 reserveCapacity(newCapacity);
             }
         }
-        void push_back_internal(T const& value)
+        void pushBackInternal(T const& value)
         {
             new (buffer + length) T(value);
             ++length;
@@ -348,14 +348,14 @@ class Vector
         void reserveCapacity(std::size_t newCapacity)
         {
             Vector<T>  tmpBuffer(newCapacity);
-            std::for_each(buffer, buffer + length, [&tmpBuffer](T const& v){tmpBuffer.push_back_internal(v);});
+            std::for_each(buffer, buffer + length, [&tmpBuffer](T const& v){tmpBuffer.pushBackInternal(v);});
 
             tmpBuffer.swap(*this);
         }
 };
 ```
 
-#Summary
+# Summary
 This article has gone over the design of the Copy and Swap Idiom and show how it is used in the Copy Assignment Operator and the resize operation.
 
 * Separation Of Concerns

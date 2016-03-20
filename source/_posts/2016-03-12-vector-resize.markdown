@@ -14,7 +14,7 @@ Because resizing a vector is expensive; the `std::vector` class uses exponential
 
 In the [current version](#VectorVersion-1), resizing the vector requires a new buffer be allocated and all the members copied into it. Basically we are using the copy and swap mechanism to provide the strong exception guarantee (If an exception is thrown all resources are cleaned up and the object remains unchanged).
 ```cpp Vector Resize with Copy
-        void push_back_internal(T const& value)
+        void pushBackInternal(T const& value)
         {
             new (buffer + length) T(value);
             ++length;
@@ -24,20 +24,21 @@ In the [current version](#VectorVersion-1), resizing the vector requires a new b
         {
             Vector<T>  tmpBuffer(newCapacity);
             std::for_each(buffer, buffer + length,
-                          [&tmpBuffer](T const& v){tmpBuffer.push_back_internal(v);}
+                          [&tmpBuffer](T const& v){tmpBuffer.pushBackInternal(v);}
                          );
 
             tmpBuffer.swap(*this);
         }
 ```
 
+# Resize With Move Construction
 Thus resizing a `Vector` can be a very expensive operation because of all the copying that can happen.
 
 Using the move constructor rather than copy constructor during a resize operation could potentially be much more efficient. But the move constructor mutates the original object and thus if there is a problem we need to undo the mutations to maintain the strong exception guarantee.
 
 The first attempt at this is:
 ```cpp Vector Resize with Move With Exceptions
-        void move_back_internal(T&& value)
+        void moveBackInternal(T&& value)
         {
             new (buffer + length) T(std::forward<T>(value));
             ++length;
@@ -49,7 +50,7 @@ The first attempt at this is:
             try
             {
                 std::for_each(buffer, buffer + length,
-                              [&tmpBuffer](T& v){tmpBuffer.move_back_internal(std::move(v));}
+                              [&tmpBuffer](T& v){tmpBuffer.moveBackInternal(std::move(v));}
                              );
             }
             catch(...)
@@ -72,6 +73,7 @@ The first attempt at this is:
             tmpBuffer.swap(*this);
         }
 ```
+# Resize With NoThrow Move Construction 
 As the above code shows; if the type `T` can throw during it's move constructor then you can't guarantee that the object gets returned to the original state (as moving the already moved elements back may cause another exception). So we can not use the move constructor to resize the vector if the type `T` can throw during move construction.
 
 But not all types throw when being moved. In fact it is recommended that move constructors never throw. If we can guarantee that the move constructor does not throw then we can simplify the above code considerably and still provide the strong exception guarantee.
@@ -80,12 +82,12 @@ But not all types throw when being moved. In fact it is recommended that move co
         {
             Vector<T>  tmpBuffer(newCapacity);
             std::for_each(buffer, buffer + length,
-                          [&tmpBuffer](T& v){tmpBuffer.move_back_internal(std::move(v));}
+                          [&tmpBuffer](T& v){tmpBuffer.moveBackInternal(std::move(v));}
                          );
 
             tmpBuffer.swap(*this);
         }
-        void move_back_internal(T&& value)
+        void moveBackInternal(T&& value)
         {
             new (buffer + length) T(std::forward<T>(value));
             ++length;
@@ -98,11 +100,11 @@ So now we have to write the code that decides at compile time which version we s
     {
         // Define two different versions of this class.
         // The object is to copy all the elements from src to dst Vector
-        // using push_back_internal or move_back_internal
+        // using pushBackInternal or moveBackInternal
         //
-        // SimpleCopy<T, false>:        Defines a version that use push_back_internal (copy constructor)
+        // SimpleCopy<T, false>:        Defines a version that use pushBackInternal (copy constructor)
         //                              This is always safe to use.
-        // SimpleCopy<T, true>:         Defines a version that uses move_back_internal (move constructor)
+        // SimpleCopy<T, true>:         Defines a version that uses moveBackInternal (move constructor)
         //                              Safe when move construction does not throw.
         //
         void operator()(Vector<T>& src, Vector<T>& dst) const;
@@ -130,12 +132,12 @@ So now we have to write the code that decides at compile time which version we s
 
                 tmpBuffer.swap(*this);
             }
-            void push_back_internal(T const& value)
+            void pushBackInternal(T const& value)
             {
                 new (buffer + length) T(value);
                 ++length;
             }
-            void move_back_internal(T&& value)
+            void moveBackInternal(T&& value)
             {
                 new (buffer + length) T(std::forward<T>(value));
                 ++length;
@@ -148,7 +150,7 @@ So now we have to write the code that decides at compile time which version we s
         void operator()(Vector<T>& src, Vector<T>& dst) const
         {
             std::for_each(buffer, buffer + length,
-                          [&dst](T const& v){dst.push_back_internal(v);}
+                          [&dst](T const& v){dst.pushBackInternal(v);}
                          );
         }
     };
@@ -158,11 +160,12 @@ So now we have to write the code that decides at compile time which version we s
         void operator()(Vector<T>& src, Vector<T>& dst) const
         {
             std::for_each(buffer, buffer + length,
-                          [&dst](T& v){dst.move_back_internal(std::move(v));}
+                          [&dst](T& v){dst.moveBackInternal(std::move(v));}
                          );
         }
     };
 ```
+# Resize With NoThrow SFINAE
 This has technique has a couple of issues.
 
 The type `SimpleClass` is publicly available and is a friend of `Vector<T>`. This makes it suseptable to accidently being used (even if not explicitly documented). Unfortunately it can't be included as a member class and also be specialized.
@@ -188,12 +191,12 @@ SFINAE allows us to define several versions of method with exactly the same argu
 
                 tmpBuffer.swap(*this);
             }
-            void push_back_internal(T const& value)
+            void pushBackInternal(T const& value)
             {
                 new (buffer + length) T(value);
                 ++length;
             }
-            void move_back_internal(T&& value)
+            void moveBackInternal(T&& value)
             {
                 new (buffer + length) T(std::forward<T>(value));
                 ++length;
@@ -207,7 +210,7 @@ SFINAE allows us to define several versions of method with exactly the same argu
             simpleCopy(Vector<T>& src, Vector<T>& dst)
             {
                 std::for_each(buffer, buffer + length,
-                              [&dst](T const& v){dst.push_back_internal(v);}
+                              [&dst](T const& v){dst.pushBackInternal(v);}
                              );
             }
 
@@ -216,13 +219,13 @@ SFINAE allows us to define several versions of method with exactly the same argu
             simpleCopy()(Vector<T>& src, Vector<T>& dst)
             {
                 std::for_each(buffer, buffer + length,
-                              [&dst](T& v){dst.move_back_internal(std::move(v));}
+                              [&dst](T& v){dst.moveBackInternal(std::move(v));}
                              );
             }
     }
 ```
 
-#Final Version <a id="VectorVersion-3"></a>
+# Final Version <a id="VectorVersion-3"></a>
 
 ```cpp Vector Final Version
 template<typename T>
@@ -316,7 +319,7 @@ class Vector
         void push_back(T const& value)
         {
             resizeIfRequire();
-            push_back_internal(value);
+            pushBackInternal(value);
         }
         void pop_back()
         {
@@ -347,12 +350,12 @@ class Vector
 
             tmpBuffer.swap(*this);
         }
-        void push_back_internal(T const& value)
+        void pushBackInternal(T const& value)
         {
             new (buffer + length) T(value);
             ++length;
         }
-        void move_back_internal(T&& value)
+        void moveBackInternal(T&& value)
         {
             new (buffer + length) T(std::forward<T>(value));
             ++length;
@@ -363,7 +366,7 @@ class Vector
         simpleCopy(Vector<T>& dst)
         {
             std::for_each(buffer, buffer + length,
-                          [&dst](T const& v){dst.push_back_internal(v);}
+                          [&dst](T const& v){dst.pushBackInternal(v);}
                          );
         }
 
@@ -372,13 +375,13 @@ class Vector
         simpleCopy(Vector<T>& dst)
         {
             std::for_each(buffer, buffer + length,
-                          [&dst](T& v){dst.move_back_internal(std::move(v));}
+                          [&dst](T& v){dst.moveBackInternal(std::move(v));}
                          );
         }
 };
 ```
 
-#Summary
+# Summary
 This article has gone over the design of the resiing the internal buffer. We have covered a couple of techniques on the way
 
 * Move Constructor Concepts

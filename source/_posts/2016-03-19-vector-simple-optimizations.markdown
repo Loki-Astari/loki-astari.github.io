@@ -13,6 +13,8 @@ description: C++ By Example. The Vector
 
 So now that we have used `std::is_nothrow_move_constructible` we can also look at a couple of other types available in the template utility library.
 
+# Optimized Destruction
+
 Since we have to manually call the destructor on all objects in the container (because we are using placement new) we can look to see if we can optimize that. The type `std::is_trivially_destructible` detects if the type is **Trivially** destructible. This basically means that there will be no side affects from the destructor (See: Section 12.4 Paragraph 5 of the standard). For types we don't need to call the destructor of the object. For the `Vector` class this means we can eliminate the call to the destructor but more importantly the loop.
 
 ```cpp Destroying Elements
@@ -95,6 +97,7 @@ We can use the same SFINAE technique that we used in the previous article to rem
         }
 ```
 
+# Optimized Assignment Operator
 The final optimization is because resource allocation is expensive. So if we can avoid the resource allocation completely and just re-use the space we currently have.
 
 ```cpp Copy Assignment
@@ -139,7 +142,7 @@ The copy and swap idiom is perfect for providing the strong exception guarantee 
             // Now add the elements to this container as cheaply as possible.
             for(int loop = 0; loop < copy.length; ++loop)
             {
-                push_back_internal(copy[loop]);
+                pushBackInternal(copy[loop]);
             }
             return *this;
         }
@@ -229,7 +232,7 @@ The final version
             void push_back(T const& value)
             {
                 resizeIfRequire();
-                push_back_internal(value);
+                pushBackInternal(value);
             }
             void pop_back()
             {
@@ -260,12 +263,12 @@ The final version
 
                 tmpBuffer.swap(*this);
             }
-            void push_back_internal(T const& value)
+            void pushBackInternal(T const& value)
             {
                 new (buffer + length) T(value);
                 ++length;
             }
-            void move_back_internal(T&& value)
+            void moveBackInternal(T&& value)
             {
                 new (buffer + length) T(std::forward<T>(value));
                 ++length;
@@ -276,7 +279,7 @@ The final version
             simpleCopy(Vector<T>& dst)
             {
                 std::for_each(buffer, buffer + length,
-                              [&dst](T const& v){dst.push_back_internal(v);}
+                              [&dst](T const& v){dst.pushBackInternal(v);}
                              );
             }
 
@@ -285,7 +288,7 @@ The final version
             simpleCopy(Vector<T>& dst)
             {
                 std::for_each(buffer, buffer + length,
-                              [&dst](T& v){dst.move_back_internal(std::move(v));}
+                              [&dst](T& v){dst.moveBackInternal(std::move(v));}
                              );
             }
 
@@ -309,15 +312,8 @@ The final version
             }
 
             template<typename X>
-            struct InSimpleTrivial
-            {
-                static constexpr bool value = 
-                        std::is_nothrow_copy_constructible<X>::value
-                    &&  std::is_nothrow_destructible<X>::value;
-            };
-
-            template<typename X>
-            typename std::enable_if<InSimpleTrivial<T>::value == true>::type
+            typename std::enable_if<(std::is_nothrow_copy_constructible<X>::value
+                                 &&  std::is_nothrow_destructible<X>::value) == true>::type
             copyAssign(Vector<X>& copy)
             {
                 if (this == &copy)
@@ -331,7 +327,7 @@ The final version
                     length = 0;
                     for(int loop = 0; loop < copy.length; ++loop)
                     {
-                        push_back_internal(copy[loop]);
+                        pushBackInternal(copy[loop]);
                     }
                 }
                 else
@@ -342,7 +338,8 @@ The final version
                 }
             }
             template<typename X>
-            typename std::enable_if<InSimpleTrivial<T>::value == false>::type
+            typename std::enable_if<(std::is_nothrow_copy_constructible<X>::value
+                                 &&  std::is_nothrow_destructible<X>::value) == false>::type
             copyAssign(Vector<X>& copy)
             {
                 // Copy and Swap idiom

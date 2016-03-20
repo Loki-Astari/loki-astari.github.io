@@ -22,7 +22,7 @@ I will use three articles to cover the different parts I want to illustrate:
 
 Note: This is not meant to replace `std::vector<>` this simply meant as a teaching processes.
 
-## Rule of Zero
+# Rule of Zero
 
 You will notice that half the attempts below [Sources](#Sources) are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasize the [Separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns). An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass `std::vector<int>` would be a good choice).
 
@@ -40,7 +40,7 @@ Conversely, classes that do resource management usually contain a pointer (or po
 
 # [Rule of three](http://stackoverflow.com/q/4172722/14065)
 
-##Version-1 Simple Resource Management
+## Version-1 Simple Resource Management
 When creating a class to manage resources; the first version created by beginner usually looks like this:
 
 ```cpp Rule of three first pass
@@ -79,7 +79,7 @@ int main()
 }
 ```
 
-##Version-2 Rule of Three
+## Version-2 Rule of Three
 The rule of three simply stated is: If you define any of the methods Destructor/Copy Constructor/Copy Assignment Operator then you should define all three. When done correctly this resolves the shallow copy problem. `Vector` defines the destructor so we also need to define the copy constructor and copy assignment operator.
 
 I see this as an initial attempt at defining the rule of three for vectors very often.
@@ -116,7 +116,7 @@ class Vector
 };
 ```
 
-##Version-3 Lazy Construction of elements.
+## Version-3 Lazy Construction of elements.
 
 The problem with the previous version is that it forces initialization of all elements in the buffer immediately. This forces the requirement that members of the `Vector` (i.e. type `T`) must be default constructable. It also has two efficiency constraints imposed on the Vector:
 
@@ -254,7 +254,7 @@ class Vector
 
 Note I marked both move operators `noexcept`. Assuming the operations are guaranteed not to throw you should mark them as `noexcept`. If we know that certain operations are exception safe, then we can optimize resize operations and maintain the strong exception guarantee. This and some other optimizations will be documented in a subsequent post.
 
-#Final Version <a id="VectorVersion-1"></a>
+# Final Version <a id="VectorVersion-1"></a>
 
 ```cpp Vector Final Version
 template<typename T>
@@ -364,7 +364,7 @@ class Vector
         }
 };
 ```
-#Summary
+# Summary
 This article has shown how to handle the basic resource management required by a vector. It has covered several important principles for C++ programmers.
 
 * Separation Of Concerns
@@ -376,7 +376,7 @@ This article has shown how to handle the basic resource management required by a
 * Placement New
 * Exception Grantees
 
-#Sources  <a id="Sources"></a>
+# Sources  <a id="Sources"></a>
 Looking at [CodeReview.stackexchange.com](http://CodeReview.stackexchange.com); reimplementing the vector class is a common goal for a first project.
 
 * 2011/Nov/07 - [Mathematical Vector2 class implementation](http://codereview.stackexchange.com/q/5856/507)*
