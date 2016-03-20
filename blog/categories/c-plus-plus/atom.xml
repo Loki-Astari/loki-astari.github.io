@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-20T12:29:05-07:00</updated>
+  <updated>2016-03-20T13:27:27-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -886,9 +886,12 @@ class Vector
     }
 </code></pre>
 
-<p><code>
-So now we have to write the code that decides at compile time which version we should use. The simplist way to do this is to use template specialization of a class using the standard class `std::is_nothrow_move_constructible&lt;T&gt;` to help deferentiate types that have a none throwing move constructor. This is simple enough:
-</code>cpp Template class Specialization</p>
+<p>```</p>
+
+<h1>Resize Template Specialization</h1>
+
+<p>So now we have to write the code that decides at compile time which version we should use. The simplist way to do this is to use template specialization of a class using the standard class <code>std::is_nothrow_move_constructible&lt;T&gt;</code> to help deferentiate types that have a none throwing move constructor. This is simple enough:
+```cpp Template class Specialization</p>
 
 <pre><code>template&lt;typename T, bool = std::is_nothrow_move_constructible&lt;T&gt;::value&gt;
 struct SimpleCopy
@@ -965,7 +968,7 @@ struct SimpleCopy&lt;T, true&gt; // true: has a nothrow move constructor
 
 <h1>Resize With NoThrow SFINAE</h1>
 
-<p>This has technique has a couple of issues.</p>
+<p>The above technique has a couple of issues.</p>
 
 <p>The type <code>SimpleClass</code> is publicly available and is a friend of <code>Vector&lt;T&gt;</code>. This makes it suseptable to accidently being used (even if not explicitly documented). Unfortunately it can&rsquo;t be included as a member class and also be specialized.</p>
 

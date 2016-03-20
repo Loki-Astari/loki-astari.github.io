@@ -1681,6 +1681,8 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
+<h1>Resize Template Specialization</h1>
+
 <p>So now we have to write the code that decides at compile time which version we should use. The simplist way to do this is to use template specialization of a class using the standard class <code>std::is_nothrow_move_constructible&lt;T&gt;</code> to help deferentiate types that have a none throwing move constructor. This is simple enough:</p>
 
 <figure class='code'><figcaption><span>Template class Specialization</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -1826,7 +1828,7 @@
 
 <h1>Resize With NoThrow SFINAE</h1>
 
-<p>This has technique has a couple of issues.</p>
+<p>The above technique has a couple of issues.</p>
 
 <p>The type <code>SimpleClass</code> is publicly available and is a friend of <code>Vector&lt;T&gt;</code>. This makes it suseptable to accidently being used (even if not explicitly documented). Unfortunately it can&rsquo;t be included as a member class and also be specialized.</p>
 
