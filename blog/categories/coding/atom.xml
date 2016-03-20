@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Coding | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/coding/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-20T12:22:33-07:00</updated>
+  <updated>2016-03-20T12:29:05-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -239,10 +239,17 @@ public:
         swap(buffer,        other.buffer);
     }
 
+    size_type           size() const                        {return length;}
+    bool                empty() const                       {return length == 0;}
+
     reference           operator[](size_type index)         {return buffer[index];}
     const_reference     operator[](size_type index) const   {return buffer[index];}
     reference           at(size_type index)                 {validateIndex(index);return buffer[index];}
     const_reference     at(size_type index) const           {validateIndex(index);return buffer[index];}
+    reference           front()                             {return buffer[0];}
+    const_reference     front() const                       {return buffer[0];}
+    reference           back()                              {return buffer[length - 1];}
+    const_reference     back() const                        {return buffer[length - 1];}
 
     iterator            begin()                             {return buffer;}
     iterator            rbegin()                            {return std::reverse_iterator&lt;iterator&gt;(end());}
@@ -258,14 +265,6 @@ public:
     const_iterator      crbegin() const                     {return rbegin();}
     const_iterator      cend() const                        {return end();}
     const_iterator      crend() const                       {return rend();}
-
-    size_type           size() const                        {return length;}
-    bool                empty() const                       {return length == 0;}
-
-    reference           front()                             {return buffer[0];}
-    const_reference     front() const                       {return buffer[0];}
-    reference           back()                              {return buffer[length - 1];}
-    const_reference     back() const                        {return buffer[length - 1];}
 
     bool operator!=(Vector const&amp; rhs) const {return !(*this == rhs);}
     bool operator==(Vector const&amp; rhs) const
