@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-19T15:10:37-07:00</updated>
+  <updated>2016-03-19T22:28:56-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,6 +12,380 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Vector - Part 5: The Other Stuff]]></title>
+    <link href="http://lokiastari.com/blog/2016/03/19/vector-the-other-stuff/"/>
+    <updated>2016-03-19T22:26:43-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/03/19/vector-the-other-stuff</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Vector - Part 4: Simple Optimizations]]></title>
+    <link href="http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations/"/>
+    <updated>2016-03-19T15:06:40-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations</id>
+    <content type="html"><![CDATA[<p>So now that we have used <code>std::is_nothrow_move_constructible</code> we can also look at a couple of other types available in the template utility library.</p>
+
+<p>Since we have to manually call the destructor on all objects in the container (because we are using placement new) we can look to see if we can optimize that. The type <code>std::is_trivially_destructible</code> detects if the type is <strong>Trivially</strong> destructible. This basically means that there will be no side affects from the destructor (See: Section 12.4 Paragraph 5 of the standard). For types we don&rsquo;t need to call the destructor of the object. For the <code>Vector</code> class this means we can eliminate the call to the destructor but more importantly the loop.</p>
+
+<p>```cpp Destroying Elements</p>
+
+<pre><code>    ~Vector()
+    {
+        // STUFF..
+
+        // Call the destructor on all the members in reverse order
+        for(int loop = 0; loop &lt; length; ++loop)
+        {
+            // Note we destroy the elements in reverse order.
+            buffer[length - 1 - loop].~T();
+        }
+    }
+    Vector(Vector const&amp; copy)
+        : capacity(copy.length)
+        , length(0)
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {
+        try
+        {
+            // STUFF 1 ...
+        }
+        catch(...)
+        {
+            // STUFF 2 ...
+            // If there was an exception then destroy everything
+            // that was created to make it exception safe.
+            for(int loop = 0; loop &lt; length; ++loop)
+            {
+                buffer[length - 1 - loop].~T();
+            }
+            throw;
+        }
+    }
+</code></pre>
+
+<p>```</p>
+
+<p>We can use the same SFINAE technique that we used in the previous article to remove the loops when the contained type is trivially destructible.</p>
+
+<p>```</p>
+
+<pre><code>    ~Vector()
+    {
+        // STUFF..
+        clearElements&lt;T&gt;();
+    }
+    Vector(Vector const&amp; copy)
+        : capacity(copy.length)
+        , length(0)
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {
+        try
+        {
+            // STUFF 1 ...
+        }
+        catch(...)
+        {
+            // STUFF 2 ...
+            clearElements&lt;T&gt;();
+            throw;
+        }
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::std::is_trivially_destructible&lt;X&gt;::value == false&gt;::type
+    clearElements()
+    {
+        // Call the destructor on all the members in reverse order
+        for(int loop = 0; loop &lt; length; ++loop)
+        {
+            // Note we destroy the elements in reverse order.
+            buffer[length - 1 - loop].~T();
+        }
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::std::is_trivially_destructible&lt;X&gt;::value == true&gt;::type
+    clearElements()
+    {
+        // Trivially destructible objects can be re-used without using the destructor.
+    }
+</code></pre>
+
+<p>```</p>
+
+<p>The final optimization is because resource allocation is expensive. So if we can avoid the resource allocation completely and just re-use the space we currently have.</p>
+
+<p>```cpp Copy Assignment</p>
+
+<pre><code>    Vector&amp; operator=(Vector const&amp; copy)
+    {
+        // Copy and Swap idiom
+        Vector&lt;T&gt;  tmp(copy);
+        tmp.swap(*this);
+        return *this;
+    }
+</code></pre>
+
+<p>```</p>
+
+<p>The copy and swap idiom is perfect for providing the strong exception guarantee in the presence of exceptions. <strong>But</strong> if there are no exceptions during destruction or construction then we can potentially just re-use the available memory. So if we re-wrote the assignment operator with the assumption that there were no exceptions it would look like the following (Note in the real code use SFINAE to do the optimization only when nesacery).</p>
+
+<p>```cpp Copy the easy way</p>
+
+<pre><code>    Vector&amp; operator=(Vector const&amp; copy)
+    {
+        // Check for self assignment
+        // As we are doing work anyway.
+        if (this == &amp;copy)
+        {
+            return *this;
+        }
+
+        // If the length of the `copy` object exceeds
+        // the capacity of the current object then
+        // we have to do resource management. It costs
+        // nothing extra to use the copy and swap idiom
+        if (copy.length &gt; capacity)
+        {
+            // Copy and Swap idiom
+            Vector&lt;T&gt;  tmp(copy);
+            tmp.swap(*this);
+            return *this;
+        }
+
+        // The optimization happens here.
+        // We can reuse the buffer we already have.
+        clearElements&lt;T&gt;();     // use cearElements() as it probably does very little.
+        length = 0;
+
+        // Now add the elements to this container as cheaply as possible.
+        for(int loop = 0; loop &lt; copy.length; ++loop)
+        {
+            push_back_internal(copy[loop]);
+        }
+        return *this;
+    }
+</code></pre>
+
+<p>```</p>
+
+<h1>Final Version <a id="VectorVersion-4"></a></h1>
+
+<p>The final version</p>
+
+<p>```cpp Vector Final Version</p>
+
+<pre><code>template&lt;typename T&gt;
+class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+
+    struct Deleter
+    {
+        void operator()(T* buffer) const
+        {
+            ::operator delete(buffer);
+        }
+    };
+
+    public:
+        Vector(int capacity = 10)
+            : capacity(capacity)
+            , length(0)
+            , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+        {}
+        ~Vector()
+        {
+            // Make sure the buffer is deleted even with exceptions
+            // This will be called to release the pointer at the end
+            // of scope.
+            std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+
+            clearElements&lt;T&gt;();
+        }
+        Vector(Vector const&amp; copy)
+            : capacity(copy.length)
+            , length(0)
+            , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+        {
+            try
+            {
+                for(int loop = 0; loop &lt; copy.length; ++loop)
+                {
+                    push_back(copy.buffer[loop]);
+                }
+            }
+            catch(...)
+            {
+                clearElements&lt;T&gt;();
+                ::operator delete(buffer);
+
+                // Make sure the exceptions continue propagating after
+                // the cleanup has completed.
+                throw;
+            }
+        }
+        Vector&amp; operator=(Vector const&amp; copy)
+        {
+            copyAssign&lt;T&gt;(copy);
+            return *this;
+        }
+        Vector(Vector&amp;&amp; move) noexcept
+            : capacity(0)
+            , length(0)
+            , buffer(nullptr)
+        {
+            move.swap(*this);
+        }
+        Vector&amp; operator=(Vector&amp;&amp; move) noexcept
+        {
+            move.swap(*this);
+            return *this;
+        }
+        void swap(Vector&amp; other) noexcept
+        {
+            using std::swap;
+            swap(capacity,      other.capacity);
+            swap(length,        other.length);
+            swap(buffer,        other.buffer);
+        }
+        void push_back(T const&amp; value)
+        {
+            resizeIfRequire();
+            push_back_internal(value);
+        }
+        void pop_back()
+        {
+            --length;
+            buffer[length].~T();
+        }
+        void reserve(std::size_t capacityUpperBound)
+        {
+            if (capacityUpperBound &gt; capacity)
+            {
+                reserveCapacity(capacityUpperBound);
+            }
+        }
+    private:
+        void resizeIfRequire()
+        {
+            if (length == capacity)
+            {
+                std::size_t     newCapacity  = capacity * 1.62;
+                reserveCapacity(newCapacity);
+            }
+        }
+        void reserveCapacity(std::size_t newCapacity)
+        {
+            Vector&lt;T&gt;  tmpBuffer(newCapacity);
+
+            simpleCopy&lt;T&gt;(tmpBuffer);
+
+            tmpBuffer.swap(*this);
+        }
+        void push_back_internal(T const&amp; value)
+        {
+            new (buffer + length) T(value);
+            ++length;
+        }
+        void move_back_internal(T&amp;&amp; value)
+        {
+            new (buffer + length) T(std::forward&lt;T&gt;(value));
+            ++length;
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == false&gt;::type
+        simpleCopy(Vector&lt;T&gt;&amp; dst)
+        {
+            std::for_each(buffer, buffer + length,
+                          [&amp;dst](T const&amp; v){dst.push_back_internal(v);}
+                         );
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == true&gt;::type
+        simpleCopy(Vector&lt;T&gt;&amp; dst)
+        {
+            std::for_each(buffer, buffer + length,
+                          [&amp;dst](T&amp; v){dst.move_back_internal(std::move(v));}
+                         );
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == false&gt;::type
+        clearElements()
+        {
+            // Call the destructor on all the members in reverse order
+            for(int loop = 0; loop &lt; length; ++loop)
+            {
+                // Note we destroy the elements in reverse order.
+                buffer[length - 1 - loop].~T();
+            }
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == true&gt;::type
+        clearElements()
+        {
+            // Trivially destructible objects can be re-used without using the destructor.
+        }
+
+        template&lt;typename X&gt;
+        struct InSimpleTrivial
+        {
+            static constexpr bool value = 
+                    std::is_nothrow_copy_constructible&lt;X&gt;::value
+                &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value;
+        };
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;InSimpleTrivial&lt;T&gt;::value == true&gt;::type
+        copyAssign(Vector&lt;X&gt;&amp; copy)
+        {
+            if (this == &amp;copy)
+            {
+                return;
+            }
+
+            if (capacity &lt;= copy.length)
+            {
+                clearElements&lt;T&gt;();
+                length = 0;
+                for(int loop = 0; loop &lt; copy.length; ++loop)
+                {
+                    push_back_internal(copy[loop]);
+                }
+            }
+            else
+            {
+                // Copy and Swap idiom
+                Vector&lt;T&gt;  tmp(copy);
+                tmp.swap(*this);
+            }
+        }
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;InSimpleTrivial&lt;T&gt;::value == false&gt;::type
+        copyAssign(Vector&lt;X&gt;&amp; copy)
+        {
+            // Copy and Swap idiom
+            Vector&lt;T&gt;  tmp(copy);
+            tmp.swap(*this);
+        }
+};
+</code></pre>
+
+<p>```</p>
+
+<h1>Summary</h1>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Vector - Part 3: Vector Resize]]></title>
@@ -367,7 +741,7 @@ private:
     {
         Vector&lt;T&gt;  tmpBuffer(newCapacity);
 
-        simpleCopy&lt;T&gt;(*this, tmpBuffer);
+        simpleCopy&lt;T&gt;(tmpBuffer);
 
         tmpBuffer.swap(*this);
     }
@@ -384,7 +758,7 @@ private:
 
     template&lt;typename X&gt;
     typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == false&gt;::type
-    simpleCopy(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst)
+    simpleCopy(Vector&lt;T&gt;&amp; dst)
     {
         std::for_each(buffer, buffer + length,
                       [&amp;dst](T const&amp; v){dst.push_back_internal(v);}
@@ -393,7 +767,7 @@ private:
 
     template&lt;typename X&gt;
     typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == true&gt;::type
-    simpleCopy(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst)
+    simpleCopy(Vector&lt;T&gt;&amp; dst)
     {
         std::for_each(buffer, buffer + length,
                       [&amp;dst](T&amp; v){dst.move_back_internal(std::move(v));}
@@ -1263,689 +1637,6 @@ private:
 <li>2016/Jan/10 &ndash; <a href="http://codereview.stackexchange.com/q/116377/507">Vector Implementation C++</a></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Smart Pointer Constructors]]></title>
-    <link href="http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/"/>
-    <updated>2015-01-23T16:33:14-08:00</updated>
-    <id>http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii</id>
-    <content type="html"><![CDATA[<p>In this article we examine constructors that are often missed or overlooked. This article looks at the use cases for these constructors and explains why the added functionality provides a meaningful addition in relation to smart pointers.</p>
-
-<h2>Default Constructor</h2>
-
-<p>Most people remember the default constructor (a zero argument constructor), but every now and then it gets missed.</p>
-
-<p>The default constructor is useful when the type is used in a context where objects of the type need to be instantiated dynamically by another library (an example is a container resized; when a container is made larger by a resize, new members will need to be constructed, it is the default constructor that will provide these extra instances).</p>
-
-<p>The default constructor is usually very trivial and thus worth the investment.
-```cpp Smart Pointer Default Constructor</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class UP
-    {
-        T*      data;
-        public:
-            UP()
-                : data(nullptr)
-            {}
-            .....
-    };
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>The nullptr</h2>
-
-<p>In C++11 the <code>nullptr</code> was introduced to replace the old broken <code>NULL</code> and/or the even more broken <code>0</code> for use in contexts where you want a pointer that points at nothing. The <code>nullptr</code> is automatically convert to any pointer type or a boolean; but fixed the previous bug (or bad feature) and will not convert to a numeric type.
-```cpp nullptr Usage Example</p>
-
-<h1>include <string></h1>
-
-<pre><code>int main()
-{
-    char*           tmp = nullptr;   // converts the nullptr (type std::nullptr_t) to char*
-    std::string*    str = nullptr;   // hopefully you never do that! but it works.
-
-    bool            tst = nullptr;   // False. Yes I know it does not look that useful.
-                                     //        But when you consider all the funny things
-                                     //        that can happen with templates this can
-                                     //        be very useful.
-
-    int             val = nullptr;   // Fails to compile.
-    int             val = NULL;      // Pointer assigned to integer value.
-                                     // Works just fine. But very rarely was this a useful
-                                     // feature (more usually an over-site that was not
-                                     // reported by the compiler).
-}
-</code></pre>
-
-<p><code>
-The `nullptr` provides some opportunities to make the code shorter/cleaner when initializing smart pointers to be empty. Because we are using explicit one argument constructors the compiler can not convert a `nullptr` into a smart pointer automatically, it must be done explicitly by the developer.
-</code>cpp nullptr failing on Smart Pointer</p>
-
-<pre><code>void workWithSP(ThorsAnvil::UP&lt;int&gt;&amp;&amp; sp)
-{ /* STUFF*/ }
-
-int main()
-{
-    // This fails to compile.
-    workWithSP(nullptr);
-
-    // Need to be explicit with smart pointers
-    workWithSP(ThorsAnvil::UP&lt;int&gt;(nullptr));
-}
-</code></pre>
-
-<p><code>
-This is overly verbose, there is no danger involved in forming a smart pointer around a `nullptr` automatically. Because `nullptr` has its own type `std::nullptr_t` we can add a constructor to explicitly simplify this case, which makes it easier to read.
-</code>cpp Smart Pointer with std::nullptr_t constructor</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class UP
-    {
-        public:
-            UP(std::nullptr_t)
-                : data(nullptr)
-            {}
-    ....
-    };
-}
-// Now we can simplify our use case
-void workWithSP(ThorsAnvil::UP&lt;int&gt;&amp;&amp; sp)
-{ /* STUFF*/ }
-
-int main()
-{
-    workWithSP(nullptr);
-
-    // Note this also allows:
-    ThorsAnvil::UP&lt;int&gt;   data  = nullptr;
-    // And
-    data = nullptr;       // Note here we have we convert nullptr to
-                          // smart pointer using the one argument
-                          // constructor that binds `nullptr` then
-                          // call the assignment operator.
-                          //
-                          // That seems like a lot extra work. So we
-                          // may as well define the assignment operator
-                          // to specifically user `nullptr`.
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>Move Semantics</h2>
-
-<p>Move semantics were introduced with C++ 11. So though we can not copy the <code>ThorsAnvil::UP</code> object it can be moved. The compiler will generate a default move constructor for a class under certain situations; but because we have defined a destructor for <code>ThorsAnvil::UP</code> we must manually define the move constructor.</p>
-
-<p>Move semantics say that the source object may be left in an undefined (but must be valid) state. So the easiest way to implement this is simply to swap the state of the current object with the source object (we know our state is valid so just swap it with the incoming object state (its destructor will then take care of destroying the pointer we are holding)).
-```cpp Smart Pointer Move Semantics</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class UP
-    {
-        T*      data;
-        public:
-            // Swap should always be `noexcept` operation
-            void swap(UP&amp; src) noexcept
-            {
-                std::swap(data, src.data);
-            }
-            // It is a good idea to make your move constructor `noexcept`
-            // In this case it actually makes no difference (because there
-            // no copy constructor) but to maintain good practice I still
-            // think it is a good idea to mark it with `noexcept`.
-            UP(UP&amp;&amp; moving) noexcept
-            {
-                moving.swap(*this);
-            }
-            UP&amp; operator=(UP&amp;&amp; moving) noexcept
-            {
-                moving.swap(*this);
-                return *this;
-            }
-            .....
-    };
-    template&lt;typename T&gt;
-    void swap(UP&lt;T&gt;&amp; lhs, UP&lt;T&gt;&amp; rhs)
-    {
-        lhs.swap(rhs);
-    }
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>Derived Type Assignment.</h2>
-
-<p>Assigning derived class pointers to a base class pointer object is quite common feature in C++.
-```cpp Derived Example</p>
-
-<pre><code>class Base
-{
-    public:
-        virtual ~Base() {}
-        virtual void doAction() = 0;
-};
-class Derived1: public Base
-{
-    public:
-        virtual void doAction() override;
-};
-class Derived2: public Base
-{
-    public:
-        virtual void doAction() override;
-};
-int main(int argc, char* argv[])
-{
-    Derived1*   action1 = new Derived1;
-    Derived2*   action2 = new Derived2;
-
-    Base*       action   = (argc == 2) ? action1 : action2;
-    action-&gt;doAction();
-}
-</code></pre>
-
-<p><code>
-If we try the same code with the constructors we currently have we will get compile errors.
-</code>cpp Derived Example with Smart Pointers</p>
-
-<pre><code>int main(int argc, char* argv[])
-{
-    ThorsAnvil::UP&lt;Derived1&gt;    action1 = new Derived1;
-    ThorsAnvil::UP&lt;Derived2&gt;    action2 = new Derived2;
-
-    ThorsAnvil::UP&lt;Base&gt;        action   = std::move((argc == 2) ? action1 : action2);
-    action-&gt;doAction();
-}
-</code></pre>
-
-<p><code>``
-This is because C++ considers</code>ThorsAnvil::UP<Derived1><code>,</code>ThorsAnvil::UP<Derived2><code>and</code>ThorsAnvil::UP<Base>` are three distinct classes that are unrelated. As this kind of pointer usage is rather inherent in how C++ is used the smart pointer needs to be designed for this use case.</p>
-
-<p>To solve this we need to allow different types of smart pointer be constructed from other types of smart pointer, but only where the inclosed types are related.
-```cpp Derived Smart Pointer transfer</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class UP
-    {
-        T*      data;
-        public:
-            // Release ownership of the pointer.
-            // Returning the pointer to the caller.
-            T*  release()
-            {
-                T* tmp = nullptr;
-                std::swap(tmp, data);
-                return tmp;
-            }
-            // Note: If you try calling this with a U that is not derived from
-            //       a T then the compiler will generate a compilation error as
-            //       the pointer assignments will not match correctly.
-            template&lt;typename U&gt;
-            UP(UP&lt;U&gt;&amp;&amp; moving)
-            {
-                // We can not use swap directly.
-                // Even though U is derived from T, the reverse is not true.
-                // So we have put it in a temporary locally first.
-
-                // Note: this is still exception safe.
-                //       The normal constructor will call delete even if it does
-                //       not finish constructing. So if release completes even
-                //       starting the call to the constructor guarantees its safety.
-                UP&lt;T&gt;   tmp(moving.release());
-                tmp.swap(*this);
-            }
-            template&lt;typename U&gt;
-            UP&amp; operator=(UP&lt;U&gt;&amp;&amp; moving)
-            {
-                UP&lt;T&gt;    tmp(moving.release());
-                tmp.swap(*this);
-                return *this;
-            }
-            .....
-    };
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>Updated Unique Pointer</h2>
-
-<p>Combine the constructor/assignment operators discussed in this article with the <code>ThorsAnvil::UP</code> that we defined in the first article in the series: <a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Unique Pointer</a> we obtain the following:
-```cpp ThorsAnvil::UP Version 3</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class UP
-    {
-        T*   data;
-        public:
-            UP()
-                : data(nullptr)
-            {}
-            // Explicit constructor
-            explicit UP(T* data)
-                : data(data)
-            {}
-            ~UP()
-            {
-                delete data;
-            }
-
-            // Constructor/Assignment that binds to nullptr
-            // This makes usage with nullptr cleaner
-            UP(std::nullptr_t)
-                : data(nullptr)
-            {}
-            UP&amp; operator=(std::nullptr_t)
-            {
-                reset();
-                return *this;
-            }
-
-            // Constructor/Assignment that allows move semantics
-            UP(UP&amp;&amp; moving) noexcept
-            {
-                moving.swap(*this);
-            }
-            UP&amp; operator=(UP&amp;&amp; moving) noexcept
-            {
-                moving.swap(*this);
-                return *this;
-            }
-
-            // Constructor/Assignment for use with types derived from T
-            template&lt;typename U&gt;
-            UP(UP&lt;U&gt;&amp;&amp; moving)
-            {
-                UP&lt;T&gt;   tmp(moving.release());
-                tmp.swap(*this);
-            }
-            template&lt;typename U&gt;
-            UP&amp; operator=(UP&lt;U&gt;&amp;&amp; moving)
-            {
-                UP&lt;T&gt;    tmp(moving.release());
-                tmp.swap(*this);
-                return *this;
-            }
-
-            // Remove compiler generated copy semantics.
-            UP(UP const&amp;)            = delete;
-            UP&amp; operator=(UP const&amp;) = delete;
-
-            // Const correct access owned object
-            T* operator-&gt;() const {return data;}
-            T&amp; operator*()  const {return *data;}
-
-            // Access to smart pointer state
-            T* get()                 const {return data;}
-            explicit operator bool() const {return data;}
-
-            // Modify object state
-            T* release() noexcept
-            {
-                T* result = nullptr;
-                std::swap(result, data);
-                return result;
-            }
-            void swap(UP&amp; src) noexcept
-            {
-                std::swap(data, src.data);
-            }
-            void reset()
-            {
-                T* tmp = releae();
-                delete tmp;
-            }
-    };
-    template&lt;typename T&gt;
-    void swap(UP&lt;T&gt;&amp; lhs, UP&lt;T&gt;&amp; rhs)
-    {
-        lhs.swap(rhs);
-    }
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>Summary</h2>
-
-<p>In the last two articles (<a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Unique Pointer</a> and <a href="http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/">Shared Pointer</a>) we covered some basic mistakes that I have often seen developers make when attempting to creating their own smart pointer. I also introduce four important C++ concepts:</p>
-
-<ul>
-<li><a href="http://stackoverflow.com/q/4172722/14065">Rule of Three</a></li>
-<li><a href="http://stackoverflow.com/q/3279543/14065">Copy and Swap Idiom</a></li>
-<li><a href="http://stackoverflow.com/a/121163/14065">Explicit One Argument Constructor</a></li>
-<li><a href="http://stackoverflow.com/q/12697625/14065">Try/Catch on Initialization List</a></li>
-</ul>
-
-
-<p>This article I focused on a couple of constructors/assignment operators that can be overlooked overlooked.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Shared Pointer]]></title>
-    <link href="http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/"/>
-    <updated>2015-01-15T08:13:47-08:00</updated>
-    <id>http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii</id>
-    <content type="html"><![CDATA[<p>So in <a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">the previous article</a> I covered a basic <code>unique</code> pointer where the smart pointer retained sole ownership of the pointer. The other common smart pointer we encounter is the <code>shared</code> pointer (SP). In this case the ownership of the pointer is shared across multiple instances of SP and the pointer is only released (deleted) when all SP instances have been destroyed.</p>
-
-<p>So not only do we have to store the pointer but we need a mechanism for keeping track of all the SP instances that are sharing ownership of the pointer. When the last SP instance is destroyed it also deletes the pointer (The last owner cleans up. A similar principle to the last one to leave the room turns out the lights).
-```cpp Shared Pointer contextual destructor</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class SP
-    {
-        T*  data;
-        public:
-            ~SP()
-            {
-                if (amITheLastOwner())
-                {
-                    delete data;
-                }
-            }
-    };
-}
-</code></pre>
-
-<p>```
-There are two major techniques for tracking the shared owners of a pointer:</p>
-
-<ol>
-  <li>Keep a count:</li>
-  <ul>
-    <li>When the count is 1 you are the last owner.</li>
-    <li>This is a very simple and logical technique. You have a shared counter that is incremented/decrement as SP instances take/release ownership of the pointer. The disadvantages are that you need dynamically allocated memory that must be managed and in a threaded environment you need to serialize accesses to counter.</li>
-  </ul>
-  <li>Use a linked list of the owners:</li>
-  <ul>
-    <li>When you are the only member of the list you are the last owner.</li>
-    <li>When a SP instance take/releases ownership of the pointer they are added/removed to/from the linked list. This is slightly more complex as you need to maintain a circular linked list (for O(1)). The advantage is that you do not need to manage any separate memory for the count (A SP instance simply points at the next SP instance in the chain) and in a threaded environment adding/removing a shared pointer need not always be serialized (though you will still need to lock your neighbors to enforce integrity).</li>
-  </ul>
-</ol>
-
-
-<h2>Shared Count</h2>
-
-<p>The easier of the two to implement correctly is the list version. There are no real gotchas (that I have seen). Though people do struggle with insertion and removal of a link from a circular list. I have another article planned for that at some point so I will cover it then.</p>
-
-<p>The <em>Shared Count</em> is basically the technique used by the <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr"><code>std::shared_ptr</code></a> (though they store slightly more than the count to try and improve efficiency see <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared"><code>std::make_shared</code></a>).</p>
-
-<p>The main mistake I see from beginners is not using dynamically allocated counter (ie they keep the counter in the SP object). You <strong>must</strong> dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted).</p>
-
-<p>You must also serialize access to this counter to make sure that in a threaded environment the count is correctly maintained. In the first version for simplicity I will only consider single threaded environments and thus synchronization is not required.
-```cpp First Try</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class SP
-    {
-        T*      data;
-        int*    count;
-        public:
-            // Remember from ThorsAnvil::UP that the constructor
-            // needs to be explicit to prevent the compiler creating
-            // temporary objects on the fly.
-            explicit SP(T* data)
-                : data(data)
-                , count(new int(1))
-            {}
-            ~SP()
-            {
-                --(*count);
-                if (*count == 0)
-                {
-                    delete data;
-                }
-            }
-            // Remember from ThorsAnvil::UP that we need to make sure we
-            // obey the rule of three. So we will implement the copy
-            // constructor and assignment operator.
-            SP(SP const&amp; copy)
-                : data(copy.data)
-                , count(copy.count)
-            {
-                ++(*count);
-            }
-            SP&amp; operator=(SP const&amp; rhs)
-            {
-                // Keep a copy of the old data
-                T*   oldData  = data;
-                int* oldCount = count;
-
-                // now we do an exception safe transfer;
-                data  = rhs.data;
-                count = rhs.count;
-
-                // Update the counters
-                ++(*count);
-                --(*oldCount);
-
-                // Finally delete the old pointer if required.
-                if (*oldCount == 0)
-                {
-                    delete oldData;
-                }
-            }
-            // Const correct access owned object
-            T* operator-&gt;() const {return data;}
-            T&amp; operator*()  const {return *data;}
-
-            // Access to smart pointer state
-            T* get()                 const {return data;}
-            explicit operator bool() const {return data;}
-    };
-}
-</code></pre>
-
-<p>```</p>
-
-<h3>Problem 1: Potential Constructor Failure</h3>
-
-<p>When a developer (attempts) to create a SP they are handing over ownership of the pointer to the SP instance. Once the constructor starts there is an expectation by the developer that no further checks are needed. But there is a problem with the code as written.</p>
-
-<p>In C++ memory allocation through new does not fail (unlike C where <code>malloc()</code> can return a Null on failure). In C++ a failure to allocate memory via the standard new generates a <code>std::bad_alloc</code> exception. Additionally if we throw an exception out of a constructor the destructor will never be called (the destructor is only called on fully formed objects) when the instance&rsquo;s lifespan ends.</p>
-
-<p>So if an exception is thrown during construction (and thus the destructor will not be called) we must assume responsibility for making sure that pointer is deleted before the exception escapes the constructor, otherwise there will be a resultant leak of the pointer.
-```cpp Constructor takes responsibility for pointer</p>
-
-<pre><code>namespace ThorsAnvil
-{
-     .....
-             explicit SP(T* data)
-                : data(data)
-                , count(new (std::nothorw) int(1)) // use the no throw version of new.
-            {
-                // Check if the pointer correctly allocated
-                if (count == nullptr)
-                {
-                    // If we failed then delete the pointer
-                    // and manually throw the exception.
-                    delete data;
-                    throw std::bad_alloc();
-                }
-            }
-            // or
-     .....
-            explicit SP(T* data)
-            // The rarely used try/catch for exceptions in argument lists.
-            try
-                : data(data)
-                , count(new int(1))
-            {}
-            catch(...)
-            {
-                // If we failed because of an exception
-                // delete the pointer and rethrow the exception.
-                delete data;
-                throw;
-            }
-}
-</code></pre>
-
-<p>```</p>
-
-<h3>Problem 2: DRY up the Assignment</h3>
-
-<p>Currently the assignment operator is exception safe and conforms to the strong exception guarantee so there is no real problem here. <strong>But</strong> there seems to be a lot of duplicated code in the class.
-```cpp Closer look at assignment</p>
-
-<pre><code>namespace ThorsAnvil
-{
-     .....
-            SP&amp; operator=(SP const&amp; rhs)
-            {
-                T*   oldData  = data;
-                int* oldCount = count;
-
-                data  = rhs.data;
-                count = rhs.count;                    
-                ++(*count);
-
-                --(*oldCount);
-                if (*oldCount == 0)
-                {
-                    delete oldData;
-                }
-            }
-}
-</code></pre>
-
-<p>```
-Two portions of this look like other code pieces of code that have already been written:</p>
-
-<pre><code>// This looks like the SP copy constructor.
-                data  = rhs.data;
-                count = rhs.count;                    
-                ++(*count);
-
-// This looks like the SP destructor.
-                --(*oldCount);
-                if (*oldCount == 0)
-                {
-                    delete oldData;
-                }
-</code></pre>
-
-<p>This observation is commonly referred to as the <strong><a href="http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom">Copy and Swap Idiom</a></strong>. I will not go through all the details of the transformation here. But we can re-write the assignment operator as:
-```cpp Copy and Swap Idiom</p>
-
-<pre><code>            SP&amp; operator=(SP const&amp; rhs)
-            {
-                // constructor of tmp handles increment.
-                SP tmp(rhs);
-
-                std::swap(data,  tmp.data);
-                std::swap(count, tmp.count);
-                return *this;
-            }   // the destructor of tmp is executed here.
-                // this handles the decrement and release of the pointer
-
-     // This is usually simplified further into
-            SP&amp; operator=(SP rhs) // Note implicit copy because of pass by value.
-            {
-                rhs.swap(*this);  // swaps moved to swap method.
-                return *this;
-            }
-</code></pre>
-
-<p>```</p>
-
-<h2>Fixed First Try</h2>
-
-<p>So given the problems described above we can update our implementation to compensate for these issues:
-```cpp Fixed First Try</p>
-
-<pre><code>namespace ThorsAnvil
-{
-    template&lt;typename T&gt;
-    class SP
-    {
-        T*      data;
-        int*    count;
-        public:
-            // Explicit constructor
-            explicit SP(T* data)
-            try
-                : data(data)
-                , count(new int(1))
-            {}
-            catch(...)
-            {
-                // If we failed because of an exception
-                // delete the pointer and rethrow the exception.
-                delete data;
-                throw;
-            }
-            ~SP()
-            {
-                --(*count);
-                if (*count == 0)
-                {
-                    delete data;
-                }
-            }
-            SP(SP const&amp; copy)
-                : data(copy.data)
-                , count(copy.count)
-            {
-                ++(*count);
-            }
-            // Use the copy and swap idiom
-            // It works perfectly for this situation.
-            SP&amp; operator=(SP rhs)
-            {
-                rhs.swap(*this);
-                return *this;
-            }
-            SP&amp; operator=(T* newData)
-            {
-                SP tmp(newData);
-                tmp.swap(*this);
-                return *this;
-            }
-            // Always good to have a swap function
-            // Make sure it is noexcept
-            void swap(SP&amp; other) noexcept
-            {
-                std::swap(data,  other.data);
-                std::swap(count, other.count);
-            }
-            // Const correct access owned object
-            T* operator-&gt;() const {return data;}
-            T&amp; operator*()  const {return *data;}
-
-            // Access to smart pointer state
-            T* get()                 const {return data;}
-            explicit operator bool() const {return data;}
-        };
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>Summary</h2>
-
-<p>So in this second post we have looked SP and mentioned the two main implementation techniques commonly used. We specifically looked in detail at some common problems usually overlooked in the counted implementation of SP. In the next article I want to look at a couple of other issues common to both types of smart pointers.</p>
 ]]></content>
   </entry>
   
