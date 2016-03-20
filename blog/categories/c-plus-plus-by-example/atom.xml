@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-20T13:27:27-07:00</updated>
+  <updated>2016-03-20T14:27:30-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -73,6 +73,35 @@
 
 <p>The iterators are relatively easy to write. They also allow the container to be used with the new range based for that was added in C++14. So this becomes another easy add.</p>
 
+<h4>Member Access</h4>
+
+<ul>
+<li>at(&lt;index&gt;)</li>
+<li>at(&lt;index&gt;) const</li>
+<li>operator&#91;&#93;(&lt;index&gt;)</li>
+<li>operator&#91;&#93;(&lt;index&gt;) const</li>
+<li>front()</li>
+<li>back()</li>
+<li>front() const</li>
+<li>back() const</li>
+</ul>
+
+
+<p>Member access to a vector should be very efficient. As a result normally range checks are not performed on member access, i.e. the user is expected to make sure that the method pre-conditions have been met before calling the method. This results in very efficient access to the members of a <code>Vector</code>. This is not normally a problem because index ranges are normally checked as part of a loop range as long as these are validated against the size of the array it does not need to be validated again.</p>
+
+<p>```cpp For Loop Vector Access</p>
+
+<pre><code>Vector&lt;T&gt;   d = getData();
+for(int loop = 0; loop &lt; d.size(); ++loop)
+{
+    std::cout &lt;&lt; d[loop];   // No need for antoher range
+                            // check here as we know that loop is inside the
+                            // bounds of the vector d.
+}
+</code></pre>
+
+<p>There is also the <code>at()</code> method which does validate the index provided before accessing the element (throwing an exception if the index is out of range).</p>
+
 <h4>Non-Mutating Member Functions</h4>
 
 <ul>
@@ -81,19 +110,21 @@
 </ul>
 
 
-<p>These methods are useful to add as this allows you to provided non range checked access to the container. It is the responsibility of the container user to validate that access to elements in the container are in the correct range. This can make access to the container much more efficient as the container does not need to check every access to validate its range.</p>
+<p>To allow us to check the pre-conditions on the element accesses methods we need a couple of functions that check the state of the object. These are provided here.</p>
 
-<h4>Member Access</h4>
+<h4>Mutating Member Functions</h4>
 
 <ul>
-<li>operator&#91;&#93;(&lt;index&gt;)</li>
-<li>operator&#91;&#93;(&lt;index&gt;) const</li>
-<li>at(&lt;index&gt;)</li>
-<li>at(&lt;index&gt;) const</li>
+<li>push&#95;back(&lt;object-ref&gt;)</li>
+<li>push&#95;back(&lt;object-rvalue-ref&gt;)</li>
+<li>emplace&#95;back(&lt;args&hellip;&gt;)</li>
+<li>pop&#95;back()</li>
 </ul>
 
 
-<p>We provide two methods of accesses to elements in the container. <code>operator[](&lt;index&gt;)</code> provides unchecked accesses. The user is supposed to validate the range is correct before use, while <code>at(&lt;index&gt;)</code> provides validated access to the container resulting in an exception if the index is out of range.</p>
+<p>The following members are standard easy to implement methods of <code>std::vector</code> (O(1)) that I would expect to see in every implementation.</p>
+
+<p>The other mutating member functions are less trivial as they require elements to be moved around. They are not that hard but you must put some though into the most effecient techniques to move elements (ie move or copy) and make sure that capacity is not exceeded by multiple inserts. As a result I would expect to see these methods only on a as need basis.</p>
 
 <h4>Comparitors</h4>
 
@@ -103,27 +134,13 @@
 </ul>
 
 
-<h4>Optional Member Functions</h4>
-
-<ul>
-<li>front()</li>
-<li>back()</li>
-<li>front() const</li>
-<li>back() const</li>
-<li>push&#95;back(&lt;object-ref&gt;)</li>
-<li>push&#95;back(&lt;object-rvalue-ref&gt;)</li>
-<li>emplace&#95;front(&lt;args&hellip;&gt;)</li>
-<li>emplace&#95;back(&lt;args&hellip;&gt;)</li>
-<li>pop&#95;front()</li>
-<li>pop&#95;back()</li>
-</ul>
-
-
-<p>The following members are standard easy to implement methods of <code>std::vector</code> that I would expect to see in every implementation.</p>
+<p>Easy comparison operators.<br/>
+Optionally you can provide the other comparison operators.</p>
 
 <h1>Final</h1>
 
-<p>```cpp Vector</p>
+<p><strong>No idea why Jackel isadding all the blank lines to my source</strong>
+```cpp Vector</p>
 
 <h1>include &lt;type_traits></h1>
 
