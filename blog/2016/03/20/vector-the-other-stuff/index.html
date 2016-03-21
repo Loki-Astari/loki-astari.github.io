@@ -729,7 +729,7 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">length</span> <span class="o">==</span> <span class="n">capacity</span><span class="p">)</span>
 </span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">size_type</span>     <span class="n">newCapacity</span>  <span class="o">=</span> <span class="n">capacity</span> <span class="o">*</span> <span class="mf">1.62</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">size_type</span>     <span class="n">newCapacity</span>  <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">ceil</span><span class="p">(</span><span class="n">capacity</span> <span class="o">*</span> <span class="mf">1.62</span><span class="p">);</span>
 </span><span class='line'>                <span class="n">reserveCapacity</span><span class="p">(</span><span class="n">newCapacity</span><span class="p">);</span>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>        <span class="p">}</span>

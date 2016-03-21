@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-20T21:16:20-07:00</updated>
+  <updated>2016-03-20T22:37:41-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -336,7 +336,7 @@ private:
     {
         if (length == capacity)
         {
-            size_type     newCapacity  = capacity * 1.62;
+            size_type     newCapacity  = std::ceil(capacity * 1.62);
             reserveCapacity(newCapacity);
         }
     }
@@ -704,7 +704,7 @@ class Vector
         {
             if (length == capacity)
             {
-                std::size_t     newCapacity  = capacity * 1.62;
+                std::size_t     newCapacity  = std::ceil(capacity * 1.62);
                 reserveCapacity(newCapacity);
             }
         }
@@ -1165,7 +1165,7 @@ private:
     {
         if (length == capacity)
         {
-            std::size_t     newCapacity  = capacity * 1.62;
+            std::size_t     newCapacity  = std::ceil(capacity * 1.62);
             reserveCapacity(newCapacity);
         }
     }
@@ -1450,7 +1450,7 @@ void resizeIfRequire()
     if (length == capacity)
     {
         // Create a temporary object with a larger capacity.
-        std::size_t     newCapacity  = capacity * 1.62;
+        std::size_t     newCapacity  = std::ceil(capacity * 1.62);
         Vector&lt;T&gt;  tmpBuffer(newCapacity);
 
         // Copy the state of this object into the new object.
@@ -1583,7 +1583,7 @@ private:
     {
         if (length == capacity)
         {
-            std::size_t     newCapacity  = capacity * 1.62;
+            std::size_t     newCapacity  = std::ceil(capacity * 1.62);
             reserveCapacity(newCapacity);
         }
     }
