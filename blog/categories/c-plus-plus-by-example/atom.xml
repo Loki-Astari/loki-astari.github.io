@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-20T14:38:39-07:00</updated>
+  <updated>2016-03-20T21:16:20-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -166,6 +166,8 @@ class Vector
     using const_pointer     = T const*;
     using iterator          = T*;
     using const_iterator    = T const*;
+    using riterator         = std::reverse_iterator&lt;iterator&gt;;
+    using const_riterator   = std::reverse_iterator&lt;const_iterator&gt;;
     using difference_type   = std::ptrdiff_t;
     using size_type         = std::size_t;
 
@@ -271,19 +273,19 @@ public:
     const_reference     back() const                        {return buffer[length - 1];}
 
     iterator            begin()                             {return buffer;}
-    iterator            rbegin()                            {return std::reverse_iterator&lt;iterator&gt;(end());}
+    riterator           rbegin()                            {return std::reverse_iterator&lt;iterator&gt;(end());}
     const_iterator      begin() const                       {return buffer;}
-    const_iterator      rbegin() const                      {return std::reverse_iterator&lt;iterator&gt;(end());}
+    const_riterator     rbegin() const                      {return std::reverse_iterator&lt;const_iterator&gt;(end());}
 
     iterator            end()                               {return buffer + length;}
-    iterator            rend()                              {return std::reverse_iterator&lt;iterator&gt;(begin());}
+    riterator           rend()                              {return std::reverse_iterator&lt;iterator&gt;(begin());}
     const_iterator      end() const                         {return buffer + length;}
-    const_iterator      rend() const                        {return std::reverse_iterator&lt;iterator&gt;(begin());}
+    const_riterator     rend() const                        {return std::revrse_iterator&lt;const_iterator&gt;(begin());}
 
     const_iterator      cbegin() const                      {return begin();}
-    const_iterator      crbegin() const                     {return rbegin();}
+    const_riterator     crbegin() const                     {return rbegin();}
     const_iterator      cend() const                        {return end();}
-    const_iterator      crend() const                       {return rend();}
+    const_riterator     crend() const                       {return rend();}
 
     bool operator!=(Vector const&amp; rhs) const {return !(*this == rhs);}
     bool operator==(Vector const&amp; rhs) const
@@ -353,7 +355,7 @@ private:
     }
     void moveBackInternal(T&amp;&amp; value)
     {
-        new (buffer + length) T(std::forward&lt;T&gt;(value));
+        new (buffer + length) T(std::move(value));
         ++length;
     }
     template&lt;typename... Args&gt;
@@ -721,7 +723,7 @@ class Vector
         }
         void moveBackInternal(T&amp;&amp; value)
         {
-            new (buffer + length) T(std::forward&lt;T&gt;(value));
+            new (buffer + length) T(std::move(value));
             ++length;
         }
 
@@ -846,7 +848,7 @@ class Vector
 
 <pre><code>    void moveBackInternal(T&amp;&amp; value)
     {
-        new (buffer + length) T(std::forward&lt;T&gt;(value));
+        new (buffer + length) T(std::move(value));
         ++length;
     }
 
@@ -900,7 +902,7 @@ class Vector
     }
     void moveBackInternal(T&amp;&amp; value)
     {
-        new (buffer + length) T(std::forward&lt;T&gt;(value));
+        new (buffer + length) T(std::move(value));
         ++length;
     }
 </code></pre>
@@ -956,7 +958,7 @@ class Vector
         }
         void moveBackInternal(T&amp;&amp; value)
         {
-            new (buffer + length) T(std::forward&lt;T&gt;(value));
+            new (buffer + length) T(std::move(value));
             ++length;
         }
 }
@@ -1020,7 +1022,7 @@ class Vector
         }
         void moveBackInternal(T&amp;&amp; value)
         {
-            new (buffer + length) T(std::forward&lt;T&gt;(value));
+            new (buffer + length) T(std::move(value));
             ++length;
         }
 
@@ -1182,7 +1184,7 @@ private:
     }
     void moveBackInternal(T&amp;&amp; value)
     {
-        new (buffer + length) T(std::forward&lt;T&gt;(value));
+        new (buffer + length) T(std::move(value));
         ++length;
     }
 
