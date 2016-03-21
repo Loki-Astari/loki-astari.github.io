@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-20T22:54:04-07:00</updated>
+  <updated>2016-03-21T12:03:33-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -210,7 +210,6 @@ public:
         // This will be called to release the pointer at the end
         // of scope.
         std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
-
         clearElements&lt;T&gt;();
     }
     Vector(Vector const&amp; copy)
@@ -260,41 +259,47 @@ public:
         swap(buffer,        other.buffer);
     }
 
+    // Non-Mutating functions
     size_type           size() const                        {return length;}
     bool                empty() const                       {return length == 0;}
 
-    reference           operator[](size_type index)         {return buffer[index];}
-    const_reference     operator[](size_type index) const   {return buffer[index];}
+    // Validated element access
     reference           at(size_type index)                 {validateIndex(index);return buffer[index];}
     const_reference     at(size_type index) const           {validateIndex(index);return buffer[index];}
+
+    // Non-Validated element access
+    reference           operator[](size_type index)         {return buffer[index];}
+    const_reference     operator[](size_type index) const   {return buffer[index];}
     reference           front()                             {return buffer[0];}
     const_reference     front() const                       {return buffer[0];}
     reference           back()                              {return buffer[length - 1];}
     const_reference     back() const                        {return buffer[length - 1];}
 
+    // Iterators
     iterator            begin()                             {return buffer;}
-    riterator           rbegin()                            {return std::reverse_iterator&lt;iterator&gt;(end());}
+    riterator           rbegin()                            {return riterator(end());}
     const_iterator      begin() const                       {return buffer;}
-    const_riterator     rbegin() const                      {return std::reverse_iterator&lt;const_iterator&gt;(end());}
+    const_riterator     rbegin() const                      {return const_riterator(end());}
 
     iterator            end()                               {return buffer + length;}
-    riterator           rend()                              {return std::reverse_iterator&lt;iterator&gt;(begin());}
+    riterator           rend()                              {return riterator(begin());}
     const_iterator      end() const                         {return buffer + length;}
-    const_riterator     rend() const                        {return std::revrse_iterator&lt;const_iterator&gt;(begin());}
+    const_riterator     rend() const                        {return const_riterator(begin());}
 
     const_iterator      cbegin() const                      {return begin();}
     const_riterator     crbegin() const                     {return rbegin();}
     const_iterator      cend() const                        {return end();}
     const_riterator     crend() const                       {return rend();}
 
+    // Comparison
     bool operator!=(Vector const&amp; rhs) const {return !(*this == rhs);}
     bool operator==(Vector const&amp; rhs) const
     {
-        return (size() == rhs.size())
-            ?  std::equal(begin(), end(), rhs.begin())
-            :  false;
+        return  (size() == rhs.size())
+            &amp;&amp;  std::equal(begin(), end(), rhs.begin());
     }
 
+    // Mutating functions
     void push_back(T const&amp; value)
     {
         resizeIfRequire();
@@ -309,7 +314,7 @@ public:
     void emplace_back(Args&amp;&amp;... args)
     {
         resizeIfRequire();
-        constructBackInternal(std::forward&lt;T&gt;(args)...);
+        emplaceBackInternal(std::forward&lt;T&gt;(args)...);
     }
     void pop_back()
     {
@@ -336,7 +341,7 @@ private:
     {
         if (length == capacity)
         {
-            size_type     newCapacity  = std::max(2.0, capacity * 1.62);
+            size_type     newCapacity  = std::max(2.0, capacity * 1.5);
             reserveCapacity(newCapacity);
         }
     }
@@ -348,6 +353,8 @@ private:
 
         tmpBuffer.swap(*this);
     }
+
+    // Add new element to the end using placement new
     void pushBackInternal(T const&amp; value)
     {
         new (buffer + length) T(value);
@@ -359,11 +366,19 @@ private:
         ++length;
     }
     template&lt;typename... Args&gt;
-    void constructBackInternal(Args&amp;&amp;... args)
+    void emplaceBackInternal(Args&amp;&amp;... args)
     {
         new (buffer + length) T(std::forward&lt;Args&gt;(args)...);
         ++length;
     }
+
+    // Optimizations that use SFINAE to onlt instanciate one
+    // of two versions of a function.
+    //      simpleCopy()        Moves when no exceptions are guranteed, otherwise copies.
+    //      clearElements()     When no destructor remove loop.
+    //      copyAssign()        Avoid resource allocation when no exceptions guranteed.
+    //                          ie. When copying integers re-use the buffer if we can
+    //                          to avoid expensive resource allocation.
 
     template&lt;typename X&gt;
     typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == false&gt;::type
@@ -373,7 +388,6 @@ private:
                       [&amp;dst](T const&amp; v){dst.pushBackInternal(v);}
                      );
     }
-
     template&lt;typename X&gt;
     typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == true&gt;::type
     simpleCopy(Vector&lt;T&gt;&amp; dst)
@@ -382,6 +396,7 @@ private:
                       [&amp;dst](T&amp; v){dst.moveBackInternal(std::move(v));}
                      );
     }
+
 
     template&lt;typename X&gt;
     typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == false&gt;::type
@@ -407,6 +422,11 @@ private:
                         &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == true&gt;::type
     copyAssign(Vector&lt;X&gt;&amp; copy)
     {
+        // This function is only used if there is no chance of an exception being
+        // throw during destruction or copy construction of the type T.
+
+
+        // Quick return for self assignment.
         if (this == &amp;copy)
         {
             return;
@@ -414,7 +434,14 @@ private:
 
         if (capacity &lt;= copy.length)
         {
-            clearElements&lt;T&gt;();
+            // If we have enough space to copy then re-use the sapce we currently
+            // have to avoid the need to perform an expensive resource allocation.
+
+            clearElements&lt;T&gt;();     // Potentially does nothing (see above)
+                                    // But if required will call the destructor of
+                                    // all elements.
+
+            // buffer now ready to get a copy of the data.
             length = 0;
             for(int loop = 0; loop &lt; copy.length; ++loop)
             {
@@ -423,7 +450,7 @@ private:
         }
         else
         {
-            // Copy and Swap idiom
+            // Fallback to copy and swap if we need to more space anyway
             Vector&lt;T&gt;  tmp(copy);
             tmp.swap(*this);
         }
