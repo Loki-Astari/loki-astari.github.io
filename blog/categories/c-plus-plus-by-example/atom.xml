@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-21T20:25:08-07:00</updated>
+  <updated>2016-03-22T09:04:08-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -126,9 +126,9 @@ for(int loop = 0; loop &lt; d.size(); ++loop)
 
 <p>The following members are standard easy to implement methods of <code>std::vector</code> (O(1)) that I would expect to see in every implementation.</p>
 
-<p>The other mutating member functions are less trivial as they require elements to be moved around. They are not that hard but you must put some though into the most effecient techniques to move elements (ie move or copy) and make sure that capacity is not exceeded by multiple inserts. As a result I would expect to see these methods only on a as need basis.</p>
+<p>The other mutating member functions are less trivial as they require elements to be moved around. They are not that hard but you must put some though into the most efficient techniques to move elements (i.e. move or copy) and make sure that capacity is not exceeded by multiple inserts. As a result I would expect to see these methods only on a as need basis.</p>
 
-<h4>Comparitors</h4>
+<h4>Comparators</h4>
 
 <ul>
 <li>operator== const</li>
@@ -141,7 +141,7 @@ Optionally you can provide the other comparison operators.</p>
 
 <h1>Final</h1>
 
-<p><strong>No idea why Jackel isadding all the blank lines to my source</strong>
+<p><strong>No idea why Jackal is adding all the blank lines to my source</strong>
 ```cpp Vector</p>
 
 <h1>include &lt;type_traits></h1>
@@ -586,7 +586,7 @@ private:
 
 <p>```</p>
 
-<p>The copy and swap idiom is perfect for providing the strong exception guarantee in the presence of exceptions. <strong>But</strong> if there are no exceptions during destruction or construction then we can potentially just re-use the available memory. So if we re-wrote the assignment operator with the assumption that there were no exceptions it would look like the following (Note in the real code use SFINAE to do the optimization only when nesacery).</p>
+<p>The copy and swap idiom is perfect for providing the strong exception guarantee in the presence of exceptions. <strong>But</strong> if there are no exceptions during destruction or construction then we can potentially just re-use the available memory. So if we re-wrote the assignment operator with the assumption that there were no exceptions it would look like the following (Note in the real code use SFINAE to do the optimization only when necessary).</p>
 
 <p>```cpp Copy the easy way</p>
 
@@ -938,7 +938,7 @@ class Vector
 
 <h1>Resize Template Specialization</h1>
 
-<p>So now we have to write the code that decides at compile time which version we should use. The simplist way to do this is to use template specialization of a class using the standard class <code>std::is_nothrow_move_constructible&lt;T&gt;</code> to help deferentiate types that have a none throwing move constructor. This is simple enough:
+<p>So now we have to write the code that decides at compile time which version we should use. The simplest way to do this is to use template specialization of a class using the standard class <code>std::is_nothrow_move_constructible&lt;T&gt;</code> to help deferentiate types that have a none throwing move constructor. This is simple enough:
 ```cpp Template class Specialization</p>
 
 <pre><code>template&lt;typename T, bool = std::is_nothrow_move_constructible&lt;T&gt;::value&gt;
@@ -1638,7 +1638,7 @@ private:
 <ul>
 <li>Separation Of Concerns</li>
 <li>Copy and Swap Idiom</li>
-<li>Exception Grantees</li>
+<li>Exception Gurantees</li>
 </ul>
 
 ]]></content>
@@ -2057,7 +2057,7 @@ private:
 <li>Default compiler generated methods</li>
 <li>Shallow Copy Problem</li>
 <li>Placement New</li>
-<li>Exception Grantees</li>
+<li>Exception Guarantees</li>
 </ul>
 
 

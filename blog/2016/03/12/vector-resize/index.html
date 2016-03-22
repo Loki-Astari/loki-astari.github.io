@@ -278,7 +278,7 @@
 
 <h1>Resize Template Specialization</h1>
 
-<p>So now we have to write the code that decides at compile time which version we should use. The simplist way to do this is to use template specialization of a class using the standard class <code>std::is_nothrow_move_constructible&lt;T&gt;</code> to help deferentiate types that have a none throwing move constructor. This is simple enough:</p>
+<p>So now we have to write the code that decides at compile time which version we should use. The simplest way to do this is to use template specialization of a class using the standard class <code>std::is_nothrow_move_constructible&lt;T&gt;</code> to help deferentiate types that have a none throwing move constructor. This is simple enough:</p>
 
 <figure class='code'><figcaption><span>Template class Specialization</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
