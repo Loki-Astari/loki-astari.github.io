@@ -142,8 +142,6 @@
 
 <p>You will notice that half the attempts below <a href="#Sources">Sources</a> are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasize the <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a>. An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass <code>std::vector&lt;int&gt;</code> would be a good choice).</p>
 
-<h1><a href="http://stackoverflow.com/q/4172722/14065">Rule of three</a></h1>
-
 <p>In C++ the compiler generates a couple of methods for free.</p>
 
 <ul>
@@ -158,6 +156,10 @@
 <p>These methods usually work perfectly well; <strong>unless</strong> your class contains a pointer (or a pointer like resource object). But if your class is doing business logic then it should not contain a pointer. So classes that handle business logic therefore should not be defining any of these compiler generated methods (just let the compiler generated ones work for you). Occasionally you want to delete them, to prevent copying or movement, but it is very unusual for these to need specialized implementations.</p>
 
 <p>Conversely, classes that do resource management usually contain a pointer (or pointer like resource object). These classes should define all the above methods to correctly handle the resource. This is where ownership semantics of the resource are defined. The owner of the resource is responsible for destroying the resource when its lifespan is over (in terms of pointers this means the owner is responsible for calling <code>delete</code> on the pointer, usually in the destructor). If you are not the owner of a resource you should not have access to the resource object directly, as it may be destroyed by the owner without other objects knowing.</p>
+
+<h1><a href="http://stackoverflow.com/q/4172722/14065">Rule of three</a></h1>
+
+<p>The rule of three comes from C++03 where we only had copy semantics.</p>
 
 <h2>Version-1 Simple Resource Management</h2>
 
