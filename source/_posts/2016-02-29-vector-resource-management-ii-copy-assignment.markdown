@@ -206,7 +206,7 @@ class Vector
         if (length == capacity)
         {
             // Create a temporary object with a larger capacity.
-            std::size_t     newCapacity  = capacity * 1.62;
+            std::size_t     newCapacity  = std::max(2.0, capacity * 1.62);
             Vector<T>  tmpBuffer(newCapacity);
 
             // Copy the state of this object into the new object.
@@ -275,13 +275,13 @@ class Vector
             }
             catch(...)
             {
+                std::unique_ptr<T, Deleter>     deleter(buffer, Deleter());
                 // If there was an exception then destroy everything
                 // that was created to make it exception safe.
                 for(int loop = 0; loop < length; ++loop)
                 {
                     buffer[length - 1 - loop].~T();
                 }
-                ::operator delete(buffer);
 
                 // Make sure the exceptions continue propagating after
                 // the cleanup has completed.
@@ -336,7 +336,7 @@ class Vector
         {
             if (length == capacity)
             {
-                std::size_t     newCapacity  = capacity * 1.62;
+                std::size_t     newCapacity  = std::max(2.0, capacity * 1.62);
                 reserveCapacity(newCapacity);
             }
         }
@@ -360,6 +360,6 @@ This article has gone over the design of the Copy and Swap Idiom and show how it
 
 * Separation Of Concerns
 * Copy and Swap Idiom
-* Exception Grantees
+* Exception Gurantees
 
 

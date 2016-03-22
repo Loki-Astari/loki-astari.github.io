@@ -110,7 +110,7 @@ The final optimization is because resource allocation is expensive. So if we can
         }
 ```
 
-The copy and swap idiom is perfect for providing the strong exception guarantee in the presence of exceptions. **But** if there are no exceptions during destruction or construction then we can potentially just re-use the available memory. So if we re-wrote the assignment operator with the assumption that there were no exceptions it would look like the following (Note in the real code use SFINAE to do the optimization only when nesacery).
+The copy and swap idiom is perfect for providing the strong exception guarantee in the presence of exceptions. **But** if there are no exceptions during destruction or construction then we can potentially just re-use the available memory. So if we re-wrote the assignment operator with the assumption that there were no exceptions it would look like the following (Note in the real code use SFINAE to do the optimization only when necessary).
 
 ```cpp Copy the easy way
         Vector& operator=(Vector const& copy)
@@ -197,8 +197,8 @@ The final version
                 }
                 catch(...)
                 {
+                    std::unique_ptr<T, Deleter>     deleter(buffer, Deleter());
                     clearElements<T>();
-                    ::operator delete(buffer);
 
                     // Make sure the exceptions continue propagating after
                     // the cleanup has completed.
@@ -251,7 +251,7 @@ The final version
             {
                 if (length == capacity)
                 {
-                    std::size_t     newCapacity  = capacity * 1.62;
+                    std::size_t     newCapacity  = std::max(2.0, capacity * 1.62);
                     reserveCapacity(newCapacity);
                 }
             }
@@ -270,7 +270,7 @@ The final version
             }
             void moveBackInternal(T&& value)
             {
-                new (buffer + length) T(std::forward<T>(value));
+                new (buffer + length) T(std::move(value));
                 ++length;
             }
 

@@ -11,14 +11,15 @@ author: Loki Astari, (C)2016,
 description: C++ By Example. The Vector
 ---
 
-A lot of new developers to C++ attempt to build a `Vector` like container as a learning processes. Getting a simple version of this working for POD types (like int) is not that complicated. The next step in getting this working for arbitrary data types takes a significant leap forward in thinking in C++ especially when you start looking at efficiency and exception safety. This set of four articles looks at building an efficient `Vector` implementation. I show some of the common mistakes and explain why and how to resolve the problems:
+A lot of new developers to C++ attempt to build a `Vector` like container as a learning processes. Getting a simple version of this working for POD types (like int) is not that complicated. The next step in getting this working for arbitrary data types takes a significant leap forward in thinking in C++ especially when you start looking at efficiency and exception safety. This set of five articles looks at building an efficient `Vector` implementation. I show some of the common mistakes and explain why and how to resolve the problems:
 
 I will use three articles to cover the different parts I want to illustrate:
 
-1. Resource Management I:   Allocation
-2. Resource Management II:  Copy Assignment
-3. Resource Management III: Resize
-4. Container Concepts.
+1. [Resource Management I:   Allocation]({{ root_url }}/blog/2016/02/27/vector/)
+2. [Resource Management II:  Copy Assignment]({{ root_url }}/blog/2016/02/29/vector-resource-management-ii-copy-assignment/)
+3. [Resource Management III: Resize]({{ root_url }}/blog/2016/03/12/vector-resize/)
+4. [Resource Management IV:  Simple Optimizations]({{ root_url }}/blog/2016/03/19/vector-simple-optimizations/)
+5. [The Other Stuff]({{ root_url }}/blog/2016/03/20/vector-the-other-stuff/)
 
 Note: This is not meant to replace `std::vector<>` this simply meant as a teaching processes.
 
@@ -39,6 +40,8 @@ These methods usually work perfectly well; **unless** your class contains a poin
 Conversely, classes that do resource management usually contain a pointer (or pointer like resource object). These classes should define all the above methods to correctly handle the resource. This is where ownership semantics of the resource are defined. The owner of the resource is responsible for destroying the resource when its lifespan is over (in terms of pointers this means the owner is responsible for calling `delete` on the pointer, usually in the destructor). If you are not the owner of a resource you should not have access to the resource object directly, as it may be destroyed by the owner without other objects knowing.
 
 # [Rule of three](http://stackoverflow.com/q/4172722/14065)
+
+The rule of three comes from C++03 where we only had copy semantics.
 
 ## Version-1 Simple Resource Management
 When creating a class to manage resources; the first version created by beginner usually looks like this:
@@ -306,13 +309,13 @@ class Vector
             }
             catch(...)
             {
+                std::unique_ptr<T, Deleter>     deleter(buffer, Deleter());
                 // If there was an exception then destroy everything
                 // that was created to make it exception safe.
                 for(int loop = 0; loop < length; ++loop)
                 {
                     buffer[length - 1 - loop].~T();
                 }
-                ::operator delete(buffer);
 
                 // Make sure the exceptions continue propagating after
                 // the cleanup has completed.
@@ -374,7 +377,7 @@ This article has shown how to handle the basic resource management required by a
 * Default compiler generated methods
 * Shallow Copy Problem
 * Placement New
-* Exception Grantees
+* Exception Guarantees
 
 # Sources  <a id="Sources"></a>
 Looking at [CodeReview.stackexchange.com](http://CodeReview.stackexchange.com); reimplementing the vector class is a common goal for a first project.

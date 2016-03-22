@@ -53,43 +53,58 @@ In C++11 the `std::initializer_list<T>` was introduced. This allows a better lis
 
 The iterators are relatively easy to write. They also allow the container to be used with the new range based for that was added in C++14. So this becomes another easy add.
 
-#### Non-Mutating Member Functions
-* size() const
-* bool() const
-
-These methods are useful to add as this allows you to provided non range checked access to the container. It is the responsibility of the container user to validate that access to elements in the container are in the correct range. This can make access to the container much more efficient as the container does not need to check every access to validate its range.
-
 #### Member Access
-* operator&#91;&#93;(&lt;index&gt;)
-* operator&#91;&#93;(&lt;index&gt;) const
 * at(&lt;index&gt;)
 * at(&lt;index&gt;) const
-
-We provide two methods of accesses to elements in the container. `operator[](<index>)` provides unchecked accesses. The user is supposed to validate the range is correct before use, while `at(<index>)` provides validated access to the container resulting in an exception if the index is out of range.
-
-
-#### Comparitors
-* operator== const
-* operator!= const
-
-
-#### Optional Member Functions
+* operator&#91;&#93;(&lt;index&gt;)
+* operator&#91;&#93;(&lt;index&gt;) const
 * front()
 * back()
 * front() const
 * back() const
+
+Member access to a vector should be very efficient. As a result normally range checks are not performed on member access, i.e. the user is expected to make sure that the method pre-conditions have been met before calling the method. This results in very efficient access to the members of a `Vector`. This is not normally a problem because index ranges are normally checked as part of a loop range as long as these are validated against the size of the array it does not need to be validated again.
+
+```cpp For Loop Vector Access
+
+    Vector<T>   d = getData();
+    for(int loop = 0; loop < d.size(); ++loop)
+    {
+        std::cout << d[loop];   // No need for antoher range
+                                // check here as we know that loop is inside the
+                                // bounds of the vector d.
+    }
+```
+
+There is also the `at()` method which does validate the index provided before accessing the element (throwing an exception if the index is out of range).
+
+
+#### Non-Mutating Member Functions
+* size() const
+* bool() const
+
+To allow us to check the pre-conditions on the element accesses methods we need a couple of functions that check the state of the object. These are provided here.
+
+#### Mutating Member Functions
 * push&#95;back(&lt;object-ref&gt;)
 * push&#95;back(&lt;object-rvalue-ref&gt;)
-* emplace&#95;front(&lt;args...&gt;)
 * emplace&#95;back(&lt;args...&gt;)
-* pop&#95;front()
 * pop&#95;back()
 
+The following members are standard easy to implement methods of `std::vector` (O(1)) that I would expect to see in every implementation.
 
-The following members are standard easy to implement methods of `std::vector` that I would expect to see in every implementation.
+The other mutating member functions are less trivial as they require elements to be moved around. They are not that hard but you must put some though into the most efficient techniques to move elements (i.e. move or copy) and make sure that capacity is not exceeded by multiple inserts. As a result I would expect to see these methods only on a as need basis.
+
+#### Comparators
+* operator== const
+* operator!= const
+
+Easy comparison operators.  
+Optionally you can provide the other comparison operators.
+
 
 # Final
-
+**No idea why Jackal is adding all the blank lines to my source**
 ```cpp Vector
 #include <type_traits>
 #include <memory>
@@ -108,6 +123,8 @@ class Vector
         using const_pointer     = T const*;
         using iterator          = T*;
         using const_iterator    = T const*;
+        using riterator         = std::reverse_iterator<iterator>;
+        using const_riterator   = std::reverse_iterator<const_iterator>;
         using difference_type   = std::ptrdiff_t;
         using size_type         = std::size_t;
 
@@ -150,7 +167,6 @@ class Vector
             // This will be called to release the pointer at the end
             // of scope.
             std::unique_ptr<T, Deleter>     deleter(buffer, Deleter());
-
             clearElements<T>();
         }
         Vector(Vector const& copy)
@@ -167,8 +183,8 @@ class Vector
             }
             catch(...)
             {
+                std::unique_ptr<T, Deleter>     deleter(buffer, Deleter());
                 clearElements<T>();
-                ::operator delete(buffer);
 
                 // Make sure the exceptions continue propagating after
                 // the cleanup has completed.
@@ -200,41 +216,47 @@ class Vector
             swap(buffer,        other.buffer);
         }
 
+        // Non-Mutating functions
         size_type           size() const                        {return length;}
         bool                empty() const                       {return length == 0;}
 
-        reference           operator[](size_type index)         {return buffer[index];}
-        const_reference     operator[](size_type index) const   {return buffer[index];}
+        // Validated element access
         reference           at(size_type index)                 {validateIndex(index);return buffer[index];}
         const_reference     at(size_type index) const           {validateIndex(index);return buffer[index];}
+
+        // Non-Validated element access
+        reference           operator[](size_type index)         {return buffer[index];}
+        const_reference     operator[](size_type index) const   {return buffer[index];}
         reference           front()                             {return buffer[0];}
         const_reference     front() const                       {return buffer[0];}
         reference           back()                              {return buffer[length - 1];}
         const_reference     back() const                        {return buffer[length - 1];}
 
+        // Iterators
         iterator            begin()                             {return buffer;}
-        iterator            rbegin()                            {return std::reverse_iterator<iterator>(end());}
+        riterator           rbegin()                            {return riterator(end());}
         const_iterator      begin() const                       {return buffer;}
-        const_iterator      rbegin() const                      {return std::reverse_iterator<iterator>(end());}
+        const_riterator     rbegin() const                      {return const_riterator(end());}
 
         iterator            end()                               {return buffer + length;}
-        iterator            rend()                              {return std::reverse_iterator<iterator>(begin());}
+        riterator           rend()                              {return riterator(begin());}
         const_iterator      end() const                         {return buffer + length;}
-        const_iterator      rend() const                        {return std::reverse_iterator<iterator>(begin());}
+        const_riterator     rend() const                        {return const_riterator(begin());}
 
         const_iterator      cbegin() const                      {return begin();}
-        const_iterator      crbegin() const                     {return rbegin();}
+        const_riterator     crbegin() const                     {return rbegin();}
         const_iterator      cend() const                        {return end();}
-        const_iterator      crend() const                       {return rend();}
+        const_riterator     crend() const                       {return rend();}
 
+        // Comparison
         bool operator!=(Vector const& rhs) const {return !(*this == rhs);}
         bool operator==(Vector const& rhs) const
         {
-            return (size() == rhs.size())
-                ?  std::equal(begin(), end(), rhs.begin())
-                :  false;
+            return  (size() == rhs.size())
+                &&  std::equal(begin(), end(), rhs.begin());
         }
 
+        // Mutating functions
         void push_back(T const& value)
         {
             resizeIfRequire();
@@ -249,7 +271,7 @@ class Vector
         void emplace_back(Args&&... args)
         {
             resizeIfRequire();
-            constructBackInternal(std::forward<T>(args)...);
+            emplaceBackInternal(std::forward<T>(args)...);
         }
         void pop_back()
         {
@@ -276,7 +298,7 @@ class Vector
         {
             if (length == capacity)
             {
-                size_type     newCapacity  = capacity * 1.62;
+                size_type     newCapacity  = std::max(2.0, capacity * 1.5);
                 reserveCapacity(newCapacity);
             }
         }
@@ -288,6 +310,8 @@ class Vector
 
             tmpBuffer.swap(*this);
         }
+
+        // Add new element to the end using placement new
         void pushBackInternal(T const& value)
         {
             new (buffer + length) T(value);
@@ -295,15 +319,23 @@ class Vector
         }
         void moveBackInternal(T&& value)
         {
-            new (buffer + length) T(std::forward<T>(value));
+            new (buffer + length) T(std::move(value));
             ++length;
         }
         template<typename... Args>
-        void constructBackInternal(Args&&... args)
+        void emplaceBackInternal(Args&&... args)
         {
             new (buffer + length) T(std::forward<Args>(args)...);
             ++length;
         }
+
+        // Optimizations that use SFINAE to onlt instanciate one
+        // of two versions of a function.
+        //      simpleCopy()        Moves when no exceptions are guranteed, otherwise copies.
+        //      clearElements()     When no destructor remove loop.
+        //      copyAssign()        Avoid resource allocation when no exceptions guranteed.
+        //                          ie. When copying integers re-use the buffer if we can
+        //                          to avoid expensive resource allocation.
 
         template<typename X>
         typename std::enable_if<std::is_nothrow_move_constructible<X>::value == false>::type
@@ -313,7 +345,6 @@ class Vector
                           [&dst](T const& v){dst.pushBackInternal(v);}
                          );
         }
-
         template<typename X>
         typename std::enable_if<std::is_nothrow_move_constructible<X>::value == true>::type
         simpleCopy(Vector<T>& dst)
@@ -322,6 +353,7 @@ class Vector
                           [&dst](T& v){dst.moveBackInternal(std::move(v));}
                          );
         }
+
 
         template<typename X>
         typename std::enable_if<std::is_trivially_destructible<X>::value == false>::type
@@ -347,6 +379,11 @@ class Vector
                             &&  std::is_nothrow_destructible<X>::value) == true>::type
         copyAssign(Vector<X>& copy)
         {
+            // This function is only used if there is no chance of an exception being
+            // throw during destruction or copy construction of the type T.
+
+
+            // Quick return for self assignment.
             if (this == &copy)
             {
                 return;
@@ -354,7 +391,14 @@ class Vector
 
             if (capacity <= copy.length)
             {
-                clearElements<T>();
+                // If we have enough space to copy then re-use the sapce we currently
+                // have to avoid the need to perform an expensive resource allocation.
+
+                clearElements<T>();     // Potentially does nothing (see above)
+                                        // But if required will call the destructor of
+                                        // all elements.
+
+                // buffer now ready to get a copy of the data.
                 length = 0;
                 for(int loop = 0; loop < copy.length; ++loop)
                 {
@@ -363,7 +407,7 @@ class Vector
             }
             else
             {
-                // Copy and Swap idiom
+                // Fallback to copy and swap if we need to more space anyway
                 Vector<T>  tmp(copy);
                 tmp.swap(*this);
             }

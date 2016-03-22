@@ -40,7 +40,7 @@ The first attempt at this is:
 ```cpp Vector Resize with Move With Exceptions
         void moveBackInternal(T&& value)
         {
-            new (buffer + length) T(std::forward<T>(value));
+            new (buffer + length) T(std::move(value));
             ++length;
         }
 
@@ -89,12 +89,12 @@ But not all types throw when being moved. In fact it is recommended that move co
         }
         void moveBackInternal(T&& value)
         {
-            new (buffer + length) T(std::forward<T>(value));
+            new (buffer + length) T(std::move(value));
             ++length;
         }
 ```
 # Resize Template Specialization
-So now we have to write the code that decides at compile time which version we should use. The simplist way to do this is to use template specialization of a class using the standard class `std::is_nothrow_move_constructible<T>` to help deferentiate types that have a none throwing move constructor. This is simple enough:
+So now we have to write the code that decides at compile time which version we should use. The simplest way to do this is to use template specialization of a class using the standard class `std::is_nothrow_move_constructible<T>` to help deferentiate types that have a none throwing move constructor. This is simple enough:
 ```cpp Template class Specialization
     template<typename T, bool = std::is_nothrow_move_constructible<T>::value>
     struct SimpleCopy
@@ -140,7 +140,7 @@ So now we have to write the code that decides at compile time which version we s
             }
             void moveBackInternal(T&& value)
             {
-                new (buffer + length) T(std::forward<T>(value));
+                new (buffer + length) T(std::move(value));
                 ++length;
             }
     }
@@ -199,7 +199,7 @@ SFINAE allows us to define several versions of method with exactly the same argu
             }
             void moveBackInternal(T&& value)
             {
-                new (buffer + length) T(std::forward<T>(value));
+                new (buffer + length) T(std::move(value));
                 ++length;
             }
 
@@ -278,13 +278,13 @@ class Vector
             }
             catch(...)
             {
+                std::unique_ptr<T, Deleter>     deleter(buffer, Deleter());
                 // If there was an exception then destroy everything
                 // that was created to make it exception safe.
                 for(int loop = 0; loop < length; ++loop)
                 {
                     buffer[length - 1 - loop].~T();
                 }
-                ::operator delete(buffer);
 
                 // Make sure the exceptions continue propagating after
                 // the cleanup has completed.
@@ -339,7 +339,7 @@ class Vector
         {
             if (length == capacity)
             {
-                std::size_t     newCapacity  = capacity * 1.62;
+                std::size_t     newCapacity  = std::max(2.0, capacity * 1.62);
                 reserveCapacity(newCapacity);
             }
         }
@@ -358,7 +358,7 @@ class Vector
         }
         void moveBackInternal(T&& value)
         {
-            new (buffer + length) T(std::forward<T>(value));
+            new (buffer + length) T(std::move(value));
             ++length;
         }
 
