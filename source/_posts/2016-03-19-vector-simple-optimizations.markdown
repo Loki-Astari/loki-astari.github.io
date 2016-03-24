@@ -3,7 +3,7 @@ layout: post
 title: "Vector - Part 4: Simple Optimizations"
 date: 2016-03-19 15:06:40 -0700
 comments: true
-categories: [C++, C++-By-Example, Coding]
+categories: [C++, Vector, ResourceManagement, C++-By-Example, Coding]
 sharing: true
 footer: true
 subtitle: C++ By Example

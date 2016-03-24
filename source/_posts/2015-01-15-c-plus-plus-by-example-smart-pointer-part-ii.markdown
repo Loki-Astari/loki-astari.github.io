@@ -3,7 +3,7 @@ layout: post
 title: "Shared Pointer"
 date: 2015-01-15 08:13:47 -0800
 comments: true
-categories: [C++, C++-By-Example, Coding]
+categories: [C++, SharedPointer, C++-By-Example, Coding]
 sharing: true
 footer: true
 subtitle: C++ By Example

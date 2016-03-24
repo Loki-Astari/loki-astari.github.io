@@ -3,7 +3,7 @@ layout: post
 title: "Vector - Part 2: Resource Management Copy Swap"
 date: 2016-02-29 12:29:20 -0800
 comments: true
-categories: [C++, C++-By-Example, Coding]
+categories: [C++, Vector, ResourceManagement, C++-By-Example, Coding]
 sharing: true
 footer: true
 subtitle: C++ By Example

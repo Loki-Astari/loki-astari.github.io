@@ -3,7 +3,7 @@ layout: post
 title: "Unique Pointer"
 date: 2014-12-30 18:41:42 -0800
 comments: true
-categories: [C++, C++ by Example, Coding]
+categories: [C++, SharedPointer, C++ by Example, Coding ]
 footer: true
 sharing: true
 subtitle: C++ By Example

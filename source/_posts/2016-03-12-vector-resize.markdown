@@ -3,7 +3,7 @@ layout: post
 title: "Vector - Part 3: Vector Resize"
 date: 2016-03-12 05:53:07 -0700
 comments: true
-categories: [C++, C++-By-Example, Coding]
+categories: [C++, Vector, ResourceManagement, C++-By-Example, Coding]
 sharing: true
 footer: true
 subtitle: C++ By Example
