@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Coding | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/coding/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-22T09:22:43-07:00</updated>
+  <updated>2016-03-26T09:10:44-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Vector - Part 5: The Other Stuff]]></title>
+    <title type="html"><![CDATA[Vector - The Other Stuff]]></title>
     <link href="http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff/"/>
     <updated>2016-03-20T22:26:43-07:00</updated>
     <id>http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff</id>
@@ -473,7 +473,7 @@ private:
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Vector - Part 4: Simple Optimizations]]></title>
+    <title type="html"><![CDATA[Vector - Simple Optimizations]]></title>
     <link href="http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations/"/>
     <updated>2016-03-19T15:06:40-07:00</updated>
     <id>http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations</id>
@@ -836,7 +836,7 @@ class Vector
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Vector - Part 3: Vector Resize]]></title>
+    <title type="html"><![CDATA[Vector - Vector Resize]]></title>
     <link href="http://lokiastari.com/blog/2016/03/12/vector-resize/"/>
     <updated>2016-03-12T04:53:07-08:00</updated>
     <id>http://lokiastari.com/blog/2016/03/12/vector-resize</id>
@@ -1253,7 +1253,7 @@ private:
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Vector - Part 2: Resource Management Copy Swap]]></title>
+    <title type="html"><![CDATA[Vector - Resource Management Copy Swap]]></title>
     <link href="http://lokiastari.com/blog/2016/02/29/vector-resource-management-ii-copy-assignment/"/>
     <updated>2016-02-29T12:29:20-08:00</updated>
     <id>http://lokiastari.com/blog/2016/02/29/vector-resource-management-ii-copy-assignment</id>
@@ -1645,7 +1645,7 @@ private:
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Vector - Part 1: Resource Management Allocation]]></title>
+    <title type="html"><![CDATA[Vector - Resource Management Allocation]]></title>
     <link href="http://lokiastari.com/blog/2016/02/27/vector/"/>
     <updated>2016-02-27T12:00:31-08:00</updated>
     <id>http://lokiastari.com/blog/2016/02/27/vector</id>
