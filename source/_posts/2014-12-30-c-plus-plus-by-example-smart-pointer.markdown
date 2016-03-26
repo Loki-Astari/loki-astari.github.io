@@ -7,7 +7,7 @@ categories: [C++, SharedPointer, C++ by Example, Coding ]
 footer: true
 sharing: true
 subtitle: C++ By Example
-author: Loki Astari, (C)2013,
+author: Loki Astari, (C)2013
 description: C++ By Example. Part 1 Unique Pointer
 ---
 On [codereview.stackexchange.com](codereview.stackexchange.com) in the C++ tag it seems that it is a write of passage to implement your own version of a smart pointer. A quick search brings up the following:

@@ -8,7 +8,7 @@ categories: [C++, So-You-Want-To-Learn-C++, Coding]
 sharing: true
 footer: true
 subtitle: So you want to learn C++
-author: Loki Astari, (C)2013,
+author: Loki Astari, (C)2013
 description: C++ for beginners. Part 3 Variables
 ---
 

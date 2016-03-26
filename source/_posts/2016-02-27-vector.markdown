@@ -7,7 +7,7 @@ categories: [C++, Vector, ResourceManagement, C++-By-Example, Coding]
 sharing: true
 footer: true
 subtitle: C++ By Example
-author: Loki Astari, (C)2016,
+author: Loki Astari, (C)2016
 description: C++ By Example. The Vector
 ---
 

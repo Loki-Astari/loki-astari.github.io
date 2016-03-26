@@ -7,7 +7,7 @@ categories: [C++, SharedPointer, C++-By-Example, Coding]
 sharing: true
 footer: true
 subtitle: C++ By Example
-author: Loki Astari, (C)2013,
+author: Loki Astari, (C)2013
 description: C++ By Example. Part 2 Shared Pointer
 ---
 So in [the previous article](http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/) I covered a basic `unique` pointer where the smart pointer retained sole ownership of the pointer. The other common smart pointer we encounter is the `shared` pointer (SP). In this case the ownership of the pointer is shared across multiple instances of SP and the pointer is only released (deleted) when all SP instances have been destroyed.

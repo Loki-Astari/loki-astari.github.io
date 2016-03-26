@@ -7,7 +7,7 @@ categories: [C++, SharedPointer, C++-By-Example, Coding]
 sharing: true
 footer: true
 subtitle: C++ By Example
-author: Loki Astari, (C)2014,
+author: Loki Astari, (C)2014
 description: C++ By Example. Part 3 Smart Pointer Constructors
 ---
 In this article we examine constructors that are often missed or overlooked. This article looks at the use cases for these constructors and explains why the added functionality provides a meaningful addition in relation to smart pointers.
