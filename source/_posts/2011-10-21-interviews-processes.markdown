@@ -6,6 +6,7 @@ comments: true
 categories: [Interviews, Work]
 sharing: true
 footer: true
+description: One of the things the most non-programmers are surprised about is the severity of programming interviews. So why are they so intense?
 ---
 
 We ([SEOmoz.org](http://SEOmoz.org)) have been doing a lot of interviews for new engineers lately. I have been asked to help out trying to find the great new team members from the hordes of applicants (luckily we have a great team pre-screening applicants before they get to engineers (thanks you guys).

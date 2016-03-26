@@ -4,6 +4,7 @@ title: "Nearly New Year/New Resolution"
 date: 2014-12-06 11:44:00 -0800
 comments: true
 categories: 
+description: New Years resolution
 ---
 ##New Year/New Resolution
 They say you can only get better at something by doing it.

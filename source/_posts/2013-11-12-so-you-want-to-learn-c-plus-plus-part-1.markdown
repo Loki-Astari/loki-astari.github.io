@@ -8,7 +8,7 @@ sharing: true
 footer: true
 subtitle: So you want to learn C++
 author: Loki Astari, (C)2013
-description: C++ for beginners. Part 1 Hello World
+description: C++ for beginners. Part 1 Hello World. I keep trying to think about something big and interesting to write about. But that is just not working. All my time is spent trying to think of the blockbuster idea; which just gets in the way of actually writing. So lets start with the small things. If I can get into the habit of writing something a couple of times a week. Then maybe we can work up to interesting stuff.
 ---
 This is the first article in the series
 OK. Lets do this.

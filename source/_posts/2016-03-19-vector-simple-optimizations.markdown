@@ -8,7 +8,7 @@ sharing: true
 footer: true
 subtitle: C++ By Example
 author: Loki Astari, (C)2016
-description: C++ By Example. The Vector
+description: C++ By Example. The Vector Part 4. We look at a couple of other types available in the template utility library that allow optimization via SFINAE.
 ---
 
 So now that we have used `std::is_nothrow_move_constructible` we can also look at a couple of other types available in the template utility library.

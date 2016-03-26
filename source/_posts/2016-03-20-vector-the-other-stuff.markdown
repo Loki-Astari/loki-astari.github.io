@@ -8,7 +8,7 @@ sharing: true
 footer: true
 subtitle: C++ By Example
 author: Loki Astari, (C)2016
-description: C++ By Example. The Vector
+description: C++ By Example. The Vector Part 5. So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an in-site into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).
 ---
 
 So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an in-site into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).

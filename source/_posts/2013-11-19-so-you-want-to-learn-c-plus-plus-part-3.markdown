@@ -9,7 +9,7 @@ sharing: true
 footer: true
 subtitle: So you want to learn C++
 author: Loki Astari, (C)2013
-description: C++ for beginners. Part 3 Variables
+description: C++ for beginners. Part 3 Variables. In most programming languages you have the concept of variables. These are simply named objects that hold a value (more formerly refereed to as state). By manipulating a variable you manipulate the state of the object that the variable referees too.
 ---
 
 ##Variables

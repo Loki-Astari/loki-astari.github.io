@@ -8,7 +8,7 @@ sharing: true
 footer: true
 subtitle: C++ By Example
 author: Loki Astari, (C)2016
-description: C++ By Example. The Vector
+description: C++ By Example. The Vector Part 2. In the previous article I went over basic allocation for a `Vector` like class. In this article I want to put some detail around the copy assignment operator and re-sizing the underlying `Vector`. Unlike the other methods previously discussed these methods have to deal with both construction and destruction of elements and the potential of exceptions interrupting the processes. The goal is to provide an exception safe methods that provides the strong exception guarantee for the object and do not leak resources.
 ---
 
 In the previous article I went over basic allocation for a `Vector` like class. In this article I want to put some detail around the copy assignment operator and re-sizing the underlying `Vector`. Unlike the other methods previously discussed these methods have to deal with both construction and destruction of elements and the potential of exceptions interrupting the processes. The goal is to provide an exception safe methods that provides the strong exception guarantee for the object and do not leak resources.

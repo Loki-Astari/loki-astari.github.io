@@ -4,6 +4,7 @@ title: "Switching to OctoPress"
 date: 2013-11-30 15:37:34 -0800
 comments: true
 categories: [WordPress, OctoPress, Blogging]
+description: Switching the blog to octopress.
 ---
 
 ##Switching to OctoPress and Github

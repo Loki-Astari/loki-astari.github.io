@@ -4,6 +4,7 @@ title: "Want to set up WordPress to write about Programming"
 date: 2013-11-12 11:43:06 -0800
 comments: true
 categories: [Blogging, Coding, Markup, Markup Plugin, WordPress]
+description: Setting up WordPress to display syntax highlighted code was a struggle due to different plugins that don’t all seem to work together, the different types of editor, etc. I don’t want to learn all about WordPress. I just want to write some simple articles.
 ---
 
 Setting up WordPress to display syntax highlighted code was a struggle due to different plugins that don’t all seem to work together, the different types of editor, etc. I don’t want to learn all about WordPress. I just want to write some simple articles.
