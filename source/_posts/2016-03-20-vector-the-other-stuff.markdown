@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Vector - Part 5: The Other Stuff"
+title: "Vector - The Other Stuff"
 date: 2016-03-20 22:26:43 -0700
 comments: true
 categories: [C++, Vector, C++-By-Example, Coding]

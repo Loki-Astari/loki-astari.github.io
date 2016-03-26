@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Vector - Part 4: Simple Optimizations"
+title: "Vector - Simple Optimizations"
 date: 2016-03-19 15:06:40 -0700
 comments: true
 categories: [C++, Vector, ResourceManagement, C++-By-Example, Coding]
