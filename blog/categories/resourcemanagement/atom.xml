@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ResourceManagement | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/resourcemanagement/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-26T12:17:23-07:00</updated>
+  <updated>2016-03-26T12:20:09-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,41 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Test]]></title>
-    <link href="http://lokiastari.com/blog/2016/03/25/test/"/>
-    <updated>2016-03-25T05:53:07-07:00</updated>
-    <id>http://lokiastari.com/blog/2016/03/25/test</id>
-    <content type="html"><![CDATA[<p>Test1</p>
-
-<p>This is the text about the page yotu want to see</p>
-
-<!-- MathJax configuration -->
-
-
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js">
-</script>
-
-
-<!-- End MathJax Configuration -->
-
-
-<p><p><div class='bogus-wrapper'><notextile>
-[
-f(x)= a_0 + a_1\sin(x) + a_2\sin(2x) + &hellip;
-]</p>
-
-<p>[
-+b_1\cos(x) + b_2\cos(2x) + &hellip;
-]</p>
-
-<p>[
-f(x)=a_0+\sum_{k=1}^\infty\big( a_k\cos(kx)+b_k\sin(kx) \big)
-]
-</notextile></div></p></p>
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Vector - Simple Optimizations]]></title>
