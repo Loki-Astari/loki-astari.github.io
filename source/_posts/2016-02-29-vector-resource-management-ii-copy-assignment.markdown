@@ -4,6 +4,7 @@ title: "Vector - Resource Management Copy Swap"
 date: 2016-02-29 12:29:20 -0800
 comments: true
 categories: [C++, Vector, ResourceManagement, C++-By-Example, Coding]
+series: Vector
 sharing: true
 footer: true
 subtitle: C++ By Example

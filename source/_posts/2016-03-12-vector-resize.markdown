@@ -4,6 +4,7 @@ title: "Vector - Vector Resize"
 date: 2016-03-12 05:53:07 -0700
 comments: true
 categories: [C++, Vector, ResourceManagement, C++-By-Example, Coding]
+series: Vector
 sharing: true
 footer: true
 subtitle: C++ By Example

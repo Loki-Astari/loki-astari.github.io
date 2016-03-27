@@ -4,6 +4,7 @@ title: "Vector - Resource Management Allocation"
 date: 2016-02-27 12:00:31 -0800
 comments: true
 categories: [C++, Vector, ResourceManagement, C++-By-Example, Coding]
+series: Vector
 sharing: true
 footer: true
 subtitle: C++ By Example
