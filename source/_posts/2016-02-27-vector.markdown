@@ -14,14 +14,6 @@ description: C++ By Example. The Vector - Part 1. A lot of new developers to C++
 
 A lot of new developers to C++ attempt to build a `Vector` like container as a learning processes. Getting a simple version of this working for POD types (like int) is not that complicated. The next step in getting this working for arbitrary data types takes a significant leap forward in thinking in C++ especially when you start looking at efficiency and exception safety. This set of five articles looks at building an efficient `Vector` implementation. I show some of the common mistakes and explain why and how to resolve the problems:
 
-I will use three articles to cover the different parts I want to illustrate:
-
-1. [Resource Management I:   Allocation]({{ root_url }}/blog/2016/02/27/vector/)
-2. [Resource Management II:  Copy Assignment]({{ root_url }}/blog/2016/02/29/vector-resource-management-ii-copy-assignment/)
-3. [Resource Management III: Resize]({{ root_url }}/blog/2016/03/12/vector-resize/)
-4. [Resource Management IV:  Simple Optimizations]({{ root_url }}/blog/2016/03/19/vector-simple-optimizations/)
-5. [The Other Stuff]({{ root_url }}/blog/2016/03/20/vector-the-other-stuff/)
-
 Note: This is not meant to replace `std::vector<>` this simply meant as a teaching processes.
 
 # Rule of Zero
