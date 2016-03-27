@@ -3,8 +3,8 @@ layout: post
 title: "Smart Pointer Constructors"
 date: 2015-01-23 16:33:14 -0800
 comments: true
-categories: [C++, SharedPointer, C++-By-Example, Coding]
-series: SharedPointer
+categories: [C++, Smart-Pointer, C++-By-Example, Coding]
+series: Smart-Pointer
 sharing: true
 footer: true
 subtitle: C++ By Example
