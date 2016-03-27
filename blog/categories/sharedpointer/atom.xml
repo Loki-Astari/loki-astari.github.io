@@ -4,7 +4,7 @@
   <title><![CDATA[Category: SharedPointer | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/sharedpointer/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-26T17:56:15-07:00</updated>
+  <updated>2016-03-27T10:56:18-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -701,16 +701,7 @@ Two portions of this look like other code pieces of code that have already been 
     <link href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/"/>
     <updated>2014-12-30T18:41:42-08:00</updated>
     <id>http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer</id>
-    <content type="html"><![CDATA[<p>This article is part of a three article Series:</p>
-
-<ul>
-<li><a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Unique Pointer</a></li>
-<li><a href="http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/">Shared Pointer</a></li>
-<li><a href="http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/">Smart Pointer Constructors</a></li>
-</ul>
-
-
-<p>On <a href="codereview.stackexchange.com">codereview.stackexchange.com</a> in the C++ tag it seems that it is a write of passage to implement your own version of a smart pointer. A quick search brings up the following:</p>
+    <content type="html"><![CDATA[<p>On <a href="codereview.stackexchange.com">codereview.stackexchange.com</a> in the C++ tag it seems that it is a write of passage to implement your own version of a smart pointer. A quick search brings up the following:</p>
 
 <ul>
 <li>02/Sep/2011 &ndash; <a href="http://codereview.stackexchange.com/q/4550/507">shared_ptr implementation</a></li>
