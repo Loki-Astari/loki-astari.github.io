@@ -6,7 +6,12 @@ single: true
 <div>
 <article class="hentry" role="article">
   {% if page.series %}
-  This article is part of the {{ site.categories[page.series] | size }} part Series: "<span style="color:red">{{ page.series }}</span>".<br><br>
+  This is article 
+  {% for article in site.categories[page.series] reversed %}
+  {% if article.title == page.title %}{{ forloop.index }}{% endif %}
+  {% endfor %}
+  of the {{ site.categories[page.series] | size }} part Series: "<span style="color:red">{{ page.series }}</span>".<br>
+  See side panel "Series" for details.<br><br>
   {% endif %}
   {% include article.html %}
   <footer>
