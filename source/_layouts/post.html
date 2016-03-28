@@ -5,6 +5,9 @@ single: true
 
 <div>
 <article class="hentry" role="article">
+  {% if page.series %}
+  This article is part of the {{ site.categories[page.series] | size }} part Series: "<span style="color:red">{{ page.series }}</span>".<br><br>
+  {% endif %}
   {% include article.html %}
   <footer>
     <p class="meta">
