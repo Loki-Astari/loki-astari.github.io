@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: Interviews - Loki Astari</title>
+  <title>Test - Loki Astari</title>
   <meta name="author" content="Loki Astari">
 
   
-  <meta name="description" content="Category: Interviews">
+  <meta name="description" content="Teswt">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -20,16 +20,16 @@
   
   
   <!-- Open Graph Protocol -->
-  <meta property="og:title"         content="Category: Interviews"/>
+  <meta property="og:title"         content="Test"/>
   <meta property="og:image"         content="http://lokiastari.com/opg_default.jpg"/>
-  <meta property="og:description"   content="Category: Interviews"/>
-  <meta property="og:url"           content="http://lokiastari.comblog/categories/interviews/index.html"/>
+  <meta property="og:description"   content="Teswt"/>
+  <meta property="og:url"           content="http://lokiastari.com/blog/2016/03/25/resizemaths/"/>
   
 
 
 
   
-  <link rel="canonical" href="http://lokiastari.comblog/categories/interviews">
+  <link rel="canonical" href="http://lokiastari.com/blog/2016/03/25/resizemaths">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/bootstrap/bootstrap.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/stylesheets/bootstrap/responsive.css" media="screen, projection" rel="stylesheet" type="text/css">
@@ -103,38 +103,192 @@
   <div class="container">
     <div class="row-fluid">
       
-<article role="article" class="span9">
+<article class="hentry span9" role="article">
 
   
   <header class="page-header">
-    <h1 class="entry-title">Category: Interviews</h1>
+    
+      <h1 class="entry-title">Test</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-03-25T05:53:07-07:00" pubdate data-updated="true">Mar 25<span>th</span>, 2016</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
+
+
+<div class="entry-content"><p>Test1</p>
+
+<p>This is the text about the page yotu want to see</p>
+
+<!-- MathJax configuration -->
+
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js">
+</script>
+
+
+<!-- End MathJax Configuration -->
+
+
+<pre><code>1) B:   Size of Allocation
+2) r:   Multiplier
+3) n:   Number of re-sizes
+4) S:   size
+</code></pre>
+
+<p>
+
+    Size of Block after `n` resizes
+    \[
+        S   = Br^n
+    \]
+    Size of all deallocated blocks after `n` resizes
+    \[
+        \sum_{k=0}^{n-1}\ Br^k
+    \]
+    Solve for `r` where:
+    \[
+        \sum_{k=0}^{n-1}\ Br^k &lt;= Br^{n+1}
+    \]
+
+    \[
+        B * \sum_{k=0}^{n-1}\ r^k &lt;= Br^{n+1}
+    \]
+
+    \[
+        \sum_{k=0}^{n-1}\ r^k &lt;= r^{n+1}
+    \]
+
+    \[
+        {1-r^{(n-1)+1}\over1-r} &lt;= r^{n+1}
+    \]
+
+    \[
+        {1-r^n\over1-r} &lt;= r^{n+1}
+    \]
+
+    \[
+        1-r^n &lt;= r^{n+1} (1-r)
+    \]
+
+    \[
+        1-r^n &lt;= r^{n+1} - r^{n+2}
+    \]
+
+    \[
+        1 + r^{n+2} - r^{n+1} - r^n &lt;= 0
+    \]
+
+    \[
+        1 + r^n (r^2 - r - 1) &lt;= 0
+    \]
+
+    \[
+        1 + r^n\Phi &lt;= 0
+    \]
 
 
 
-  
-  <h1>2011</h1>
+</p>
 
-<article>
-  <div class="well">
 
-<h2><a href="/blog/2011/10/21/interviews-processes/">Interviews Processes</a></h2>
-<time datetime="2011-10-21T21:01:23-07:00" pubdate><span class='month'>Oct</span> <span class='day'>21</span> <span class='year'>2011</span></time>
+<p>XX</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/interviews/'>Interviews</a>, <a class='category' href='/blog/categories/work/'>Work</a></span>
-</footer>
+<p>
+\[
+f(x)= a_0 + a_1\sin(x) + a_2\sin(2x) + &#8230;
+\]
+
+\[
++b_1\cos(x) + b_2\cos(2x) + &#8230;
+\]
+
+\[
+f(x)=a_0+\sum_{k=1}^\infty\big( a_k\cos(kx)+b_k\sin(kx) \big)
+\]
+</p>
+
+
 
 </div>
 
-</article>
 
-</div>
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Loki Astari, (C)2016</span></span>
+
+      
+
+
+
+
+
+
+
 
   
+
+
+<time datetime="2016-03-25T05:53:07-07:00" pubdate data-updated="true">Mar 25<span>th</span>, 2016</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/c-plus-plus/'>C++</a>, <a class='category' href='/blog/categories/c-plus-plus-by-example/'>C++-By-Example</a>, <a class='category' href='/blog/categories/coding/'>Coding</a>, <a class='category' href='/blog/categories/resourcemanagement/'>ResourceManagement</a>, <a class='category' href='/blog/categories/vector/'>Vector</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lokiastari.com/blog/2016/03/25/resizemaths/" data-via="LokiAstari" data-counturl="http://lokiastari.com/blog/2016/03/25/resizemaths/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    
+    <section>
+      <h1>Comments</h1>
+      <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+    </section>
+    
+    <ul class="pager">
+      
+      <li class="previous"><a class="basic-alignment left"
+        href="/blog/2016/03/20/vector-the-other-stuff/" title="Previous Post:
+        Vector - The Other Stuff">&laquo; Vector - The Other Stuff</a></li>
+      
+      <li><a href="/blog/archives">Blog Archives</a></li>
+      
+    </ul>
+  </footer>
 </article>
 
 <aside class="sidebar-nav span3">
@@ -230,7 +384,10 @@
       var disqus_shortname = 'lokiastari';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://lokiastari.com/blog/2016/03/25/resizemaths/';
+        var disqus_url = 'http://lokiastari.com/blog/2016/03/25/resizemaths/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

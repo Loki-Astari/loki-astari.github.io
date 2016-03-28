@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-27T11:28:46-07:00</updated>
+  <updated>2016-03-27T21:00:36-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,6 +12,108 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Test]]></title>
+    <link href="http://lokiastari.com/blog/2016/03/25/resizemaths/"/>
+    <updated>2016-03-25T05:53:07-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/03/25/resizemaths</id>
+    <content type="html"><![CDATA[<p>Test1</p>
+
+<p>This is the text about the page yotu want to see</p>
+
+<!-- MathJax configuration -->
+
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js">
+</script>
+
+
+<!-- End MathJax Configuration -->
+
+
+<pre><code>1) B:   Size of Allocation
+2) r:   Multiplier
+3) n:   Number of re-sizes
+4) S:   size
+</code></pre>
+
+<p>
+
+    Size of Block after `n` resizes
+    \[
+        S   = Br^n
+    \]
+    Size of all deallocated blocks after `n` resizes
+    \[
+        \sum_{k=0}^{n-1}\ Br^k
+    \]
+    Solve for `r` where:
+    \[
+        \sum_{k=0}^{n-1}\ Br^k &lt;= Br^{n+1}
+    \]
+
+    \[
+        B * \sum_{k=0}^{n-1}\ r^k &lt;= Br^{n+1}
+    \]
+
+    \[
+        \sum_{k=0}^{n-1}\ r^k &lt;= r^{n+1}
+    \]
+
+    \[
+        {1-r^{(n-1)+1}\over1-r} &lt;= r^{n+1}
+    \]
+
+    \[
+        {1-r^n\over1-r} &lt;= r^{n+1}
+    \]
+
+    \[
+        1-r^n &lt;= r^{n+1} (1-r)
+    \]
+
+    \[
+        1-r^n &lt;= r^{n+1} - r^{n+2}
+    \]
+
+    \[
+        1 + r^{n+2} - r^{n+1} - r^n &lt;= 0
+    \]
+
+    \[
+        1 + r^n (r^2 - r - 1) &lt;= 0
+    \]
+
+    \[
+        1 + r^n\Phi &lt;= 0
+    \]
+
+
+
+</p>
+
+
+<p>XX</p>
+
+<p>
+\[
+f(x)= a_0 + a_1\sin(x) + a_2\sin(2x) + &#8230;
+\]
+
+\[
++b_1\cos(x) + b_2\cos(2x) + &#8230;
+\]
+
+\[
+f(x)=a_0+\sum_{k=1}^\infty\big( a_k\cos(kx)+b_k\sin(kx) \big)
+\]
+</p>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Vector - The Other Stuff]]></title>
