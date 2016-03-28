@@ -1,10 +1,12 @@
 {% if page.series %}
+{% capture prefix %}{{ page.series }} - {% endcapture %}
 <section>
   <h1>Series: {{ page.series }}</h1>
   <ul id="recent_posts">
     {% for post in site.categories[page.series] reversed %}
       <li class="post">
-        <a href="{{ root_url }}{{ post.url }}">{% if site.titlecase %}{{ post.title | titlecase }}{% else %}{{ post.title }}{% endif %}</a>
+        <!-- <a href="{{ root_url }}{{ post.url }}">{% if site.titlecase %}{{ post.title | titlecase }}{% else %}{{ post.title }}{% endif %}</a> -->
+        <a href="{{ root_url }}{{ post.url }}">{{ post.title | remove: prefix | titlecase }}</a>
       </li>
     {% endfor %}
   </ul>

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Smart Pointer Constructors"
+title: "Smart-Pointer - Constructors"
 date: 2015-01-23 16:33:14 -0800
 comments: true
 categories: [C++, Smart-Pointer, C++-By-Example, Coding]

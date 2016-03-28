@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Unique Pointer"
+title: "Smart-Pointer - Unique Pointer"
 date: 2014-12-30 18:41:42 -0800
 comments: true
 categories: [C++, Smart-Pointer, C++-by-Example, Coding ]
