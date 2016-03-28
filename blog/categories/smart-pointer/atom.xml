@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Smart-Pointer | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/smart-pointer/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-27T22:45:19-07:00</updated>
+  <updated>2016-03-27T23:05:38-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Smart Pointer Constructors]]></title>
+    <title type="html"><![CDATA[Smart-Pointer - Constructors]]></title>
     <link href="http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/"/>
     <updated>2015-01-23T16:33:14-08:00</updated>
     <id>http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii</id>
@@ -386,7 +386,7 @@ This is because C++ considers</code>ThorsAnvil::UP<Derived1><code>,</code>ThorsA
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Shared Pointer]]></title>
+    <title type="html"><![CDATA[Smart-Pointer - Shared Pointer]]></title>
     <link href="http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/"/>
     <updated>2015-01-15T08:13:47-08:00</updated>
     <id>http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii</id>
@@ -697,7 +697,7 @@ Two portions of this look like other code pieces of code that have already been 
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Unique Pointer]]></title>
+    <title type="html"><![CDATA[Smart-Pointer - Unique Pointer]]></title>
     <link href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/"/>
     <updated>2014-12-30T18:41:42-08:00</updated>
     <id>http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer</id>
