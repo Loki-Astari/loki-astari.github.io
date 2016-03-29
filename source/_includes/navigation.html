@@ -5,7 +5,6 @@
   <li><a href="{{ root_url }}/series">series</a></li></div><div class="spacer"></div>
         {% if page.title == 'about'%} <div class="selected"> {% else %} <div> {% endif %}
   <li><a href="{{ root_url }}/about">about</a></li></div>
+        {% if page.title == 'Blog Archive'%} <div class="selected"> {% else %} <div> {% endif %}
+  <li><a href="{{ root_url }}/blog/archives">archives</a></li></div>
 </ul>
-  {% comment %}
-    <li><a href="{{ root_url }}/blog/archives">Archives</a></li>
-  {% endcomment %}
