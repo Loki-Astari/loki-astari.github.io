@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ResourceManagement | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/resourcemanagement/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-29T17:30:13-07:00</updated>
+  <updated>2016-03-29T17:36:43-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,6 +12,125 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Memory Resizing]]></title>
+    <link href="http://lokiastari.com/blog/2016/03/25/resizemaths/"/>
+    <updated>2016-03-25T05:53:07-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/03/25/resizemaths</id>
+    <content type="html"><![CDATA[<p>So I never really considered why the resize of vector, when capacity was exceeded, used a constant expansion of 1.5 or 2 (in some popular implementations). That was until I did my previous article series &ldquo;Vector&rdquo; where I concentrated a lot on resource management and did a section on resizing the vector. I tried to be clever, a mistake; I used a resize value of 1.62 (an approximation of <code>Phi</code>), because I vaguely remembered reading an article that this was the optimum resize factor. When I initially put this out for code review it was pointed out to me that this value was too large, the optimum value must be less than or equal to <code>Phi</code> (1.6180339887) and that exceeding this limit actually made things a lot worse.</p>
+
+<p>So I had to know why&hellip;.</p>
+
+<p>So the theory goes: You have a memory resource of size <code>B</code>. If you resize this resource by a constant factor <code>r</code> by re-allocating a new block then releasing the old block. Then if the value of <code>r</code> is smaller than or equal to <code>Phi</code> you will eventually be able to reuse memory that was previously released; otherwise the new block of memory being allocated will always be larger than the previously released memory.</p>
+
+<p>So I though lets try that:<br/>
+Test one <code>r &gt; Phi</code>:</p>
+
+<pre><code>B=10
+r=2.0
+
+            Memory      Memory          Memory Needed       Difference
+            Released    Allocated       Next Iteration
+Start       0           10                  20                  20
+Resize 1    10          20                  40                  30
+Resize 2    30          40                  80                  50
+Resize 3    70          80                  160                 90
+Resize 4    150         160                 320                 170
+</code></pre>
+
+<p>OK. That seems to be holding (at least in the short term). Lo lets try a smaller value.<br/>
+Test two <code>r &lt; Phi</code>:</p>
+
+<pre><code>B=10
+r=1.5
+
+            Memory      Memory          Memory Needed       Difference
+            Released    Allocated       Next Iteration
+Start       0           10                  15                  15
+Resize 1    10          15                  22                  12
+Resize 2    25          22                  33                  08
+Resize 3    47          33                  48                  01
+Resize 4    80          48                  72                  -08 // Reuse released memory next iteration
+</code></pre>
+
+<p>OK. That also seems to be holding. But can we show that holds for all values of B? Also this is a bit anecdotal can we actually show this relationship actually hold? Time to break out some maths (not math as my American cousins seem to insist on for the shortening of mathematics).</p>
+
+<p>So the size <code>S</code> of any block after <code>n</code> resize operations will be:</p>
+
+<p><p><div class='bogus-wrapper'><notextile></p>
+
+<pre><code>\[ S   = Br^n \]
+</code></pre>
+
+<p></notextile></div></p></p>
+
+<p>Thus the size of <code>Released Memory</code> can be expressed as:</p>
+
+<p><p><div class='bogus-wrapper'><notextile></p>
+
+<pre><code>\[ \sum_{k=0}^{n-1}\ Br^k \]
+</code></pre>
+
+<p></notextile></div></p></p>
+
+<p>Also the size of the next block will be:</p>
+
+<p><p><div class='bogus-wrapper'><notextile></p>
+
+<pre><code>\[ Br^{n+1} \]
+</code></pre>
+
+<p></notextile></div></p></p>
+
+<p>So if the amount of <code>Released Memory</code> >= the amount required for the next block.</p>
+
+<p><p><div class='bogus-wrapper'><notextile></p>
+
+<pre><code>\[ \sum_{k=0}^{n-1}\ Br^k &amp;gt;= Br^{n+1} \]
+
+\[ B \sum_{k=0}^{n-1}\ r^k &amp;gt;= Br^{n+1} \]
+
+\[ \sum_{k=0}^{n-1}\ r^k &amp;gt;= r^{n+1} \]
+
+\[ {1-r^{(n-1)+1}\over1-r} &amp;gt;= r^{n+1} \]
+
+\[ {1-r^n\over1-r} &amp;gt;= r^{n+1} \]
+
+\[ 1-r^n &amp;gt;= r^{n+1} (1-r) \]
+
+\[ 1-r^n &amp;gt;= r^{n+1} - r^{n+2} \]
+
+\[ 1 + r^{n+2} - r^{n+1} - r^n &amp;gt;= 0 \]
+
+\[ 1 + r^n (r^2 - r - 1) &amp;gt;= 0 \]
+</code></pre>
+
+<p></notextile></div></p></p>
+
+<p>This is were my maths broke down and I had to plot some graphs (my old &ldquo;maths&rdquo; teacher would have been so proud).<br></p>
+
+<p><img src="images/Root4.jpg" title="&ldquo;n=4&rdquo;" >
+<img src="images/Root8.jpg" title="&ldquo;n=8&rdquo;" ></p>
+
+<br><br>
+
+
+<p>So after looking at the graphs (to undrestand the formula) then talking to some smart people.<br/>
+We find that the first root of the equation is 1. The second root of the equation depends on <code>n</code>, as <code>n</code> tends to <code>infinity</code> the other root tends towards <code>Phi</code>. From this we can infer the following:</p>
+
+<p><p><div class='bogus-wrapper'><notextile></p>
+
+<pre><code>\[
+    1 &amp;lt; r &amp;lt= \Phi
+\]
+</code></pre>
+
+<p></notextile></div></p></p>
+
+<p>Thus if <code>r</code> remains in the above range then the above theory holds.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Vector - Simple Optimizations]]></title>

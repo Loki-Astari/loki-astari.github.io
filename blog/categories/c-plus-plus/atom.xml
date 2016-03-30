@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-29T17:30:13-07:00</updated>
+  <updated>2016-03-29T17:36:43-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,6 +12,125 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Memory Resizing]]></title>
+    <link href="http://lokiastari.com/blog/2016/03/25/resizemaths/"/>
+    <updated>2016-03-25T05:53:07-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/03/25/resizemaths</id>
+    <content type="html"><![CDATA[<p>So I never really considered why the resize of vector, when capacity was exceeded, used a constant expansion of 1.5 or 2 (in some popular implementations). That was until I did my previous article series &ldquo;Vector&rdquo; where I concentrated a lot on resource management and did a section on resizing the vector. I tried to be clever, a mistake; I used a resize value of 1.62 (an approximation of <code>Phi</code>), because I vaguely remembered reading an article that this was the optimum resize factor. When I initially put this out for code review it was pointed out to me that this value was too large, the optimum value must be less than or equal to <code>Phi</code> (1.6180339887) and that exceeding this limit actually made things a lot worse.</p>
+
+<p>So I had to know why&hellip;.</p>
+
+<p>So the theory goes: You have a memory resource of size <code>B</code>. If you resize this resource by a constant factor <code>r</code> by re-allocating a new block then releasing the old block. Then if the value of <code>r</code> is smaller than or equal to <code>Phi</code> you will eventually be able to reuse memory that was previously released; otherwise the new block of memory being allocated will always be larger than the previously released memory.</p>
+
+<p>So I though lets try that:<br/>
+Test one <code>r &gt; Phi</code>:</p>
+
+<pre><code>B=10
+r=2.0
+
+            Memory      Memory          Memory Needed       Difference
+            Released    Allocated       Next Iteration
+Start       0           10                  20                  20
+Resize 1    10          20                  40                  30
+Resize 2    30          40                  80                  50
+Resize 3    70          80                  160                 90
+Resize 4    150         160                 320                 170
+</code></pre>
+
+<p>OK. That seems to be holding (at least in the short term). Lo lets try a smaller value.<br/>
+Test two <code>r &lt; Phi</code>:</p>
+
+<pre><code>B=10
+r=1.5
+
+            Memory      Memory          Memory Needed       Difference
+            Released    Allocated       Next Iteration
+Start       0           10                  15                  15
+Resize 1    10          15                  22                  12
+Resize 2    25          22                  33                  08
+Resize 3    47          33                  48                  01
+Resize 4    80          48                  72                  -08 // Reuse released memory next iteration
+</code></pre>
+
+<p>OK. That also seems to be holding. But can we show that holds for all values of B? Also this is a bit anecdotal can we actually show this relationship actually hold? Time to break out some maths (not math as my American cousins seem to insist on for the shortening of mathematics).</p>
+
+<p>So the size <code>S</code> of any block after <code>n</code> resize operations will be:</p>
+
+<p><p><div class='bogus-wrapper'><notextile></p>
+
+<pre><code>\[ S   = Br^n \]
+</code></pre>
+
+<p></notextile></div></p></p>
+
+<p>Thus the size of <code>Released Memory</code> can be expressed as:</p>
+
+<p><p><div class='bogus-wrapper'><notextile></p>
+
+<pre><code>\[ \sum_{k=0}^{n-1}\ Br^k \]
+</code></pre>
+
+<p></notextile></div></p></p>
+
+<p>Also the size of the next block will be:</p>
+
+<p><p><div class='bogus-wrapper'><notextile></p>
+
+<pre><code>\[ Br^{n+1} \]
+</code></pre>
+
+<p></notextile></div></p></p>
+
+<p>So if the amount of <code>Released Memory</code> >= the amount required for the next block.</p>
+
+<p><p><div class='bogus-wrapper'><notextile></p>
+
+<pre><code>\[ \sum_{k=0}^{n-1}\ Br^k &amp;gt;= Br^{n+1} \]
+
+\[ B \sum_{k=0}^{n-1}\ r^k &amp;gt;= Br^{n+1} \]
+
+\[ \sum_{k=0}^{n-1}\ r^k &amp;gt;= r^{n+1} \]
+
+\[ {1-r^{(n-1)+1}\over1-r} &amp;gt;= r^{n+1} \]
+
+\[ {1-r^n\over1-r} &amp;gt;= r^{n+1} \]
+
+\[ 1-r^n &amp;gt;= r^{n+1} (1-r) \]
+
+\[ 1-r^n &amp;gt;= r^{n+1} - r^{n+2} \]
+
+\[ 1 + r^{n+2} - r^{n+1} - r^n &amp;gt;= 0 \]
+
+\[ 1 + r^n (r^2 - r - 1) &amp;gt;= 0 \]
+</code></pre>
+
+<p></notextile></div></p></p>
+
+<p>This is were my maths broke down and I had to plot some graphs (my old &ldquo;maths&rdquo; teacher would have been so proud).<br></p>
+
+<p><img src="images/Root4.jpg" title="&ldquo;n=4&rdquo;" >
+<img src="images/Root8.jpg" title="&ldquo;n=8&rdquo;" ></p>
+
+<br><br>
+
+
+<p>So after looking at the graphs (to undrestand the formula) then talking to some smart people.<br/>
+We find that the first root of the equation is 1. The second root of the equation depends on <code>n</code>, as <code>n</code> tends to <code>infinity</code> the other root tends towards <code>Phi</code>. From this we can infer the following:</p>
+
+<p><p><div class='bogus-wrapper'><notextile></p>
+
+<pre><code>\[
+    1 &amp;lt; r &amp;lt= \Phi
+\]
+</code></pre>
+
+<p></notextile></div></p></p>
+
+<p>Thus if <code>r</code> remains in the above range then the above theory holds.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Vector - The Other Stuff]]></title>
@@ -1639,453 +1758,6 @@ private:
 <li>Separation Of Concerns</li>
 <li>Copy and Swap Idiom</li>
 <li>Exception Gurantees</li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Vector - Resource Management Allocation]]></title>
-    <link href="http://lokiastari.com/blog/2016/02/27/vector/"/>
-    <updated>2016-02-27T12:00:31-08:00</updated>
-    <id>http://lokiastari.com/blog/2016/02/27/vector</id>
-    <content type="html"><![CDATA[<p>A lot of new developers to C++ attempt to build a <code>Vector</code> like container as a learning processes. Getting a simple version of this working for POD types (like int) is not that complicated. The next step in getting this working for arbitrary data types takes a significant leap forward in thinking in C++ especially when you start looking at efficiency and exception safety. This set of five articles looks at building an efficient <code>Vector</code> implementation. I show some of the common mistakes and explain why and how to resolve the problems:</p>
-
-<p>Note: This is not meant to replace <code>std::vector&lt;&gt;</code> this simply meant as a teaching processes.</p>
-
-<h1>Rule of Zero</h1>
-
-<p>You will notice that half the attempts below <a href="#Sources">Sources</a> are Vector implementations the other half are for Matrix implementations. I mention both because I want to emphasize the <a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a>. An object should be responsible for either business logic or resource management (not both). A lot of the Matrix implementations are trying to mix resource management (memory management) with the business logic of how matrices interact. So if you want to write a matrix class you should delegate resource management to a separate class (In a first pass <code>std::vector&lt;int&gt;</code> would be a good choice).</p>
-
-<p>In C++ the compiler generates a couple of methods for free.</p>
-
-<ul>
-<li>Destructor</li>
-<li>Copy Constructor</li>
-<li>Copy Assignment Operator</li>
-<li>Move Constructor</li>
-<li>Move Assignment Operator</li>
-</ul>
-
-
-<p>These methods usually work perfectly well; <strong>unless</strong> your class contains a pointer (or a pointer like resource object). But if your class is doing business logic then it should not contain a pointer. So classes that handle business logic therefore should not be defining any of these compiler generated methods (just let the compiler generated ones work for you). Occasionally you want to delete them, to prevent copying or movement, but it is very unusual for these to need specialized implementations.</p>
-
-<p>Conversely, classes that do resource management usually contain a pointer (or pointer like resource object). These classes should define all the above methods to correctly handle the resource. This is where ownership semantics of the resource are defined. The owner of the resource is responsible for destroying the resource when its lifespan is over (in terms of pointers this means the owner is responsible for calling <code>delete</code> on the pointer, usually in the destructor). If you are not the owner of a resource you should not have access to the resource object directly, as it may be destroyed by the owner without other objects knowing.</p>
-
-<h1><a href="http://stackoverflow.com/q/4172722/14065">Rule of three</a></h1>
-
-<p>The rule of three comes from C++03 where we only had copy semantics.</p>
-
-<h2>Version-1 Simple Resource Management</h2>
-
-<p>When creating a class to manage resources; the first version created by beginner usually looks like this:</p>
-
-<p>```cpp Rule of three first pass
-template<typename T>
-class Vector
-{</p>
-
-<pre><code>std::size_t     size;
-T*              buffer;
-Vector(int size = 100)
-    : size(size)
-    , buffer(new T[size])   // Allocate the resource
-{}
-~Vector()
-{
-    delete [] buffer;       // Clean up the resource
-}
-</code></pre>
-
-<p>};
-```
-The trouble here is that this version has a fundamental flaw because of the way the <a href="http://stackoverflow.com/a/4044360/14065">compiler generated</a> copy constructor and copy assignment operator work with pointers (commonly referred to as the <a href="http://stackoverflow.com/q/2344664/14065">shallow copy problem</a>).</p>
-
-<p>```cpp Shallow copy problem.
-int main()
-{</p>
-
-<pre><code>Vector&lt;int&gt;   x;
-Vector&lt;int&gt;   y(x);     // Compiler generate copy constructure does
-                        // an element wise shallow copy of each element.
-                        // This means both `x` and `y` have a buffer
-                        // member that points at the same area in memory.
-                        //
-                        // When the objects go out of scope both will
-                        // try and call delete on the memory resulting
-                        // in a double delete of the memory.
-
-Vector&lt;int&gt;   z;        // Same problem after an assignment.
-z=x;
-</code></pre>
-
-<p>}
-```</p>
-
-<h2>Version-2 Rule of Three</h2>
-
-<p>The rule of three simply stated is: If you define any of the methods Destructor/Copy Constructor/Copy Assignment Operator then you should define all three. When done correctly this resolves the shallow copy problem. <code>Vector</code> defines the destructor so we also need to define the copy constructor and copy assignment operator.</p>
-
-<p>I see this as an initial attempt at defining the rule of three for vectors very often.</p>
-
-<p>```cpp Rule of three second pass
-template<typename T>
-class Vector
-{</p>
-
-<pre><code>std::size_t     size;
-T*              buffer;
-Vector(int size = 100)
-    : size(size)
-    , buffer(new T[size])
-{}
-~Vector()
-{
-    delete [] buffer;
-}
-Vector(Vector const&amp; copy)
-    : size(copy.size)
-    , buffer(new T[size])
-{
-    // Copy constructor is simple.
-    // We create a new resource area of the required size.
-    // Then we copy the data from the old buffer to the new buffer.
-    std::copy(copy.buffer, copy.buffer + copy.size, copy);
-}
-Vector&amp; operator=(Vector const&amp; copy)
-{
-    // Copy Object
-    // This is relatively easy. But I want to cover this in detail in a subsquent post.
-    return *this;
-}
-</code></pre>
-
-<p>};
-```</p>
-
-<h2>Version-3 Lazy Construction of elements.</h2>
-
-<p>The problem with the previous version is that it forces initialization of all elements in the buffer immediately. This forces the requirement that members of the <code>Vector</code> (i.e. type <code>T</code>) must be default constructable. It also has two efficiency constraints imposed on the Vector:</p>
-
-<ul>
-<li>You can&rsquo;t pre-allocate space for future members.
-
-<ul>
-<li>So resizing (larger or smaller) becomes very expensive as each resize requires copy all the elements to the newly re-sized buffer.</li>
-<li>Alternatively pre-creating all the elements you need can also be expensive especially if construction of <code>T</code> is expensive.</li>
-</ul>
-</li>
-<li>The copy constructor is twice as expensive as it should be. Each element must be:
-
-<ul>
-<li>Default constructed (when the buffer is created).</li>
-<li>Then copy constructed with the value from the source vector.</li>
-</ul>
-</li>
-</ul>
-
-
-<p>This attempt improves on that by allowing efficient pre-allocating of space (<code>capacity</code>) for the buffer. New members are then added by constructing in place using <a href="http://stackoverflow.com/questions/362953/what-are-uses-of-the-c-construct-placement-new">placement new</a>.</p>
-
-<p>```cpp Rule of three third pass
-template<typename T>
-class Vector
-{</p>
-
-<pre><code>std::size_t     capacity;
-std::size_t     length;
-T*              buffer;
-Vector(int capacity)
-    : capacity(capacity = 100)
-    , length(0)
-    // Allocates space but does not call the constructor
-    , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
-    // Useful if the type T has an expensive constructor
-    // We preallocate space without initializing it giving
-    // room to grow and shrink the buffer without re-allocating.
-{}
-~Vector()
-{
-    // Because elements are constructed in place using
-    // placement new. Then we must manually call the destructor
-    // on the elements.
-    for(int loop = 0; loop &lt; length; ++loop)
-    {
-        // Note we destroy the elements in reverse order.
-        buffer[length - 1 - loop].~T();
-    }
-    ::operator delete(buffer);
-}
-Vector(Vector const&amp; copy)
-    : capacity(copy.length)
-    , length(0)
-    , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
-{
-    // Copy constructor is simple.
-    // We create a new resource area of the required length.
-    // But these elements are not initialized so we use push_back to copy them
-    // into the new object. This is an improvement because we
-    // only construct the members of the vector once.
-    for(int loop = 0; loop &lt; copy.length; ++loop)
-    {
-        push_back(copy.buffer[loop]);
-    }
-}
-Vector&amp; operator=(Vector const&amp; copy)
-{
-    // Copy Object
-    // This is relatively easy. But I want to cover this in detail in a subsquent post.
-    return *this;
-}
-void push_back(T const&amp; value)
-{
-    // Use placement new to copy buffer into the new buffer
-    new (buffer + length) T(value);
-    ++length;
-
-    // Note we will handle growing the capacity later.
-}
-void pop_back()
-{
-    // When removing elements need to manually call the destructor
-    // because we created them using placement new.
-    --length;
-    buffer[length].~T();
-}
-</code></pre>
-
-<p>};
-```</p>
-
-<h1>Rule of Five</h1>
-
-<p>In C++11 the language add the concept of &ldquo;Move Semantics&rdquo;. Rather than having to copy an object (especially on return from a function) we could &ldquo;move&rdquo; an object. The concept here is that movement is supposed to be much cheaper than copy because you move the internal data structure of an object rather than all the elements. A good example is a std::vector. Pre C++11 a return by value means copying the object. The constructor of the new object allocates a new internal buffer and then copies all the elements from the original objects buffer to the new objects buffer. On the other hand a move simply gives the new object the internal buffer of the old object (we just move the pointer to the internal buffer). When an object is moved to another object the old object should be left in a valid state, but for efficiency the standard rarely specifies the state of an object after it has been the source of a move. Thus using an object after a move is a bad idea unless you are setting it to a specific state.</p>
-
-<p>There are two new method that allow us to specify move semantics on a class.</p>
-
-<p>```cpp Vector Move Semantics.
-class Vector
-{</p>
-
-<pre><code>std::size_t     capacity;
-std::size_t     length;
-T*              buffer;
-// STUFF    
-
-// Move Constructor
-Vector(Vector&amp;&amp; move) noexcept;
-
-// Move Assignment Operator
-Vector&amp; operator=(Vector&amp;&amp; move) noexcept;
-</code></pre>
-
-<p>};
-```</p>
-
-<p>Notice the <code>&amp;&amp;</code> operator. This donates an r-value reference and means that your object is the destination of a move operation. The parameter passed is the source object and the state you should use to define your new objects state. After the move the source object must be left in a valid (but can be undefined state). For a vector this means it must no longer be the owner of the internal buffer that you are now using in your buffer.</p>
-
-<p>The simplest way to achieve this goal is to set up the object in a valid (but very cheap to achieve state) and then swap the current object with the destination object.</p>
-
-<p>```cpp Vector Move Semantics Implementation
-class Vector
-{</p>
-
-<pre><code>std::size_t     capacity;
-std::size_t     length;
-T*              buffer;
-// STUFF    
-
-// Move Constructor
-Vector(Vector&amp;&amp; move) noexcept
-    : capacity(0)
-    , length(0)
-    , buffer(nullptr)
-{
-    // The source object now has a nullptr/
-    // This object has taken the state of the source object.
-    move.swap(*this);
-}
-
-// Move Assignment Operator
-Vector&amp; operator=(Vector&amp;&amp; move) noexcept
-{
-    // In this case simply swap the source object
-    // and this object around.
-    move.swap(*this);
-}
-</code></pre>
-
-<p>};
-```</p>
-
-<p>Note I marked both move operators <code>noexcept</code>. Assuming the operations are guaranteed not to throw you should mark them as <code>noexcept</code>. If we know that certain operations are exception safe, then we can optimize resize operations and maintain the strong exception guarantee. This and some other optimizations will be documented in a subsequent post.</p>
-
-<h1>Final Version <a id="VectorVersion-1"></a></h1>
-
-<p>```cpp Vector Final Version
-template<typename T>
-class Vector
-{</p>
-
-<pre><code>std::size_t     capacity;
-std::size_t     length;
-T*              buffer;
-
-struct Deleter
-{
-    void operator()(T* buffer) const
-    {
-        ::operator delete(buffer);
-    }
-};
-
-public:
-    Vector(int capacity = 10)
-        : capacity(capacity)
-        , length(0)
-        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
-    {}
-    ~Vector()
-    {
-        // Make sure the buffer is deleted even with exceptions
-        // This will be called to release the pointer at the end
-        // of scope.
-        std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
-
-        // Call the destructor on all the members in reverse order
-        for(int loop = 0; loop &lt; length; ++loop)
-        {
-            // Note we destroy the elements in reverse order.
-            buffer[length - 1 - loop].~T();
-        }
-    }
-    Vector(Vector const&amp; copy)
-        : capacity(copy.length)
-        , length(0)
-        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
-    {
-        try
-        {
-            for(int loop = 0; loop &lt; copy.length; ++loop)
-            {
-                push_back(copy.buffer[loop]);
-            }
-        }
-        catch(...)
-        {
-            std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
-            // If there was an exception then destroy everything
-            // that was created to make it exception safe.
-            for(int loop = 0; loop &lt; length; ++loop)
-            {
-                buffer[length - 1 - loop].~T();
-            }
-
-            // Make sure the exceptions continue propagating after
-            // the cleanup has completed.
-            throw;
-        }
-    }
-    Vector&amp; operator=(Vector const&amp; copy)
-    {
-        // Covered in Part 2
-        return *this;
-    }
-    Vector(Vector&amp;&amp; move) noexcept
-        : capacity(0)
-        , length(0)
-        , buffer(nullptr)
-    {
-        move.swap(*this);
-    }
-    Vector&amp; operator=(Vector&amp;&amp; move) noexcept
-    {
-        move.swap(*this);
-        return *this;
-    }
-    void swap(Vector&amp; other) noexcept
-    {
-        using std::swap;
-        swap(capacity,      other.capacity);
-        swap(length,        other.length);
-        swap(buffer,        other.buffer);
-    }
-    void push_back(T const&amp; value)
-    {
-        resizeIfRequire();
-        new (buffer + length) T(value);
-        ++length;
-    }
-    void pop_back()
-    {
-        --length;
-        buffer[length].~T();
-    }
-private:
-    void resizeIfRequire()
-    {
-        if (length == capacity)
-        {
-            // Covered in Part 2
-        }
-    }
-</code></pre>
-
-<p>};
-```</p>
-
-<h1>Summary</h1>
-
-<p>This article has shown how to handle the basic resource management required by a vector. It has covered several important principles for C++ programmers.</p>
-
-<ul>
-<li>Separation Of Concerns</li>
-<li>Rule of Zero</li>
-<li>Rule of Three</li>
-<li>Rule of Five</li>
-<li>Default compiler generated methods</li>
-<li>Shallow Copy Problem</li>
-<li>Placement New</li>
-<li>Exception Guarantees</li>
-</ul>
-
-
-<h1>Sources  <a id="Sources"></a></h1>
-
-<p>Looking at <a href="http://CodeReview.stackexchange.com">CodeReview.stackexchange.com</a>; reimplementing the vector class is a common goal for a first project.</p>
-
-<ul>
-<li>2011/Nov/07 &ndash; <a href="http://codereview.stackexchange.com/q/5856/507">Mathematical Vector2 class implementation</a>*</li>
-<li>2012/May/21 &ndash; <a href="http://codereview.stackexchange.com/q/11934/507">C++ Vector2 Class Review</a>*</li>
-<li>2012/Aug/17 &ndash; <a href="http://codereview.stackexchange.com/q/14784/507">Templated Matrix class</a></li>
-<li>2013/Jan/07 &ndash; <a href="http://codereview.stackexchange.com/q/20243/507">Vector implementation &ndash; simple replacement</a></li>
-<li>2013/May/25 &ndash; <a href="http://codereview.stackexchange.com/q/26608/507">Review of 2d Vector class</a></li>
-<li>2013/Jun/19 &ndash; <a href="http://codereview.stackexchange.com/q/27573/507">Simple matrix class</a></li>
-<li>2013/Jun/21 &ndash; <a href="http://codereview.stackexchange.com/q/27625/507">Matrix and Vector4 classes</a>*</li>
-<li>2013/Jun/25 &ndash; <a href="http://codereview.stackexchange.com/q/27752/507">Simple matrix class &ndash; version 2</a>*</li>
-<li>2013/Aug/03 &ndash; <a href="http://codereview.stackexchange.com/q/29331/507">Template vector class</a>*</li>
-<li>2014/Feb/20 &ndash; <a href="http://codereview.stackexchange.com/q/42297/507">C++ vector implementation</a></li>
-<li>2014/Mar/01 &ndash; <a href="http://codereview.stackexchange.com/q/43136/507">Reimplementation of C++ vector</a></li>
-<li>2014/Mar/12 &ndash; <a href="http://codereview.stackexchange.com/q/44167/507">3D mathematical vector class</a></li>
-<li>2014/May/17 &ndash; <a href="http://codereview.stackexchange.com/q/50975/507">Creating a custom Vector class</a></li>
-<li>2014/Aug/19 &ndash; <a href="http://codereview.stackexchange.com/q/60484/507">STL vector implementation</a></li>
-<li>2014/Sep/12 &ndash; <a href="http://codereview.stackexchange.com/a/62774/507">C++ 3D Vector Implementation</a></li>
-<li>2014/Sep/26 &ndash; <a href="http://codereview.stackexchange.com/q/63970/507">Custom mathematical vector class</a></li>
-<li>2014/Oct/19 &ndash; <a href="http://codereview.stackexchange.com/q/67209/507">Vector backed by memory pages</a></li>
-<li>2014/Oct/31 &ndash; <a href="http://codereview.stackexchange.com/q/68486/507">Custom matrix class</a></li>
-<li>2014/Nov/25 &ndash; <a href="http://codereview.stackexchange.com/q/70815/507">Vector/matrix class</a></li>
-<li>2014/Dec/22 &ndash; <a href="http://codereview.stackexchange.com/q/74521/507">Vector implementation</a></li>
-<li>2015/Feb/17 &ndash; <a href="http://codereview.stackexchange.com/q/81751/507">Mathematical matrices implementation</a></li>
-<li>2015/Mar/01 &ndash; <a href="http://codereview.stackexchange.com/q/82906/507">C++ vector implementation errors</a></li>
-<li>2015/Jun/20 &ndash; <a href="http://codereview.stackexchange.com/q/94211/507">Implementation of std::vector class</a></li>
-<li>2015/Jul/08 &ndash; <a href="http://codereview.stackexchange.com/q/96253/507">Second implementation of std::vector</a></li>
-<li>2015/Oct/17 &ndash; <a href="http://codereview.stackexchange.com/q/107877/507">Simple multi-dimensional Array class in C++11</a></li>
-<li>2015/Oct/19 &ndash; <a href="http://codereview.stackexchange.com/q/108072/507">Creating n-dimensional mathematical vector classes through inheritance</a></li>
-<li>2015/Oct/20 &ndash; <a href="http://codereview.stackexchange.com/q/108140/507">Implementation of Vector in C++</a></li>
-<li>2015/Oct/23 &ndash; <a href="http://codereview.stackexchange.com/q/108558/507">Simple multi-dimensional Array class in C++11 &ndash; follow-up</a></li>
-<li>2015/Nov/18 &ndash; <a href="http://codereview.stackexchange.com/q/111114/507">Custom vector that uses less memory than std::vector</a></li>
-<li>2015/Nov/24 &ndash; <a href="http://codereview.stackexchange.com/q/111746/507">Attempt at templates by creating a class for N-dimensional mathematical vectors</a></li>
-<li>2016/Jan/10 &ndash; <a href="http://codereview.stackexchange.com/q/116377/507">Vector Implementation C++</a></li>
 </ul>
 
 ]]></content>

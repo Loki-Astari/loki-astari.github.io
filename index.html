@@ -9,7 +9,7 @@
   <meta name="author" content="Loki Astari">
 
   
-  <meta name="description" content="So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these &hellip;">
+  <meta name="description" content="So I never really considered why the resize of vector, when capacity was exceeded, used a constant expansion of 1.5 or 2 (in some popular &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,145 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/03/25/resizemaths/">Memory Resizing</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-03-25T05:53:07-07:00" pubdate data-updated="true">Mar 25<span>th</span>, 2016</time>
+        
+           | <a href="/blog/2016/03/25/resizemaths/#disqus_thread"
+             data-disqus-identifier="http://lokiastari.com/blog/2016/03/25/resizemaths/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>So I never really considered why the resize of vector, when capacity was exceeded, used a constant expansion of 1.5 or 2 (in some popular implementations). That was until I did my previous article series &ldquo;Vector&rdquo; where I concentrated a lot on resource management and did a section on resizing the vector. I tried to be clever, a mistake; I used a resize value of 1.62 (an approximation of <code>Phi</code>), because I vaguely remembered reading an article that this was the optimum resize factor. When I initially put this out for code review it was pointed out to me that this value was too large, the optimum value must be less than or equal to <code>Phi</code> (1.6180339887) and that exceeding this limit actually made things a lot worse.</p>
+
+<p>So I had to know why&hellip;.</p>
+
+<p>So the theory goes: You have a memory resource of size <code>B</code>. If you resize this resource by a constant factor <code>r</code> by re-allocating a new block then releasing the old block. Then if the value of <code>r</code> is smaller than or equal to <code>Phi</code> you will eventually be able to reuse memory that was previously released; otherwise the new block of memory being allocated will always be larger than the previously released memory.</p>
+
+<p>So I though lets try that:<br/>
+Test one <code>r &gt; Phi</code>:</p>
+
+<pre><code>B=10
+r=2.0
+
+            Memory      Memory          Memory Needed       Difference
+            Released    Allocated       Next Iteration
+Start       0           10                  20                  20
+Resize 1    10          20                  40                  30
+Resize 2    30          40                  80                  50
+Resize 3    70          80                  160                 90
+Resize 4    150         160                 320                 170
+</code></pre>
+
+<p>OK. That seems to be holding (at least in the short term). Lo lets try a smaller value.<br/>
+Test two <code>r &lt; Phi</code>:</p>
+
+<pre><code>B=10
+r=1.5
+
+            Memory      Memory          Memory Needed       Difference
+            Released    Allocated       Next Iteration
+Start       0           10                  15                  15
+Resize 1    10          15                  22                  12
+Resize 2    25          22                  33                  08
+Resize 3    47          33                  48                  01
+Resize 4    80          48                  72                  -08 // Reuse released memory next iteration
+</code></pre>
+
+<p>OK. That also seems to be holding. But can we show that holds for all values of B? Also this is a bit anecdotal can we actually show this relationship actually hold? Time to break out some maths (not math as my American cousins seem to insist on for the shortening of mathematics).</p>
+
+<p>So the size <code>S</code> of any block after <code>n</code> resize operations will be:</p>
+
+<p>
+    \[ S   = Br^n \]
+</p>
+
+
+<p>Thus the size of <code>Released Memory</code> can be expressed as:</p>
+
+<p>
+    \[ \sum_{k=0}^{n-1}\ Br^k \]
+</p>
+
+
+<p>Also the size of the next block will be:</p>
+
+<p>
+    \[ Br^{n+1} \]
+</p>
+
+
+<p>So if the amount of <code>Released Memory</code> >= the amount required for the next block.</p>
+
+<p>
+    \[ \sum_{k=0}^{n-1}\ Br^k &gt;= Br^{n+1} \]
+
+    \[ B \sum_{k=0}^{n-1}\ r^k &gt;= Br^{n+1} \]
+
+    \[ \sum_{k=0}^{n-1}\ r^k &gt;= r^{n+1} \]
+
+    \[ {1-r^{(n-1)+1}\over1-r} &gt;= r^{n+1} \]
+
+    \[ {1-r^n\over1-r} &gt;= r^{n+1} \]
+
+    \[ 1-r^n &gt;= r^{n+1} (1-r) \]
+
+    \[ 1-r^n &gt;= r^{n+1} - r^{n+2} \]
+
+    \[ 1 + r^{n+2} - r^{n+1} - r^n &gt;= 0 \]
+
+    \[ 1 + r^n (r^2 - r - 1) &gt;= 0 \]
+</p>
+
+
+<p>This is were my maths broke down and I had to plot some graphs (my old &ldquo;maths&rdquo; teacher would have been so proud).<br></p>
+
+<p><img src="images/Root4.jpg" title="&#34;n=4&#34;" alt="&#34;n=4&#34;">
+<img src="images/Root8.jpg" title="&#34;n=8&#34;" alt="&#34;n=8&#34;"></p>
+
+<br><br>
+
+
+<p>So after looking at the graphs (to undrestand the formula) then talking to some smart people.<br/>
+We find that the first root of the equation is 1. The second root of the equation depends on <code>n</code>, as <code>n</code> tends to <code>infinity</code> the other root tends towards <code>Phi</code>. From this we can infer the following:</p>
+
+<p>
+    \[
+        1 &lt; r &lt= \Phi
+    \]
+</p>
+
+
+<p>Thus if <code>r</code> remains in the above range then the above theory holds.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -5466,382 +5605,6 @@ It simply calls the destructor on all elements currently in the object. Then use
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/">Control Flow</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-02T12:00:11-08:00" pubdate data-updated="true">Dec 2<span>nd</span>, 2013</time>
-        
-           | <a href="/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/#disqus_thread"
-             data-disqus-identifier="http://lokiastari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>So far we have demonstrated basic programs that just do a single task without making any decisions. Most (all but the most trivial) programming languages provide constructs for decision making (Conditional Branching).</p>
-
-<p>C++ provides two forms of branching. The <strong>&ldquo;If Statement&rdquo;</strong> and the <strong>&ldquo;Switch Statement&rdquo;</strong> .</p>
-
-<p>Note: Looping is also a form of branching. The looping concept is extensive enough that we will deal with looping separately in its own article.</p>
-
-<h3>If Statement</h3>
-
-<p>The <strong>&ldquo;If Statement&rdquo;</strong> allows code to be executed when a certain condition is fulfilled and optionally an alternative piece of code otherwise.</p>
-
-<figure class='code'><figcaption><span>ifstatement.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="c1">// First versin of &quot;If Statement&quot;</span>
-</span><span class='line'>    <span class="c1">// Execute code if &lt;Condition&gt; is true.</span>
-</span><span class='line'>    <span class="c1">//</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">Condition</span><span class="o">&gt;</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="n">code</span> <span class="n">to</span> <span class="n">execute</span> <span class="k">if</span> <span class="n">Condition</span> <span class="n">is</span> <span class="kc">true</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// Second version of &quot;If Statement&quot;</span>
-</span><span class='line'>    <span class="c1">// Execute code1 if &lt;Condition&gt; is true or code2 if &lt;Condition&gt; is false </span>
-</span><span class='line'>    <span class="c1">//</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">Condition</span><span class="o">&gt;</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="nl">code1:</span> <span class="n">execute</span> <span class="k">if</span> <span class="n">Condition</span> <span class="n">is</span> <span class="kc">true</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">else</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="nl">code2:</span> <span class="n">execute</span> <span class="k">if</span> <span class="n">Condition</span> <span class="n">is</span> <span class="kc">false</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types. On user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below; the language does not enforce this, <strong>BUT</strong> if you don&rsquo;t follow this suggestion your types will scare people and they will not be used, so follow the expected behavior.</p>
-
-<figure class='code'><figcaption><span>Standard Comparison Operators</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cm">/*</span>
-</span><span class='line'><span class="cm">| Operator  | Usage   | Result Type | Meaning                                                           |</span>
-</span><span class='line'><span class="cm">| ----------|---------|-------------|-------------------------------------------------------------------|</span>
-</span><span class='line'><span class="cm">|    !      |  !A     |  bool       | Not A. If A is true then false, if A is false then true.          |</span>
-</span><span class='line'><span class="cm">|           |         |             | If A us not a bool type it is converted (see below)               |</span>
-</span><span class='line'><span class="cm">|    ==     |  A == B |  bool       | true if A and B logically equivalent, otherwise false.            |</span>
-</span><span class='line'><span class="cm">|    !=     |  A != B |  bool       | Should mean !(A == B)                                             |</span>
-</span><span class='line'><span class="cm">|    &lt;      |  A &lt;  B |  bool       | true if A is logically less than B.                               |</span>
-</span><span class='line'><span class="cm">|    &lt;=     |  A &lt;= B |  bool       | true if A is logically less than or equal to B.                   |</span>
-</span><span class='line'><span class="cm">|    &gt;      |  A &gt;  B |  bool       | true if A is logically greater than B.                            |</span>
-</span><span class='line'><span class="cm">|    &gt;=     |  a &gt;= B |  bool       | true if A is logically greater than or equal to B.                |</span>
-</span><span class='line'><span class="cm">|    &amp;&amp;     |  A &amp;&amp; B |  bool       | true if A is true **AND** B is true.                              |</span>
-</span><span class='line'><span class="cm">|           |         |             | If the expressions A or B are not actually bool then              |</span>
-</span><span class='line'><span class="cm">|           |         |             | it is converted (see below). Also worth noting is that            |</span>
-</span><span class='line'><span class="cm">|           |         |             | if A is **false** then the expression for B is not evaluated.     |</span>
-</span><span class='line'><span class="cm">|           |         |             | This is known as a shortcut operator we will describe this later. |</span>
-</span><span class='line'><span class="cm">|    ||     |  A || B |  bool       | true if A is true **OR** B is true.                               |</span>
-</span><span class='line'><span class="cm">|           |         |             | If the expressions A or B are not actually a bool then            |</span>
-</span><span class='line'><span class="cm">|           |         |             | it is converted (see below). Also worth noting is that            |</span>
-</span><span class='line'><span class="cm">|           |         |             | if A is **true** then the expression for B is not evaluated.      |</span>
-</span><span class='line'><span class="cm">|           |         |             | This is known as a shortcut operator we will describe this later. |</span>
-</span><span class='line'><span class="cm">|-----------|---------|-------------|-------------------------------------------------------------------|</span>
-</span><span class='line'><span class="cm">*/</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If the expression you use in **&lt;Condition&gt; does not actually result in a bool value the compiler will insert a conversion that will result in a bool (true/false) value. If no conversion is possible it results in a compile time error.</p>
-
-<figure class='code'><figcaption><span>Type conversion</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cm">/*</span>
-</span><span class='line'><span class="cm">| Type             | false      | true            | Notes                                               |</span>
-</span><span class='line'><span class="cm">|------------------|------------|-----------------|-----------------------------------------------------|</span>
-</span><span class='line'><span class="cm">| bool             | false      | true            | Should be obvious: No actual conversion used.       |</span>
-</span><span class='line'><span class="cm">| Integers         | 0          | (anything else) | Integer shorthand for (char/short/int/long)         |</span>
-</span><span class='line'><span class="cm">| Pointers         | NULL       | (anything else) | Will discuss pointers in detail later.              |</span>
-</span><span class='line'><span class="cm">| User Define Type | ?          | ?               | If a cast operator to bool/Integer/pointer exists   |</span>
-</span><span class='line'><span class="cm">|                  |            |                 | this will be used.                                  |</span>
-</span><span class='line'><span class="cm">|------------------|------------|-----------------|-----------------------------------------------------|</span>
-</span><span class='line'><span class="cm">*/</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>An example of using an <strong>If Statement</strong>:</p>
-
-<figure class='code'><figcaption><span>itest.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;string&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span>    <span class="n">name</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Please enter your name</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">name</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">==</span> <span class="s">&quot;Loki&quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello Admin</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">else</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello Muggle</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">int</span>   <span class="n">value</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">value</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Please enter a non zero integer value</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="c1">// integer value converted to bool</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You got it correct. Must use a non zero value.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Switch Statement</h3>
-
-<p>The <strong>&ldquo;Switch Statement&rdquo;</strong> is an alternative to the <strong>&ldquo;If Statement&rdquo;</strong>. Prefer the switch when you have lots of options derived from the same expression. Unlike other high level language C++ can only use <strong>Integer</strong> types in a switch statement; thus in all `Case &lt;Value&gt; the &lt;Value&gt; must be an integer <strong>literal</strong> value.</p>
-
-<figure class='code'><figcaption><span>switch.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="k">switch</span><span class="p">(</span><span class="o">&lt;</span><span class="n">Test</span> <span class="n">Expression</span><span class="o">&gt;</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">case</span> <span class="o">&lt;</span><span class="n">value1</span><span class="o">&gt;:</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="o">&lt;</span><span class="n">code1</span><span class="o">&gt;</span>
-</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">case</span> <span class="o">&lt;</span><span class="n">value2</span><span class="o">&gt;:</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="o">&lt;</span><span class="n">code2</span><span class="o">&gt;</span>
-</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">case</span> <span class="o">&lt;</span><span class="n">value3</span><span class="o">&gt;:</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="o">&lt;</span><span class="n">code3</span><span class="o">&gt;</span>
-</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">default</span><span class="o">:</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="o">&lt;</span><span class="n">code</span> <span class="n">Default</span><span class="o">&gt;</span>
-</span><span class='line'>            <span class="k">break</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="c1">//</span>
-</span><span class='line'>    <span class="c1">//</span>
-</span><span class='line'>    <span class="c1">// Equivalent &quot;If Statement&quot;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">test</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">Test</span> <span class="n">Expression</span><span class="o">&gt;</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">value1</span><span class="o">&gt;</span> <span class="o">==</span> <span class="n">test</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="n">code1</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">else</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">value2</span><span class="o">&gt;</span> <span class="o">==</span> <span class="n">test</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="o">&lt;</span><span class="n">code2</span><span class="o">&gt;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="k">else</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">value3</span><span class="o">&gt;</span> <span class="o">==</span> <span class="n">test</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="o">&lt;</span><span class="n">code3</span><span class="o">&gt;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">else</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="o">&lt;</span><span class="n">code</span> <span class="n">Default</span><span class="o">&gt;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you use a non Integer expression in the switch statement the compiler will try and convert the value to an integer. If this is not possible it generates a compile time error.</p>
-
-<figure class='code'><figcaption><span>switch.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span>  <span class="n">value</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Input a value between 0 and 5</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">value</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">switch</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">case</span> <span class="mi">0</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used zero</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>    <span class="k">break</span><span class="p">;}</span>
-</span><span class='line'>        <span class="k">case</span> <span class="mi">1</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>     <span class="k">break</span><span class="p">;}</span>
-</span><span class='line'>        <span class="k">case</span> <span class="mi">2</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used two</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>     <span class="k">break</span><span class="p">;}</span>
-</span><span class='line'>        <span class="k">case</span> <span class="mi">3</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used three</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>   <span class="k">break</span><span class="p">;}</span>
-</span><span class='line'>        <span class="k">case</span> <span class="mi">4</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used four</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>    <span class="k">break</span><span class="p">;}</span>
-</span><span class='line'>        <span class="k">case</span> <span class="mi">5</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You used five</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>    <span class="k">break</span><span class="p">;}</span>
-</span><span class='line'>        <span class="k">default</span><span class="o">:</span> <span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;You failed to follow instructions</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="k">break</span><span class="p">;}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Note I: The language does not require you to use a <strong>Break Statement</strong> in each block. <strong>BUT</strong> you should and compilers will warn you when you don&rsquo;t.<br/>
-Note II: You should always use a <strong>Default Statement</strong> . If the value does not hit a value specified in a <strong>Case Statement</strong> then the <strong>Default Statement</strong> is used; If the <strong>Default Statement</strong> is not defined in this situation it results in undefined behavior. To avoid problems you should always define the <strong>Default Statement</strong>, even if all this does is generate an error. This will avoid maintenance issues down the road.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -5858,6 +5621,10 @@ Note II: You should always use a <strong>Default Statement</strong> . If the val
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/03/25/resizemaths/">Memory Resizing</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/20/vector-the-other-stuff/">Vector - the Other Stuff</a>
       </li>
     
@@ -5871,10 +5638,6 @@ Note II: You should always use a <strong>Default Statement</strong> . If the val
     
       <li class="post">
         <a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/">Vector - Resource Management Copy Swap</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/27/vector/">Vector - Resource Management Allocation</a>
       </li>
     
   </ul>
