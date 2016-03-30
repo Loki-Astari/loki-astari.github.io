@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-29T17:54:05-07:00</updated>
+  <updated>2016-03-29T17:55:32-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -18,7 +18,7 @@
     <link href="http://lokiastari.com/blog/2016/03/25/resizemaths/"/>
     <updated>2016-03-25T05:53:07-07:00</updated>
     <id>http://lokiastari.com/blog/2016/03/25/resizemaths</id>
-    <content type="html"><![CDATA[<p>So I never really considered why the resize of vector, when capacity was exceeded, used a constant expansion of 1.5 or 2 (in some popular implementations). That was until I did my previous article series &ldquo;Vector&rdquo; where I concentrated a lot on resource management and did a section on resizing the vector. I tried to be clever, a mistake; I used a resize value of 1.62 (an approximation of <code>Phi</code>), because I vaguely remembered reading an article that this was the optimum resize factor. When I initially put this out for code review it was pointed out to me that this value was too large, the optimum value must be less than or equal to <code>Phi</code> (1.6180339887) and that exceeding this limit actually made things a lot worse.</p>
+    <content type="html"><![CDATA[<p>So I never really considered why the resize of vector used a constant expansion of 1.5 or 2 (in some popular implementations). That was until I did my previous article series &ldquo;Vector&rdquo; where I concentrated a lot on resource management and did a section on resizing the vector. I tried to be clever, a mistake; I used a resize value of 1.62 (an approximation of <code>Phi</code>), because I vaguely remembered reading an article that this was the optimum resize factor. When I initially put this out for code review it was pointed out to me that this value was too large, the optimum value must be less than or equal to <code>Phi</code> (1.6180339887) and that exceeding this limit actually made things a lot worse.</p>
 
 <p>So I had to know why&hellip;.</p>
 
