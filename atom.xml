@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-29T17:36:43-07:00</updated>
+  <updated>2016-03-29T17:38:24-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -77,7 +77,7 @@ Resize 4    80          48                  72                  -08 // Reuse rel
 </p>
 
 
-<p>So if the amount of <code>Released Memory</code> >= the amount required for the next block.</p>
+<p>So if the amount of <code>Released Memory</code> >= the amount required for the next block, then we can reuse the <code>Released Memory</code>.</p>
 
 <p>
     \[ \sum_{k=0}^{n-1}\ Br^k &gt;= Br^{n+1} \]
