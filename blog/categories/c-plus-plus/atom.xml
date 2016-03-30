@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-29T17:52:32-07:00</updated>
+  <updated>2016-03-29T17:54:05-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -120,7 +120,7 @@ Resize 4    80          48                  72                  -08 // Reuse rel
 They noticed that:
 <p><div class='bogus-wrapper'><notextile></p>
 
-<pre><code>\[ (r^2 - r - 1) =&gt; root when r = \Phi \]
+<pre><code>\[ (r^2 - r - 1)&amp;nbsp;=&gt;&amp;nbsp;root&amp;nbsp;&amp;nbsp;when&amp;nbsp;r&amp;nbsp;=&amp;nbsp;\Phi \]
 </code></pre>
 
 <p></notextile></div></p></p>

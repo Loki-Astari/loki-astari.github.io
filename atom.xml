@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-29T17:52:32-07:00</updated>
+  <updated>2016-03-29T17:54:05-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -112,7 +112,7 @@ Resize 4    80          48                  72                  -08 // Reuse rel
 They noticed that:</p>
 
 <p>
-    \[ (r^2 - r - 1) => root when r = \Phi \]
+    \[ (r^2 - r - 1)&nbsp;=>&nbsp;root&nbsp;&nbsp;when&nbsp;r&nbsp;=&nbsp;\Phi \]
 </p>
 
 
