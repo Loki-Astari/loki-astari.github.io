@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-29T17:49:53-07:00</updated>
+  <updated>2016-03-29T17:52:25-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -58,34 +58,34 @@ Resize 4    80          48                  72                  -08 // Reuse rel
 
 <p>So the size <code>S</code> of any block after <code>n</code> resize operations will be:</p>
 
-<p><p><div class='bogus-wrapper'><notextile></p>
+<p>{% verbatim tag:p %}</p>
 
 <pre><code>\[ S   = Br^n \]
 </code></pre>
 
-<p></notextile></div></p></p>
+<p>{% endverbatim %}</p>
 
 <p>Thus the size of <code>Released Memory</code> can be expressed as:</p>
 
-<p><p><div class='bogus-wrapper'><notextile></p>
+<p>{% verbatim tag:p %}</p>
 
 <pre><code>\[ \sum_{k=0}^{n-1}\ Br^k \]
 </code></pre>
 
-<p></notextile></div></p></p>
+<p>{% endverbatim %}</p>
 
 <p>Also the size of the next block will be:</p>
 
-<p><p><div class='bogus-wrapper'><notextile></p>
+<p>{% verbatim tag:p %}</p>
 
 <pre><code>\[ Br^{n+1} \]
 </code></pre>
 
-<p></notextile></div></p></p>
+<p>{% endverbatim %}</p>
 
 <p>So if the amount of <code>Released Memory</code> >= the amount required for the next block, then we can reuse the <code>Released Memory</code>.</p>
 
-<p><p><div class='bogus-wrapper'><notextile></p>
+<p>{% verbatim tag:p %}</p>
 
 <pre><code>\[ \sum_{k=0}^{n-1}\ Br^k &amp;gt;= Br^{n+1} \]
 
@@ -106,27 +106,35 @@ Resize 4    80          48                  72                  -08 // Reuse rel
 \[ 1 + r^n (r^2 - r - 1) &amp;gt;= 0 \]
 </code></pre>
 
-<p></notextile></div></p></p>
+<p>{% endverbatim %}</p>
 
 <p>This is were my maths broke down and I had to plot some graphs (my old &ldquo;maths&rdquo; teacher would have been so proud).<br></p>
 
-<p><img src="/images/Root4.png" width="400" height="200" title="&ldquo;n=4&rdquo;" >
-<img src="/images/Root8.png" width="400" height="200" title="&ldquo;n=8&rdquo;" ></p>
+<p>{% img /images/Root4.png 400 200 &ldquo;n=4&rdquo;%}
+{% img /images/Root8.png 400 200 &ldquo;n=8&rdquo;%}</p>
 
 <br><br>
 
 
 <p>So after looking at the graphs (to undrestand the formula) then talking to some smart people.<br/>
-We find that the first root of the equation is 1. The second root of the equation depends on <code>n</code>, as <code>n</code> tends to <code>infinity</code> the other root tends towards <code>Phi</code>. From this we can infer the following:</p>
+They noticed that:
+{% verbatim tag:p %}</p>
 
-<p><p><div class='bogus-wrapper'><notextile></p>
+<pre><code>\[ (r^2 - r - 1) =&gt; root when r = \Phi \]
+</code></pre>
+
+<p>{% endverbatim %}</p>
+
+<p>We find that the first root of the equation is 1. The second root of the equation depends on <code>n</code>, as <code>n</code> tends to <code>infinity</code> the other root tends towards <code>Phi</code>. From this we can infer the following:</p>
+
+<p>{% verbatim tag:p %}</p>
 
 <pre><code>\[
     1 &amp;lt; r &amp;lt= \Phi
 \]
 </code></pre>
 
-<p></notextile></div></p></p>
+<p>{% endverbatim %}</p>
 
 <p>Thus if <code>r</code> remains in the above range then the above theory holds.</p>
 ]]></content>
