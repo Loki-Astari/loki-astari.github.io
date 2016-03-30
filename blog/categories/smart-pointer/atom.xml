@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Smart-Pointer | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/smart-pointer/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-29T20:13:49-07:00</updated>
+  <updated>2016-03-29T20:17:45-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -775,8 +775,8 @@ Two portions of this look like other code pieces of code that have already been 
 
 <pre><code>int test1()
 {
-    ThorsAnvil::SP   sp1&lt;int&gt;(new int(5));
-    ThorsAnvil::SP   sp2&lt;int&gt;(sp1);  // copy construction
+    ThorsAnvil::UP   sp1&lt;int&gt;(new int(5));
+    ThorsAnvil::UP   sp2&lt;int&gt;(sp1);  // copy construction
 
              // Here the compiler generated copy constructor
              // kicks in and does a member wise copy of sp1
@@ -798,8 +798,8 @@ Two portions of this look like other code pieces of code that have already been 
 
 <pre><code>int test2()
 {
-    ThorsAnvil::SP   sp1&lt;int&gt;(new int(5));
-    ThorsAnvil::SP   sp2&lt;int&gt;(new int(6));
+    ThorsAnvil::UP   sp1&lt;int&gt;(new int(5));
+    ThorsAnvil::UP   sp2&lt;int&gt;(new int(6));
 
     sp2 = sp1; // Assignment operation.
 

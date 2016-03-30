@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-29T20:13:49-07:00</updated>
+  <updated>2016-03-29T20:17:45-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -4895,8 +4895,8 @@ It simply calls the destructor on all elements currently in the object. Then use
 <span class='line-number'>16</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="kt">int</span> <span class="n">test1</span><span class="p">()</span>
 </span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">SP</span>   <span class="n">sp1</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span>
-</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">SP</span>   <span class="n">sp2</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sp1</span><span class="p">);</span>  <span class="c1">// copy construction</span>
+</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span>   <span class="n">sp1</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span>   <span class="n">sp2</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sp1</span><span class="p">);</span>  <span class="c1">// copy construction</span>
 </span><span class='line'>
 </span><span class='line'>                 <span class="c1">// Here the compiler generated copy constructor</span>
 </span><span class='line'>                 <span class="c1">// kicks in and does a member wise copy of sp1</span>
@@ -4932,8 +4932,8 @@ It simply calls the destructor on all elements currently in the object. Then use
 <span class='line-number'>16</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="kt">int</span> <span class="n">test2</span><span class="p">()</span>
 </span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">SP</span>   <span class="n">sp1</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span>
-</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">SP</span>   <span class="n">sp2</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">6</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span>   <span class="n">sp1</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span>   <span class="n">sp2</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">6</span><span class="p">));</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="n">sp2</span> <span class="o">=</span> <span class="n">sp1</span><span class="p">;</span> <span class="c1">// Assignment operation.</span>
 </span><span class='line'>
