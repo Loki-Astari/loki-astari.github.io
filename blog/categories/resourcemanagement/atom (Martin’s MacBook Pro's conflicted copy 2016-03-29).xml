@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Vector | Loki Astari]]></title>
-  <link href="http://lokiastari.com/blog/categories/vector/atom.xml" rel="self"/>
+  <title><![CDATA[Category: ResourceManagement | Loki Astari]]></title>
+  <link href="http://lokiastari.com/blog/categories/resourcemanagement/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-29T17:49:53-07:00</updated>
+  <updated>2016-03-29T17:49:50-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -14,461 +14,121 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Vector - The Other Stuff]]></title>
-    <link href="http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff/"/>
-    <updated>2016-03-20T22:26:43-07:00</updated>
-    <id>http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff</id>
-    <content type="html"><![CDATA[<p>So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an in-site into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).</p>
+    <title type="html"><![CDATA[Memory Resizing]]></title>
+    <link href="http://lokiastari.com/blog/2016/03/25/resizemaths/"/>
+    <updated>2016-03-25T05:53:07-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/03/25/resizemaths</id>
+    <content type="html"><![CDATA[<p>So I never really considered why the resize of vector, when capacity was exceeded, used a constant expansion of 1.5 or 2 (in some popular implementations). That was until I did my previous article series &ldquo;Vector&rdquo; where I concentrated a lot on resource management and did a section on resizing the vector. I tried to be clever, a mistake; I used a resize value of 1.62 (an approximation of <code>Phi</code>), because I vaguely remembered reading an article that this was the optimum resize factor. When I initially put this out for code review it was pointed out to me that this value was too large, the optimum value must be less than or equal to <code>Phi</code> (1.6180339887) and that exceeding this limit actually made things a lot worse.</p>
 
-<p>For details see the <a href="http://stackoverflow.com/a/4653479/14065">latest copy of the C++ standard</a>.</p>
+<p>So I had to know why&hellip;.</p>
 
-<ul>
-<li>23.2.1  General container requirements [container.requirements.general]</li>
-<li>23.2.3  Sequence containers [sequence.reqmts]</li>
-</ul>
+<p>So the theory goes: You have a memory resource of size <code>B</code>. If you resize this resource by a constant factor <code>r</code> by re-allocating a new block then releasing the old block. Then if the value of <code>r</code> is smaller than or equal to <code>Phi</code> you will eventually be able to reuse memory that was previously released; otherwise the new block of memory being allocated will always be larger than the previously released memory.</p>
 
+<p>So I though lets try that:<br/>
+Test one <code>r &gt; Phi</code>:</p>
 
-<h4>Internal Types</h4>
+<pre><code>B=10
+r=2.0
 
-<ul>
-<li>value&#95;type</li>
-<li>reference</li>
-<li>const&#95;reference</li>
-<li>iterator</li>
-<li>const&#95;iterator</li>
-<li>difference&#95;type</li>
-<li>size&#95;type</li>
-</ul>
-
-
-<p>It is worth specifying the internal types defined here. As this allows you to abstract the implementation details of the container. This will allow you to change the implementation details without users having to change there implementation; as long as the changes still provide the same interface but the interface to reference/pointers/iterators are relatively trivial and well defined.</p>
-
-<h4>Constructors</h4>
-
-<p>In C++11 the <code>std::initializer_list&lt;T&gt;</code> was introduced. This allows a better list initialization syntax to be used with user defined types. Since this is usually defined in terms of the range based construction we should probably add both of these constructors.</p>
-
-<ul>
-<li>Vector(std::initializer&#95;list<T> const&amp; list)</li>
-<li>Vector(I begin, I end)</li>
-</ul>
-
-
-<h4>Iterators</h4>
-
-<ul>
-<li>begin()</li>
-<li>rbegin()</li>
-<li>begin() const</li>
-<li>rbegin() const</li>
-<li>cbegin() const</li>
-<li>crbegin() const</li>
-<li>end()</li>
-<li>rend()</li>
-<li>end() const</li>
-<li>cend() const</li>
-<li>rend() const</li>
-<li>crend() const</li>
-</ul>
-
-
-<p>The iterators are relatively easy to write. They also allow the container to be used with the new range based for that was added in C++14. So this becomes another easy add.</p>
-
-<h4>Member Access</h4>
-
-<ul>
-<li>at(&lt;index&gt;)</li>
-<li>at(&lt;index&gt;) const</li>
-<li>operator&#91;&#93;(&lt;index&gt;)</li>
-<li>operator&#91;&#93;(&lt;index&gt;) const</li>
-<li>front()</li>
-<li>back()</li>
-<li>front() const</li>
-<li>back() const</li>
-</ul>
-
-
-<p>Member access to a vector should be very efficient. As a result normally range checks are not performed on member access, i.e. the user is expected to make sure that the method pre-conditions have been met before calling the method. This results in very efficient access to the members of a <code>Vector</code>. This is not normally a problem because index ranges are normally checked as part of a loop range as long as these are validated against the size of the array it does not need to be validated again.</p>
-
-<p>```cpp For Loop Vector Access</p>
-
-<pre><code>Vector&lt;T&gt;   d = getData();
-for(int loop = 0; loop &lt; d.size(); ++loop)
-{
-    std::cout &lt;&lt; d[loop];   // No need for antoher range
-                            // check here as we know that loop is inside the
-                            // bounds of the vector d.
-}
+            Memory      Memory          Memory Needed       Difference
+            Released    Allocated       Next Iteration
+Start       0           10                  20                  20
+Resize 1    10          20                  40                  30
+Resize 2    30          40                  80                  50
+Resize 3    70          80                  160                 90
+Resize 4    150         160                 320                 170
 </code></pre>
 
-<p>```</p>
+<p>OK. That seems to be holding (at least in the short term). Lo lets try a smaller value.<br/>
+Test two <code>r &lt; Phi</code>:</p>
 
-<p>There is also the <code>at()</code> method which does validate the index provided before accessing the element (throwing an exception if the index is out of range).</p>
+<pre><code>B=10
+r=1.5
 
-<h4>Non-Mutating Member Functions</h4>
-
-<ul>
-<li>size() const</li>
-<li>bool() const</li>
-</ul>
-
-
-<p>To allow us to check the pre-conditions on the element accesses methods we need a couple of functions that check the state of the object. These are provided here.</p>
-
-<h4>Mutating Member Functions</h4>
-
-<ul>
-<li>push&#95;back(&lt;object-ref&gt;)</li>
-<li>push&#95;back(&lt;object-rvalue-ref&gt;)</li>
-<li>emplace&#95;back(&lt;args&hellip;&gt;)</li>
-<li>pop&#95;back()</li>
-</ul>
-
-
-<p>The following members are standard easy to implement methods of <code>std::vector</code> (O(1)) that I would expect to see in every implementation.</p>
-
-<p>The other mutating member functions are less trivial as they require elements to be moved around. They are not that hard but you must put some though into the most efficient techniques to move elements (i.e. move or copy) and make sure that capacity is not exceeded by multiple inserts. As a result I would expect to see these methods only on a as need basis.</p>
-
-<h4>Comparators</h4>
-
-<ul>
-<li>operator== const</li>
-<li>operator!= const</li>
-</ul>
-
-
-<p>Easy comparison operators.<br/>
-Optionally you can provide the other comparison operators.</p>
-
-<h1>Final</h1>
-
-<p><strong>No idea why Jackal is adding all the blank lines to my source</strong>
-```cpp Vector</p>
-
-<h1>include &lt;type_traits></h1>
-
-<h1>include <memory></h1>
-
-<h1>include <algorithm></h1>
-
-<h1>include <stdexcept></h1>
-
-<h1>include <iterator></h1>
-
-<p>template<typename T>
-class Vector
-{</p>
-
-<pre><code>public:
-    using value_type        = T;
-    using reference         = T&amp;;
-    using const_reference   = T const&amp;;
-    using pointer           = T*;
-    using const_pointer     = T const*;
-    using iterator          = T*;
-    using const_iterator    = T const*;
-    using riterator         = std::reverse_iterator&lt;iterator&gt;;
-    using const_riterator   = std::reverse_iterator&lt;const_iterator&gt;;
-    using difference_type   = std::ptrdiff_t;
-    using size_type         = std::size_t;
-
-private:
-    size_type       capacity;
-    size_type       length;
-    T*              buffer;
-
-    struct Deleter
-    {
-        void operator()(T* buffer) const
-        {
-            ::operator delete(buffer);
-        }
-    };
-
-public:
-    Vector(int capacity = 10)
-        : capacity(capacity)
-        , length(0)
-        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
-    {}
-    template&lt;typename I&gt;
-    Vector(I begin, I end)
-        : capacity(std::distance(begin, end))
-        , length(0)
-        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
-    {
-        for(auto loop = begin;loop != end; ++loop)
-        {
-            pushBackInternal(*loop);
-        }
-    }
-    Vector(std::initializer_list&lt;T&gt; const&amp; list)
-        : Vector(std::begin(list), std::end(list))
-    {}
-    ~Vector()
-    {
-        // Make sure the buffer is deleted even with exceptions
-        // This will be called to release the pointer at the end
-        // of scope.
-        std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
-        clearElements&lt;T&gt;();
-    }
-    Vector(Vector const&amp; copy)
-        : capacity(copy.length)
-        , length(0)
-        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
-    {
-        try
-        {
-            for(int loop = 0; loop &lt; copy.length; ++loop)
-            {
-                push_back(copy.buffer[loop]);
-            }
-        }
-        catch(...)
-        {
-            std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
-            clearElements&lt;T&gt;();
-
-            // Make sure the exceptions continue propagating after
-            // the cleanup has completed.
-            throw;
-        }
-    }
-    Vector&amp; operator=(Vector const&amp; copy)
-    {
-        copyAssign&lt;T&gt;(copy);
-        return *this;
-    }
-    Vector(Vector&amp;&amp; move) noexcept
-        : capacity(0)
-        , length(0)
-        , buffer(nullptr)
-    {
-        move.swap(*this);
-    }
-    Vector&amp; operator=(Vector&amp;&amp; move) noexcept
-    {
-        move.swap(*this);
-        return *this;
-    }
-    void swap(Vector&amp; other) noexcept
-    {
-        using std::swap;
-        swap(capacity,      other.capacity);
-        swap(length,        other.length);
-        swap(buffer,        other.buffer);
-    }
-
-    // Non-Mutating functions
-    size_type           size() const                        {return length;}
-    bool                empty() const                       {return length == 0;}
-
-    // Validated element access
-    reference           at(size_type index)                 {validateIndex(index);return buffer[index];}
-    const_reference     at(size_type index) const           {validateIndex(index);return buffer[index];}
-
-    // Non-Validated element access
-    reference           operator[](size_type index)         {return buffer[index];}
-    const_reference     operator[](size_type index) const   {return buffer[index];}
-    reference           front()                             {return buffer[0];}
-    const_reference     front() const                       {return buffer[0];}
-    reference           back()                              {return buffer[length - 1];}
-    const_reference     back() const                        {return buffer[length - 1];}
-
-    // Iterators
-    iterator            begin()                             {return buffer;}
-    riterator           rbegin()                            {return riterator(end());}
-    const_iterator      begin() const                       {return buffer;}
-    const_riterator     rbegin() const                      {return const_riterator(end());}
-
-    iterator            end()                               {return buffer + length;}
-    riterator           rend()                              {return riterator(begin());}
-    const_iterator      end() const                         {return buffer + length;}
-    const_riterator     rend() const                        {return const_riterator(begin());}
-
-    const_iterator      cbegin() const                      {return begin();}
-    const_riterator     crbegin() const                     {return rbegin();}
-    const_iterator      cend() const                        {return end();}
-    const_riterator     crend() const                       {return rend();}
-
-    // Comparison
-    bool operator!=(Vector const&amp; rhs) const {return !(*this == rhs);}
-    bool operator==(Vector const&amp; rhs) const
-    {
-        return  (size() == rhs.size())
-            &amp;&amp;  std::equal(begin(), end(), rhs.begin());
-    }
-
-    // Mutating functions
-    void push_back(T const&amp; value)
-    {
-        resizeIfRequire();
-        pushBackInternal(value);
-    }
-    void push_back(T&amp;&amp; value)
-    {
-        resizeIfRequire();
-        moveBackInternal(std::forward&lt;T&gt;(value));
-    }
-    template&lt;typename... Args&gt;
-    void emplace_back(Args&amp;&amp;... args)
-    {
-        resizeIfRequire();
-        emplaceBackInternal(std::forward&lt;T&gt;(args)...);
-    }
-    void pop_back()
-    {
-        --length;
-        buffer[length].~T();
-    }
-    void reserve(size_type capacityUpperBound)
-    {
-        if (capacityUpperBound &gt; capacity)
-        {
-            reserveCapacity(capacityUpperBound);
-        }
-    }
-private:
-    void validateIndex(size_type index) const
-    {
-        if (index &gt;= length)
-        {
-            throw std::out_of_range("Out of Range");
-        }
-    }
-
-    void resizeIfRequire()
-    {
-        if (length == capacity)
-        {
-            size_type     newCapacity  = std::max(2.0, capacity * 1.5);
-            reserveCapacity(newCapacity);
-        }
-    }
-    void reserveCapacity(size_type newCapacity)
-    {
-        Vector&lt;T&gt;  tmpBuffer(newCapacity);
-
-        simpleCopy&lt;T&gt;(tmpBuffer);
-
-        tmpBuffer.swap(*this);
-    }
-
-    // Add new element to the end using placement new
-    void pushBackInternal(T const&amp; value)
-    {
-        new (buffer + length) T(value);
-        ++length;
-    }
-    void moveBackInternal(T&amp;&amp; value)
-    {
-        new (buffer + length) T(std::move(value));
-        ++length;
-    }
-    template&lt;typename... Args&gt;
-    void emplaceBackInternal(Args&amp;&amp;... args)
-    {
-        new (buffer + length) T(std::forward&lt;Args&gt;(args)...);
-        ++length;
-    }
-
-    // Optimizations that use SFINAE to onlt instanciate one
-    // of two versions of a function.
-    //      simpleCopy()        Moves when no exceptions are guranteed, otherwise copies.
-    //      clearElements()     When no destructor remove loop.
-    //      copyAssign()        Avoid resource allocation when no exceptions guranteed.
-    //                          ie. When copying integers re-use the buffer if we can
-    //                          to avoid expensive resource allocation.
-
-    template&lt;typename X&gt;
-    typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == false&gt;::type
-    simpleCopy(Vector&lt;T&gt;&amp; dst)
-    {
-        std::for_each(buffer, buffer + length,
-                      [&amp;dst](T const&amp; v){dst.pushBackInternal(v);}
-                     );
-    }
-    template&lt;typename X&gt;
-    typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == true&gt;::type
-    simpleCopy(Vector&lt;T&gt;&amp; dst)
-    {
-        std::for_each(buffer, buffer + length,
-                      [&amp;dst](T&amp; v){dst.moveBackInternal(std::move(v));}
-                     );
-    }
-
-
-    template&lt;typename X&gt;
-    typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == false&gt;::type
-    clearElements()
-    {
-        // Call the destructor on all the members in reverse order
-        for(int loop = 0; loop &lt; length; ++loop)
-        {
-            // Note we destroy the elements in reverse order.
-            buffer[length - 1 - loop].~T();
-        }
-    }
-
-    template&lt;typename X&gt;
-    typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == true&gt;::type
-    clearElements()
-    {
-        // Trivially destructible objects can be re-used without using the destructor.
-    }
-
-    template&lt;typename X&gt;
-    typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
-                        &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == true&gt;::type
-    copyAssign(Vector&lt;X&gt;&amp; copy)
-    {
-        // This function is only used if there is no chance of an exception being
-        // throw during destruction or copy construction of the type T.
-
-
-        // Quick return for self assignment.
-        if (this == &amp;copy)
-        {
-            return;
-        }
-
-        if (capacity &lt;= copy.length)
-        {
-            // If we have enough space to copy then re-use the sapce we currently
-            // have to avoid the need to perform an expensive resource allocation.
-
-            clearElements&lt;T&gt;();     // Potentially does nothing (see above)
-                                    // But if required will call the destructor of
-                                    // all elements.
-
-            // buffer now ready to get a copy of the data.
-            length = 0;
-            for(int loop = 0; loop &lt; copy.length; ++loop)
-            {
-                pushBackInternal(copy[loop]);
-            }
-        }
-        else
-        {
-            // Fallback to copy and swap if we need to more space anyway
-            Vector&lt;T&gt;  tmp(copy);
-            tmp.swap(*this);
-        }
-    }
-
-    template&lt;typename X&gt;
-    typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
-                         &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == false&gt;::type
-    copyAssign(Vector&lt;X&gt;&amp; copy)
-    {
-        // Copy and Swap idiom
-        Vector&lt;T&gt;  tmp(copy);
-        tmp.swap(*this);
-    }
+            Memory      Memory          Memory Needed       Difference
+            Released    Allocated       Next Iteration
+Start       0           10                  15                  15
+Resize 1    10          15                  22                  12
+Resize 2    25          22                  33                  08
+Resize 3    47          33                  48                  01
+Resize 4    80          48                  72                  -08 // Reuse released memory next iteration
 </code></pre>
 
-<p>};
-```</p>
+<p>OK. That also seems to be holding. But can we show that holds for all values of B? Also this is a bit anecdotal can we actually show this relationship actually hold? Time to break out some maths (not math as my American cousins seem to insist on for the shortening of mathematics).</p>
+
+<p>So the size <code>S</code> of any block after <code>n</code> resize operations will be:</p>
+
+<p>{% verbatim tag:p %}</p>
+
+<pre><code>\[ S   = Br^n \]
+</code></pre>
+
+<p>{% endverbatim %}</p>
+
+<p>Thus the size of <code>Released Memory</code> can be expressed as:</p>
+
+<p>{% verbatim tag:p %}</p>
+
+<pre><code>\[ \sum_{k=0}^{n-1}\ Br^k \]
+</code></pre>
+
+<p>{% endverbatim %}</p>
+
+<p>Also the size of the next block will be:</p>
+
+<p>{% verbatim tag:p %}</p>
+
+<pre><code>\[ Br^{n+1} \]
+</code></pre>
+
+<p>{% endverbatim %}</p>
+
+<p>So if the amount of <code>Released Memory</code> >= the amount required for the next block, then we can reuse the <code>Released Memory</code>.</p>
+
+<p>{% verbatim tag:p %}</p>
+
+<pre><code>\[ \sum_{k=0}^{n-1}\ Br^k &amp;gt;= Br^{n+1} \]
+
+\[ B \sum_{k=0}^{n-1}\ r^k &amp;gt;= Br^{n+1} \]
+
+\[ \sum_{k=0}^{n-1}\ r^k &amp;gt;= r^{n+1} \]
+
+\[ {1-r^{(n-1)+1}\over1-r} &amp;gt;= r^{n+1} \]
+
+\[ {1-r^n\over1-r} &amp;gt;= r^{n+1} \]
+
+\[ 1-r^n &amp;gt;= r^{n+1} (1-r) \]
+
+\[ 1-r^n &amp;gt;= r^{n+1} - r^{n+2} \]
+
+\[ 1 + r^{n+2} - r^{n+1} - r^n &amp;gt;= 0 \]
+
+\[ 1 + r^n (r^2 - r - 1) &amp;gt;= 0 \]
+</code></pre>
+
+<p>{% endverbatim %}</p>
+
+<p>This is were my maths broke down and I had to plot some graphs (my old &ldquo;maths&rdquo; teacher would have been so proud).<br></p>
+
+<p>{% img /images/Root4.png 400 200 &ldquo;n=4&rdquo;%}
+{% img /images/Root8.png 400 200 &ldquo;n=8&rdquo;%}</p>
+
+<br><br>
+
+
+<p>So after looking at the graphs (to undrestand the formula) then talking to some smart people.<br/>
+We find that the first root of the equation is 1. The second root of the equation depends on <code>n</code>, as <code>n</code> tends to <code>infinity</code> the other root tends towards <code>Phi</code>. From this we can infer the following:</p>
+
+<p>{% verbatim tag:p %}</p>
+
+<pre><code>\[
+    1 &amp;lt; r &amp;lt= \Phi
+\]
+</code></pre>
+
+<p>{% endverbatim %}</p>
+
+<p>Thus if <code>r</code> remains in the above range then the above theory holds.</p>
 ]]></content>
   </entry>
   

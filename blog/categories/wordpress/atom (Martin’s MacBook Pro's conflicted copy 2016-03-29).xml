@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Blogging | Loki Astari]]></title>
-  <link href="http://lokiastari.com/blog/categories/blogging/atom.xml" rel="self"/>
+  <title><![CDATA[Category: WordPress | Loki Astari]]></title>
+  <link href="http://lokiastari.com/blog/categories/wordpress/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-03-29T17:49:53-07:00</updated>
+  <updated>2016-03-29T17:49:50-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
