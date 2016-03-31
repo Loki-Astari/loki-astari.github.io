@@ -76,8 +76,8 @@ The first problem here is that we are not obeying the "[rule of three](http://st
 
     int test1()
     {
-        ThorsAnvil::SP   sp1<int>(new int(5));
-        ThorsAnvil::SP   sp2<int>(sp1);  // copy construction
+        ThorsAnvil::UP   sp1<int>(new int(5));
+        ThorsAnvil::UP   sp2<int>(sp1);  // copy construction
         
                  // Here the compiler generated copy constructor
                  // kicks in and does a member wise copy of sp1
@@ -97,8 +97,8 @@ The first problem here is that we are not obeying the "[rule of three](http://st
 
     int test2()
     {
-        ThorsAnvil::SP   sp1<int>(new int(5));
-        ThorsAnvil::SP   sp2<int>(new int(6));
+        ThorsAnvil::UP   sp1<int>(new int(5));
+        ThorsAnvil::UP   sp2<int>(new int(6));
 
         sp2 = sp1; // Assignment operation.
         
