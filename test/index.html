@@ -20,8 +20,9 @@ function GetSocialValueEngagementFromMoz(theUrl)
    var xmlHttp = new XMLHttpRequest();
    xmlHttp.onreadystatechange = function() { 
        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-          var resultObj    = document.getElementById('result');
-          resultObj.innerHTML  = xmlHttp.responseText;
+          var resultObj         = JSON.parse(xmlHttpresponseText);
+          var resultElement     = document.getElementById('result');
+          resultElement.innerHTML   = resultObj.apo.toString();
        }
    }
    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
@@ -56,10 +57,12 @@ function GetSocialValueEngagement(accessID, secretKey, domain) {
         document.getElementById('secretKey').value,
         document.getElementById('domain').value
     );">
-    <span>Access ID : <input value="mozscape-f005e3a127" type="text" id="accessID"/></span>
-    <span>Secret Key: <input value="b62eda64d3ca63ac95db57f3e54ba5b1" type="text" id="secretKey"/></span>
-    <span>Domain: <input value="moz.com" type="text" id="domain"/></span>
-    <input type="submit">
+    <table>
+    <tr><td colspan="2"><div>Get Access ID and key here: https://moz.com/products/api/keys</div></td></tr>
+    <tr><td><div>Access ID :</td><td><input type="text" id="accessID"/></div></td></tr>
+    <tr><td><div>Secret Key:</td><td><input type="text" id="secretKey"/></div></td></tr>
+    <tr><td><div>Domain:</td><td><input value="moz.com" type="text" id="domain"/></div></td></tr>
+    <tr><td colspan="2"><input type="submit"></td></tr>
+    <tr><td><div>ApO :</div></td><td><div id="result">XX</div></td></tr>
 </form>
-    <span>ApO: </span><span id="result"><span>
 </body>
