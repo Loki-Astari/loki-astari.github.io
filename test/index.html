@@ -1,5 +1,65 @@
 <html>
-<head><title>Social Value Engagement Score</title></head>
+<head>
+<title>Social Value Engagement Score</title>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha1.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
+<script>
+function nowTime() {
+    if (Date.now) {
+        return Date.now() / 1000;
+    }
+    return new Date().getTime() / 1000;
+}
+function endTime() {
+    //return 1459487766;
+    return Math.floor(nowTime()) + (60*60*24);
+}
+function GetSocialValueEngagementFromMoz(theUrl)
+{
+   var xmlHttp = new XMLHttpRequest();
+   xmlHttp.onreadystatechange = function() { 
+       if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+          var resultObj    = document.getElementById('result');
+          resultObj.innerHTML  = xmlHttp.responseText;
+       }
+   }
+   xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+   xmlHttp.send(null);
+}
+function GetSocialValueEngagement(accessID, secretKey, domain) {
+   var endpoint     = "lsapi.seomoz.com";
+   var call         = "/url-metrics/".concat(domain).concat("?Cols=1073741825");
+   var timeend      = endTime();
+   var stringToSign = accessID.concat("\n").concat(timeend);
+
+   var hash         = CryptoJS.HmacSHA1(stringToSign, secretKey);
+   var signature    = CryptoJS.enc.Base64.stringify(hash);
+
+   var urlParts = [ "http://", endpoint, "/linkscape", call,
+                    "?AccessID=",   accessID,
+                    "&Expires=",    timeend,
+                    "&Signature=",  signature
+                  ];
+   var url = urlParts.join('');
+   GetSocialValueEngagementFromMoz(url);
+   return true;
+}
+</script>
+</head>
 <body>
 <h1>Social Value Engagement Score</h1>
+<form onsubmit="
+    event.preventDefault();
+    GetSocialValueEngagement(
+        document.getElementById('accessID').value,
+        document.getElementById('secretKey').value,
+        document.getElementById('domain').value
+    );">
+    <span>Access ID : <input value="mozscape-f005e3a127" type="text" id="accessID"/></span>
+    <span>Secret Key: <input value="b62eda64d3ca63ac95db57f3e54ba5b1" type="text" id="secretKey"/></span>
+    <span>Domain: <input value="moz.com" type="text" id="domain"/></span>
+    <input type="submit">
+</form>
+    <span>ApO: </span><span id="result"><span>
 </body>
