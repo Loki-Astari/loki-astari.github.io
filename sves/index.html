@@ -71,9 +71,15 @@ function GetSocialValueEngagement(accessID, secretKey, domain) {
         );
         ">
       <span id="helpBlock" class="help-block">Get Access ID and key <a href="https://moz.com/products/api/keys">here</a></span>
+      <div class="alert alert-danger" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+          <span class="sr-only">Danger:</span>
+            Do not enter your "Secret Key" into random websites.<br>
+            Only trust this site if you followed a link here from Moz's website.
+      </div>
 
       <div class="form-group">
-        <label for="accessID" class="col-sm-2 control-label">Access ID:</label>
+        <label for="accessID" class="col-sm-2 control-label">Access ID: X</label>
         <div class="col-sm-10">
           <input type="text" class="form-control" id="accessID" placeholder="<Your Access ID>">
         </div>
