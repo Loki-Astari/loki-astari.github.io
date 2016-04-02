@@ -7,31 +7,79 @@
 <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js"></script>
 <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha1.js"></script>
 <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
 <script>
 function nowTime() {
     if (Date.now) {
-        return Date.now() / 1000;
+        return Math.floor(Date.now() / 1000);
     }
-    return new Date().getTime() / 1000;
+    return Math.floor(new Date().getTime() / 1000);
 }
-function endTime() {
-    //return 1459487766;
-    return Math.floor(nowTime()) + (60*60*24);
+function endTime(mark) {
+    return mark + (60*60*24);
 }
-function GetSocialValueEngagementFromMoz(theUrl)
-{
+var myChart = null;
+var myTimer = null;
+var myProgV = 0;
+var myProgT = null;
+function updateGraph(domain, timeNow, dataPoint) {
+
+    if (myChart == null) {
+        var ctx = document.getElementById("myChart").getContext("2d");
+        // var myNewChart = new Chart(ctx).PolarArea(data);
+        var data = {
+            labels: [timeNow],
+            datasets: [
+                {
+                    label: "Social Value Engagement Score",
+                    fillColor: "rgba(220,220,220,0.2)",
+                    strokeColor: "rgba(220,220,220,1)",
+                    pointColor: "rgba(220,220,220,1)",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba(220,220,220,1)",
+                    data: [dataPoint]
+                },
+            ]
+        };
+
+        myChart = new Chart(ctx).Line(data, {});
+    }
+    else {
+        myChart.addData([dataPoint], timeNow);
+    }
+}
+function GetSocialValueEngagementFromMoz(domain, firstTime, theUrl) {
    $.get( theUrl, function(data){
        var resultElement        = document.getElementById('result');
        var errorElement         = document.getElementById('error');
        resultElement.innerHTML  = data.apo.toString();
        errorElement.innerHTML   = "";
+
+       myChart = null;
+       myTimer = null;
+       myProgT = null;
+       myProgV = 0;
+       
+       updateGraph(domain, firstTime, data.apo);
+       myTimer = window.setInterval(function() {
+                   $.get( theUrl, function(data){
+                       updateGraph(domain, nowTime(), data.apo);
+                   });
+                   myProgV = 0;
+               }, 60000);
+       myProgT = window.setInterval(function() {
+                  $('#updatebar').css("width", myProgV.toString().concat("%"));
+                  myProgV++;
+               }, 1000);
    });
 }
 function GetSocialValueEngagement(accessID, secretKey, domain, columns) {
    var endpoint     = "lsapi.seomoz.com";
    var call         = "/url-metrics/".concat(domain).concat("?Cols=1073741825");
-   var timeend      = endTime();
-   var stringToSign = accessID.concat("\n").concat(timeend);
+   var timeNow      = nowTime();
+   var expires      = endTime(timeNow);
+   var stringToSign = accessID.concat("\n").concat(expires);
 
    var hash         = CryptoJS.HmacSHA1(stringToSign, secretKey);
    var signature    = CryptoJS.enc.Base64.stringify(hash);
@@ -39,11 +87,11 @@ function GetSocialValueEngagement(accessID, secretKey, domain, columns) {
    var urlParts = [ "http://lsapi.seomoz.com/linkscape/url-metrics/", encodeURIComponent(domain),
                     "?Cols=",       columns,
                     "&AccessID=",   accessID,
-                    "&Expires=",    timeend,
+                    "&Expires=",    expires,
                     "&Signature=",  encodeURIComponent(signature)
                   ];
    var url = urlParts.join('');
-   GetSocialValueEngagementFromMoz(url);
+   GetSocialValueEngagementFromMoz(domain, timeNow, url);
    return true;
 }
 </script>
@@ -110,6 +158,18 @@ function GetSocialValueEngagement(accessID, secretKey, domain, columns) {
         </div>
       </div>
     </form>
-
+    <div class="panel panel-default">
+      <div class="panel-heading">Social Value Engagement Score: Graph</div>
+      <h3>Next Update:</h3>
+      <div class="panel-body">
+        <div class="progress">
+          <div class="progress-bar" id="updatebar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+            <span class="sr-only">60% Complete</span>
+          </div>
+        </div>
+        <h4>Y Axis: Dollars. X Access: Time</h4>
+        <canvas id="myChart" width="400" height="800"></canvas>
+      </div>
+    </div>
 </div>
 </body>
