@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Smart-Pointer | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/smart-pointer/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-04-08T10:42:19-07:00</updated>
+  <updated>2016-04-08T12:50:45-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -701,7 +701,7 @@ Two portions of this look like other code pieces of code that have already been 
     <link href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/"/>
     <updated>2014-12-30T18:41:42-08:00</updated>
     <id>http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer</id>
-    <content type="html"><![CDATA[<p>On <a href="codereview.stackexchange.com">codereview.stackexchange.com</a> in the C++ tag it seems that it is a write of passage to implement your own version of a smart pointer. A quick search brings up the following:</p>
+    <content type="html"><![CDATA[<p>On <a href="http://codereview.stackexchange.com">codereview.stackexchange.com</a> in the C++ tag it seems that it is a write of passage to implement your own version of a smart pointer. A quick search brings up the following:</p>
 
 <ul>
 <li>02/Sep/2011 &ndash; <a href="http://codereview.stackexchange.com/q/4550/507">shared_ptr implementation</a></li>
