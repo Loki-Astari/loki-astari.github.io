@@ -4,7 +4,7 @@
   <title><![CDATA[Category: OctoPress | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-04-08T12:50:45-07:00</updated>
+  <updated>2016-04-08T12:53:25-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -40,7 +40,7 @@
 
 <p>The other major advantage is that it natively supports MarkDown. In fact, you plug in your favorite MarkDown engine (I have currently stuck with the default &lsquo;GitHub markdown&rsquo;). So you can write your article in MarkDown, and it will translate to the appropriate HTML.</p>
 
-<p>Like WordPress it has multiple themes, unlike WordPress the user base is small so the pool of user created themes is tiny in comparison (a couple of dozen). Though not as well established as WordPress, you can easily extend it and build your own themes. There are already a couple of themes based on <a href="https://github.com/twbs/bootstrap">Bootstrap</a> the most commonly forked HTML5/CSS/Javascript web-site project on <a href="github.com">GitHub</a>.</p>
+<p>Like WordPress it has multiple themes, unlike WordPress the user base is small so the pool of user created themes is tiny in comparison (a couple of dozen). Though not as well established as WordPress, you can easily extend it and build your own themes. There are already a couple of themes based on <a href="https://github.com/twbs/bootstrap">Bootstrap</a> the most commonly forked HTML5/CSS/Javascript web-site project on <a href="https://github.com">GitHub</a>.</p>
 
 <h3>GitHub</h3>
 
