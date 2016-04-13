@@ -5,6 +5,7 @@ date: 2016-03-20 22:26:43 -0700
 comments: true
 categories: [C++, Vector, C++-By-Example, Coding]
 series: Vector
+tags: Vector
 sharing: true
 footer: true
 subtitle: C++ By Example

@@ -5,6 +5,7 @@ date: 2014-12-30 18:41:42 -0800
 comments: true
 categories: [C++, Smart-Pointer, C++-by-Example, Coding ]
 series: Smart-Pointer
+tags: Smart-Pointer
 footer: true
 sharing: true
 subtitle: C++ By Example

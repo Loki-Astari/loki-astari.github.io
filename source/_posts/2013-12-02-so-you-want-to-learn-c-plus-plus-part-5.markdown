@@ -5,6 +5,7 @@ date: 2013-12-02 12:00:11 -0800
 comments: true
 categories: [C++, So-You-Want-To-Learn-C++, Coding]
 series: So-You-Want-To-Learn-C++
+tags: So-You-Want-To-Learn-C++
 sharing: true
 footer: true
 subtitle: So you want to learn C++

@@ -6,6 +6,7 @@ comments: true
 categories: 
 categories: [C++, So-You-Want-To-Learn-C++, Coding]
 series: So-You-Want-To-Learn-C++
+tags: So-You-Want-To-Learn-C++
 sharing: true
 footer: true
 subtitle: So you want to learn C++
