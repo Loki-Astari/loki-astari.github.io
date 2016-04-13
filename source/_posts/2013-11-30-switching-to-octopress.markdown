@@ -17,19 +17,19 @@ Markdown is a very simplistic form of 'Markup' (yes programmers think they are f
 
 ###Attack Vector
 
-WordPress is also infamous for being the target of attackers, thus new attacks are constantly being developed (the joy of being top dog). This can be mitigated by putting your WordPress site on [wordpress.com](wordpress.com). This not only provides you with free hosting, but they do keep on top of security vulnerabilities and make sure all hosted sites are not overexposed.
+WordPress is also infamous for being the target of attackers, thus new attacks are constantly being developed (the joy of being top dog). This can be mitigated by putting your WordPress site on [wordpress.com](http://wordpress.com). This not only provides you with free hosting, but they do keep on top of security vulnerabilities and make sure all hosted sites are not overexposed.
 
-If you want use your own domain name (i.e. [LokiAstari.com](LokiAstari.com)) or any other "featured" services then you either need to fork up the cash (not an insignificant sum) or run your own WordPress site. So I have been running my own WordPress sites. However, running your own site opens you to the vulnerabilities of WordPress attacks. To be honest not a big deal until I actually tweeted about my articles (now very much so).
+If you want use your own domain name (i.e. [LokiAstari.com](http://LokiAstari.com)) or any other "featured" services then you either need to fork up the cash (not an insignificant sum) or run your own WordPress site. So I have been running my own WordPress sites. However, running your own site opens you to the vulnerabilities of WordPress attacks. To be honest not a big deal until I actually tweeted about my articles (now very much so).
 
 So the combination of these two issues has made me look for alternatives.
 
 ###OctoPress
 
-[OctoPress](octopress.org) was suggested by a colleague [Dan Lecocq](https://github.com/danlecocq). It is basically an off-line blogging system that takes your articles and creates a set of static pages. You can then use several systems to publish these static pages. As the pages are generated once (each time you create a new article) the requirements for the hosting system are minimal, and consequently, because there is no dynamic content, there are no attack vectors that can be used against the site. Note: This does not mean the site has to be simple or boring as the pages can still have dynamic content loaded from other sites (like twitter/github/facebook etc.) It is just that the dynamic content will be fetched by the browser from other sites.
+[OctoPress](http://octopress.org) was suggested by a colleague [Dan Lecocq](https://github.com/danlecocq). It is basically an off-line blogging system that takes your articles and creates a set of static pages. You can then use several systems to publish these static pages. As the pages are generated once (each time you create a new article) the requirements for the hosting system are minimal, and consequently, because there is no dynamic content, there are no attack vectors that can be used against the site. Note: This does not mean the site has to be simple or boring as the pages can still have dynamic content loaded from other sites (like twitter/github/facebook etc.) It is just that the dynamic content will be fetched by the browser from other sites.
 
 The other major advantage is that it natively supports MarkDown. In fact, you plug in your favorite MarkDown engine (I have currently stuck with the default 'GitHub markdown'). So you can write your article in MarkDown, and it will translate to the appropriate HTML.
 
-Like WordPress it has multiple themes, unlike WordPress the user base is small so the pool of user created themes is tiny in comparison (a couple of dozen). Though not as well established as WordPress, you can easily extend it and build your own themes. There are already a couple of themes based on [Bootstrap](https://github.com/twbs/bootstrap) the most commonly forked HTML5/CSS/Javascript web-site project on [GitHub](github.com).
+Like WordPress it has multiple themes, unlike WordPress the user base is small so the pool of user created themes is tiny in comparison (a couple of dozen). Though not as well established as WordPress, you can easily extend it and build your own themes. There are already a couple of themes based on [Bootstrap](https://github.com/twbs/bootstrap) the most commonly forked HTML5/CSS/Javascript web-site project on [GitHub](https://github.com).
 
 ###GitHub
 
