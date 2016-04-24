@@ -9,10 +9,10 @@ sharing: true
 footer: true
 subtitle: C++ By Example
 author: Loki Astari, (C)2016
-description: C++ By Example. The Vector Part 5. So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an in-site into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).
+description: C++ By Example. The Vector Part 5. So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an insight into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).
 ---
 
-So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an in-site into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).
+So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an insight into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).
 
 For details see the [latest copy of the C++ standard](http://stackoverflow.com/a/4653479/14065).
 
@@ -29,7 +29,7 @@ For details see the [latest copy of the C++ standard](http://stackoverflow.com/a
 * difference&#95;type
 * size&#95;type
 
-It is worth specifying the internal types defined here. As this allows you to abstract the implementation details of the container. This will allow you to change the implementation details without users having to change there implementation; as long as the changes still provide the same interface but the interface to reference/pointers/iterators are relatively trivial and well defined.
+It is worth specifying the internal types defined here. As this allows you to abstract the implementation details of the container. This will allow you to change the implementation details without users having to change their implementation; as long as the changes still provide the same interface but the interface to reference/pointers/iterators are relatively trivial and well defined.
 
 #### Constructors
 
@@ -64,7 +64,7 @@ The iterators are relatively easy to write. They also allow the container to be 
 * front() const
 * back() const
 
-Member access to a vector should be very efficient. As a result normally range checks are not performed on member access, i.e. the user is expected to make sure that the method pre-conditions have been met before calling the method. This results in very efficient access to the members of a `Vector`. This is not normally a problem because index ranges are normally checked as part of a loop range as long as these are validated against the size of the array it does not need to be validated again.
+Member access to a vector should be very efficient. As a result normally range checks are not performed on member access, i.e. the user is expected to make sure that the method preconditions have been met before calling the method. This results in very efficient access to the members of a `Vector`. This is not normally a problem because index ranges are normally checked as part of a loop range as long as these are validated against the size of the array it does not need to be validated again.
 
 ```cpp For Loop Vector Access
 
@@ -84,7 +84,7 @@ There is also the `at()` method which does validate the index provided before ac
 * size() const
 * bool() const
 
-To allow us to check the pre-conditions on the element accesses methods we need a couple of functions that check the state of the object. These are provided here.
+To allow us to check the preconditions on the element access methods we need some functions that check the state of the object. These are provided here.
 
 #### Mutating Member Functions
 * push&#95;back(&lt;object-ref&gt;)
@@ -94,13 +94,13 @@ To allow us to check the pre-conditions on the element accesses methods we need 
 
 The following members are standard easy to implement methods of `std::vector` (O(1)) that I would expect to see in every implementation.
 
-The other mutating member functions are less trivial as they require elements to be moved around. They are not that hard but you must put some though into the most efficient techniques to move elements (i.e. move or copy) and make sure that capacity is not exceeded by multiple inserts. As a result I would expect to see these methods only on a as need basis.
+The other mutating member functions are less trivial as they require elements to be moved around. They are not that hard but you must put some thought into the most efficient techniques to move elements (i.e. move or copy) and make sure that capacity is not exceeded by multiple inserts. As a result I would expect to see these methods only on an as needed basis.
 
 #### Comparators
 * operator== const
 * operator!= const
 
-Easy comparison operators.  
+Easy comparison operators.
 Optionally you can provide the other comparison operators.
 
 
@@ -330,12 +330,12 @@ class Vector
             ++length;
         }
 
-        // Optimizations that use SFINAE to onlt instanciate one
+        // Optimizations that use SFINAE to only instantiate one
         // of two versions of a function.
-        //      simpleCopy()        Moves when no exceptions are guranteed, otherwise copies.
+        //      simpleCopy()        Moves when no exceptions are guaranteed, otherwise copies.
         //      clearElements()     When no destructor remove loop.
-        //      copyAssign()        Avoid resource allocation when no exceptions guranteed.
-        //                          ie. When copying integers re-use the buffer if we can
+        //      copyAssign()        Avoid resource allocation when no exceptions guaranteed.
+        //                          ie. When copying integers reuse the buffer if we can
         //                          to avoid expensive resource allocation.
 
         template<typename X>
@@ -372,7 +372,7 @@ class Vector
         typename std::enable_if<std::is_trivially_destructible<X>::value == true>::type
         clearElements()
         {
-            // Trivially destructible objects can be re-used without using the destructor.
+            // Trivially destructible objects can be reused without using the destructor.
         }
 
         template<typename X>
@@ -381,7 +381,7 @@ class Vector
         copyAssign(Vector<X>& copy)
         {
             // This function is only used if there is no chance of an exception being
-            // throw during destruction or copy construction of the type T.
+            // thrown during destruction or copy construction of the type T.
 
 
             // Quick return for self assignment.
@@ -392,7 +392,7 @@ class Vector
 
             if (capacity <= copy.length)
             {
-                // If we have enough space to copy then re-use the sapce we currently
+                // If we have enough space to copy then reuse the space we currently
                 // have to avoid the need to perform an expensive resource allocation.
 
                 clearElements<T>();     // Potentially does nothing (see above)

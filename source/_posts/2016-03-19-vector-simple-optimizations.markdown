@@ -16,7 +16,7 @@ So now that we have used `std::is_nothrow_move_constructible` we can also look a
 
 # Optimized Destruction
 
-Since we have to manually call the destructor on all objects in the container (because we are using placement new) we can look to see if we can optimize that. The type `std::is_trivially_destructible` detects if the type is **Trivially** destructible. This basically means that there will be no side affects from the destructor (See: Section 12.4 Paragraph 5 of the standard). For types we don't need to call the destructor of the object. For the `Vector` class this means we can eliminate the call to the destructor but more importantly the loop.
+Since we have to manually call the destructor on all objects in the container (because we are using placement new) we can look to see if we can optimize that. The type `std::is_trivially_destructible` detects if the type is **Trivially** destructible. This basically means that there will be no side effects from the destructor (See: Section 12.4 Paragraph 5 of the standard). For types we don't need to call the destructor of the object. For the `Vector` class this means we can eliminate the call to the destructor but more importantly the loop.
 
 ```cpp Destroying Elements
         ~Vector()
@@ -99,7 +99,7 @@ We can use the same SFINAE technique that we used in the previous article to rem
 ```
 
 # Optimized Assignment Operator
-The final optimization is because resource allocation is expensive. So if we can avoid the resource allocation completely and just re-use the space we currently have.
+The final optimization is because resource allocation is expensive. So if we can avoid the resource allocation completely and just reuse the space we currently have.
 
 ```cpp Copy Assignment
         Vector& operator=(Vector const& copy)
@@ -111,7 +111,7 @@ The final optimization is because resource allocation is expensive. So if we can
         }
 ```
 
-The copy and swap idiom is perfect for providing the strong exception guarantee in the presence of exceptions. **But** if there are no exceptions during destruction or construction then we can potentially just re-use the available memory. So if we re-wrote the assignment operator with the assumption that there were no exceptions it would look like the following (Note in the real code use SFINAE to do the optimization only when necessary).
+The copy and swap idiom is perfect for providing the strong exception guarantee in the presence of exceptions. **But** if there are no exceptions during destruction or construction then we can potentially just reuse the available memory. So if we rewrote the assignment operator with the assumption that there were no exceptions it would look like the following (Note in the real code use SFINAE to do the optimization only when necessary).
 
 ```cpp Copy the easy way
         Vector& operator=(Vector const& copy)
@@ -137,7 +137,7 @@ The copy and swap idiom is perfect for providing the strong exception guarantee 
 
             // The optimization happens here.
             // We can reuse the buffer we already have.
-            clearElements<T>();     // use cearElements() as it probably does very little.
+            clearElements<T>();     // use clearElements() as it probably does very little.
             length = 0;
 
             // Now add the elements to this container as cheaply as possible.
@@ -309,7 +309,7 @@ The final version
             typename std::enable_if<std::is_trivially_destructible<X>::value == true>::type
             clearElements()
             {
-                // Trivially destructible objects can be re-used without using the destructor.
+                // Trivially destructible objects can be reused without using the destructor.
             }
 
             template<typename X>
