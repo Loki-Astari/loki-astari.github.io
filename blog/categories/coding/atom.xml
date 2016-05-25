@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Coding | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/coding/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-05-25T09:19:20-07:00</updated>
+  <updated>2016-05-25T09:21:14-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,760 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Socket Class]]></title>
-    <link href="http://lokiastari.com/blog/2016/04/24/socketcpp/"/>
-    <updated>2016-04-24T21:13:39-07:00</updated>
-    <id>http://lokiastari.com/blog/2016/04/24/socketcpp</id>
-    <content type="html"><![CDATA[<p>So in the</p>
-
-<p>```</p>
-
-<h1>ifndef THORSANVIL_SOCKET_H</h1>
-
-<h1>define THORSANVIL_SOCKET_H</h1>
-
-<h1>include <string></h1>
-
-<h1>include <sstream></h1>
-
-<p>namespace ThorsAnvil
-{</p>
-
-<pre><code>namespace Socket
-{
-</code></pre>
-
-<p>template&lt;std::size_t I = 0, typename&hellip; Tp>
-inline typename std::enable_if<I == sizeof...(Tp), void>::type
-print(std::ostream&amp; s, std::tuple&lt;Tp&hellip;> const&amp; t)
-{ }</p>
-
-<p>template&lt;std::size_t I = 0, typename&hellip; Tp>
-inline typename std::enable_if<I < sizeof...(Tp), void>::type
-print(std::ostream&amp; s, std::tuple&lt;Tp&hellip;> const&amp; t)
-{</p>
-
-<pre><code>s &lt;&lt; std::get&lt;I&gt;(t);
-print&lt;I + 1, Tp...&gt;(s, t);
-</code></pre>
-
-<p>}</p>
-
-<p>template&lt;typename&hellip; Args>
-std::string buildErrorMessage(Args const&amp;&hellip; args)
-{</p>
-
-<pre><code>std::stringstream msg;
-print(msg, std::make_tuple(args...));
-return msg.str();
-</code></pre>
-
-<p>}</p>
-
-<p>class SocketBase
-{</p>
-
-<pre><code>protected:
-    int     socketId;
-public:
-    SocketBase(int socketId);
-    ~SocketBase();
-
-    SocketBase(SocketBase&amp;&amp; move)               noexcept;
-    SocketBase&amp; operator=(SocketBase&amp;&amp; move)    noexcept;
-    void swap(SocketBase&amp; other)                noexcept;
-    SocketBase(SocketBase const&amp;)               = delete;
-    SocketBase&amp; operator=(SocketBase const&amp;)    = delete;
-
-    void close();
-</code></pre>
-
-<p>};</p>
-
-<p>class SocketData: public SocketBase
-{</p>
-
-<pre><code>public:
-    using SocketBase::SocketBase;
-
-    bool getMessage(std::string&amp; message, bool resize = false);
-    void putMessage(std::string const&amp; message);
-</code></pre>
-
-<p>};</p>
-
-<p>class ConnectSocket: public SocketData
-{</p>
-
-<pre><code>public:
-    ConnectSocket(std::string const&amp; host, int port);
-</code></pre>
-
-<p>};</p>
-
-<p>class ServerSocket: public SocketBase
-{</p>
-
-<pre><code>public:
-    ServerSocket(int port);
-
-    SocketData accept();
-</code></pre>
-
-<p>};</p>
-
-<pre><code>}
-</code></pre>
-
-<p>}</p>
-
-<h1>endif</h1>
-
-<p>```</p>
-
-<p>```</p>
-
-<h1>include &ldquo;Socket.h&rdquo;</h1>
-
-<h1>include &lt;arpa/inet.h></h1>
-
-<h1>include &lt;sys/types.h></h1>
-
-<h1>include &lt;sys/socket.h></h1>
-
-<h1>include &lt;unistd.h></h1>
-
-<h1>include <sstream></h1>
-
-<h1>include <stdexcept></h1>
-
-<p>using namespace ThorsAnvil::Socket;</p>
-
-<p>SocketBase::SocketBase(int socketId)</p>
-
-<pre><code>: socketId(socketId)
-</code></pre>
-
-<p>{</p>
-
-<pre><code>//std::cerr &lt;&lt; "SocketBase(" &lt;&lt; socketId &lt;&lt; ")\n";
-if (socketId == -1)
-{
-    throw std::runtime_error(buildErrorMessage("SocketBase::SocketBase: bad socket: ", strerror(errno)));
-}
-</code></pre>
-
-<p>}</p>
-
-<p>SocketBase::~SocketBase()
-{</p>
-
-<pre><code>close();
-</code></pre>
-
-<p>}</p>
-
-<p>void SocketBase::close()
-{</p>
-
-<pre><code>socketId = 0;   
-::close(socketId);
-</code></pre>
-
-<p>}</p>
-
-<p>void SocketBase::swap(SocketBase&amp; other) noexcept
-{</p>
-
-<pre><code>using std::swap;
-swap(socketId,   other.socketId);
-</code></pre>
-
-<p>}</p>
-
-<p>SocketBase::SocketBase(SocketBase&amp;&amp; move) noexcept</p>
-
-<pre><code>: socketId(0)
-</code></pre>
-
-<p>{</p>
-
-<pre><code>move.swap(*this);
-</code></pre>
-
-<p>}</p>
-
-<p>SocketBase&amp; SocketBase::operator=(SocketBase&amp;&amp; move) noexcept
-{</p>
-
-<pre><code>move.swap(*this);
-return *this;
-</code></pre>
-
-<p>}</p>
-
-<p>ConnectSocket::ConnectSocket(std::string const&amp; host, int port)</p>
-
-<pre><code>: SocketData(::socket(PF_INET, SOCK_STREAM, 0))
-</code></pre>
-
-<p>{</p>
-
-<pre><code>struct sockaddr_in serverAddr;
-bzero((char*)&amp;serverAddr, sizeof(serverAddr));
-serverAddr.sin_family       = AF_INET;
-serverAddr.sin_port         = htons(port);
-serverAddr.sin_addr.s_addr  = inet_addr(host.c_str());
-
-if (::connect(socketId, (struct sockaddr*)&amp;serverAddr, sizeof(serverAddr)) != 0)
-{
-    close();
-    throw std::runtime_error(buildErrorMessage("ConnectSocket::ConnectSocket: connect: ", strerror(errno)));
-}
-</code></pre>
-
-<p>}</p>
-
-<p>ServerSocket::ServerSocket(int port)</p>
-
-<pre><code>: SocketBase(::socket(PF_INET, SOCK_STREAM, 0))
-</code></pre>
-
-<p>{</p>
-
-<pre><code>struct sockaddr_in serverAddr;
-bzero((char*)&amp;serverAddr, sizeof(serverAddr));
-serverAddr.sin_family       = AF_INET;
-serverAddr.sin_port         = htons(port);
-serverAddr.sin_addr.s_addr  = INADDR_ANY;
-
-if (::bind(socketId, (struct sockaddr *) &amp;serverAddr, sizeof(serverAddr)) != 0)
-{
-    close();
-    throw std::runtime_error(buildErrorMessage("ServerSocket::ServerSocket: bind: ", strerror(errno)));
-}
-
-if (::listen(socketId, 5) != 0)
-{
-    close();
-    throw std::runtime_error(buildErrorMessage("ServerSocket::ServerSocket: listen: ", strerror(errno)));
-}
-</code></pre>
-
-<p>}</p>
-
-<p>SocketData ServerSocket::accept()
-{</p>
-
-<pre><code>struct  sockaddr_storage    serverStorage;
-socklen_t                   addr_size   = sizeof serverStorage;
-int newSocket = ::accept(socketId, (struct sockaddr*)&amp;serverStorage, &amp;addr_size);
-if (newSocket == -1)
-{
-    throw std::runtime_error(buildErrorMessage("ServerSocket:accept: accept: ", strerror(errno)));
-}
-return SocketData(newSocket);
-</code></pre>
-
-<p>}</p>
-
-<p>class StringSizer
-{</p>
-
-<pre><code>std::string&amp;    stringData;
-std::size_t&amp;    currentSize;
-public:
-    StringSizer(std::string&amp; stringData, std::size_t&amp; currentSize)
-        : stringData(stringData)
-        , currentSize(currentSize)
-    {
-        stringData.resize(stringData.capacity());
-    }
-    ~StringSizer()
-    {
-        stringData.resize(currentSize);
-    }
-    void incrementSize(std::size_t amount)
-    {
-        currentSize += amount;
-    }
-</code></pre>
-
-<p>};</p>
-
-<p>bool SocketData::getMessage(std::string&amp; message, bool resize)
-{</p>
-
-<pre><code>//std::cerr &lt;&lt; "Getting Message\n";
-std::size_t     dataRead = 0;
-
-do
-{
-    StringSizer        stringSizer(message, dataRead);
-    std::size_t const  capacity = message.capacity();
-    std::size_t const  dataMax  = capacity - 1;
-    char*              buffer   = &amp;message[0];
-
-    while(dataRead &lt; dataMax)
-    {
-        std::size_t get = read(socketId, buffer + dataRead, dataMax - dataRead);
-        //std::cerr &lt;&lt; " read: " &lt;&lt; get &lt;&lt; "\n";
-        if (get == -1)
-        {
-            switch(errno)
-            {
-                case EBADF:
-                case EFAULT:
-                case EINVAL:
-                case ENXIO:
-                {
-                    // Fatal error. Programming bug
-                    throw std::domain_error(buildErrorMessage("SocketData::getMessage: read: critical error: ", strerror(errno)));
-                }
-                case EIO:
-                case ENOBUFS:
-                case ENOMEM:
-                {
-                   // Resource acquisition failure or device error
-                    throw std::runtime_error(buildErrorMessage("SocketData::getMessage: read: resource failure: ", strerror(errno)));
-                }
-                case ETIMEDOUT:
-                case EAGAIN:
-                case EINTR:
-                {
-                    // Temporrary error.
-                    // Simply retry the read.
-                    continue;
-                }
-                case ECONNRESET:
-                case ENOTCONN:
-                {
-                    // Connection broken.
-                    // Return the data we have available and exit
-                    // as if the connection was closed correctly.
-                    get = 0;
-                    break;
-                }
-                default:
-                {
-                    throw std::runtime_error(buildErrorMessage("SocketData::getMessage: read: returned -1: ", strerror(errno)));
-                }
-            }
-        }
-        if (get == 0)
-        {
-            return dataRead &gt; 0;
-        }
-        dataRead += get;
-        stringSizer.incrementSize(get);
-    }
-    if (resize)
-    {
-        message.reserve(message.capacity() * 1.5);
-    }
-}
-while(resize);
-return true;
-</code></pre>
-
-<p>}</p>
-
-<p>void SocketData::putMessage(std::string const&amp; message)
-{</p>
-
-<pre><code>char const*     buffer      = &amp;message[0];
-std::size_t     size        = message.size();
-std::size_t     dataWritten = 0;
-
-while(dataWritten &lt; size)
-{
-    std::size_t put = write(socketId, buffer + dataWritten, size - dataWritten);
-    if (put == -1)
-    {
-        switch(errno)
-        {
-            case EINVAL:
-            case EBADF:
-            case ECONNRESET:
-            case ENXIO:
-            case EPIPE:
-            {
-                // Fatal error. Programming bug
-                throw std::domain_error(buildErrorMessage("SocketData::putMessage: write: critical error: ", strerror(errno)));
-            }
-            case EDQUOT:
-            case EFBIG:
-            case EIO:
-            case ENETDOWN:
-            case ENETUNREACH:
-            case ENOSPC:
-            {
-                // Resource acquisition failure or device error
-                throw std::runtime_error(buildErrorMessage("SocketData::putMessage: write: resource failure: ", strerror(errno)));
-            }
-            case EAGAIN:
-            case EINTR:
-            {
-                // Temporrary error.
-                // Simply retry the read.
-                continue;
-            }
-            default:
-            {
-                throw std::runtime_error(buildErrorMessage("SocketData::putMessage: write: returned -1: ", strerror(errno)));
-            }
-        }
-    }
-    dataWritten += put;
-}
-::shutdown(socketId, SHUT_WR);
-return;
-</code></pre>
-
-<p>}
-```</p>
-
-<p>```</p>
-
-<h1>include &ldquo;Socket.h&rdquo;</h1>
-
-<h1>include <iostream></h1>
-
-<p>namespace Sock = ThorsAnvil::Socket;</p>
-
-<p>int main()
-{</p>
-
-<pre><code>Sock::ServerSocket   server(8080);
-int                  finished    = 0;
-while(!finished)
-{
-    Sock::SocketData  accept  = server.accept();
-
-    std::string message;
-    while(accept.getMessage(message))
-    {
-        std::cout &lt;&lt; message;
-    }
-    std::cout &lt;&lt; "\n";
-
-    accept.putMessage("OK");
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>```</p>
-
-<h1>include &ldquo;Socket.h&rdquo;</h1>
-
-<h1>include <cstdlib></h1>
-
-<h1>include <iostream></h1>
-
-<p>namespace Sock = ThorsAnvil::Socket;</p>
-
-<p>int main(int argc, char* argv[])
-{</p>
-
-<pre><code>if (argc != 3)
-{
-    std::cerr &lt;&lt; "Usage: client &lt;host&gt; &lt;Message&gt;\n";
-    std::exit(1);
-}
-
-Sock::ConnectSocket    connect(argv[1], 8080);
-connect.putMessage(argv[2]);
-
-std::string message;
-while(connect.getMessage(message))
-{
-    std::cout &lt;&lt; message;
-}
-std::cout &lt;&lt; "\n";
-</code></pre>
-
-<p>}
-```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Socket Programming in C Version 2]]></title>
-    <link href="http://lokiastari.com/blog/2016/04/11/socket-programming-in-c-version-2/"/>
-    <updated>2016-04-11T21:27:01-07:00</updated>
-    <id>http://lokiastari.com/blog/2016/04/11/socket-programming-in-c-version-2</id>
-    <content type="html"><![CDATA[<h1>C Server</h1>
-
-<p>You can also see all the requests for review for <a href="#SourceC">C version on codereview.stackexchange.com</a>.</p>
-
-<p>Building a client/server application is a common first internet based applications that C developers build. There are many examples out there on the web most of the examples are in C. You can also see all the requests for review for <a href="#SourceC">C version on codereview.stackexchange.com</a>. A lot of people have taken these C version and tried to convert them verbatim to C++ reviews for <a href="#SourceCpp">C++ version on codereview.stackexchange.com</a>.</p>
-
-<p>Note: You can find a fully working version of this code <a href="https://github.com/Loki-Astari/Examples/tree/master/ClientServerCExample">here</a>:</p>
-
-<p>```cpp  C Server</p>
-
-<h1>include &ldquo;common.h&rdquo;</h1>
-
-<h1>include &lt;netinet/in.h></h1>
-
-<h1>include &lt;errno.h></h1>
-
-<h1>include &lt;stdio.h></h1>
-
-<h1>include &lt;stdlib.h></h1>
-
-<h1>include &lt;string.h></h1>
-
-<h1>include &lt;unistd.h></h1>
-
-<h1>define SERVER_BUFFER_SIZE     1024</h1>
-
-<p>int main()
-{</p>
-
-<pre><code>int socketId = serverSocket();
-if (socketId == -1)
-{
-    fprintf(stderr, "%s\n%s\n", socketError, strerror(errno));
-    exit(1);
-}
-int                         finished    = 0;
-while(!finished)
-{
-    struct  sockaddr_storage    serverStorage;
-    socklen_t                   addr_size   = sizeof serverStorage;
-    int newSocket = accept(socketId, (struct sockaddr*)&amp;serverStorage, &amp;addr_size);
-    if (newSocket == -1)
-    {
-        fprintf(stderr, "Failed: accept()\n%s\n", strerror(errno));
-        close(socketId);
-        exit(1);
-    }
-
-    static char const*  fullBufferFormat = "%." QUOTE(SERVER_BUFFER_SIZE) "s";
-    static char const*  endBufferFormat  = "%s\n";
-
-    int         get;
-    char        buffer[SERVER_BUFFER_SIZE];
-    while((get = getMessage(newSocket, buffer, SERVER_BUFFER_SIZE)) &gt; 0)
-    {
-        char const* format = get == 0 ? endBufferFormat : fullBufferFormat;
-        fprintf(stdout, format, buffer);
-    }
-
-    char const* msg     = get == 0 ? "OK" : "ERROR";
-    if (sendMessage(newSocket, msg, strlen(msg) + 1) != 0)
-    {
-        fprintf(stderr, "Failed: sendMessage\n%s\n", strerror(errno));
-        close(newSocket);
-        close(socketId);
-        exit(1);
-    }
-    fprintf(stdout, "Message Complete\n");
-
-    close(newSocket);
-}
-close(socketId);
-</code></pre>
-
-<p>}
-```</p>
-
-<p>```cpp C Client</p>
-
-<h1>include &ldquo;common.h&rdquo;</h1>
-
-<h1>include &lt;arpa/inet.h></h1>
-
-<h1>include &lt;errno.h></h1>
-
-<h1>include &lt;stdio.h></h1>
-
-<h1>include &lt;stdlib.h></h1>
-
-<h1>include &lt;string.h></h1>
-
-<h1>include &lt;unistd.h></h1>
-
-<h1>define CLIENT_BUFFER_SIZE     1024</h1>
-
-<p>int main(int argc, char* argv[])
-{</p>
-
-<pre><code>if (argc != 3)
-{
-    fprintf(stderr, "Usage: client &lt;host&gt; &lt;Message&gt;\n");
-    exit(1);
-}
-
-int socketId = clientSocket(argv[1]);
-if (socketId == -1)
-{
-    fprintf(stderr, "%s\n%s\n", socketError, strerror(errno));
-    exit(1);
-}
-
-if (sendMessage(socketId, argv[2], strlen(argv[2]) + 1) != 0)
-{
-    fprintf(stderr, "Failed: sendMessage()\n%s\n", strerror(errno));
-    close(socketId);
-    exit(1);
-}
-if (shutdown(socketId, SHUT_WR) != 0)
-{
-    fprintf(stderr, "Failed: shutdown()\n%s\n", strerror(errno));
-    close(socketId);
-    exit(1);
-}
-
-static char const*  fullBufferFormat = "%s %." QUOTE(CLIENT_BUFFER_SIZE) "s";
-static char const*  endBufferFormat  = "%s %s\n";
-
-int     get;
-char    buffer[CLIENT_BUFFER_SIZE];
-while((get = getMessage(socketId, buffer, CLIENT_BUFFER_SIZE)) &gt; 0)
-{
-    char const* format = get == 0 ? endBufferFormat : fullBufferFormat;
-    fprintf(stdout, format, "Response from server", buffer);
-}
-
-if (get == -1)
-{
-    fprintf(stderr, "Failed: getMessage()\n%s\n", strerror(errno));
-}
-
-close(socketId);
-</code></pre>
-
-<p>}
-```
-You will notice the extensive code used in error checking and reporting used in C code.</p>
-
-<p>The main advantages, for me, in C++ code is RAII and exceptions. Rewriting the above code using a <code>Socket</code> class to handle resource management and exceptions to provide an error propagation system. These simple changes result in a 20% code reduction and in my opinion make the code is easier to read (I have tried to be fair and provide a fair comparison but I am definitely biased).</p>
-
-<p>Note: You can find a fully working version of this code <a href="https://github.com/Loki-Astari/Examples/tree/master/Socket">here</a>:</p>
-
-<p>A lot of people have taken these C version and tried to convert them verbatim to C++ reviews for <a href="#SourceCpp">C++ version on codereview.stackexchange.com</a>.</p>
-
-<p>```cpp C++ Server</p>
-
-<h1>include &ldquo;common.h&rdquo;</h1>
-
-<h1>include <iostream></h1>
-
-<h1>include <sstream></h1>
-
-<h1>include <cstdint></h1>
-
-<p>int main()
-{</p>
-
-<pre><code>static std::string okMsg    = "OK";
-static std::string errorMsg = "ERROR";
-try
-{
-    Server  server;
-    int                         finished    = 0;
-    while(!finished)
-    {
-        Socket      connection = server.accept();
-
-        std::string buffer;
-        bool    ok = false;
-        if (connection.getMessage(buffer))
-        {
-            std::cout &lt;&lt; buffer &lt;&lt; "\n"
-                      &lt;&lt; "Message Complete\n";
-            ok = true;
-        }
-
-        if (!connection.sendMessage(ok ? okMsg : errorMsg))
-        {
-            std::cerr &lt;&lt; "Send Message Failed\n" &lt;&lt; strerror(errno) &lt;&lt; "\n";
-        }
-    }
-}
-catch(std::exception const&amp; e)
-{
-    std::cerr &lt;&lt; "Exception: " &lt;&lt; e.what() &lt;&lt; "\n";
-    throw;
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>```cpp C++ Client</p>
-
-<h1>include &ldquo;common.h&rdquo;</h1>
-
-<h1>include <iostream></h1>
-
-<h1>include <sstream></h1>
-
-<h1>include <cstdint></h1>
-
-<h1>define CLIENT_BUFFER_SIZE     1024</h1>
-
-<p>int main(int argc, char* argv[])
-{</p>
-
-<pre><code>if (argc != 3)
-{
-    std::cerr &lt;&lt; "Usage: client &lt;host&gt; &lt;Message&gt;\n";
-    exit(1);
-}
-
-try
-{
-    Client  client(argv[1]);
-
-    if (!client.sendMessage(argv[2]))
-    {
-        std::stringstream message("Failed: sendMessage()\n");
-        message &lt;&lt; strerror(errno);
-        throw std::runtime_error(message.str());
-    }
-
-    std::string     buffer;
-    if (client.getMessage(buffer))
-    {
-        std::cout &lt;&lt; "Response from server: " &lt;&lt; buffer &lt;&lt; "\n";
-    }
-}
-catch(std::exception const&amp; e)
-{
-    std::cerr &lt;&lt; "Exception: " &lt;&lt; e.what() &lt;&lt; "\n";
-    throw;
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h2>Mimicking the C interface</h2>
-
-<pre><code>void                            SocketCreate();
-void                            SocketBind();
-void                            SocketListen();
-static void*                    SocketAccept(void*);
-static void*                    SocketRead(void*);
-</code></pre>
-
-<h2>Curl Wrapper.</h2>
-
-<ul>
-<li>2012-Aug-06 <a href="http://codereview.stackexchange.com/q/14389/507">Tiny Curl C++ wrapper</a></li>
-</ul>
-
-
-<p>Stuff to Write</p>
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Socket Read/Write]]></title>
@@ -1374,6 +620,828 @@ They noticed that:
 <p></notextile></div></p></p>
 
 <p>Thus if <code>r</code> remains in the above range then the above theory holds.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Vector - The Other Stuff]]></title>
+    <link href="http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff/"/>
+    <updated>2016-03-20T22:26:43-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff</id>
+    <content type="html"><![CDATA[<p>So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an insight into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).</p>
+
+<p>For details see the <a href="http://stackoverflow.com/a/4653479/14065">latest copy of the C++ standard</a>.</p>
+
+<ul>
+<li>23.2.1  General container requirements [container.requirements.general]</li>
+<li>23.2.3  Sequence containers [sequence.reqmts]</li>
+</ul>
+
+
+<h4>Internal Types</h4>
+
+<ul>
+<li>value&#95;type</li>
+<li>reference</li>
+<li>const&#95;reference</li>
+<li>iterator</li>
+<li>const&#95;iterator</li>
+<li>difference&#95;type</li>
+<li>size&#95;type</li>
+</ul>
+
+
+<p>It is worth specifying the internal types defined here. As this allows you to abstract the implementation details of the container. This will allow you to change the implementation details without users having to change their implementation; as long as the changes still provide the same interface but the interface to reference/pointers/iterators are relatively trivial and well defined.</p>
+
+<h4>Constructors</h4>
+
+<p>In C++11 the <code>std::initializer_list&lt;T&gt;</code> was introduced. This allows a better list initialization syntax to be used with user defined types. Since this is usually defined in terms of the range based construction we should probably add both of these constructors.</p>
+
+<ul>
+<li>Vector(std::initializer&#95;list<T> const&amp; list)</li>
+<li>Vector(I begin, I end)</li>
+</ul>
+
+
+<h4>Iterators</h4>
+
+<ul>
+<li>begin()</li>
+<li>rbegin()</li>
+<li>begin() const</li>
+<li>rbegin() const</li>
+<li>cbegin() const</li>
+<li>crbegin() const</li>
+<li>end()</li>
+<li>rend()</li>
+<li>end() const</li>
+<li>cend() const</li>
+<li>rend() const</li>
+<li>crend() const</li>
+</ul>
+
+
+<p>The iterators are relatively easy to write. They also allow the container to be used with the new range based for that was added in C++14. So this becomes another easy add.</p>
+
+<h4>Member Access</h4>
+
+<ul>
+<li>at(&lt;index&gt;)</li>
+<li>at(&lt;index&gt;) const</li>
+<li>operator&#91;&#93;(&lt;index&gt;)</li>
+<li>operator&#91;&#93;(&lt;index&gt;) const</li>
+<li>front()</li>
+<li>back()</li>
+<li>front() const</li>
+<li>back() const</li>
+</ul>
+
+
+<p>Member access to a vector should be very efficient. As a result normally range checks are not performed on member access, i.e. the user is expected to make sure that the method preconditions have been met before calling the method. This results in very efficient access to the members of a <code>Vector</code>. This is not normally a problem because index ranges are normally checked as part of a loop range as long as these are validated against the size of the array it does not need to be validated again.</p>
+
+<p>```cpp For Loop Vector Access</p>
+
+<pre><code>Vector&lt;T&gt;   d = getData();
+for(int loop = 0; loop &lt; d.size(); ++loop)
+{
+    std::cout &lt;&lt; d[loop];   // No need for antoher range
+                            // check here as we know that loop is inside the
+                            // bounds of the vector d.
+}
+</code></pre>
+
+<p>```</p>
+
+<p>There is also the <code>at()</code> method which does validate the index provided before accessing the element (throwing an exception if the index is out of range).</p>
+
+<h4>Non-Mutating Member Functions</h4>
+
+<ul>
+<li>size() const</li>
+<li>bool() const</li>
+</ul>
+
+
+<p>To allow us to check the preconditions on the element access methods we need some functions that check the state of the object. These are provided here.</p>
+
+<h4>Mutating Member Functions</h4>
+
+<ul>
+<li>push&#95;back(&lt;object-ref&gt;)</li>
+<li>push&#95;back(&lt;object-rvalue-ref&gt;)</li>
+<li>emplace&#95;back(&lt;args&hellip;&gt;)</li>
+<li>pop&#95;back()</li>
+</ul>
+
+
+<p>The following members are standard easy to implement methods of <code>std::vector</code> (O(1)) that I would expect to see in every implementation.</p>
+
+<p>The other mutating member functions are less trivial as they require elements to be moved around. They are not that hard but you must put some thought into the most efficient techniques to move elements (i.e. move or copy) and make sure that capacity is not exceeded by multiple inserts. As a result I would expect to see these methods only on an as needed basis.</p>
+
+<h4>Comparators</h4>
+
+<ul>
+<li>operator== const</li>
+<li>operator!= const</li>
+</ul>
+
+
+<p>Easy comparison operators.
+Optionally you can provide the other comparison operators.</p>
+
+<h1>Final</h1>
+
+<p><strong>No idea why Jackal is adding all the blank lines to my source</strong>
+```cpp Vector</p>
+
+<h1>include &lt;type_traits></h1>
+
+<h1>include <memory></h1>
+
+<h1>include <algorithm></h1>
+
+<h1>include <stdexcept></h1>
+
+<h1>include <iterator></h1>
+
+<p>template<typename T>
+class Vector
+{</p>
+
+<pre><code>public:
+    using value_type        = T;
+    using reference         = T&amp;;
+    using const_reference   = T const&amp;;
+    using pointer           = T*;
+    using const_pointer     = T const*;
+    using iterator          = T*;
+    using const_iterator    = T const*;
+    using riterator         = std::reverse_iterator&lt;iterator&gt;;
+    using const_riterator   = std::reverse_iterator&lt;const_iterator&gt;;
+    using difference_type   = std::ptrdiff_t;
+    using size_type         = std::size_t;
+
+private:
+    size_type       capacity;
+    size_type       length;
+    T*              buffer;
+
+    struct Deleter
+    {
+        void operator()(T* buffer) const
+        {
+            ::operator delete(buffer);
+        }
+    };
+
+public:
+    Vector(int capacity = 10)
+        : capacity(capacity)
+        , length(0)
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {}
+    template&lt;typename I&gt;
+    Vector(I begin, I end)
+        : capacity(std::distance(begin, end))
+        , length(0)
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {
+        for(auto loop = begin;loop != end; ++loop)
+        {
+            pushBackInternal(*loop);
+        }
+    }
+    Vector(std::initializer_list&lt;T&gt; const&amp; list)
+        : Vector(std::begin(list), std::end(list))
+    {}
+    ~Vector()
+    {
+        // Make sure the buffer is deleted even with exceptions
+        // This will be called to release the pointer at the end
+        // of scope.
+        std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+        clearElements&lt;T&gt;();
+    }
+    Vector(Vector const&amp; copy)
+        : capacity(copy.length)
+        , length(0)
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {
+        try
+        {
+            for(int loop = 0; loop &lt; copy.length; ++loop)
+            {
+                push_back(copy.buffer[loop]);
+            }
+        }
+        catch(...)
+        {
+            std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+            clearElements&lt;T&gt;();
+
+            // Make sure the exceptions continue propagating after
+            // the cleanup has completed.
+            throw;
+        }
+    }
+    Vector&amp; operator=(Vector const&amp; copy)
+    {
+        copyAssign&lt;T&gt;(copy);
+        return *this;
+    }
+    Vector(Vector&amp;&amp; move) noexcept
+        : capacity(0)
+        , length(0)
+        , buffer(nullptr)
+    {
+        move.swap(*this);
+    }
+    Vector&amp; operator=(Vector&amp;&amp; move) noexcept
+    {
+        move.swap(*this);
+        return *this;
+    }
+    void swap(Vector&amp; other) noexcept
+    {
+        using std::swap;
+        swap(capacity,      other.capacity);
+        swap(length,        other.length);
+        swap(buffer,        other.buffer);
+    }
+
+    // Non-Mutating functions
+    size_type           size() const                        {return length;}
+    bool                empty() const                       {return length == 0;}
+
+    // Validated element access
+    reference           at(size_type index)                 {validateIndex(index);return buffer[index];}
+    const_reference     at(size_type index) const           {validateIndex(index);return buffer[index];}
+
+    // Non-Validated element access
+    reference           operator[](size_type index)         {return buffer[index];}
+    const_reference     operator[](size_type index) const   {return buffer[index];}
+    reference           front()                             {return buffer[0];}
+    const_reference     front() const                       {return buffer[0];}
+    reference           back()                              {return buffer[length - 1];}
+    const_reference     back() const                        {return buffer[length - 1];}
+
+    // Iterators
+    iterator            begin()                             {return buffer;}
+    riterator           rbegin()                            {return riterator(end());}
+    const_iterator      begin() const                       {return buffer;}
+    const_riterator     rbegin() const                      {return const_riterator(end());}
+
+    iterator            end()                               {return buffer + length;}
+    riterator           rend()                              {return riterator(begin());}
+    const_iterator      end() const                         {return buffer + length;}
+    const_riterator     rend() const                        {return const_riterator(begin());}
+
+    const_iterator      cbegin() const                      {return begin();}
+    const_riterator     crbegin() const                     {return rbegin();}
+    const_iterator      cend() const                        {return end();}
+    const_riterator     crend() const                       {return rend();}
+
+    // Comparison
+    bool operator!=(Vector const&amp; rhs) const {return !(*this == rhs);}
+    bool operator==(Vector const&amp; rhs) const
+    {
+        return  (size() == rhs.size())
+            &amp;&amp;  std::equal(begin(), end(), rhs.begin());
+    }
+
+    // Mutating functions
+    void push_back(T const&amp; value)
+    {
+        resizeIfRequire();
+        pushBackInternal(value);
+    }
+    void push_back(T&amp;&amp; value)
+    {
+        resizeIfRequire();
+        moveBackInternal(std::forward&lt;T&gt;(value));
+    }
+    template&lt;typename... Args&gt;
+    void emplace_back(Args&amp;&amp;... args)
+    {
+        resizeIfRequire();
+        emplaceBackInternal(std::forward&lt;T&gt;(args)...);
+    }
+    void pop_back()
+    {
+        --length;
+        buffer[length].~T();
+    }
+    void reserve(size_type capacityUpperBound)
+    {
+        if (capacityUpperBound &gt; capacity)
+        {
+            reserveCapacity(capacityUpperBound);
+        }
+    }
+private:
+    void validateIndex(size_type index) const
+    {
+        if (index &gt;= length)
+        {
+            throw std::out_of_range("Out of Range");
+        }
+    }
+
+    void resizeIfRequire()
+    {
+        if (length == capacity)
+        {
+            size_type     newCapacity  = std::max(2.0, capacity * 1.5);
+            reserveCapacity(newCapacity);
+        }
+    }
+    void reserveCapacity(size_type newCapacity)
+    {
+        Vector&lt;T&gt;  tmpBuffer(newCapacity);
+
+        simpleCopy&lt;T&gt;(tmpBuffer);
+
+        tmpBuffer.swap(*this);
+    }
+
+    // Add new element to the end using placement new
+    void pushBackInternal(T const&amp; value)
+    {
+        new (buffer + length) T(value);
+        ++length;
+    }
+    void moveBackInternal(T&amp;&amp; value)
+    {
+        new (buffer + length) T(std::move(value));
+        ++length;
+    }
+    template&lt;typename... Args&gt;
+    void emplaceBackInternal(Args&amp;&amp;... args)
+    {
+        new (buffer + length) T(std::forward&lt;Args&gt;(args)...);
+        ++length;
+    }
+
+    // Optimizations that use SFINAE to only instantiate one
+    // of two versions of a function.
+    //      simpleCopy()        Moves when no exceptions are guaranteed, otherwise copies.
+    //      clearElements()     When no destructor remove loop.
+    //      copyAssign()        Avoid resource allocation when no exceptions guaranteed.
+    //                          ie. When copying integers reuse the buffer if we can
+    //                          to avoid expensive resource allocation.
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == false&gt;::type
+    simpleCopy(Vector&lt;T&gt;&amp; dst)
+    {
+        std::for_each(buffer, buffer + length,
+                      [&amp;dst](T const&amp; v){dst.pushBackInternal(v);}
+                     );
+    }
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == true&gt;::type
+    simpleCopy(Vector&lt;T&gt;&amp; dst)
+    {
+        std::for_each(buffer, buffer + length,
+                      [&amp;dst](T&amp; v){dst.moveBackInternal(std::move(v));}
+                     );
+    }
+
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == false&gt;::type
+    clearElements()
+    {
+        // Call the destructor on all the members in reverse order
+        for(int loop = 0; loop &lt; length; ++loop)
+        {
+            // Note we destroy the elements in reverse order.
+            buffer[length - 1 - loop].~T();
+        }
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == true&gt;::type
+    clearElements()
+    {
+        // Trivially destructible objects can be reused without using the destructor.
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
+                        &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == true&gt;::type
+    copyAssign(Vector&lt;X&gt;&amp; copy)
+    {
+        // This function is only used if there is no chance of an exception being
+        // thrown during destruction or copy construction of the type T.
+
+
+        // Quick return for self assignment.
+        if (this == &amp;copy)
+        {
+            return;
+        }
+
+        if (capacity &lt;= copy.length)
+        {
+            // If we have enough space to copy then reuse the space we currently
+            // have to avoid the need to perform an expensive resource allocation.
+
+            clearElements&lt;T&gt;();     // Potentially does nothing (see above)
+                                    // But if required will call the destructor of
+                                    // all elements.
+
+            // buffer now ready to get a copy of the data.
+            length = 0;
+            for(int loop = 0; loop &lt; copy.length; ++loop)
+            {
+                pushBackInternal(copy[loop]);
+            }
+        }
+        else
+        {
+            // Fallback to copy and swap if we need to more space anyway
+            Vector&lt;T&gt;  tmp(copy);
+            tmp.swap(*this);
+        }
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
+                         &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == false&gt;::type
+    copyAssign(Vector&lt;X&gt;&amp; copy)
+    {
+        // Copy and Swap idiom
+        Vector&lt;T&gt;  tmp(copy);
+        tmp.swap(*this);
+    }
+</code></pre>
+
+<p>};
+```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Vector - Simple Optimizations]]></title>
+    <link href="http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations/"/>
+    <updated>2016-03-19T15:06:40-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations</id>
+    <content type="html"><![CDATA[<p>So now that we have used <code>std::is_nothrow_move_constructible</code> we can also look at a couple of other types available in the template utility library.</p>
+
+<h1>Optimized Destruction</h1>
+
+<p>Since we have to manually call the destructor on all objects in the container (because we are using placement new) we can look to see if we can optimize that. The type <code>std::is_trivially_destructible</code> detects if the type is <strong>Trivially</strong> destructible. This basically means that there will be no side effects from the destructor (See: Section 12.4 Paragraph 5 of the standard). For types we don&rsquo;t need to call the destructor of the object. For the <code>Vector</code> class this means we can eliminate the call to the destructor but more importantly the loop.</p>
+
+<p>```cpp Destroying Elements</p>
+
+<pre><code>    ~Vector()
+    {
+        // STUFF..
+
+        // Call the destructor on all the members in reverse order
+        for(int loop = 0; loop &lt; length; ++loop)
+        {
+            // Note we destroy the elements in reverse order.
+            buffer[length - 1 - loop].~T();
+        }
+    }
+    Vector(Vector const&amp; copy)
+        : capacity(copy.length)
+        , length(0)
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {
+        try
+        {
+            // STUFF 1 ...
+        }
+        catch(...)
+        {
+            // STUFF 2 ...
+            // If there was an exception then destroy everything
+            // that was created to make it exception safe.
+            for(int loop = 0; loop &lt; length; ++loop)
+            {
+                buffer[length - 1 - loop].~T();
+            }
+            throw;
+        }
+    }
+</code></pre>
+
+<p>```</p>
+
+<p>We can use the same SFINAE technique that we used in the previous article to remove the loops when the contained type is trivially destructible.</p>
+
+<p>```</p>
+
+<pre><code>    ~Vector()
+    {
+        // STUFF..
+        clearElements&lt;T&gt;();
+    }
+    Vector(Vector const&amp; copy)
+        : capacity(copy.length)
+        , length(0)
+        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+    {
+        try
+        {
+            // STUFF 1 ...
+        }
+        catch(...)
+        {
+            // STUFF 2 ...
+            clearElements&lt;T&gt;();
+            throw;
+        }
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::std::is_trivially_destructible&lt;X&gt;::value == false&gt;::type
+    clearElements()
+    {
+        // Call the destructor on all the members in reverse order
+        for(int loop = 0; loop &lt; length; ++loop)
+        {
+            // Note we destroy the elements in reverse order.
+            buffer[length - 1 - loop].~T();
+        }
+    }
+
+    template&lt;typename X&gt;
+    typename std::enable_if&lt;std::std::is_trivially_destructible&lt;X&gt;::value == true&gt;::type
+    clearElements()
+    {
+        // Trivially destructible objects can be re-used without using the destructor.
+    }
+</code></pre>
+
+<p>```</p>
+
+<h1>Optimized Assignment Operator</h1>
+
+<p>The final optimization is because resource allocation is expensive. So if we can avoid the resource allocation completely and just reuse the space we currently have.</p>
+
+<p>```cpp Copy Assignment</p>
+
+<pre><code>    Vector&amp; operator=(Vector const&amp; copy)
+    {
+        // Copy and Swap idiom
+        Vector&lt;T&gt;  tmp(copy);
+        tmp.swap(*this);
+        return *this;
+    }
+</code></pre>
+
+<p>```</p>
+
+<p>The copy and swap idiom is perfect for providing the strong exception guarantee in the presence of exceptions. <strong>But</strong> if there are no exceptions during destruction or construction then we can potentially just reuse the available memory. So if we rewrote the assignment operator with the assumption that there were no exceptions it would look like the following (Note in the real code use SFINAE to do the optimization only when necessary).</p>
+
+<p>```cpp Copy the easy way</p>
+
+<pre><code>    Vector&amp; operator=(Vector const&amp; copy)
+    {
+        // Check for self assignment
+        // As we are doing work anyway.
+        if (this == &amp;copy)
+        {
+            return *this;
+        }
+
+        // If the length of the `copy` object exceeds
+        // the capacity of the current object then
+        // we have to do resource management. It costs
+        // nothing extra to use the copy and swap idiom
+        if (copy.length &gt; capacity)
+        {
+            // Copy and Swap idiom
+            Vector&lt;T&gt;  tmp(copy);
+            tmp.swap(*this);
+            return *this;
+        }
+
+        // The optimization happens here.
+        // We can reuse the buffer we already have.
+        clearElements&lt;T&gt;();     // use clearElements() as it probably does very little.
+        length = 0;
+
+        // Now add the elements to this container as cheaply as possible.
+        for(int loop = 0; loop &lt; copy.length; ++loop)
+        {
+            pushBackInternal(copy[loop]);
+        }
+        return *this;
+    }
+</code></pre>
+
+<p>```</p>
+
+<h1>Final Version <a id="VectorVersion-4"></a></h1>
+
+<p>The final version</p>
+
+<p>```cpp Vector Final Version</p>
+
+<pre><code>template&lt;typename T&gt;
+class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+
+    struct Deleter
+    {
+        void operator()(T* buffer) const
+        {
+            ::operator delete(buffer);
+        }
+    };
+
+    public:
+        Vector(int capacity = 10)
+            : capacity(capacity)
+            , length(0)
+            , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+        {}
+        ~Vector()
+        {
+            // Make sure the buffer is deleted even with exceptions
+            // This will be called to release the pointer at the end
+            // of scope.
+            std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+
+            clearElements&lt;T&gt;();
+        }
+        Vector(Vector const&amp; copy)
+            : capacity(copy.length)
+            , length(0)
+            , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+        {
+            try
+            {
+                for(int loop = 0; loop &lt; copy.length; ++loop)
+                {
+                    push_back(copy.buffer[loop]);
+                }
+            }
+            catch(...)
+            {
+                std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+                clearElements&lt;T&gt;();
+
+                // Make sure the exceptions continue propagating after
+                // the cleanup has completed.
+                throw;
+            }
+        }
+        Vector&amp; operator=(Vector const&amp; copy)
+        {
+            copyAssign&lt;T&gt;(copy);
+            return *this;
+        }
+        Vector(Vector&amp;&amp; move) noexcept
+            : capacity(0)
+            , length(0)
+            , buffer(nullptr)
+        {
+            move.swap(*this);
+        }
+        Vector&amp; operator=(Vector&amp;&amp; move) noexcept
+        {
+            move.swap(*this);
+            return *this;
+        }
+        void swap(Vector&amp; other) noexcept
+        {
+            using std::swap;
+            swap(capacity,      other.capacity);
+            swap(length,        other.length);
+            swap(buffer,        other.buffer);
+        }
+        void push_back(T const&amp; value)
+        {
+            resizeIfRequire();
+            pushBackInternal(value);
+        }
+        void pop_back()
+        {
+            --length;
+            buffer[length].~T();
+        }
+        void reserve(std::size_t capacityUpperBound)
+        {
+            if (capacityUpperBound &gt; capacity)
+            {
+                reserveCapacity(capacityUpperBound);
+            }
+        }
+    private:
+        void resizeIfRequire()
+        {
+            if (length == capacity)
+            {
+                std::size_t     newCapacity  = std::max(2.0, capacity * 1.62);
+                reserveCapacity(newCapacity);
+            }
+        }
+        void reserveCapacity(std::size_t newCapacity)
+        {
+            Vector&lt;T&gt;  tmpBuffer(newCapacity);
+
+            simpleCopy&lt;T&gt;(tmpBuffer);
+
+            tmpBuffer.swap(*this);
+        }
+        void pushBackInternal(T const&amp; value)
+        {
+            new (buffer + length) T(value);
+            ++length;
+        }
+        void moveBackInternal(T&amp;&amp; value)
+        {
+            new (buffer + length) T(std::move(value));
+            ++length;
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == false&gt;::type
+        simpleCopy(Vector&lt;T&gt;&amp; dst)
+        {
+            std::for_each(buffer, buffer + length,
+                          [&amp;dst](T const&amp; v){dst.pushBackInternal(v);}
+                         );
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == true&gt;::type
+        simpleCopy(Vector&lt;T&gt;&amp; dst)
+        {
+            std::for_each(buffer, buffer + length,
+                          [&amp;dst](T&amp; v){dst.moveBackInternal(std::move(v));}
+                         );
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == false&gt;::type
+        clearElements()
+        {
+            // Call the destructor on all the members in reverse order
+            for(int loop = 0; loop &lt; length; ++loop)
+            {
+                // Note we destroy the elements in reverse order.
+                buffer[length - 1 - loop].~T();
+            }
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == true&gt;::type
+        clearElements()
+        {
+            // Trivially destructible objects can be reused without using the destructor.
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
+                             &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == true&gt;::type
+        copyAssign(Vector&lt;X&gt;&amp; copy)
+        {
+            if (this == &amp;copy)
+            {
+                return;
+            }
+
+            if (capacity &lt;= copy.length)
+            {
+                clearElements&lt;T&gt;();
+                length = 0;
+                for(int loop = 0; loop &lt; copy.length; ++loop)
+                {
+                    pushBackInternal(copy[loop]);
+                }
+            }
+            else
+            {
+                // Copy and Swap idiom
+                Vector&lt;T&gt;  tmp(copy);
+                tmp.swap(*this);
+            }
+        }
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
+                             &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == false&gt;::type
+        copyAssign(Vector&lt;X&gt;&amp; copy)
+        {
+            // Copy and Swap idiom
+            Vector&lt;T&gt;  tmp(copy);
+            tmp.swap(*this);
+        }
+};
+</code></pre>
+
+<p>```</p>
+
+<h1>Summary</h1>
 ]]></content>
   </entry>
   
