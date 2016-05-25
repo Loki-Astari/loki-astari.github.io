@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-05-25T09:21:14-07:00</updated>
+  <updated>2016-05-25T09:23:56-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -2251,9 +2251,9 @@ Optionally you can provide the other comparison operators.</p>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Vector Resize]]></title>
+    <title type="html"><![CDATA[Vector - Resize]]></title>
     <link href="http://lokiastari.com/blog/2016/03/12/vector-resize/"/>
-    <updated>2016-03-12T00:00:00-08:00</updated>
+    <updated>2016-03-12T04:53:07-08:00</updated>
     <id>http://lokiastari.com/blog/2016/03/12/vector-resize</id>
     <content type="html"><![CDATA[<p>Because resizing a vector is expensive; the <code>std::vector</code> class uses exponential growth to minimize the number of times that the vector is resized: a technique we replicate in this version. But every now and then you still need to resize the internal buffer.</p>
 
