@@ -81,13 +81,11 @@
   
   
   
-  
-  
-  4
+  3
   
   
   
-  of the 5 part Series: "<span style="color:red">Vector</span>".<br>
+  of the 4 part Series: "<span style="color:red">Vector</span>".<br>
   See side panel "Series" for details.<br><br>
   
   
@@ -123,7 +121,7 @@
 
 <h1>Optimized Destruction</h1>
 
-<p>Since we have to manually call the destructor on all objects in the container (because we are using placement new) we can look to see if we can optimize that. The type <code>std::is_trivially_destructible</code> detects if the type is <strong>Trivially</strong> destructible. This basically means that there will be no side affects from the destructor (See: Section 12.4 Paragraph 5 of the standard). For types we don&rsquo;t need to call the destructor of the object. For the <code>Vector</code> class this means we can eliminate the call to the destructor but more importantly the loop.</p>
+<p>Since we have to manually call the destructor on all objects in the container (because we are using placement new) we can look to see if we can optimize that. The type <code>std::is_trivially_destructible</code> detects if the type is <strong>Trivially</strong> destructible. This basically means that there will be no side effects from the destructor (See: Section 12.4 Paragraph 5 of the standard). For types we don&rsquo;t need to call the destructor of the object. For the <code>Vector</code> class this means we can eliminate the call to the destructor but more importantly the loop.</p>
 
 <figure class='code'><figcaption><span>Destroying Elements</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -279,7 +277,7 @@
 
 <h1>Optimized Assignment Operator</h1>
 
-<p>The final optimization is because resource allocation is expensive. So if we can avoid the resource allocation completely and just re-use the space we currently have.</p>
+<p>The final optimization is because resource allocation is expensive. So if we can avoid the resource allocation completely and just reuse the space we currently have.</p>
 
 <figure class='code'><figcaption><span>Copy Assignment</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -298,7 +296,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The copy and swap idiom is perfect for providing the strong exception guarantee in the presence of exceptions. <strong>But</strong> if there are no exceptions during destruction or construction then we can potentially just re-use the available memory. So if we re-wrote the assignment operator with the assumption that there were no exceptions it would look like the following (Note in the real code use SFINAE to do the optimization only when necessary).</p>
+<p>The copy and swap idiom is perfect for providing the strong exception guarantee in the presence of exceptions. <strong>But</strong> if there are no exceptions during destruction or construction then we can potentially just reuse the available memory. So if we rewrote the assignment operator with the assumption that there were no exceptions it would look like the following (Note in the real code use SFINAE to do the optimization only when necessary).</p>
 
 <figure class='code'><figcaption><span>Copy the easy way</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -356,7 +354,7 @@
 </span><span class='line'>
 </span><span class='line'>        <span class="c1">// The optimization happens here.</span>
 </span><span class='line'>        <span class="c1">// We can reuse the buffer we already have.</span>
-</span><span class='line'>        <span class="n">clearElements</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>     <span class="c1">// use cearElements() as it probably does very little.</span>
+</span><span class='line'>        <span class="n">clearElements</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>     <span class="c1">// use clearElements() as it probably does very little.</span>
 </span><span class='line'>        <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="c1">// Now add the elements to this container as cheaply as possible.</span>
@@ -722,7 +720,7 @@
 </span><span class='line'>        <span class="k">typename</span> <span class="n">std</span><span class="o">::</span><span class="n">enable_if</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">is_trivially_destructible</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">==</span> <span class="kc">true</span><span class="o">&gt;::</span><span class="n">type</span>
 </span><span class='line'>        <span class="n">clearElements</span><span class="p">()</span>
 </span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// Trivially destructible objects can be re-used without using the destructor.</span>
+</span><span class='line'>            <span class="c1">// Trivially destructible objects can be reused without using the destructor.</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">X</span><span class="o">&gt;</span>
@@ -812,7 +810,7 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2016/03/12/vector-resize/" title="Previous Post: Vector - Resize">&laquo; Vector - Resize</a>
+        <a class="basic-alignment left" href="/blog/2016/03/12/vector-resize/" title="Previous Post: Vector Resize">&laquo; Vector Resize</a>
       
       
         <a class="basic-alignment right" href="/blog/2016/03/20/vector-the-other-stuff/" title="Next Post: Vector - The Other Stuff">Vector - The Other Stuff &raquo;</a>
@@ -848,11 +846,6 @@
       </li>
     
       <li class="post">
-        <!-- <a href="/blog/2016/03/12/vector-resize/">Vector - Resize</a> -->
-        <a href="/blog/2016/03/12/vector-resize/">Resize</a>
-      </li>
-    
-      <li class="post">
         <!-- <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a> -->
         <a href="/blog/2016/03/19/vector-simple-optimizations/">Simple Optimizations</a>
       </li>
@@ -870,6 +863,14 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/09/socket-read/">Socket Read/Write</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/08/socket-programming-in-c-version-1/">Socket Programming in C</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/25/resizemaths/">Memory Resizing</a>
       </li>
     
@@ -879,14 +880,6 @@
     
       <li class="post">
         <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/12/vector-resize/">Vector - Resize</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/">Vector - Resource Management Copy Swap</a>
       </li>
     
   </ul>

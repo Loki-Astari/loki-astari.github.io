@@ -1,0 +1,740 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Socket Read/Write - Loki Astari</title>
+  <meta name="author" content="Loki Astari">
+
+  
+  <meta name="description" content="Socket wrappers in C++">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lokiastari.com/blog/2016/04/09/socket-read">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  <!-- MathJax configuration -->
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script>
+  <!-- End MathJax Configuration -->
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-76180769-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+</head>
+
+<body   >
+  <header role="banner"><div class="header-left">
+  <hgroup>
+  <h1><a href="/">Loki Astari</a></h1>
+  
+  <div class="subtitle">
+    <h2>Thoughts of a Former Code Monkey</h2>
+  </div>
+  
+  </hgroup>
+  
+</div>
+
+<div class="header-right">
+  <ul class="main-navigation">
+ <div> 
+  <li><a href="/">blog</a></li></div><div class="spacer"></div>
+       <div> 
+  <li><a href="/series">series</a></li></div><div class="spacer"></div>
+         <div> 
+  <li><a href="/about">about</a></li></div>
+         <div> 
+  <li><a href="/blog/archives">archives</a></li></div>
+</ul>
+
+</div>
+</header>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  This is article 
+  
+  
+  
+  2
+  
+  of the 2 part Series: "<span style="color:red">Sockets</span>".<br>
+  See side panel "Series" for details.<br><br>
+  
+  
+  <header>
+    
+      <h1 class="entry-title">Socket Read/Write</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-04-09T21:11:25-07:00" pubdate data-updated="true">Apr 9<span>th</span>, 2016</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://lokiastari.com">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Checking read/write success</h2>
+
+<p>The <code>read()</code> and <code>write()</code> command can fail in a couple of ways but can also succeed without reading/writing all the data, a common mistake is not to check the amount of data read/written from/to a stream. Interestingly not all error condition are fatal and reading/writing can potentially be resumed after an error.</p>
+
+<h2>Read</h2>
+
+<p>To understand if you have read all the information that is available on a stream you need to define a communication protocol (like HTTP). For the first version of this server the protocol is very simple. Messages are passed as strings (not null terminated) and the end of the message is marked by closing the write stream. Thus a client can send one message and receive one reply with each connection it makes.</p>
+
+<figure class='code'><figcaption><span>getMessage()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm"> * Returns:     0   EOM reached.</span>
+</span><span class='line'><span class="cm"> *                  The message is complete. There is no more data to be read.</span>
+</span><span class='line'><span class="cm"> *              &gt;0  Message data has been read (and a null terminator added).</span>
+</span><span class='line'><span class="cm"> *                  The value is the number of bytes read from the stream</span>
+</span><span class='line'><span class="cm"> *                  You should call getMessage() again to get the next section of the message.</span>
+</span><span class='line'><span class="cm"> *                  Note: the message is terminated when 0 is returned.</span>
+</span><span class='line'><span class="cm"> *              -1  An error occured.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">getMessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">socketId</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">ssize_t</span> <span class="n">size</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="kt">ssize_t</span>     <span class="n">dataRead</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="kt">ssize_t</span>     <span class="n">dataMax</span>  <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">while</span><span class="p">(</span><span class="n">dataRead</span> <span class="o">&lt;</span> <span class="n">dataMax</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="kt">ssize_t</span> <span class="n">get</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">socketId</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">dataRead</span><span class="p">,</span> <span class="n">size</span> <span class="o">-</span> <span class="n">dataRead</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">get</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">get</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">dataRead</span> <span class="o">+=</span> <span class="n">get</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">buffer</span><span class="p">[</span><span class="n">dataRead</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">dataRead</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Read Errors</h3>
+
+<p>This initial version treats all <code>read()</code> errors as unrecoverable and <code>getMessage()</code> return an error state. But not all error codes need to result in a failure. So in this section I will go through some of the error codes and give some potentially actions. In a subsequent articles I may revise these actions as we cover more complex ways of interacting with sockets.</p>
+
+<p>The following errors are the result of programming bugs and should not happen in production.</p>
+
+<pre><code>[EBADF]            fildes is not a valid file or socket descriptor open for reading.
+[EFAULT]           Buf points outside the allocated address space.
+[EINVAL]           The pointer associated with fildes was negative.
+[ENXIO]            A requested action cannot be performed by the device.
+</code></pre>
+
+<p>If they do happen in production there is no way to correct for them pragmatically because the error has happened in another part of the code unassociated with this function.</p>
+
+<p>One could argue that because these should never happen the application can abort, but for now we will settle for the read operation aborting with an error code. If we wrap this in a C++ class to control the state of the socket then exceptions may be more appropriate and we will look into that approach in a subsequent article.</p>
+
+<p>The following errors are potentially recoverable from.</p>
+
+<!-- http://stackoverflow.com/questions/8471577/linux-tcp-connect-failure-with-etimedout -->
+
+
+<pre><code>[EIO]              An I/O error occurred while reading from the file system.
+[ENOBUFS]          An attempt to allocate a memory buffer fails.
+[ENOMEM]           Insufficient memory is available.
+[ETIMEDOUT]        A transmission timeout occurs during a read attempt on a socket.
+</code></pre>
+
+<p>But in reality recovering from them within the context of a read operation is not practical (you need to recover from these operations at a point were resource are controlled or user interaction is possible). So for now we will abort the read operation with an error code (we will revisit this in a later article).</p>
+
+<p>The following error codes means that no more data will be available because the connection has been interrupted.</p>
+
+<!-- http://stackoverflow.com/questions/2974021/what-does-econnreset-mean-in-the-context-of-an-af-local-socket -->
+
+
+<!-- http://stackoverflow.com/questions/900042/what-causes-the-enotconn-error -->
+
+
+<pre><code>[ECONNRESET]       The connection is closed by the peer during a read attempt on a socket.
+[ENOTCONN]         A read is attempted on an unconnected socket.
+</code></pre>
+
+<p>How the application reacts to a broken connection depends on the communication protocol. For the simple protocol defined above we can return any data that has been retrieved from the socket and then indicating to the calling code that we have reached the end of the message (we will revisit this in a later article). This is probably the most iffy decision in handling error codes and returning an error code could be more appropriate but I want to illustrate that we can potentially continue depending on the situation.</p>
+
+<p>The following error codes are recoverable from.</p>
+
+<pre><code>[EAGAIN]           The file was marked for non-blocking I/O, and no data were ready to be read.
+</code></pre>
+
+<p>These error codes are generated when you have a non-blocking stream. In a future article we will discuss how to take advantage of non-blocking streams.</p>
+
+<pre><code>[EINTR]            A read from a slow device was interrupted before any data arrived by the delivery of a signal.
+</code></pre>
+
+<p>The exact action that you take will depend on your application (like doing some useful work) but for our simple application simply re-trying the read operation will be the standard action. Again we will come back to this, but taking advantage of timeouts will require a slightly more sophisticated approach rather than using the sockets API directly.</p>
+
+<blockquote><p><strong>EINTR:</strong><br/>
+An important note about signals. There are a lot of signals that are non leathal and will result in this EINTR error code. But one should note that leathal signals like SIGINT by default will kill the application and thus will not cause this error code (as the call to read() will never return).</p>
+
+<p>But you can override the SIGINT signal handler and a allow your application to continue and at this point your read operation will recieve this error. How your code interacts with signals like SIGINT is beyond the scope of this article and it will be discussed just like other signals.</p></blockquote>
+
+<figure class='code'><figcaption><span>getMessage() Improved</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm"> * Returns:     0   EOM reached.</span>
+</span><span class='line'><span class="cm"> *                  There is no data in the buffer.</span>
+</span><span class='line'><span class="cm"> *              &gt;0  Message data has been read.</span>
+</span><span class='line'><span class="cm"> *                  If the buffer is full then it is not null terminated.</span>
+</span><span class='line'><span class="cm"> *                  If the buffer is partially full then it is null terminated</span>
+</span><span class='line'><span class="cm"> *                  and the next call to get getMessage() will return 0.</span>
+</span><span class='line'><span class="cm"> *              &lt;0  An error occured.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">getMessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">socketId</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">ssize_t</span> <span class="n">size</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="kt">ssize_t</span>     <span class="n">dataRead</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="kt">ssize_t</span>     <span class="n">dataMax</span>  <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">while</span><span class="p">(</span><span class="n">dataRead</span> <span class="o">&lt;</span> <span class="n">dataMax</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="kt">ssize_t</span> <span class="n">get</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">socketId</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">dataRead</span><span class="p">,</span> <span class="n">size</span> <span class="o">-</span> <span class="n">dataRead</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">get</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">switch</span><span class="p">(</span><span class="n">errno</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">case</span> <span class="n">EBADF</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">EFAULT</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">EINVAL</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">ENXIO</span>:
+</span><span class='line'>                    <span class="c1">// Fatal error. Programming bug</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="o">-</span><span class="mi">3</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">case</span> <span class="n">EIO</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">ENOBUFS</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">ENOMEM</span>:
+</span><span class='line'>                    <span class="c1">// Resource aquisition failure or device error</span>
+</span><span class='line'>                    <span class="c1">// Can&#39;t recover from here so indicate failure</span>
+</span><span class='line'>                    <span class="c1">// and exit</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="o">-</span><span class="mi">2</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">case</span> <span class="n">ETIMEDOUT</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">EAGAIN</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">EINTR</span>:
+</span><span class='line'>                    <span class="c1">// Temporrary error.</span>
+</span><span class='line'>                    <span class="c1">// Simply retry the read.</span>
+</span><span class='line'>                    <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">case</span> <span class="n">ECONNRESET</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">ENOTCONN</span>:
+</span><span class='line'>                    <span class="c1">// Connection broken.</span>
+</span><span class='line'>                    <span class="c1">// Return the data we have available and exit</span>
+</span><span class='line'>                    <span class="c1">// as if the connection was closed correctly.</span>
+</span><span class='line'>                    <span class="n">get</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>                    <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>                <span class="nl">default:</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">get</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">dataRead</span> <span class="o">+=</span> <span class="n">get</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">buffer</span><span class="p">[</span><span class="n">dataRead</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">dataRead</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Write</h2>
+
+<p>The <code>write()</code> has exactly the same scenario as <code>read()</code>.</p>
+
+<p>The following errors are the reuls of programming bugs and should not happen in production.</p>
+
+<pre><code> [EINVAL]           The pointer associated with fildes is negative.
+ [EBADF]            fildes is not a valid file descriptor open for writing.
+ [ECONNRESET]       A write is attempted on a socket that is not connected.
+ [ENXIO]            A request is made of a nonexistent device, or the request is outside the capabilities of the device.
+ [EPIPE]            An attempt is made to write to a socket of type SOCK_STREAM that is not connected to a peer socket.
+</code></pre>
+
+<p>The following errors are potentially recoverable bugs. Though recovering from them requires some form of awarness of the context that is not provided at the read level. So we must generate an error to stop reading and allow the caller to sort out the problem.</p>
+
+<pre><code> [EDQUOT]           The user's quota of disk blocks on the file system containing the file is exhausted.
+ [EFBIG]            An attempt is made to write a file that exceeds the process's file size limit or the maximum file size.
+ [EIO]              An I/O error occurs while reading from or writing to the file system.
+ [ENETDOWN]         A write is attempted on a socket and the local network interface used to reach the destination is down.
+ [ENETUNREACH]      A write is attempted on a socket and no route to the network is present.
+ [ENOSPC]           There is no free space remaining on the file system containing the file.
+</code></pre>
+
+<p>The following error codes are recoverable from and we covered them above in the section on <code>read()</code>.</p>
+
+<pre><code> [EAGAIN]           The file is marked for non-blocking I/O, and no data could be written immediately.
+ [EINTR]            A signal interrupts the write before it could be completed.
+</code></pre>
+
+<p>The resulting put function then looks like this.</p>
+
+<figure class='code'><figcaption><span>putMessage() Improved</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm"> * Returns:</span>
+</span><span class='line'><span class="cm"> *              &gt;0  Indicates success and the number of bytes written.</span>
+</span><span class='line'><span class="cm"> *              &lt;0  Indicates failure.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">putMessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">socketId</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">buffer</span><span class="p">,</span> <span class="kt">ssize_t</span> <span class="n">size</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">ssize_t</span>     <span class="n">dataWritten</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">while</span><span class="p">(</span><span class="n">dataWritten</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="kt">ssize_t</span> <span class="n">put</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">socketId</span><span class="p">,</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">dataWritten</span><span class="p">,</span> <span class="n">size</span> <span class="o">-</span> <span class="n">dataWritten</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">put</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">switch</span><span class="p">(</span><span class="n">errno</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">case</span> <span class="n">EINVAL</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">EBADF</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">ECONNRESET</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">ENXIO</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">EPIPE</span>:
+</span><span class='line'>                    <span class="c1">// Fatal error. Programming bug</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="o">-</span><span class="mi">3</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">case</span> <span class="n">EDQUOT</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">EFBIG</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">EIO</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">ENETDOWN</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">ENETUNREACH</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">ENOSPC</span>:
+</span><span class='line'>                    <span class="c1">// Resource aquisition failure or device error</span>
+</span><span class='line'>                    <span class="c1">// Can&#39;t recover from here so indicate failure</span>
+</span><span class='line'>                    <span class="c1">// and exit</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="o">-</span><span class="mi">2</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">case</span> <span class="n">EAGAIN</span>:
+</span><span class='line'>                <span class="k">case</span> <span class="n">EINTR</span>:
+</span><span class='line'>                    <span class="c1">// Temporrary error.</span>
+</span><span class='line'>                    <span class="c1">// Simply retry the read.</span>
+</span><span class='line'>                    <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>                <span class="nl">default:</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">dataWritten</span> <span class="o">+=</span> <span class="n">put</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">dataWritten</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Summary</h1>
+
+<p>This article has shown the most important error that people skip over when reading and writing to a socket: <strong>Not all the data was transported at the same time</strong>. The read and write command may only read/write a portion of the data that you wanted to send/receive and thus you must check the amount that actually was sent/received.</p>
+
+<p>The next most important point is that not all error codes are fatal (most people actually check these) <strong>but</strong> an interrupt (EINTR) can be relatively common and you can continue reading after it has happened.</p>
+
+<h1>Inspiration</h1>
+
+<ul>
+<li>2015-Jun-25 <a href="http://codereview.stackexchange.com/q/94608/507">Impromptu TCP sender/receiver</a></li>
+<li>2015-Jul-03 <a href="http://codereview.stackexchange.com/q/95638/507">Raw Text TCP Client v3</a></li>
+<li>2015-Dec-20 <a href="http://codereview.stackexchange.com/q/114551/507">Server / client desynchronisation of messages </a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Loki Astari (C)2016</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-04-09T21:11:25-07:00" pubdate data-updated="true">Apr 9<span>th</span>, 2016</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/c-plus-plus/'>C++</a>, <a class='category' href='/blog/categories/c-plus-plus-by-example/'>C++-By-Example</a>, <a class='category' href='/blog/categories/coding/'>Coding</a>, <a class='category' href='/blog/categories/sockets/'>Sockets</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://lokiastari.com/blog/2016/04/09/socket-read/" data-via="LokiAstari" data-counturl="http://lokiastari.com/blog/2016/04/09/socket-read/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/04/08/socket-programming-in-c-version-1/" title="Previous Post: Socket Programming in C">&laquo; Socket Programming in C</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    
+
+<section>
+  <h1>Series: Sockets</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <!-- <a href="/blog/2016/04/08/socket-programming-in-c-version-1/">Socket Programming in C</a> -->
+        <a href="/blog/2016/04/08/socket-programming-in-c-version-1/">Socket Programming in C</a>
+      </li>
+    
+      <li class="post">
+        <!-- <a href="/blog/2016/04/09/socket-read/">Socket Read/Write</a> -->
+        <a href="/blog/2016/04/09/socket-read/">Socket Read/Write</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/04/09/socket-read/">Socket Read/Write</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/08/socket-programming-in-c-version-1/">Socket Programming in C</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/25/resizemaths/">Memory Resizing</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/20/vector-the-other-stuff/">Vector - the Other Stuff</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section class="well">
+  <h1>Latest Tweets</h1>
+  <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+  <ul id="tweets">
+    <li class="post">
+        <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </li>
+  </ul>
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><hr>
+<p>
+  Copyright &copy; 2016 - Loki Astari -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45976821-1', 'lokiastari.com');
+  ga('send', 'pageview');
+
+</script>
+
+<p>
+<span>Copyright &copy; 2016  Loki Astari -</span>
+<span class="credit">Powered by <a href="http://octopress.org">Octopress</a> using the <a href="https://github.com/fapper/classic-martinb">classic-martinb</a> theme</span>
+</p>
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://lokiastari.com/blog/2016/04/09/socket-read/';
+        var disqus_url = 'http://lokiastari.com/blog/2016/04/09/socket-read/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

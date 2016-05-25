@@ -6,7 +6,7 @@
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1/</loc>
-        <lastmod>2016-03-28T09:30:23-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>
@@ -16,23 +16,23 @@
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/</loc>
-        <lastmod>2016-03-28T09:30:23-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/</loc>
-        <lastmod>2016-03-28T09:30:23-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/</loc>
-        <lastmod>2016-03-28T09:30:23-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2013/11/30/switching-to-octopress/</loc>
-        <lastmod>2016-04-08T13:08:12-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/</loc>
-        <lastmod>2016-03-28T09:30:23-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2014/12/06/nearly-new-year-slash-new-resolution/</loc>
@@ -40,45 +40,61 @@
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/</loc>
-        <lastmod>2016-04-08T12:50:31-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>
             http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/
         </loc>
-        <lastmod>2016-03-28T09:30:23-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>
             http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/
         </loc>
-        <lastmod>2016-03-28T09:30:23-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2016/02/27/vector/</loc>
-        <lastmod>2016-03-28T09:30:23-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>
             http://lokiastari.com/blog/2016/02/29/vector-resource-management-ii-copy-assignment/
         </loc>
-        <lastmod>2016-03-28T09:30:23-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2016/03/12/vector-resize/</loc>
-        <lastmod>2016-03-28T09:30:23-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2016/03/19/vector-simple-optimizations/</loc>
-        <lastmod>2016-03-28T09:30:23-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff/</loc>
-        <lastmod>2016-03-31T09:33:09-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/blog/2016/03/25/resizemaths/</loc>
-        <lastmod>2016-04-06T23:11:45-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
+    </url>
+    <url>
+        <loc>http://lokiastari.com/blog/2016/04/08/socket-programming-in-c-version-1/</loc>
+        <lastmod>2016-05-25T09:15:22-07:00</lastmod>
+    </url>
+    <url>
+        <loc>http://lokiastari.com/blog/2016/04/09/socket-read/</loc>
+        <lastmod>2016-05-25T09:15:36-07:00</lastmod>
+    </url>
+    <url>
+        <loc>http://lokiastari.com/blog/2016/04/11/socket-programming-in-c-version-2/</loc>
+        <lastmod>2016-04-12T09:05:48-07:00</lastmod>
+    </url>
+    <url>
+        <loc>http://lokiastari.com/blog/2016/04/24/socketcpp/</loc>
+        <lastmod>2016-05-25T09:12:19-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/about/</loc>
@@ -86,14 +102,14 @@
     </url>
     <url>
         <loc>http://lokiastari.com/blog/archives/</loc>
-        <lastmod>2016-04-08T13:08:12-07:00</lastmod>
+        <lastmod>2016-05-25T09:15:36-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/</loc>
-        <lastmod>2016-04-08T13:08:12-07:00</lastmod>
+        <lastmod>2016-05-25T09:15:36-07:00</lastmod>
     </url>
     <url>
         <loc>http://lokiastari.com/series/</loc>
-        <lastmod>2016-03-27T22:42:23-07:00</lastmod>
+        <lastmod>2016-05-25T09:14:42-07:00</lastmod>
     </url>
 </urlset>

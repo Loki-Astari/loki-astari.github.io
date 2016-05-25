@@ -1,127 +1,6 @@
+<p>Because resizing a vector is expensive; the <code>std::vector</code> class uses exponential growth to minimize the number of times that the vector is resized: a technique we replicate in this version. But every now and then you still need to resize the internal buffer.</p>
 
-<!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
-<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  <title>Vector - Resize - Loki Astari</title>
-  <meta name="author" content="Loki Astari">
-
-  
-  <meta name="description" content="C++ By Example. The Vector Part 3. Because resizing a vector is expensive; the standard vector class uses exponential growth to minimize the number &hellip;">
-  
-
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  
-  <link rel="canonical" href="http://lokiastari.com/blog/2016/03/12/vector-resize">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  
-  <!-- MathJax configuration -->
-  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script>
-  <!-- End MathJax Configuration -->
-  <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-76180769-1', 'auto');
-  ga('send', 'pageview');
-
-</script>
-
-</head>
-
-<body   >
-  <header role="banner"><div class="header-left">
-  <hgroup>
-  <h1><a href="/">Loki Astari</a></h1>
-  
-  <div class="subtitle">
-    <h2>Thoughts of a Former Code Monkey</h2>
-  </div>
-  
-  </hgroup>
-  
-</div>
-
-<div class="header-right">
-  <ul class="main-navigation">
- <div> 
-  <li><a href="/">blog</a></li></div><div class="spacer"></div>
-       <div> 
-  <li><a href="/series">series</a></li></div><div class="spacer"></div>
-         <div> 
-  <li><a href="/about">about</a></li></div>
-         <div> 
-  <li><a href="/blog/archives">archives</a></li></div>
-</ul>
-
-</div>
-</header>
-  <div id="main">
-    <div id="content">
-      <div>
-<article class="hentry" role="article">
-  
-  This is article 
-  
-  
-  
-  
-  
-  3
-  
-  
-  
-  
-  
-  of the 5 part Series: "<span style="color:red">Vector</span>".<br>
-  See side panel "Series" for details.<br><br>
-  
-  
-  <header>
-    
-      <h1 class="entry-title">Vector - Resize</h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2016-03-12T04:53:07-08:00" pubdate data-updated="true">Mar 12<span>th</span>, 2016</time>
-        
-           | <a href="#disqus_thread"
-             data-disqus-identifier="http://lokiastari.com">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-<div class="entry-content"><p>Because resizing a vector is expensive; the <code>std::vector</code> class uses exponential growth to minimize the number of times that the vector is resized. A technique we copied in this version. But every now and then you still need to do resize the internal buffer.</p>
-
-<p>In the <a href="#VectorVersion-1">current version</a>, resizing the vector requires a new buffer be allocated and all the members copied into it. Basically we are using the copy and swap mechanism to provide the strong exception guarantee (If an exception is thrown all resources are cleaned up and the object remains unchanged).</p>
+<p>In the <a href="#VectorVersion-1">current version</a>, resizing the vector requires allocating a new buffer and copying all the members into it. Basically we are using the copy and swap idiom to provide the strong exception guarantee (If an exception is thrown all resources are cleaned up and the object remains unchanged).</p>
 
 <figure class='code'><figcaption><span>Vector Resize with Copy</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -160,7 +39,7 @@
 
 <p>Thus resizing a <code>Vector</code> can be a very expensive operation because of all the copying that can happen.</p>
 
-<p>Using the move constructor rather than copy constructor during a resize operation could potentially be much more efficient. But the move constructor mutates the original object and thus if there is a problem we need to undo the mutations to maintain the strong exception guarantee.</p>
+<p>Using the move constructor rather than the copy constructor during a resize operation could potentially be much more efficient. But the move constructor mutates the original object and thus if there is a problem we need to undo the mutations to maintain the strong exception guarantee.</p>
 
 <p>The first attempt at this is:</p>
 
@@ -215,7 +94,7 @@
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>        <span class="k">catch</span><span class="p">(...)</span>
 </span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// If an exception is throw you need to move the objects back</span>
+</span><span class='line'>            <span class="c1">// If an exception is thrown you need to move the objects back</span>
 </span><span class='line'>            <span class="c1">// from the temporary buffer back to this object.</span>
 </span><span class='line'>            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">tmpBuffer</span><span class="p">.</span><span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
 </span><span class='line'>            <span class="p">{</span>
@@ -237,7 +116,7 @@
 
 <h1>Resize With NoThrow Move Construction</h1>
 
-<p>As the above code shows; if the type <code>T</code> can throw during it&rsquo;s move constructor then you can&rsquo;t guarantee that the object gets returned to the original state (as moving the already moved elements back may cause another exception). So we can not use the move constructor to resize the vector if the type <code>T</code> can throw during move construction.</p>
+<p>As the above code shows; if the type <code>T</code> can throw during its move constructor then you can&rsquo;t guarantee that the object gets returned to the original state (as moving the already moved elements back may cause another exception). So we cannot use the move constructor to resize the vector if the type <code>T</code> can throw during move construction.</p>
 
 <p>But not all types throw when being moved. In fact it is recommended that move constructors never throw. If we can guarantee that the move constructor does not throw then we can simplify the above code considerably and still provide the strong exception guarantee.</p>
 
@@ -274,7 +153,7 @@
 
 <h1>Resize Template Specialization</h1>
 
-<p>So now we have to write the code that decides at compile time which version we should use. The simplest way to do this is to use template specialization of a class using the standard class <code>std::is_nothrow_move_constructible&lt;T&gt;</code> to help deferentiate types that have a none throwing move constructor. This is simple enough:</p>
+<p>So now we have to write the code that decides at compile time which version we should use. The simplest way to do this is to use template specialization of a class using the standard class <code>std::is_nothrow_move_constructible&lt;T&gt;</code> to help differentiate types that have a non-throwing move constructor. This is simple enough:</p>
 
 <figure class='code'><figcaption><span>Template class Specialization</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -421,13 +300,13 @@
 
 <p>The above technique has a couple of issues.</p>
 
-<p>The type <code>SimpleClass</code> is publicly available and is a friend of <code>Vector&lt;T&gt;</code>. This makes it suseptable to accidently being used (even if not explicitly documented). Unfortunately it can&rsquo;t be included as a member class and also be specialized.</p>
+<p>The type <code>SimpleClass</code> is publicly available and is a friend of <code>Vector&lt;T&gt;</code>. This makes it susceptible to accidentally being used (even if not explicitly documented). Unfortunately it can&rsquo;t be included as a member class and also be specialized.</p>
 
 <p>Additionally it looks awful!!</p>
 
 <p>But we can also use <a href="https://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error">SFINAE</a> and method overloading.</p>
 
-<p>SFINAE allows us to define several versions of method with exactly the same arguments, as long as only one of them is valid at compile time. So in the example below we define two versions of the method <code>SimpleCopy(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst)</code> but then use <code>std::enable_if</code> to make sure only one version of the function id valid at compile time.</p>
+<p>SFINAE allows us to define several versions of a method with exactly the same arguments, as long as only one of them is valid at compile time. So in the example below we define two versions of the method <code>SimpleCopy(Vector&lt;T&gt;&amp; src, Vector&lt;T&gt;&amp; dst)</code> but then use <code>std::enable_if</code> to make sure only one version of the function is valid at compile time.</p>
 
 <figure class='code'><figcaption><span>SFINAE method overload</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -503,7 +382,7 @@
 </span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">X</span><span class="o">&gt;</span>
 </span><span class='line'>        <span class="c1">// Note: this defines the return type of the function.</span>
 </span><span class='line'>        <span class="c1">//       But only one has a valid member `type` thus only</span>
-</span><span class='line'>        <span class="c1">//       one of the following funcionts is actually valid.</span>
+</span><span class='line'>        <span class="c1">//       one of the following functions is actually valid.</span>
 </span><span class='line'>        <span class="k">typename</span> <span class="n">std</span><span class="o">::</span><span class="n">enable_if</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">is_nothrow_move_constructible</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">==</span> <span class="kc">false</span><span class="o">&gt;::</span><span class="n">type</span>
 </span><span class='line'>        <span class="n">simpleCopy</span><span class="p">(</span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">src</span><span class="p">,</span> <span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">dst</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
@@ -833,7 +712,7 @@
 
 <h1>Summary</h1>
 
-<p>This article has gone over the design of the resiing the internal buffer. We have covered a couple of techniques on the way</p>
+<p>This article has gone over the design of resizing the internal buffer. We have covered a couple of techniques on the way:</p>
 
 <ul>
 <li>Move Constructor Concepts</li>
@@ -843,251 +722,3 @@
 <li>std::enable_if&lt;&gt;</li>
 </ul>
 
-</div>
-
-
-  <footer>
-    <p class="meta">
-      
-  
-
-<span class="byline author vcard">Posted by <span class="fn">Loki Astari, (C)2016</span></span>
-
-      
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2016-03-12T04:53:07-08:00" pubdate data-updated="true">Mar 12<span>th</span>, 2016</time>
-      
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/c-plus-plus/'>C++</a>, <a class='category' href='/blog/categories/c-plus-plus-by-example/'>C++-By-Example</a>, <a class='category' href='/blog/categories/coding/'>Coding</a>, <a class='category' href='/blog/categories/resourcemanagement/'>ResourceManagement</a>, <a class='category' href='/blog/categories/vector/'>Vector</a>
-  
-</span>
-
-
-    </p>
-    
-      <div class="sharing">
-  
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://lokiastari.com/blog/2016/03/12/vector-resize/" data-via="LokiAstari" data-counturl="http://lokiastari.com/blog/2016/03/12/vector-resize/" >Tweet</a>
-  
-  
-  
-    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
-  
-</div>
-
-    
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/" title="Previous Post: Vector - Resource Management Copy Swap">&laquo; Vector - Resource Management Copy Swap</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2016/03/19/vector-simple-optimizations/" title="Next Post: Vector - Simple Optimizations">Vector - Simple Optimizations &raquo;</a>
-      
-    </p>
-  </footer>
-</article>
-
-  <section>
-    <h1>Comments</h1>
-    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</div>
-  </section>
-
-</div>
-
-<aside class="sidebar">
-  
-    
-
-<section>
-  <h1>Series: Vector</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <!-- <a href="/blog/2016/02/27/vector/">Vector - Resource Management Allocation</a> -->
-        <a href="/blog/2016/02/27/vector/">Resource Management Allocation</a>
-      </li>
-    
-      <li class="post">
-        <!-- <a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/">Vector - Resource Management Copy Swap</a> -->
-        <a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/">Resource Management Copy Swap</a>
-      </li>
-    
-      <li class="post">
-        <!-- <a href="/blog/2016/03/12/vector-resize/">Vector - Resize</a> -->
-        <a href="/blog/2016/03/12/vector-resize/">Resize</a>
-      </li>
-    
-      <li class="post">
-        <!-- <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a> -->
-        <a href="/blog/2016/03/19/vector-simple-optimizations/">Simple Optimizations</a>
-      </li>
-    
-      <li class="post">
-        <!-- <a href="/blog/2016/03/20/vector-the-other-stuff/">Vector - the Other Stuff</a> -->
-        <a href="/blog/2016/03/20/vector-the-other-stuff/">The Other Stuff</a>
-      </li>
-    
-  </ul>
-</section>
-
-<section>
-  <h1>Posts</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2016/03/25/resizemaths/">Memory Resizing</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/20/vector-the-other-stuff/">Vector - the Other Stuff</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/12/vector-resize/">Vector - Resize</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/">Vector - Resource Management Copy Swap</a>
-      </li>
-    
-  </ul>
-</section>
-
-<section class="well">
-  <h1>Latest Tweets</h1>
-  <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
-  <ul id="tweets">
-    <li class="post">
-        <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
-        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-    </li>
-  </ul>
-</section>
-
-
-<section>
-  <h1>GitHub Repos</h1>
-  <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
-  </ul>
-  
-  <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
-  
-  <script type="text/javascript">
-    $(document).ready(function(){
-        if (!window.jXHR){
-            var jxhr = document.createElement('script');
-            jxhr.type = 'text/javascript';
-            jxhr.src = '/javascripts/libs/jXHR.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(jxhr, s);
-        }
-
-        github.showRepos({
-            user: 'Loki-Astari',
-            count: 5,
-            skip_forks: true,
-            target: '#gh_repos'
-        });
-    });
-  </script>
-  <script src="/javascripts/github.js" type="text/javascript"> </script>
-</section>
-
-
-
-
-
-  
-</aside>
-
-
-    </div>
-  </div>
-  <footer role="contentinfo"><hr>
-<p>
-  Copyright &copy; 2016 - Loki Astari -
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-</p>
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-45976821-1', 'lokiastari.com');
-  ga('send', 'pageview');
-
-</script>
-
-<p>
-<span>Copyright &copy; 2016  Loki Astari -</span>
-<span class="credit">Powered by <a href="http://octopress.org">Octopress</a> using the <a href="https://github.com/fapper/classic-martinb">classic-martinb</a> theme</span>
-</p>
-</footer>
-  
-
-<script type="text/javascript">
-      var disqus_shortname = 'lokiastari';
-      
-        
-        // var disqus_developer = 1;
-        var disqus_identifier = 'http://lokiastari.com/blog/2016/03/12/vector-resize/';
-        var disqus_url = 'http://lokiastari.com/blog/2016/03/12/vector-resize/';
-        var disqus_script = 'embed.js';
-      
-    (function () {
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    }());
-</script>
-
-
-
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id; js.async = true;
-  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
-
-
-
-
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-
-
-
-</body>
-</html>

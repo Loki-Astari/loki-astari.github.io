@@ -9,7 +9,7 @@
   <meta name="author" content="Loki Astari">
 
   
-  <meta name="description" content="So far we have demonstrated basic programs that just do a single task without making any decisions. Most (all but the most trivial) programming &hellip;">
+  <meta name="description" content="On codereview.stackexchange.com in the C++ tag it seems that it is a write of passage to implement your own version of a smart pointer. A quick &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -74,6 +74,548 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Smart-Pointer - Unique Pointer</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-30T18:41:42-08:00" pubdate data-updated="true">Dec 30<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/#disqus_thread"
+             data-disqus-identifier="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>On <a href="http://codereview.stackexchange.com">codereview.stackexchange.com</a> in the C++ tag it seems that it is a write of passage to implement your own version of a smart pointer. A quick search brings up the following:</p>
+
+<ul>
+<li>02/Sep/2011 &ndash; <a href="http://codereview.stackexchange.com/q/4550/507">shared_ptr implementation</a></li>
+<li>26/Nov/2011 &ndash; <a href="http://codereview.stackexchange.com/q/6320/507">Shared Pointer implementation</a></li>
+<li>18/Apr/2013 &ndash; <a href="http://codereview.stackexchange.com/q/25214/507">Request for review: reference counting smart pointer</a></li>
+<li>20/May/2013 &ndash; <a href="http://codereview.stackexchange.com/q/26353/507">Efficient smart pointer implementation in C++</a></li>
+<li>11/Aug/2013 &ndash; <a href="http://codereview.stackexchange.com/q/29629/507">C++98 Unique Pointer Implementation</a></li>
+<li>14/Aug/2013 &ndash; <a href="http://codereview.stackexchange.com/q/29734/507">I wrote a class to implement auto_ptr</a></li>
+<li>28/Aug/2013 &ndash; <a href="http://codereview.stackexchange.com/q/30398/507">yet another shared pointer</a></li>
+<li>04/Mar/2014 &ndash; <a href="http://codereview.stackexchange.com/q/43472/507">Smart pointer implementation</a></li>
+<li>13/May/2014 &ndash; <a href="http://codereview.stackexchange.com/q/49672/507">One more shared pointer</a></li>
+<li>14/Jun/2014 &ndash; <a href="http://codereview.stackexchange.com/q/54220/507">Is this a meaningful Intrusive Pointer Class?</a></li>
+<li>04/Aug/2014 &ndash; <a href="http://codereview.stackexchange.com/q/59004/507">Simple shared pointer</a></li>
+<li>08/Oct/2014 &ndash; <a href="http://codereview.stackexchange.com/q/65127/507">Smart but simple pointers</a></li>
+<li>15/Nov/2014 &ndash; <a href="http://codereview.stackexchange.com/q/69943/507">Simple auto_ptr</a></li>
+<li>19/Dec/2014 &ndash; <a href="http://codereview.stackexchange.com/q/74166/507">Yet another smart pointer implementation for learning</a></li>
+</ul>
+
+
+<p>Writing you own implementation of a smart pointer is a bad idea (IMO). The standardization and testing of smart pointers was a nine year process through <a href="http://www.boost.org/">boost</a>, with <a href="http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/shared_ptr.htm">boost::shared_ptr</a> and <a href="http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/scoped_ptr.htm">boost::scoped_ptr</a>, finally resulting in the standardized versions being released in C++11: <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr">std::shared_ptr</a> and <a href="http://en.cppreference.com/w/cpp/memory/unique_ptr">std::unique_ptr</a>.</p>
+
+<p>I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) getting it working correctly in all contexts is rather a complex endeavor.</p>
+
+<p>But because it is such a frequent request for review; I want take a look at smart pointers as a teaching exercise. In the next couple of articles I will step through the processes of building a smart pointer and look at some of the common mistakes that I see (and probably make a few as I go).</p>
+
+<h3>Warning:</h3>
+
+<p>This article is not for absolute beginners. I assume you already know the basics of C++.</p>
+
+<h2>First Bash</h2>
+
+<p>So lets get started. The two most common smart pointers are <code>unique</code> and <code>shared</code>. So lets start with the one that seems the simplest (<code>unique</code>)and see where we go.</p>
+
+<p>It would seem that we could bash out a quick unique pointer like this:</p>
+
+<figure class='code'><figcaption><span>ThorsAnvil::UP Version 1</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="k">namespace</span> <span class="n">ThorsAnvil</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="k">class</span> <span class="nc">UP</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">T</span><span class="o">*</span>   <span class="n">data</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>                <span class="n">UP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
+</span><span class='line'>                    <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">{}</span>
+</span><span class='line'>                <span class="o">~</span><span class="n">UP</span><span class="p">()</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>                <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">release</span><span class="p">()</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="n">T</span><span class="o">*</span> <span class="n">result</span> <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>
+</span><span class='line'>                    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="c1">// So it can be used in conditional expression</span>
+</span><span class='line'>                <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>        <span class="p">};</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Problem 1: Rule of Three Violation</h3>
+
+<p>The first problem here is that we are not obeying the &ldquo;<a href="http://stackoverflow.com/q/4172722/14065">rule of three</a>&rdquo;. Since we have a destructor that does memory management we should also handle the copy constructor and assignment operator. Otherwise the following is allowed and will cause undefined behavior:</p>
+
+<figure class='code'><figcaption><span>Rule of Three Copy Constructor</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="kt">int</span> <span class="n">test1</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span>   <span class="n">sp1</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span>   <span class="n">sp2</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sp1</span><span class="p">);</span>  <span class="c1">// copy construction</span>
+</span><span class='line'>
+</span><span class='line'>                 <span class="c1">// Here the compiler generated copy constructor</span>
+</span><span class='line'>                 <span class="c1">// kicks in and does a member wise copy of sp1</span>
+</span><span class='line'>                 <span class="c1">// into sp2. That in itself is not a problem.</span>
+</span><span class='line'>     <span class="p">}</span>
+</span><span class='line'>     <span class="c1">// But when sp2 goes out of scope its destructor kicks in</span>
+</span><span class='line'>     <span class="c1">// and deletes the pointer. When sp1 subsequently follows</span>
+</span><span class='line'>     <span class="c1">// sp2 out of scope it will also call delete on the same</span>
+</span><span class='line'>     <span class="c1">// pointer (as they share a copy of the pointer).</span>
+</span><span class='line'>     <span class="c1">// </span>
+</span><span class='line'>     <span class="c1">// This is known as a double delete and causes</span>
+</span><span class='line'>     <span class="c1">// undefined behavior (UB).</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p> The assignment operator is slightly worse:</p>
+
+<figure class='code'><figcaption><span>Rule of Three Assignment Operator</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="kt">int</span> <span class="n">test2</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span>   <span class="n">sp1</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span>   <span class="n">sp2</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">6</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">sp2</span> <span class="o">=</span> <span class="n">sp1</span><span class="p">;</span> <span class="c1">// Assignment operation.</span>
+</span><span class='line'>
+</span><span class='line'>                 <span class="c1">// Here the compiler generated assignment </span>
+</span><span class='line'>                 <span class="c1">// operator kicks in and does a member wise </span>
+</span><span class='line'>                 <span class="c1">// assignment of sp1 into sp2.</span>
+</span><span class='line'>                 <span class="c1">//</span>
+</span><span class='line'>                 <span class="c1">// The main problem with the assignment here</span>
+</span><span class='line'>                 <span class="c1">// is that we have lost the original pointer</span>
+</span><span class='line'>                 <span class="c1">// that sp2 was holding.</span>
+</span><span class='line'>     <span class="p">}</span>
+</span><span class='line'>     <span class="c1">// Same issues with double delete as the copy constructor.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is caused by the compiler atomically generating default implementations of certain methods (see discussion on the <a href="http://stackoverflow.com/q/4172722/14065">rule of three</a>) if the user does not explicitly specify otherwise. In this case the problem comes because of the compiler generated versions of the copy constructor and assignment operator (see below)</p>
+
+<figure class='code'><figcaption><span>Compiler Generated Methods.</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="k">namespace</span> <span class="n">ThorsAnvil</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="p">.....</span>
+</span><span class='line'>            <span class="c1">// Compiler Generated Copy Constructor</span>
+</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
+</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Compiler Generated Assignment Operator</span>
+</span><span class='line'>            <span class="n">UP</span><span class="o">&amp;</span> <span class="n">UP</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">data</span>    <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I have heard this described as a language bug; but I have to disagree with that sentiment, as these compiler generated methods do exactly as you would expect in nearly all situations. The one exceptions is when the class contains &ldquo;owned raw pointers&rdquo;.</p>
+
+<h3>Problem 2: Implicit construction.</h3>
+
+<p>The next issue is caused by C++ tendency to eagerly convert one type to another if given half a chance. If your class contains a constructor that takes a single argument then the compiler will use this as a way of converting one type to another.</p>
+
+<figure class='code'><figcaption><span>Example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="kt">void</span> <span class="n">takeOwner1</span><span class="p">(</span><span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">x</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{}</span>
+</span><span class='line'>    <span class="kt">void</span> <span class="n">takeOwner2</span><span class="p">(</span><span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{}</span>
+</span><span class='line'>    <span class="kt">void</span> <span class="n">takeOwner3</span><span class="p">(</span><span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;&amp;</span> <span class="n">x</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{}</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="kt">int</span><span class="o">*</span>   <span class="n">data</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">7</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">takeOwner1</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">takeOwner2</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">takeOwner3</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Though none of the functions in the example take an <code>int pointer</code> as a parameter; the compiler sees that it can convert an <code>int*</code> into an object of type <code>ThorsAnvil::UP&lt;int&gt;</code> via the single argument constructor and builds temporary objects to facilitate the calling of the function.</p>
+
+<p>In the case of smart pointers, that take ownership of the object passed in the constructor, this can be a problem because the lifetime of a temporary object is the containing statement (with a few exceptions that we will cover in another article). As a simple rule of thumb you can think of the lifespan of a temporary ending at the <code>';'</code>.</p>
+
+<figure class='code'><figcaption><span>Temporary Object</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="n">takeOwner1</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// You can think of this as functionally equivalent to:</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">tmp</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">takeOwner1</span><span class="p">(</span><span class="n">tmp</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The problem here is that when <code>tmp</code> goes out of scope its destructor will call delete on the pointer. Thus <code>data</code> is now pointing at memory that has been destroyed (and thus no longer belongs to the application). Any further use of <code>data</code> is going to potentially cause problems (and I am being generous using the word potentially).</p>
+
+<p>This feature can be quite useful (when you want this conversion to happen easily, see std::string). But you should definitely be aware of it and think carefully about creating single argument constructors.</p>
+
+<h3>Problem 3: Null de-referencing</h3>
+
+<p>I think it is obvious that <code>operator*</code> has an issue with de-referencing a Null pointer here:</p>
+
+<figure class='code'><figcaption><span>operator*()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>                <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But it is not quite as obvious that <code>operator-&gt;</code> is also going to cause dereferencing of the pointer here:</p>
+
+<figure class='code'><figcaption><span>operator->()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are a couple of solutions to this problem. You can check <code>data</code> and throw an exception if it is a Null pointer, or alternatively you can make it a pre-condition on the usage of the smart pointer (ie it is the responsibility of the user to either know or check the state of the smart pointer before using these methods).</p>
+
+<p>The standard has chosen to go with a pre-condition (a very common C++ practice: do not impose an overhead on all your users (to spare problems for the beginner), but rather provide a mechanism to check the state for those that need to do so; so they can choose to pay the overhead when they need to and not every time). We can do the same here but we have not provided any mechanism for the user to check the state of the smart pointer.</p>
+
+<h3>Problem 4: Const Correctness</h3>
+
+<p>When accessing the owned object via a smart pointer we are not affecting the state of our smart pointer so any member that basically returns the object (without changing the state of the smart pointer) should be marked const.</p>
+
+<figure class='code'><figcaption><span>Not const</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>                <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So these two methods should really be declared as:</p>
+
+<figure class='code'><figcaption><span>Const Correct</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>                <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Problem 5: Bool conversion to easy</h3>
+
+<p>The current <code>operator bool()</code> works as required in bool expressions.</p>
+
+<figure class='code'><figcaption><span>Check for value</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>    <span class="n">value</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">4</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Not empty</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But the compiler will also use the conversion operators when it is trying to coerce objects that nearly match. For example you can now test two <code>UP</code> with <code>operator==</code> even though there does not exists an actual <code>operator==</code> for the <code>UP&lt;&gt;</code> class. This is because the compiler can convert both <code>UP&lt;&gt;</code> objects to bool and these can be compared.</p>
+
+<figure class='code'><figcaption><span>Auto conversion is bad (mostly)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>    <span class="n">value1</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="mi">8</span><span class="p">));</span>
+</span><span class='line'><span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>    <span class="n">value2</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="mi">9</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">value1</span> <span class="o">==</span> <span class="n">value2</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// unfortunately this will print &quot;They match&quot;.</span>
+</span><span class='line'>    <span class="c1">// Because both values are converted to bool (in this case true).</span>
+</span><span class='line'>    <span class="c1">// Then the test is done.</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;They match</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In C++03 there was a nasty work around using pointers to members. But in C++11 there was added new functionality to make the conversion operator only fire in a boolean context otherwise it must be explicitly called.</p>
+
+<figure class='code'><figcaption><span>explicit converter</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>        <span class="k">explicit</span> <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>    <span class="n">value1</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="mi">8</span><span class="p">));</span>
+</span><span class='line'>    <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>    <span class="n">value2</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="mi">9</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">value1</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// This is expecting a boolean expression.</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Not nullptr</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value1</span><span class="p">)</span> <span class="o">==</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value2</span><span class="p">))</span> <span class="p">{</span> <span class="c1">// Need to be explicit</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Both are either nullptr or not</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Fixed First Try</h2>
+
+<p>So given the problems described above we can update our implementation to compensate for these issues:</p>
+
+<figure class='code'><figcaption><span>ThorsAnvil::UP Version 2</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="k">namespace</span> <span class="n">ThorsAnvil</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="k">class</span> <span class="nc">UP</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">T</span><span class="o">*</span>   <span class="n">data</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>                <span class="c1">// Explicit constructor</span>
+</span><span class='line'>                <span class="k">explicit</span> <span class="n">UP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
+</span><span class='line'>                    <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">{}</span>
+</span><span class='line'>                <span class="o">~</span><span class="n">UP</span><span class="p">()</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="c1">// Remove compiler generated methods.</span>
+</span><span class='line'>                <span class="n">UP</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">)</span>            <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// Const correct access owned object</span>
+</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>                <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// Access to smart pointer state</span>
+</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>                 <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>                <span class="k">explicit</span> <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="c1">// Modify object state</span>
+</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">release</span><span class="p">()</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="n">T</span><span class="o">*</span> <span class="n">result</span> <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>
+</span><span class='line'>                    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>        <span class="p">};</span>
+</span><span class='line'>    <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you are thinking this is not enough you are correct. We still have some more work to do. But lets leave it at that for version one.</p>
+
+<h2>Summary</h2>
+
+<p>So in this initial post we have looked at a typical first attempt at a smart pointer and summarized the common problems I often see in these home grown smart pointer implementations.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/12/06/nearly-new-year-slash-new-resolution/">Nearly New Year/New Resolution</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-06T11:44:00-08:00" pubdate data-updated="true">Dec 6<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/12/06/nearly-new-year-slash-new-resolution/#disqus_thread"
+             data-disqus-identifier="http://lokiastari.com/blog/2014/12/06/nearly-new-year-slash-new-resolution/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>New Year/New Resolution</h2>
+
+<p>They say you can only get better at something by doing it.</p>
+
+<p>I want to get better at writing articles about what I do so I better keep trying. Reading the articles I wrote last year (with the hindsight of a year) it seems my pros are a bit dry and laborious. So I am going to try again with an eye on fixing this problem.</p>
+
+<p>My two main inspirations are colleges who do this rather well. <a href="http://katemats.com/">Kate Mate</a> a highly talented manager whose opinions I respect and <a href="http://moz.com/rand/">Rand Fiskin</a> the Wizard of Moz (though I am not sure he uses this tittle anymore). Both are highly respected in their fields and have the ability to write comprehensively and interestingly about subjects.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1464,6 +2006,14 @@ But why are &ldquo;Software Engineer&rdquo; interviews so exhaustive? <a href="h
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/09/socket-read/">Socket Read/Write</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/08/socket-programming-in-c-version-1/">Socket Programming in C</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/25/resizemaths/">Memory Resizing</a>
       </li>
     
@@ -1473,14 +2023,6 @@ But why are &ldquo;Software Engineer&rdquo; interviews so exhaustive? <a href="h
     
       <li class="post">
         <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/12/vector-resize/">Vector - Resize</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/">Vector - Resource Management Copy Swap</a>
       </li>
     
   </ul>

@@ -85,9 +85,7 @@
   
   
   
-  
-  
-  of the 5 part Series: "<span style="color:red">Vector</span>".<br>
+  of the 4 part Series: "<span style="color:red">Vector</span>".<br>
   See side panel "Series" for details.<br><br>
   
   
@@ -121,7 +119,7 @@
 
 <div class="entry-content"><p>A lot of new developers to C++ attempt to build a <code>Vector</code> like container as a learning processes. Getting a simple version of this working for POD types (like int) is not that complicated. The next step in getting this working for arbitrary data types takes a significant leap forward in thinking in C++ especially when you start looking at efficiency and exception safety. This set of five articles looks at building an efficient <code>Vector</code> implementation. I show some of the common mistakes and explain why and how to resolve the problems:</p>
 
-<p>Note: This is not meant to replace <code>std::vector&lt;&gt;</code> this simply meant as a teaching processes.</p>
+<p>Note: This is not meant to replace <code>std::vector&lt;&gt;</code> this is simply meant as a teaching process.</p>
 
 <h1>Rule of Zero</h1>
 
@@ -305,7 +303,7 @@
 </ul>
 
 
-<p>This attempt improves on that by allowing efficient pre-allocating of space (<code>capacity</code>) for the buffer. New members are then added by constructing in place using <a href="http://stackoverflow.com/questions/362953/what-are-uses-of-the-c-construct-placement-new">placement new</a>.</p>
+<p>This attempt improves on that by allowing efficient pre-allocating of space (<code>capacity</code>) for the buffer. New members are then added by constructing in-place using <a href="http://stackoverflow.com/questions/362953/what-are-uses-of-the-c-construct-placement-new">placement new</a>.</p>
 
 <figure class='code'><figcaption><span>Rule of three third pass</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -388,7 +386,7 @@
 </span><span class='line'>    <span class="p">{}</span>
 </span><span class='line'>    <span class="o">~</span><span class="n">Vector</span><span class="p">()</span>
 </span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="c1">// Because elements are constructed in place using</span>
+</span><span class='line'>        <span class="c1">// Because elements are constructed in-place using</span>
 </span><span class='line'>        <span class="c1">// placement new. Then we must manually call the destructor</span>
 </span><span class='line'>        <span class="c1">// on the elements.</span>
 </span><span class='line'>        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="o">++</span><span class="n">loop</span><span class="p">)</span>
@@ -440,9 +438,9 @@
 
 <h1>Rule of Five</h1>
 
-<p>In C++11 the language add the concept of &ldquo;Move Semantics&rdquo;. Rather than having to copy an object (especially on return from a function) we could &ldquo;move&rdquo; an object. The concept here is that movement is supposed to be much cheaper than copy because you move the internal data structure of an object rather than all the elements. A good example is a std::vector. Pre C++11 a return by value means copying the object. The constructor of the new object allocates a new internal buffer and then copies all the elements from the original objects buffer to the new objects buffer. On the other hand a move simply gives the new object the internal buffer of the old object (we just move the pointer to the internal buffer). When an object is moved to another object the old object should be left in a valid state, but for efficiency the standard rarely specifies the state of an object after it has been the source of a move. Thus using an object after a move is a bad idea unless you are setting it to a specific state.</p>
+<p>In C++11 the language added the concept of &ldquo;Move Semantics&rdquo;. Rather than having to copy an object (especially on return from a function) we could &ldquo;move&rdquo; an object. The concept here is that movement is supposed to be much cheaper than copying because you move the internal data structure of an object rather than all the elements. A good example is a std::vector. Before C++11 a return by value meant copying the object. The constructor of the new object allocates a new internal buffer and then copies all the elements from the original object&rsquo;s buffer to the new object&rsquo;s buffer. On the other hand a move simply gives the new object the internal buffer of the old object (we just move the pointer to the internal buffer). When an object is moved to another object the old object should be left in a valid state, but for efficiency the standard rarely specifies the state of an object after it has been the source of a move. Thus using an object after a move is a bad idea unless you are setting it to a specific state.</p>
 
-<p>There are two new method that allow us to specify move semantics on a class.</p>
+<p>There are two new methods that allow us to specify move semantics on a class.</p>
 
 <figure class='code'><figcaption><span>Vector Move Semantics.</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -462,7 +460,7 @@
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
 </span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
-</span><span class='line'>    <span class="c1">// STUFF    </span>
+</span><span class='line'>    <span class="c1">// STUFF</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="c1">// Move Constructor</span>
 </span><span class='line'>    <span class="n">Vector</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;&amp;</span> <span class="n">move</span><span class="p">)</span> <span class="n">noexcept</span><span class="p">;</span>
@@ -473,7 +471,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Notice the <code>&amp;&amp;</code> operator. This donates an r-value reference and means that your object is the destination of a move operation. The parameter passed is the source object and the state you should use to define your new objects state. After the move the source object must be left in a valid (but can be undefined state). For a vector this means it must no longer be the owner of the internal buffer that you are now using in your buffer.</p>
+<p>Notice the <code>&amp;&amp;</code> operator. This donates an r-value reference and means that your object is the destination of a move operation. The parameter passed is the source object and the state you should use to define your new object&rsquo;s state. After the move the source object must be left in a valid (but can be undefined state). For a vector this means it must no longer be the owner of the internal buffer that you are now using in your buffer.</p>
 
 <p>The simplest way to achieve this goal is to set up the object in a valid (but very cheap to achieve state) and then swap the current object with the destination object.</p>
 
@@ -508,7 +506,7 @@
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
 </span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
-</span><span class='line'>    <span class="c1">// STUFF    </span>
+</span><span class='line'>    <span class="c1">// STUFF</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="c1">// Move Constructor</span>
 </span><span class='line'>    <span class="n">Vector</span><span class="p">(</span><span class="n">Vector</span><span class="o">&amp;&amp;</span> <span class="n">move</span><span class="p">)</span> <span class="n">noexcept</span>
@@ -888,11 +886,6 @@
       </li>
     
       <li class="post">
-        <!-- <a href="/blog/2016/03/12/vector-resize/">Vector - Resize</a> -->
-        <a href="/blog/2016/03/12/vector-resize/">Resize</a>
-      </li>
-    
-      <li class="post">
         <!-- <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a> -->
         <a href="/blog/2016/03/19/vector-simple-optimizations/">Simple Optimizations</a>
       </li>
@@ -910,6 +903,14 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/09/socket-read/">Socket Read/Write</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/08/socket-programming-in-c-version-1/">Socket Programming in C</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/25/resizemaths/">Memory Resizing</a>
       </li>
     
@@ -919,14 +920,6 @@
     
       <li class="post">
         <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/12/vector-resize/">Vector - Resize</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/">Vector - Resource Management Copy Swap</a>
       </li>
     
   </ul>

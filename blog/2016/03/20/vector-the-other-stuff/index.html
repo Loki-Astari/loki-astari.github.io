@@ -83,11 +83,9 @@
   
   
   
+  4
   
-  
-  5
-  
-  of the 5 part Series: "<span style="color:red">Vector</span>".<br>
+  of the 4 part Series: "<span style="color:red">Vector</span>".<br>
   See side panel "Series" for details.<br><br>
   
   
@@ -188,7 +186,7 @@
 </ul>
 
 
-<p>Member access to a vector should be very efficient. As a result normally range checks are not performed on member access, i.e. the user is expected to make sure that the method pre-conditions have been met before calling the method. This results in very efficient access to the members of a <code>Vector</code>. This is not normally a problem because index ranges are normally checked as part of a loop range as long as these are validated against the size of the array it does not need to be validated again.</p>
+<p>Member access to a vector should be very efficient. As a result normally range checks are not performed on member access, i.e. the user is expected to make sure that the method preconditions have been met before calling the method. This results in very efficient access to the members of a <code>Vector</code>. This is not normally a problem because index ranges are normally checked as part of a loop range as long as these are validated against the size of the array it does not need to be validated again.</p>
 
 <figure class='code'><figcaption><span>For Loop Vector Access</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -217,7 +215,7 @@
 </ul>
 
 
-<p>To allow us to check the pre-conditions on the element accesses methods we need a couple of functions that check the state of the object. These are provided here.</p>
+<p>To allow us to check the preconditions on the element access methods we need some functions that check the state of the object. These are provided here.</p>
 
 <h4>Mutating Member Functions</h4>
 
@@ -231,7 +229,7 @@
 
 <p>The following members are standard easy to implement methods of <code>std::vector</code> (O(1)) that I would expect to see in every implementation.</p>
 
-<p>The other mutating member functions are less trivial as they require elements to be moved around. They are not that hard but you must put some though into the most efficient techniques to move elements (i.e. move or copy) and make sure that capacity is not exceeded by multiple inserts. As a result I would expect to see these methods only on a as need basis.</p>
+<p>The other mutating member functions are less trivial as they require elements to be moved around. They are not that hard but you must put some thought into the most efficient techniques to move elements (i.e. move or copy) and make sure that capacity is not exceeded by multiple inserts. As a result I would expect to see these methods only on an as needed basis.</p>
 
 <h4>Comparators</h4>
 
@@ -241,7 +239,7 @@
 </ul>
 
 
-<p>Easy comparison operators.<br/>
+<p>Easy comparison operators.
 Optionally you can provide the other comparison operators.</p>
 
 <h1>Final</h1>
@@ -788,12 +786,12 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>            <span class="o">++</span><span class="n">length</span><span class="p">;</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>        <span class="c1">// Optimizations that use SFINAE to onlt instanciate one</span>
+</span><span class='line'>        <span class="c1">// Optimizations that use SFINAE to only instantiate one</span>
 </span><span class='line'>        <span class="c1">// of two versions of a function.</span>
-</span><span class='line'>        <span class="c1">//      simpleCopy()        Moves when no exceptions are guranteed, otherwise copies.</span>
+</span><span class='line'>        <span class="c1">//      simpleCopy()        Moves when no exceptions are guaranteed, otherwise copies.</span>
 </span><span class='line'>        <span class="c1">//      clearElements()     When no destructor remove loop.</span>
-</span><span class='line'>        <span class="c1">//      copyAssign()        Avoid resource allocation when no exceptions guranteed.</span>
-</span><span class='line'>        <span class="c1">//                          ie. When copying integers re-use the buffer if we can</span>
+</span><span class='line'>        <span class="c1">//      copyAssign()        Avoid resource allocation when no exceptions guaranteed.</span>
+</span><span class='line'>        <span class="c1">//                          ie. When copying integers reuse the buffer if we can</span>
 </span><span class='line'>        <span class="c1">//                          to avoid expensive resource allocation.</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">X</span><span class="o">&gt;</span>
@@ -830,7 +828,7 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>        <span class="k">typename</span> <span class="n">std</span><span class="o">::</span><span class="n">enable_if</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">is_trivially_destructible</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">==</span> <span class="kc">true</span><span class="o">&gt;::</span><span class="n">type</span>
 </span><span class='line'>        <span class="n">clearElements</span><span class="p">()</span>
 </span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// Trivially destructible objects can be re-used without using the destructor.</span>
+</span><span class='line'>            <span class="c1">// Trivially destructible objects can be reused without using the destructor.</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">X</span><span class="o">&gt;</span>
@@ -839,7 +837,7 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>        <span class="n">copyAssign</span><span class="p">(</span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;&amp;</span> <span class="n">copy</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="c1">// This function is only used if there is no chance of an exception being</span>
-</span><span class='line'>            <span class="c1">// throw during destruction or copy construction of the type T.</span>
+</span><span class='line'>            <span class="c1">// thrown during destruction or copy construction of the type T.</span>
 </span><span class='line'>
 </span><span class='line'>
 </span><span class='line'>            <span class="c1">// Quick return for self assignment.</span>
@@ -850,7 +848,7 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>
 </span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">capacity</span> <span class="o">&lt;=</span> <span class="n">copy</span><span class="p">.</span><span class="n">length</span><span class="p">)</span>
 </span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="c1">// If we have enough space to copy then re-use the sapce we currently</span>
+</span><span class='line'>                <span class="c1">// If we have enough space to copy then reuse the space we currently</span>
 </span><span class='line'>                <span class="c1">// have to avoid the need to perform an expensive resource allocation.</span>
 </span><span class='line'>
 </span><span class='line'>                <span class="n">clearElements</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">();</span>     <span class="c1">// Potentially does nothing (see above)</span>
@@ -967,11 +965,6 @@ Optionally you can provide the other comparison operators.</p>
       </li>
     
       <li class="post">
-        <!-- <a href="/blog/2016/03/12/vector-resize/">Vector - Resize</a> -->
-        <a href="/blog/2016/03/12/vector-resize/">Resize</a>
-      </li>
-    
-      <li class="post">
         <!-- <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a> -->
         <a href="/blog/2016/03/19/vector-simple-optimizations/">Simple Optimizations</a>
       </li>
@@ -989,6 +982,14 @@ Optionally you can provide the other comparison operators.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/09/socket-read/">Socket Read/Write</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/08/socket-programming-in-c-version-1/">Socket Programming in C</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/25/resizemaths/">Memory Resizing</a>
       </li>
     
@@ -998,14 +999,6 @@ Optionally you can provide the other comparison operators.</p>
     
       <li class="post">
         <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/12/vector-resize/">Vector - Resize</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/">Vector - Resource Management Copy Swap</a>
       </li>
     
   </ul>

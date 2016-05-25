@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Sockets | Loki Astari]]></title>
+  <link href="http://lokiastari.com/blog/categories/sockets/atom.xml" rel="self"/>
+  <link href="http://lokiastari.com/"/>
+  <updated>2016-05-25T09:16:17-07:00</updated>
+  <id>http://lokiastari.com/</id>
+  <author>
+    <name><![CDATA[Loki Astari]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Socket Read/Write]]></title>
+    <link href="http://lokiastari.com/blog/2016/04/09/socket-read/"/>
+    <updated>2016-04-09T21:11:25-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/04/09/socket-read</id>
+    <content type="html"><![CDATA[<h2>Checking read/write success</h2>
+
+<p>The <code>read()</code> and <code>write()</code> command can fail in a couple of ways but can also succeed without reading/writing all the data, a common mistake is not to check the amount of data read/written from/to a stream. Interestingly not all error condition are fatal and reading/writing can potentially be resumed after an error.</p>
+
+<h2>Read</h2>
+
+<p>To understand if you have read all the information that is available on a stream you need to define a communication protocol (like HTTP). For the first version of this server the protocol is very simple. Messages are passed as strings (not null terminated) and the end of the message is marked by closing the write stream. Thus a client can send one message and receive one reply with each connection it makes.</p>
+
+<p>```c getMessage()
+/<em>
+ * Returns:     0   EOM reached.
+ *                  The message is complete. There is no more data to be read.
+ *              >0  Message data has been read (and a null terminator added).
+ *                  The value is the number of bytes read from the stream
+ *                  You should call getMessage() again to get the next section of the message.
+ *                  Note: the message is terminated when 0 is returned.
+ *              -1  An error occured.
+ </em>/
+int getMessage(int socketId, char* buffer, std::ssize_t size)
+{</p>
+
+<pre><code>std::ssize_t     dataRead = 0;
+std::ssize_t     dataMax  = size - 1;
+
+while(dataRead &lt; dataMax)
+{
+    ssize_t get = read(socketId, buffer + dataRead, size - dataRead);
+    if (get == -1)
+    {
+        return -1;
+    }
+    if (get == 0)
+    {
+        break;
+    }
+    dataRead += get;
+}
+buffer[dataRead] = '\0';
+return dataRead;
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>Read Errors</h3>
+
+<p>This initial version treats all <code>read()</code> errors as unrecoverable and <code>getMessage()</code> return an error state. But not all error codes need to result in a failure. So in this section I will go through some of the error codes and give some potentially actions. In a subsequent articles I may revise these actions as we cover more complex ways of interacting with sockets.</p>
+
+<p>The following errors are the result of programming bugs and should not happen in production.</p>
+
+<pre><code>[EBADF]            fildes is not a valid file or socket descriptor open for reading.
+[EFAULT]           Buf points outside the allocated address space.
+[EINVAL]           The pointer associated with fildes was negative.
+[ENXIO]            A requested action cannot be performed by the device.
+</code></pre>
+
+<p>If they do happen in production there is no way to correct for them pragmatically because the error has happened in another part of the code unassociated with this function.</p>
+
+<p>One could argue that because these should never happen the application can abort, but for now we will settle for the read operation aborting with an error code. If we wrap this in a C++ class to control the state of the socket then exceptions may be more appropriate and we will look into that approach in a subsequent article.</p>
+
+<p>The following errors are potentially recoverable from.</p>
+
+<!-- http://stackoverflow.com/questions/8471577/linux-tcp-connect-failure-with-etimedout -->
+
+
+<pre><code>[EIO]              An I/O error occurred while reading from the file system.
+[ENOBUFS]          An attempt to allocate a memory buffer fails.
+[ENOMEM]           Insufficient memory is available.
+[ETIMEDOUT]        A transmission timeout occurs during a read attempt on a socket.
+</code></pre>
+
+<p>But in reality recovering from them within the context of a read operation is not practical (you need to recover from these operations at a point were resource are controlled or user interaction is possible). So for now we will abort the read operation with an error code (we will revisit this in a later article).</p>
+
+<p>The following error codes means that no more data will be available because the connection has been interrupted.</p>
+
+<!-- http://stackoverflow.com/questions/2974021/what-does-econnreset-mean-in-the-context-of-an-af-local-socket -->
+
+
+<!-- http://stackoverflow.com/questions/900042/what-causes-the-enotconn-error -->
+
+
+<pre><code>[ECONNRESET]       The connection is closed by the peer during a read attempt on a socket.
+[ENOTCONN]         A read is attempted on an unconnected socket.
+</code></pre>
+
+<p>How the application reacts to a broken connection depends on the communication protocol. For the simple protocol defined above we can return any data that has been retrieved from the socket and then indicating to the calling code that we have reached the end of the message (we will revisit this in a later article). This is probably the most iffy decision in handling error codes and returning an error code could be more appropriate but I want to illustrate that we can potentially continue depending on the situation.</p>
+
+<p>The following error codes are recoverable from.</p>
+
+<pre><code>[EAGAIN]           The file was marked for non-blocking I/O, and no data were ready to be read.
+</code></pre>
+
+<p>These error codes are generated when you have a non-blocking stream. In a future article we will discuss how to take advantage of non-blocking streams.</p>
+
+<pre><code>[EINTR]            A read from a slow device was interrupted before any data arrived by the delivery of a signal.
+</code></pre>
+
+<p>The exact action that you take will depend on your application (like doing some useful work) but for our simple application simply re-trying the read operation will be the standard action. Again we will come back to this, but taking advantage of timeouts will require a slightly more sophisticated approach rather than using the sockets API directly.</p>
+
+<blockquote><p><strong>EINTR:</strong><br/>
+An important note about signals. There are a lot of signals that are non leathal and will result in this EINTR error code. But one should note that leathal signals like SIGINT by default will kill the application and thus will not cause this error code (as the call to read() will never return).</p>
+
+<p>But you can override the SIGINT signal handler and a allow your application to continue and at this point your read operation will recieve this error. How your code interacts with signals like SIGINT is beyond the scope of this article and it will be discussed just like other signals.</p></blockquote>
+
+<p>```c getMessage() Improved
+/<em>
+ * Returns:     0   EOM reached.
+ *                  There is no data in the buffer.
+ *              >0  Message data has been read.
+ *                  If the buffer is full then it is not null terminated.
+ *                  If the buffer is partially full then it is null terminated
+ *                  and the next call to get getMessage() will return 0.
+ *              &lt;0  An error occured.
+ </em>/
+int getMessage(int socketId, char* buffer, std::ssize_t size)
+{</p>
+
+<pre><code>std::ssize_t     dataRead = 0;
+std::ssize_t     dataMax  = size - 1;
+
+while(dataRead &lt; dataMax)
+{
+    ssize_t get = read(socketId, buffer + dataRead, size - dataRead);
+    if (get == -1)
+    {
+        switch(errno)
+        {
+            case EBADF:
+            case EFAULT:
+            case EINVAL:
+            case ENXIO:
+                // Fatal error. Programming bug
+                return -3;
+            case EIO:
+            case ENOBUFS:
+            case ENOMEM:
+                // Resource aquisition failure or device error
+                // Can't recover from here so indicate failure
+                // and exit
+                return -2;
+            case ETIMEDOUT:
+            case EAGAIN:
+            case EINTR:
+                // Temporrary error.
+                // Simply retry the read.
+                continue;
+            case ECONNRESET:
+            case ENOTCONN:
+                // Connection broken.
+                // Return the data we have available and exit
+                // as if the connection was closed correctly.
+                get = 0;
+                break;
+            default:
+                return -1;
+        }
+    }
+    if (get == 0)
+    {
+        break;
+    }
+    dataRead += get;
+}
+buffer[dataRead] = '\0';
+return dataRead;
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Write</h2>
+
+<p>The <code>write()</code> has exactly the same scenario as <code>read()</code>.</p>
+
+<p>The following errors are the reuls of programming bugs and should not happen in production.</p>
+
+<pre><code> [EINVAL]           The pointer associated with fildes is negative.
+ [EBADF]            fildes is not a valid file descriptor open for writing.
+ [ECONNRESET]       A write is attempted on a socket that is not connected.
+ [ENXIO]            A request is made of a nonexistent device, or the request is outside the capabilities of the device.
+ [EPIPE]            An attempt is made to write to a socket of type SOCK_STREAM that is not connected to a peer socket.
+</code></pre>
+
+<p>The following errors are potentially recoverable bugs. Though recovering from them requires some form of awarness of the context that is not provided at the read level. So we must generate an error to stop reading and allow the caller to sort out the problem.</p>
+
+<pre><code> [EDQUOT]           The user's quota of disk blocks on the file system containing the file is exhausted.
+ [EFBIG]            An attempt is made to write a file that exceeds the process's file size limit or the maximum file size.
+ [EIO]              An I/O error occurs while reading from or writing to the file system.
+ [ENETDOWN]         A write is attempted on a socket and the local network interface used to reach the destination is down.
+ [ENETUNREACH]      A write is attempted on a socket and no route to the network is present.
+ [ENOSPC]           There is no free space remaining on the file system containing the file.
+</code></pre>
+
+<p>The following error codes are recoverable from and we covered them above in the section on <code>read()</code>.</p>
+
+<pre><code> [EAGAIN]           The file is marked for non-blocking I/O, and no data could be written immediately.
+ [EINTR]            A signal interrupts the write before it could be completed.
+</code></pre>
+
+<p>The resulting put function then looks like this.</p>
+
+<p>```c putMessage() Improved
+/<em>
+ * Returns:
+ *              >0  Indicates success and the number of bytes written.
+ *              &lt;0  Indicates failure.
+ </em>/
+int putMessage(int socketId, char* buffer, ssize_t size)
+{</p>
+
+<pre><code>ssize_t     dataWritten = 0;
+
+while(dataWritten &lt; size)
+{
+    ssize_t put = write(socketId, buffer + dataWritten, size - dataWritten);
+    if (put == -1)
+    {
+        switch(errno)
+        {
+            case EINVAL:
+            case EBADF:
+            case ECONNRESET:
+            case ENXIO:
+            case EPIPE:
+                // Fatal error. Programming bug
+                return -3;
+            case EDQUOT:
+            case EFBIG:
+            case EIO:
+            case ENETDOWN:
+            case ENETUNREACH:
+            case ENOSPC:
+                // Resource aquisition failure or device error
+                // Can't recover from here so indicate failure
+                // and exit
+                return -2;
+            case EAGAIN:
+            case EINTR:
+                // Temporrary error.
+                // Simply retry the read.
+                continue;
+            default:
+                return -1;
+        }
+    }
+    dataWritten += put;
+}
+return dataWritten;
+</code></pre>
+
+<p>}
+```</p>
+
+<h1>Summary</h1>
+
+<p>This article has shown the most important error that people skip over when reading and writing to a socket: <strong>Not all the data was transported at the same time</strong>. The read and write command may only read/write a portion of the data that you wanted to send/receive and thus you must check the amount that actually was sent/received.</p>
+
+<p>The next most important point is that not all error codes are fatal (most people actually check these) <strong>but</strong> an interrupt (EINTR) can be relatively common and you can continue reading after it has happened.</p>
+
+<h1>Inspiration</h1>
+
+<ul>
+<li>2015-Jun-25 <a href="http://codereview.stackexchange.com/q/94608/507">Impromptu TCP sender/receiver</a></li>
+<li>2015-Jul-03 <a href="http://codereview.stackexchange.com/q/95638/507">Raw Text TCP Client v3</a></li>
+<li>2015-Dec-20 <a href="http://codereview.stackexchange.com/q/114551/507">Server / client desynchronisation of messages </a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Socket Programming in C]]></title>
+    <link href="http://lokiastari.com/blog/2016/04/08/socket-programming-in-c-version-1/"/>
+    <updated>2016-04-08T09:47:01-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/04/08/socket-programming-in-c-version-1</id>
+    <content type="html"><![CDATA[<p>Building a simple client/server application is the common first internet based applications developers attempt. These applications are built on top of the socket communication library, but socket programming in C++ is not obvious as there are no standard libraries and thus you have to fall back to the C API. The closest &ldquo;standardish&rdquo; sort of thing we have is <a href="http://www.boost.org/doc/libs/1_60_0/doc/html/boost_asio/overview.html">Boost.asio</a> which is at the other end of the spectrum in terms of API and involves a cognitive leap to understand what is happening underneath (or you can just trust the library maintainers). The other alternative is <a href="https://curl.haxx.se/libcurl/c/">libcurl</a>; the &ldquo;easy curl&rdquo; layer is an abstraction of the <code>socket()</code> API, while the &ldquo;multi curl&rdquo; layer is an abstraction of the <code>pselect()</code> API that allows multiple sockets to be handled in a single thread.</p>
+
+<p>I am writing a series of articles that start with a basic C++ client/server application and walk through building a C++ communication library. During this processes I will be using examples from <a href="http://codereview.stackexchange.com">codereview.stackexchange.com</a> to illustrate common mistakes and try to show how to write the code correctly (This will also be a learning exercise for me so please let me know if you spot a mistake).</p>
+
+<p>Currently the plan is to write the following articles:</p>
+
+<!-- Server listening for program sockets -->
+
+
+<ul>
+<li>Client/Server C</li>
+<li>Client/Server C Read/Write</li>
+<li>Client/Server C++ Wrapper</li>
+<li>Mult-Threaded Server</li>
+<li>Non-Blocking Socket</li>
+<li>Co-Routines</li>
+</ul>
+
+
+<h2>Client/Server C++ Basic Version</h2>
+
+<p>The minimum example of a working Client/Server application in C++:<br/>
+The full working version is <a href="https://github.com/Loki-Astari/Examples/tree/master/Version1">here</a></p>
+
+<p>```c   C Server <a href="https://github.com/Loki-Astari/Examples/blob/master/Version1/server.cpp">https://github.com/Loki-Astari/Examples/blob/master/Version1/server.cpp</a> source</p>
+
+<h1>include &lt;netinet/in.h></h1>
+
+<h1>include &lt;errno.h></h1>
+
+<h1>include &lt;stdio.h></h1>
+
+<h1>include &lt;stdlib.h></h1>
+
+<h1>include &lt;string.h></h1>
+
+<h1>include &lt;unistd.h></h1>
+
+<h1>define SERVER_BUFFER_SIZE      1024</h1>
+
+<p>int main()
+{</p>
+
+<pre><code>int socketId = socket(PF_INET, SOCK_STREAM, 0);
+
+struct sockaddr_in serverAddr;
+bzero((char*)&amp;serverAddr, sizeof(serverAddr));
+serverAddr.sin_family       = AF_INET;
+serverAddr.sin_port         = htons(8080);
+serverAddr.sin_addr.s_addr  = INADDR_ANY;
+bind(socketId, (struct sockaddr *) &amp;serverAddr, sizeof(serverAddr));
+
+listen(socketId, 5);
+
+int                         finished    = 0;
+while(!finished)
+{
+    struct  sockaddr_storage    serverStorage;
+    socklen_t                   addr_size   = sizeof serverStorage;
+    int newSocket = accept(socketId, (struct sockaddr*)&amp;serverStorage, &amp;addr_size);
+
+    char        buffer[SERVER_BUFFER_SIZE];
+    int         get = read(newSocket, buffer, SERVER_BUFFER_SIZE - 1);
+
+    buffer[get] = '\0';
+    fprintf(stdout, "%s\n", buffer);
+
+    write(newSocket, "OK", 2);
+
+    fprintf(stdout, "Message Complete\n");
+
+    close(newSocket);
+}
+close(socketId);
+</code></pre>
+
+<p>}
+```</p>
+
+<p>```c C Client <a href="https://github.com/Loki-Astari/Examples/blob/master/Version1/client.cpp">https://github.com/Loki-Astari/Examples/blob/master/Version1/client.cpp</a> source</p>
+
+<h1>include &lt;arpa/inet.h></h1>
+
+<h1>include &lt;errno.h></h1>
+
+<h1>include &lt;stdio.h></h1>
+
+<h1>include &lt;stdlib.h></h1>
+
+<h1>include &lt;string.h></h1>
+
+<h1>include &lt;unistd.h></h1>
+
+<h1>define CLIENT_BUFFER_SIZE     1024</h1>
+
+<p>int main(int argc, char* argv[])
+{</p>
+
+<pre><code>if (argc != 3)
+{
+    fprintf(stderr, "Usage: client &lt;host&gt; &lt;Message&gt;\n");
+    exit(1);
+}
+
+int socketId = socket(PF_INET, SOCK_STREAM, 0);
+
+struct sockaddr_in serverAddr;
+socklen_t addrSize = sizeof(serverAddr);
+bzero((char*)&amp;serverAddr, sizeof(serverAddr));
+serverAddr.sin_family       = AF_INET;
+serverAddr.sin_port         = htons(8080);
+serverAddr.sin_addr.s_addr  = inet_addr(argv[1]);
+connect(socketId, (struct sockaddr*)&amp;serverAddr, addrSize);
+
+write(socketId, argv[2], strlen(argv[2]));
+
+shutdown(socketId, SHUT_WR);
+
+char    buffer[CLIENT_BUFFER_SIZE];
+size_t  get = read(socketId, buffer, CLIENT_BUFFER_SIZE - 1);
+
+buffer[get] = '\0';
+fprintf(stdout, "%s %s\n", "Response from server", buffer);
+
+close(socketId);
+</code></pre>
+
+<p>}
+```</p>
+
+<p>This version of the Client/Server actually works (a lot of the time) but obviously has a couple of major issues.</p>
+
+<h2>Checking Error Codes</h2>
+
+<p>If the calls to <code>socket()</code>, <code>bind()</code>, <code>listen()</code> or <code>connect()</code> fail then we have a catastrophic error any further actions will also fail. A few of the error codes generated by these functions can potentially be recovered from but most are programming error or permission failure as a result a human readable message with application termination is an acceptable solution (at this point).</p>
+
+<p>Note: When these functions don&rsquo;t succeed they set the global variable <code>errno</code> which can be translated into a human readable string with <code>strerror()</code>. So the simplest solution is to generate an appropriate error message for the user and terminate the application.</p>
+
+<p>```c Socket Validation</p>
+
+<pre><code>int socketId = socket(PF_INET, SOCK_STREAM, 0);
+if (socketId == -1)
+{
+    fprintf(stderr, "Failed: socket()\n%s\n", strerror());
+    exit(1);
+}
+</code></pre>
+
+<p>```</p>
+
+<p>```c Bind Validation</p>
+
+<pre><code>if (bind(socketId, (struct sockaddr *) &amp;serverAddr, sizeof(serverAddr)) == -1)
+{
+    fprintf(stderr, "Failed: bind()\n%s\n", strerror());
+    close(socketId);    // Don't forget to close the socket.
+    exit(1);
+}
+</code></pre>
+
+<p>```</p>
+
+<p>```c Listen Validation</p>
+
+<pre><code>if (listen(socketId, 5) == -1)
+{
+    fprintf(stderr, "Failed: connect()\n%s\n", strerror());
+    close(socketId);    // Don't forget to close the socket.
+    exit(1);
+}
+</code></pre>
+
+<p>```</p>
+
+<p>```c Connect Validation</p>
+
+<pre><code>if (connect(socketId, (struct sockaddr*)&amp;serverAddr, addrSize) == -1)
+{
+    fprintf(stderr, "Failed: connect()\n%s\n", strerror());
+    close(socketId);    // Don't forget to close the socket.
+    exit(1);
+}
+</code></pre>
+
+<p>```</p>
+
+<h1>Summary</h1>
+
+<p>The basic socket programs are relatively trivial. But this version 1 has some obvious flaws the major one being checking error states (which a lot of beginners forget in their first version). The next article will look into some more details about read and write operations on the socket.</p>
+
+<h1>Inspiration for Article</h1>
+
+<ul>
+<li>2012-Jul-09 <a href="http://codereview.stackexchange.com/q/13461/507">Two-way communication in TCP: server-client implementation</a></li>
+<li>2012-Jul-23 <a href="http://codereview.stackexchange.com/q/13933/507">Stupidly simple TCP client/server</a></li>
+<li>2013-May-28 <a href="http://codereview.stackexchange.com/q/26683/507">How is this for a “Hello World” of socket programming?</a></li>
+<li>2013-Sep-06 <a href="http://codereview.stackexchange.com/q/30852/507">Extract location from HTTP socket</a></li>
+<li>2014-Mar-10 <a href="http://codereview.stackexchange.com/q/43914/507">Client/server implementation in C (sending data/files)</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

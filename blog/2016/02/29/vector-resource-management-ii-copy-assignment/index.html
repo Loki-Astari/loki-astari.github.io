@@ -85,9 +85,7 @@
   
   
   
-  
-  
-  of the 5 part Series: "<span style="color:red">Vector</span>".<br>
+  of the 4 part Series: "<span style="color:red">Vector</span>".<br>
   See side panel "Series" for details.<br><br>
   
   
@@ -119,14 +117,14 @@
   </header>
 
 
-<div class="entry-content"><p>In the previous article I went over basic allocation for a <code>Vector</code> like class. In this article I want to put some detail around the copy assignment operator and re-sizing the underlying <code>Vector</code>. Unlike the other methods previously discussed these methods have to deal with both construction and destruction of elements and the potential of exceptions interrupting the processes. The goal is to provide an exception safe methods that provides the strong exception guarantee for the object and do not leak resources.</p>
+<div class="entry-content"><p>In the previous article I went over basic allocation for a <code>Vector</code> like class. In this article I want to put some detail around the copy assignment operator and resizing the underlying <code>Vector</code>. Unlike the other methods previously discussed these methods have to deal with both construction and destruction of elements and the potential of exceptions interrupting the processes. The goal is to provide exception safe methods that provide the strong exception guarantee for the object and do not leak resources.</p>
 
 <h1>Copy Assignment</h1>
 
 <h2>First Try</h2>
 
-<p>This is a very common first attempt at a copy constructor.<br/>
-It simply calls the destructor on all elements currently in the object. Then uses the existing <code>push_back()</code> method to copy member elements from the source object, thus allowing the object to automatically re-size if required.</p>
+<p>This is a very common first attempt at a copy constructor.
+It simply calls the destructor on all elements currently in the object. Then uses the existing <code>push_back()</code> method to copy member elements from the source object, thus allowing the object to automatically resize if required.</p>
 
 <figure class='code'><figcaption><span>Copy Assignment (Try 1)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -193,7 +191,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 
 <h2>Strong Exception Guarantee</h2>
 
-<p>The obvious problems about efficiency when a resize is required is a minor issue here. The real problem is that this does not provide the strong exception guarantee. If any of the constructors/destructor throw then the object will be left in an inconsistent state, with no way to restore the original state. The strong exception guarantee basically means that the operation works or does not change the state of the object. The easiest technique to achieve this we must create the copy into a new temporary buffer that can be thrown away if things go wrong (leaving the current object untouched). If the copy succeeds then we use it and can throw away the original data.</p>
+<p>The obvious problems about efficiency when a resize is required is a minor issue here. The real problem is that this does not provide the strong exception guarantee. If any of the constructors/destructor throw then the object will be left in an inconsistent state with no way to restore the original state. The strong exception guarantee basically means that the operation works or does not change the state of the object. The easiest technique to achieve this is to create a copy in a new temporary buffer that can be thrown away if things go wrong (leaving the current object untouched). If the copy succeeds then we use it and throw away the original data.</p>
 
 <figure class='code'><figcaption><span>Copy Assignment (Try 2)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -332,7 +330,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Using these two observations we have a re-write of the copy assignment operator.</p>
+<p>Using these two observations we have a rewrite of the copy assignment operator.</p>
 
 <figure class='code'><figcaption><span>Copy Assignment (Try 3)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -393,7 +391,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 
 <p>The copy and swap idiom is about dealing with replacing an object state from another object. It is very commonly used in the copy assignment operator but has application whenever state is being changed and the <a href="https://en.wikipedia.org/wiki/Exception_safety">strong exception guarantee</a> is required.</p>
 
-<p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation so lets use that rather than doing it manually. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it make the normal operation even more efficient. Since the occurrences of self assignment are extremely rare I would not prematurely optimize for them and make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.</p>
+<p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation so let&rsquo;s use that rather than doing it manually. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it makes the normal operation even more efficient. Since the occurrence of self assignment is extremely rare I would not prematurely optimize for it but rather make the most common case the best optimized. So one final refactor of the copy constructor leaves us with this.</p>
 
 <figure class='code'><figcaption><span>Copy Assignment (Try 4)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -438,11 +436,11 @@ It simply calls the destructor on all elements currently in the object. Then use
 
 <h1>Resizing Underling buffer</h1>
 
-<p>When pushing data into the array we need to verify that capacity has not been exceeded. If it has then we to allocate more capacity then copy the current content into the new buffer and destroy the old buffer, after calling the destructor on all elements.</p>
+<p>When pushing data into the array we need to verify that capacity has not been exceeded. If it has then we need to allocate more capacity then copy the current content into the new buffer and destroy the old buffer after calling the destructor on all elements.</p>
 
 <h2>Using Copy and Swap</h2>
 
-<p>This operation is exceedingly similar to the description we did with the copy assignment operator. As a result the best solution looks very similar and used the Copy and Swap Idiom.</p>
+<p>This operation is exceedingly similar to the description of the copy assignment operator. As a result the best solution looks very similar and uses the Copy and Swap idiom.</p>
 
 <figure class='code'><figcaption><span>Vector Reallocating Buffer</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -475,7 +473,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">capacity</span><span class="p">;</span>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>     <span class="n">length</span><span class="p">;</span>
 </span><span class='line'>    <span class="n">T</span><span class="o">*</span>              <span class="n">buffer</span><span class="p">;</span>
-</span><span class='line'>    <span class="c1">// STUFF    </span>
+</span><span class='line'>    <span class="c1">// STUFF</span>
 </span><span class='line'>    <span class="kt">void</span> <span class="n">resizeIfRequire</span><span class="p">()</span>
 </span><span class='line'>    <span class="p">{</span>
 </span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">length</span> <span class="o">==</span> <span class="n">capacity</span><span class="p">)</span>
@@ -760,7 +758,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 
 <h1>Summary</h1>
 
-<p>This article has gone over the design of the Copy and Swap Idiom and show how it is used in the Copy Assignment Operator and the resize operation.</p>
+<p>This article has gone over the design of the Copy and Swap idiom and shown how it is used in the Copy Assignment Operator and the resize operation.</p>
 
 <ul>
 <li>Separation Of Concerns</li>
@@ -818,7 +816,7 @@ It simply calls the destructor on all elements currently in the object. Then use
         <a class="basic-alignment left" href="/blog/2016/02/27/vector/" title="Previous Post: Vector - Resource Management Allocation">&laquo; Vector - Resource Management Allocation</a>
       
       
-        <a class="basic-alignment right" href="/blog/2016/03/12/vector-resize/" title="Next Post: Vector - Resize">Vector - Resize &raquo;</a>
+        <a class="basic-alignment right" href="/blog/2016/03/12/vector-resize/" title="Next Post: Vector Resize">Vector Resize &raquo;</a>
       
     </p>
   </footer>
@@ -851,11 +849,6 @@ It simply calls the destructor on all elements currently in the object. Then use
       </li>
     
       <li class="post">
-        <!-- <a href="/blog/2016/03/12/vector-resize/">Vector - Resize</a> -->
-        <a href="/blog/2016/03/12/vector-resize/">Resize</a>
-      </li>
-    
-      <li class="post">
         <!-- <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a> -->
         <a href="/blog/2016/03/19/vector-simple-optimizations/">Simple Optimizations</a>
       </li>
@@ -873,6 +866,14 @@ It simply calls the destructor on all elements currently in the object. Then use
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/09/socket-read/">Socket Read/Write</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/08/socket-programming-in-c-version-1/">Socket Programming in C</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/25/resizemaths/">Memory Resizing</a>
       </li>
     
@@ -882,14 +883,6 @@ It simply calls the destructor on all elements currently in the object. Then use
     
       <li class="post">
         <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/12/vector-resize/">Vector - Resize</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/">Vector - Resource Management Copy Swap</a>
       </li>
     
   </ul>
