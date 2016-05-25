@@ -9,11 +9,11 @@ sharing: true
 footer: true
 subtitle: C++ By Example
 author: Loki Astari, (C)2016
-description: C++ By Example. The Vector Part 3. Because resizing a vector is expensive; the standard vector class uses exponential growth to minimize the number of times that the vector is resized. A technique we copied in this version. But every now and then you still need to do resize the internal buffer.
+description: C++ By Example. The Vector Part 3. Because resizing a vector is expensive; the standard vector class uses exponential growth to minimize the number of times that the vector is resized: a technique we replicate in this version. But every now and then you still need to resize the internal buffer.
 ---
-Because resizing a vector is expensive; the `std::vector` class uses exponential growth to minimize the number of times that the vector is resized. A technique we copied in this version. But every now and then you still need to do resize the internal buffer.
+Because resizing a vector is expensive; the `std::vector` class uses exponential growth to minimize the number of times that the vector is resized: a technique we replicate in this version. But every now and then you still need to resize the internal buffer.
 
-In the [current version](#VectorVersion-1), resizing the vector requires a new buffer be allocated and all the members copied into it. Basically we are using the copy and swap mechanism to provide the strong exception guarantee (If an exception is thrown all resources are cleaned up and the object remains unchanged).
+In the [current version](#VectorVersion-1), resizing the vector requires allocating a new buffer and copying all the members into it. Basically we are using the copy and swap idiom to provide the strong exception guarantee (If an exception is thrown all resources are cleaned up and the object remains unchanged).
 ```cpp Vector Resize with Copy
         void pushBackInternal(T const& value)
         {
@@ -35,7 +35,7 @@ In the [current version](#VectorVersion-1), resizing the vector requires a new b
 # Resize With Move Construction
 Thus resizing a `Vector` can be a very expensive operation because of all the copying that can happen.
 
-Using the move constructor rather than copy constructor during a resize operation could potentially be much more efficient. But the move constructor mutates the original object and thus if there is a problem we need to undo the mutations to maintain the strong exception guarantee.
+Using the move constructor rather than the copy constructor during a resize operation could potentially be much more efficient. But the move constructor mutates the original object and thus if there is a problem we need to undo the mutations to maintain the strong exception guarantee.
 
 The first attempt at this is:
 ```cpp Vector Resize with Move With Exceptions
@@ -56,7 +56,7 @@ The first attempt at this is:
             }
             catch(...)
             {
-                // If an exception is throw you need to move the objects back
+                // If an exception is thrown you need to move the objects back
                 // from the temporary buffer back to this object.
                 for(int loop=0; loop < tmpBuffer.length; ++loop)
                 {
@@ -74,8 +74,8 @@ The first attempt at this is:
             tmpBuffer.swap(*this);
         }
 ```
-# Resize With NoThrow Move Construction 
-As the above code shows; if the type `T` can throw during it's move constructor then you can't guarantee that the object gets returned to the original state (as moving the already moved elements back may cause another exception). So we can not use the move constructor to resize the vector if the type `T` can throw during move construction.
+# Resize With NoThrow Move Construction
+As the above code shows; if the type `T` can throw during its move constructor then you can't guarantee that the object gets returned to the original state (as moving the already moved elements back may cause another exception). So we cannot use the move constructor to resize the vector if the type `T` can throw during move construction.
 
 But not all types throw when being moved. In fact it is recommended that move constructors never throw. If we can guarantee that the move constructor does not throw then we can simplify the above code considerably and still provide the strong exception guarantee.
 ```cpp Vector Resize with Move
@@ -95,7 +95,7 @@ But not all types throw when being moved. In fact it is recommended that move co
         }
 ```
 # Resize Template Specialization
-So now we have to write the code that decides at compile time which version we should use. The simplest way to do this is to use template specialization of a class using the standard class `std::is_nothrow_move_constructible<T>` to help deferentiate types that have a none throwing move constructor. This is simple enough:
+So now we have to write the code that decides at compile time which version we should use. The simplest way to do this is to use template specialization of a class using the standard class `std::is_nothrow_move_constructible<T>` to help differentiate types that have a non-throwing move constructor. This is simple enough:
 ```cpp Template class Specialization
     template<typename T, bool = std::is_nothrow_move_constructible<T>::value>
     struct SimpleCopy
@@ -170,13 +170,13 @@ So now we have to write the code that decides at compile time which version we s
 # Resize With NoThrow SFINAE
 The above technique has a couple of issues.
 
-The type `SimpleClass` is publicly available and is a friend of `Vector<T>`. This makes it suseptable to accidently being used (even if not explicitly documented). Unfortunately it can't be included as a member class and also be specialized.
+The type `SimpleClass` is publicly available and is a friend of `Vector<T>`. This makes it susceptible to accidentally being used (even if not explicitly documented). Unfortunately it can't be included as a member class and also be specialized.
 
 Additionally it looks awful!!
 
 But we can also use [SFINAE](https://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error) and method overloading.
 
-SFINAE allows us to define several versions of method with exactly the same arguments, as long as only one of them is valid at compile time. So in the example below we define two versions of the method `SimpleCopy(Vector<T>& src, Vector<T>& dst)` but then use `std::enable_if` to make sure only one version of the function id valid at compile time.
+SFINAE allows us to define several versions of a method with exactly the same arguments, as long as only one of them is valid at compile time. So in the example below we define two versions of the method `SimpleCopy(Vector<T>& src, Vector<T>& dst)` but then use `std::enable_if` to make sure only one version of the function is valid at compile time.
 
 ```cpp SFINAE method overload
     template<typename T>
@@ -207,7 +207,7 @@ SFINAE allows us to define several versions of method with exactly the same argu
             template<typename X>
             // Note: this defines the return type of the function.
             //       But only one has a valid member `type` thus only
-            //       one of the following funcionts is actually valid.
+            //       one of the following functions is actually valid.
             typename std::enable_if<std::is_nothrow_move_constructible<X>::value == false>::type
             simpleCopy(Vector<T>& src, Vector<T>& dst)
             {
@@ -384,12 +384,10 @@ class Vector
 ```
 
 # Summary
-This article has gone over the design of the resiing the internal buffer. We have covered a couple of techniques on the way
+This article has gone over the design of resizing the internal buffer. We have covered a couple of techniques on the way:
 
 * Move Constructor Concepts
 * Template Class Specialization
 * SFINAE
 * std::is_nothrow_move_constructible&lt;&gt;
 * std::enable_if&lt;&gt;
-
-
