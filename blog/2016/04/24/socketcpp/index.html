@@ -1,0 +1,1111 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Socket Class - Loki Astari</title>
+  <meta name="author" content="Loki Astari">
+
+  
+  <meta name="description" content="Socket wrappers in C++">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lokiastari.com/blog/2016/04/24/socketcpp">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  <!-- MathJax configuration -->
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script>
+  <!-- End MathJax Configuration -->
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-76180769-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+</head>
+
+<body   >
+  <header role="banner"><div class="header-left">
+  <hgroup>
+  <h1><a href="/">Loki Astari</a></h1>
+  
+  <div class="subtitle">
+    <h2>Thoughts of a Former Code Monkey</h2>
+  </div>
+  
+  </hgroup>
+  
+</div>
+
+<div class="header-right">
+  <ul class="main-navigation">
+ <div> 
+  <li><a href="/">blog</a></li></div><div class="spacer"></div>
+       <div> 
+  <li><a href="/series">series</a></li></div><div class="spacer"></div>
+         <div> 
+  <li><a href="/about">about</a></li></div>
+         <div> 
+  <li><a href="/blog/archives">archives</a></li></div>
+</ul>
+
+</div>
+</header>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  This is article 
+  
+  
+  
+  
+  
+  
+  
+  4
+  
+  of the 4 part Series: "<span style="color:red">Sockets</span>".<br>
+  See side panel "Series" for details.<br><br>
+  
+  
+  <header>
+    
+      <h1 class="entry-title">Socket Class</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-04-24T21:13:39-07:00" pubdate data-updated="true">Apr 24<span>th</span>, 2016</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://lokiastari.com">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>So in the</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#ifndef THORSANVIL_SOCKET_H
+</span><span class='line'>#define THORSANVIL_SOCKET_H
+</span><span class='line'>
+</span><span class='line'>#include &lt;string&gt;
+</span><span class='line'>#include &lt;sstream&gt;
+</span><span class='line'>
+</span><span class='line'>namespace ThorsAnvil
+</span><span class='line'>{
+</span><span class='line'>    namespace Socket
+</span><span class='line'>    {
+</span><span class='line'>
+</span><span class='line'>template&lt;std::size_t I = 0, typename... Tp&gt;
+</span><span class='line'>inline typename std::enable_if&lt;I == sizeof...(Tp), void&gt;::type
+</span><span class='line'>print(std::ostream& s, std::tuple&lt;Tp...&gt; const& t)
+</span><span class='line'>{ }
+</span><span class='line'>
+</span><span class='line'>template&lt;std::size_t I = 0, typename... Tp&gt;
+</span><span class='line'>inline typename std::enable_if&lt;I &lt; sizeof...(Tp), void&gt;::type
+</span><span class='line'>print(std::ostream& s, std::tuple&lt;Tp...&gt; const& t)
+</span><span class='line'>{
+</span><span class='line'>    s &lt;&lt; std::get&lt;I&gt;(t);
+</span><span class='line'>    print&lt;I + 1, Tp...&gt;(s, t);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>template&lt;typename... Args&gt;
+</span><span class='line'>std::string buildErrorMessage(Args const&... args)
+</span><span class='line'>{
+</span><span class='line'>    std::stringstream msg;
+</span><span class='line'>    print(msg, std::make_tuple(args...));
+</span><span class='line'>    return msg.str();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>class SocketBase
+</span><span class='line'>{
+</span><span class='line'>    protected:
+</span><span class='line'>        int     socketId;
+</span><span class='line'>    public:
+</span><span class='line'>        SocketBase(int socketId);
+</span><span class='line'>        ~SocketBase();
+</span><span class='line'>
+</span><span class='line'>        SocketBase(SocketBase&& move)               noexcept;
+</span><span class='line'>        SocketBase& operator=(SocketBase&& move)    noexcept;
+</span><span class='line'>        void swap(SocketBase& other)                noexcept;
+</span><span class='line'>        SocketBase(SocketBase const&)               = delete;
+</span><span class='line'>        SocketBase& operator=(SocketBase const&)    = delete;
+</span><span class='line'>
+</span><span class='line'>        void close();
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>class SocketData: public SocketBase
+</span><span class='line'>{
+</span><span class='line'>    public:
+</span><span class='line'>        using SocketBase::SocketBase;
+</span><span class='line'>
+</span><span class='line'>        bool getMessage(std::string& message, bool resize = false);
+</span><span class='line'>        void putMessage(std::string const& message);
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>class ConnectSocket: public SocketData
+</span><span class='line'>{
+</span><span class='line'>    public:
+</span><span class='line'>        ConnectSocket(std::string const& host, int port);
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>class ServerSocket: public SocketBase
+</span><span class='line'>{
+</span><span class='line'>    public:
+</span><span class='line'>        ServerSocket(int port);
+</span><span class='line'>
+</span><span class='line'>        SocketData accept();
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>#endif</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+<span class='line-number'>209</span>
+<span class='line-number'>210</span>
+<span class='line-number'>211</span>
+<span class='line-number'>212</span>
+<span class='line-number'>213</span>
+<span class='line-number'>214</span>
+<span class='line-number'>215</span>
+<span class='line-number'>216</span>
+<span class='line-number'>217</span>
+<span class='line-number'>218</span>
+<span class='line-number'>219</span>
+<span class='line-number'>220</span>
+<span class='line-number'>221</span>
+<span class='line-number'>222</span>
+<span class='line-number'>223</span>
+<span class='line-number'>224</span>
+<span class='line-number'>225</span>
+<span class='line-number'>226</span>
+<span class='line-number'>227</span>
+<span class='line-number'>228</span>
+<span class='line-number'>229</span>
+<span class='line-number'>230</span>
+<span class='line-number'>231</span>
+<span class='line-number'>232</span>
+<span class='line-number'>233</span>
+<span class='line-number'>234</span>
+<span class='line-number'>235</span>
+<span class='line-number'>236</span>
+<span class='line-number'>237</span>
+<span class='line-number'>238</span>
+<span class='line-number'>239</span>
+<span class='line-number'>240</span>
+<span class='line-number'>241</span>
+<span class='line-number'>242</span>
+<span class='line-number'>243</span>
+<span class='line-number'>244</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include "Socket.h"
+</span><span class='line'>#include &lt;arpa/inet.h&gt;
+</span><span class='line'>#include &lt;sys/types.h&gt;
+</span><span class='line'>#include &lt;sys/socket.h&gt;
+</span><span class='line'>#include &lt;unistd.h&gt;
+</span><span class='line'>#include &lt;sstream&gt;
+</span><span class='line'>#include &lt;stdexcept&gt;
+</span><span class='line'>
+</span><span class='line'>using namespace ThorsAnvil::Socket;
+</span><span class='line'>
+</span><span class='line'>SocketBase::SocketBase(int socketId)
+</span><span class='line'>    : socketId(socketId)
+</span><span class='line'>{
+</span><span class='line'>    //std::cerr &lt;&lt; "SocketBase(" &lt;&lt; socketId &lt;&lt; ")\n";
+</span><span class='line'>    if (socketId == -1)
+</span><span class='line'>    {
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("SocketBase::SocketBase: bad socket: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SocketBase::~SocketBase()
+</span><span class='line'>{
+</span><span class='line'>    close();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SocketBase::close()
+</span><span class='line'>{
+</span><span class='line'>    socketId = 0;   
+</span><span class='line'>    ::close(socketId);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SocketBase::swap(SocketBase& other) noexcept
+</span><span class='line'>{
+</span><span class='line'>    using std::swap;
+</span><span class='line'>    swap(socketId,   other.socketId);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SocketBase::SocketBase(SocketBase&& move) noexcept
+</span><span class='line'>    : socketId(0)
+</span><span class='line'>{
+</span><span class='line'>    move.swap(*this);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SocketBase& SocketBase::operator=(SocketBase&& move) noexcept
+</span><span class='line'>{
+</span><span class='line'>    move.swap(*this);
+</span><span class='line'>    return *this;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>ConnectSocket::ConnectSocket(std::string const& host, int port)
+</span><span class='line'>    : SocketData(::socket(PF_INET, SOCK_STREAM, 0))
+</span><span class='line'>{
+</span><span class='line'>    struct sockaddr_in serverAddr;
+</span><span class='line'>    bzero((char*)&serverAddr, sizeof(serverAddr));
+</span><span class='line'>    serverAddr.sin_family       = AF_INET;
+</span><span class='line'>    serverAddr.sin_port         = htons(port);
+</span><span class='line'>    serverAddr.sin_addr.s_addr  = inet_addr(host.c_str());
+</span><span class='line'>
+</span><span class='line'>    if (::connect(socketId, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) != 0)
+</span><span class='line'>    {
+</span><span class='line'>        close();
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("ConnectSocket::ConnectSocket: connect: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>ServerSocket::ServerSocket(int port)
+</span><span class='line'>    : SocketBase(::socket(PF_INET, SOCK_STREAM, 0))
+</span><span class='line'>{
+</span><span class='line'>    struct sockaddr_in serverAddr;
+</span><span class='line'>    bzero((char*)&serverAddr, sizeof(serverAddr));
+</span><span class='line'>    serverAddr.sin_family       = AF_INET;
+</span><span class='line'>    serverAddr.sin_port         = htons(port);
+</span><span class='line'>    serverAddr.sin_addr.s_addr  = INADDR_ANY;
+</span><span class='line'>
+</span><span class='line'>    if (::bind(socketId, (struct sockaddr *) &serverAddr, sizeof(serverAddr)) != 0)
+</span><span class='line'>    {
+</span><span class='line'>        close();
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("ServerSocket::ServerSocket: bind: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    if (::listen(socketId, 5) != 0)
+</span><span class='line'>    {
+</span><span class='line'>        close();
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("ServerSocket::ServerSocket: listen: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SocketData ServerSocket::accept()
+</span><span class='line'>{
+</span><span class='line'>    struct  sockaddr_storage    serverStorage;
+</span><span class='line'>    socklen_t                   addr_size   = sizeof serverStorage;
+</span><span class='line'>    int newSocket = ::accept(socketId, (struct sockaddr*)&serverStorage, &addr_size);
+</span><span class='line'>    if (newSocket == -1)
+</span><span class='line'>    {
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("ServerSocket:accept: accept: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>    return SocketData(newSocket);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>class StringSizer
+</span><span class='line'>{
+</span><span class='line'>    std::string&    stringData;
+</span><span class='line'>    std::size_t&    currentSize;
+</span><span class='line'>    public:
+</span><span class='line'>        StringSizer(std::string& stringData, std::size_t& currentSize)
+</span><span class='line'>            : stringData(stringData)
+</span><span class='line'>            , currentSize(currentSize)
+</span><span class='line'>        {
+</span><span class='line'>            stringData.resize(stringData.capacity());
+</span><span class='line'>        }
+</span><span class='line'>        ~StringSizer()
+</span><span class='line'>        {
+</span><span class='line'>            stringData.resize(currentSize);
+</span><span class='line'>        }
+</span><span class='line'>        void incrementSize(std::size_t amount)
+</span><span class='line'>        {
+</span><span class='line'>            currentSize += amount;
+</span><span class='line'>        }
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>bool SocketData::getMessage(std::string& message, bool resize)
+</span><span class='line'>{
+</span><span class='line'>    //std::cerr &lt;&lt; "Getting Message\n";
+</span><span class='line'>    std::size_t     dataRead = 0;
+</span><span class='line'>
+</span><span class='line'>    do
+</span><span class='line'>    {
+</span><span class='line'>        StringSizer        stringSizer(message, dataRead);
+</span><span class='line'>        std::size_t const  capacity = message.capacity();
+</span><span class='line'>        std::size_t const  dataMax  = capacity - 1;
+</span><span class='line'>        char*              buffer   = &message[0];
+</span><span class='line'>
+</span><span class='line'>        while(dataRead &lt; dataMax)
+</span><span class='line'>        {
+</span><span class='line'>            std::size_t get = read(socketId, buffer + dataRead, dataMax - dataRead);
+</span><span class='line'>            //std::cerr &lt;&lt; " read: " &lt;&lt; get &lt;&lt; "\n";
+</span><span class='line'>            if (get == -1)
+</span><span class='line'>            {
+</span><span class='line'>                switch(errno)
+</span><span class='line'>                {
+</span><span class='line'>                    case EBADF:
+</span><span class='line'>                    case EFAULT:
+</span><span class='line'>                    case EINVAL:
+</span><span class='line'>                    case ENXIO:
+</span><span class='line'>                    {
+</span><span class='line'>                        // Fatal error. Programming bug
+</span><span class='line'>                        throw std::domain_error(buildErrorMessage("SocketData::getMessage: read: critical error: ", strerror(errno)));
+</span><span class='line'>                    }
+</span><span class='line'>                    case EIO:
+</span><span class='line'>                    case ENOBUFS:
+</span><span class='line'>                    case ENOMEM:
+</span><span class='line'>                    {
+</span><span class='line'>                       // Resource acquisition failure or device error
+</span><span class='line'>                        throw std::runtime_error(buildErrorMessage("SocketData::getMessage: read: resource failure: ", strerror(errno)));
+</span><span class='line'>                    }
+</span><span class='line'>                    case ETIMEDOUT:
+</span><span class='line'>                    case EAGAIN:
+</span><span class='line'>                    case EINTR:
+</span><span class='line'>                    {
+</span><span class='line'>                        // Temporrary error.
+</span><span class='line'>                        // Simply retry the read.
+</span><span class='line'>                        continue;
+</span><span class='line'>                    }
+</span><span class='line'>                    case ECONNRESET:
+</span><span class='line'>                    case ENOTCONN:
+</span><span class='line'>                    {
+</span><span class='line'>                        // Connection broken.
+</span><span class='line'>                        // Return the data we have available and exit
+</span><span class='line'>                        // as if the connection was closed correctly.
+</span><span class='line'>                        get = 0;
+</span><span class='line'>                        break;
+</span><span class='line'>                    }
+</span><span class='line'>                    default:
+</span><span class='line'>                    {
+</span><span class='line'>                        throw std::runtime_error(buildErrorMessage("SocketData::getMessage: read: returned -1: ", strerror(errno)));
+</span><span class='line'>                    }
+</span><span class='line'>                }
+</span><span class='line'>            }
+</span><span class='line'>            if (get == 0)
+</span><span class='line'>            {
+</span><span class='line'>                return dataRead &gt; 0;
+</span><span class='line'>            }
+</span><span class='line'>            dataRead += get;
+</span><span class='line'>            stringSizer.incrementSize(get);
+</span><span class='line'>        }
+</span><span class='line'>        if (resize)
+</span><span class='line'>        {
+</span><span class='line'>            message.reserve(message.capacity() * 1.5);
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>    while(resize);
+</span><span class='line'>    return true;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SocketData::putMessage(std::string const& message)
+</span><span class='line'>{
+</span><span class='line'>    char const*     buffer      = &message[0];
+</span><span class='line'>    std::size_t     size        = message.size();
+</span><span class='line'>    std::size_t     dataWritten = 0;
+</span><span class='line'>
+</span><span class='line'>    while(dataWritten &lt; size)
+</span><span class='line'>    {
+</span><span class='line'>        std::size_t put = write(socketId, buffer + dataWritten, size - dataWritten);
+</span><span class='line'>        if (put == -1)
+</span><span class='line'>        {
+</span><span class='line'>            switch(errno)
+</span><span class='line'>            {
+</span><span class='line'>                case EINVAL:
+</span><span class='line'>                case EBADF:
+</span><span class='line'>                case ECONNRESET:
+</span><span class='line'>                case ENXIO:
+</span><span class='line'>                case EPIPE:
+</span><span class='line'>                {
+</span><span class='line'>                    // Fatal error. Programming bug
+</span><span class='line'>                    throw std::domain_error(buildErrorMessage("SocketData::putMessage: write: critical error: ", strerror(errno)));
+</span><span class='line'>                }
+</span><span class='line'>                case EDQUOT:
+</span><span class='line'>                case EFBIG:
+</span><span class='line'>                case EIO:
+</span><span class='line'>                case ENETDOWN:
+</span><span class='line'>                case ENETUNREACH:
+</span><span class='line'>                case ENOSPC:
+</span><span class='line'>                {
+</span><span class='line'>                    // Resource acquisition failure or device error
+</span><span class='line'>                    throw std::runtime_error(buildErrorMessage("SocketData::putMessage: write: resource failure: ", strerror(errno)));
+</span><span class='line'>                }
+</span><span class='line'>                case EAGAIN:
+</span><span class='line'>                case EINTR:
+</span><span class='line'>                {
+</span><span class='line'>                    // Temporrary error.
+</span><span class='line'>                    // Simply retry the read.
+</span><span class='line'>                    continue;
+</span><span class='line'>                }
+</span><span class='line'>                default:
+</span><span class='line'>                {
+</span><span class='line'>                    throw std::runtime_error(buildErrorMessage("SocketData::putMessage: write: returned -1: ", strerror(errno)));
+</span><span class='line'>                }
+</span><span class='line'>            }
+</span><span class='line'>        }
+</span><span class='line'>        dataWritten += put;
+</span><span class='line'>    }
+</span><span class='line'>    ::shutdown(socketId, SHUT_WR);
+</span><span class='line'>    return;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include "Socket.h"
+</span><span class='line'>#include &lt;iostream&gt;
+</span><span class='line'>
+</span><span class='line'>namespace Sock = ThorsAnvil::Socket;
+</span><span class='line'>
+</span><span class='line'>int main()
+</span><span class='line'>{
+</span><span class='line'>    Sock::ServerSocket   server(8080);
+</span><span class='line'>    int                  finished    = 0;
+</span><span class='line'>    while(!finished)
+</span><span class='line'>    {
+</span><span class='line'>        Sock::SocketData  accept  = server.accept();
+</span><span class='line'>
+</span><span class='line'>        std::string message;
+</span><span class='line'>        while(accept.getMessage(message))
+</span><span class='line'>        {
+</span><span class='line'>            std::cout &lt;&lt; message;
+</span><span class='line'>        }
+</span><span class='line'>        std::cout &lt;&lt; "\n";
+</span><span class='line'>
+</span><span class='line'>        accept.putMessage("OK");
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include "Socket.h"
+</span><span class='line'>#include &lt;cstdlib&gt;
+</span><span class='line'>#include &lt;iostream&gt;
+</span><span class='line'>
+</span><span class='line'>namespace Sock = ThorsAnvil::Socket;
+</span><span class='line'>
+</span><span class='line'>int main(int argc, char* argv[])
+</span><span class='line'>{
+</span><span class='line'>    if (argc != 3)
+</span><span class='line'>    {
+</span><span class='line'>        std::cerr &lt;&lt; "Usage: client &lt;host&gt; &lt;Message&gt;\n";
+</span><span class='line'>        std::exit(1);
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    Sock::ConnectSocket    connect(argv[1], 8080);
+</span><span class='line'>    connect.putMessage(argv[2]);
+</span><span class='line'>
+</span><span class='line'>    std::string message;
+</span><span class='line'>    while(connect.getMessage(message))
+</span><span class='line'>    {
+</span><span class='line'>        std::cout &lt;&lt; message;
+</span><span class='line'>    }
+</span><span class='line'>    std::cout &lt;&lt; "\n";
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Loki Astari (C)2016</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-04-24T21:13:39-07:00" pubdate data-updated="true">Apr 24<span>th</span>, 2016</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/c-plus-plus/'>C++</a>, <a class='category' href='/blog/categories/c-plus-plus-by-example/'>C++-By-Example</a>, <a class='category' href='/blog/categories/coding/'>Coding</a>, <a class='category' href='/blog/categories/sockets/'>Sockets</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://lokiastari.com/blog/2016/04/24/socketcpp/" data-via="LokiAstari" data-counturl="http://lokiastari.com/blog/2016/04/24/socketcpp/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/04/11/socket-programming-in-c-version-2/" title="Previous Post: Socket Programming in C Version 2">&laquo; Socket Programming in C Version 2</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    
+
+<section>
+  <h1>Series: Sockets</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <!-- <a href="/blog/2016/04/08/socket-programming-in-c-version-1/">Socket Programming in C</a> -->
+        <a href="/blog/2016/04/08/socket-programming-in-c-version-1/">Socket Programming in C</a>
+      </li>
+    
+      <li class="post">
+        <!-- <a href="/blog/2016/04/09/socket-read/">Socket Read/Write</a> -->
+        <a href="/blog/2016/04/09/socket-read/">Socket Read/Write</a>
+      </li>
+    
+      <li class="post">
+        <!-- <a href="/blog/2016/04/11/socket-programming-in-c-version-2/">Socket Programming in C Version 2</a> -->
+        <a href="/blog/2016/04/11/socket-programming-in-c-version-2/">Socket Programming in C Version 2</a>
+      </li>
+    
+      <li class="post">
+        <!-- <a href="/blog/2016/04/24/socketcpp/">Socket Class</a> -->
+        <a href="/blog/2016/04/24/socketcpp/">Socket Class</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/04/24/socketcpp/">Socket Class</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/11/socket-programming-in-c-version-2/">Socket Programming in C Version 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/09/socket-read/">Socket Read/Write</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/08/socket-programming-in-c-version-1/">Socket Programming in C</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/25/resizemaths/">Memory Resizing</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section class="well">
+  <h1>Latest Tweets</h1>
+  <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+  <ul id="tweets">
+    <li class="post">
+        <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </li>
+  </ul>
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><hr>
+<p>
+  Copyright &copy; 2016 - Loki Astari -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45976821-1', 'lokiastari.com');
+  ga('send', 'pageview');
+
+</script>
+
+<p>
+<span>Copyright &copy; 2016  Loki Astari -</span>
+<span class="credit">Powered by <a href="http://octopress.org">Octopress</a> using the <a href="https://github.com/fapper/classic-martinb">classic-martinb</a> theme</span>
+</p>
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://lokiastari.com/blog/2016/04/24/socketcpp/';
+        var disqus_url = 'http://lokiastari.com/blog/2016/04/24/socketcpp/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -9,7 +9,55 @@
   <meta name="author" content="Loki Astari">
 
   
-  <meta name="description" content="Checking read/write success The read() and write() command can fail in a couple of ways but can also succeed without reading/writing all the data, a &hellip;">
+  <meta name="description" content="So in the 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -74,6 +122,1260 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/04/24/socketcpp/">Socket Class</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-04-24T21:13:39-07:00" pubdate data-updated="true">Apr 24<span>th</span>, 2016</time>
+        
+           | <a href="/blog/2016/04/24/socketcpp/#disqus_thread"
+             data-disqus-identifier="http://lokiastari.com/blog/2016/04/24/socketcpp/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>So in the</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#ifndef THORSANVIL_SOCKET_H
+</span><span class='line'>#define THORSANVIL_SOCKET_H
+</span><span class='line'>
+</span><span class='line'>#include &lt;string&gt;
+</span><span class='line'>#include &lt;sstream&gt;
+</span><span class='line'>
+</span><span class='line'>namespace ThorsAnvil
+</span><span class='line'>{
+</span><span class='line'>    namespace Socket
+</span><span class='line'>    {
+</span><span class='line'>
+</span><span class='line'>template&lt;std::size_t I = 0, typename... Tp&gt;
+</span><span class='line'>inline typename std::enable_if&lt;I == sizeof...(Tp), void&gt;::type
+</span><span class='line'>print(std::ostream& s, std::tuple&lt;Tp...&gt; const& t)
+</span><span class='line'>{ }
+</span><span class='line'>
+</span><span class='line'>template&lt;std::size_t I = 0, typename... Tp&gt;
+</span><span class='line'>inline typename std::enable_if&lt;I &lt; sizeof...(Tp), void&gt;::type
+</span><span class='line'>print(std::ostream& s, std::tuple&lt;Tp...&gt; const& t)
+</span><span class='line'>{
+</span><span class='line'>    s &lt;&lt; std::get&lt;I&gt;(t);
+</span><span class='line'>    print&lt;I + 1, Tp...&gt;(s, t);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>template&lt;typename... Args&gt;
+</span><span class='line'>std::string buildErrorMessage(Args const&... args)
+</span><span class='line'>{
+</span><span class='line'>    std::stringstream msg;
+</span><span class='line'>    print(msg, std::make_tuple(args...));
+</span><span class='line'>    return msg.str();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>class SocketBase
+</span><span class='line'>{
+</span><span class='line'>    protected:
+</span><span class='line'>        int     socketId;
+</span><span class='line'>    public:
+</span><span class='line'>        SocketBase(int socketId);
+</span><span class='line'>        ~SocketBase();
+</span><span class='line'>
+</span><span class='line'>        SocketBase(SocketBase&& move)               noexcept;
+</span><span class='line'>        SocketBase& operator=(SocketBase&& move)    noexcept;
+</span><span class='line'>        void swap(SocketBase& other)                noexcept;
+</span><span class='line'>        SocketBase(SocketBase const&)               = delete;
+</span><span class='line'>        SocketBase& operator=(SocketBase const&)    = delete;
+</span><span class='line'>
+</span><span class='line'>        void close();
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>class SocketData: public SocketBase
+</span><span class='line'>{
+</span><span class='line'>    public:
+</span><span class='line'>        using SocketBase::SocketBase;
+</span><span class='line'>
+</span><span class='line'>        bool getMessage(std::string& message, bool resize = false);
+</span><span class='line'>        void putMessage(std::string const& message);
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>class ConnectSocket: public SocketData
+</span><span class='line'>{
+</span><span class='line'>    public:
+</span><span class='line'>        ConnectSocket(std::string const& host, int port);
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>class ServerSocket: public SocketBase
+</span><span class='line'>{
+</span><span class='line'>    public:
+</span><span class='line'>        ServerSocket(int port);
+</span><span class='line'>
+</span><span class='line'>        SocketData accept();
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>#endif</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+<span class='line-number'>209</span>
+<span class='line-number'>210</span>
+<span class='line-number'>211</span>
+<span class='line-number'>212</span>
+<span class='line-number'>213</span>
+<span class='line-number'>214</span>
+<span class='line-number'>215</span>
+<span class='line-number'>216</span>
+<span class='line-number'>217</span>
+<span class='line-number'>218</span>
+<span class='line-number'>219</span>
+<span class='line-number'>220</span>
+<span class='line-number'>221</span>
+<span class='line-number'>222</span>
+<span class='line-number'>223</span>
+<span class='line-number'>224</span>
+<span class='line-number'>225</span>
+<span class='line-number'>226</span>
+<span class='line-number'>227</span>
+<span class='line-number'>228</span>
+<span class='line-number'>229</span>
+<span class='line-number'>230</span>
+<span class='line-number'>231</span>
+<span class='line-number'>232</span>
+<span class='line-number'>233</span>
+<span class='line-number'>234</span>
+<span class='line-number'>235</span>
+<span class='line-number'>236</span>
+<span class='line-number'>237</span>
+<span class='line-number'>238</span>
+<span class='line-number'>239</span>
+<span class='line-number'>240</span>
+<span class='line-number'>241</span>
+<span class='line-number'>242</span>
+<span class='line-number'>243</span>
+<span class='line-number'>244</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include "Socket.h"
+</span><span class='line'>#include &lt;arpa/inet.h&gt;
+</span><span class='line'>#include &lt;sys/types.h&gt;
+</span><span class='line'>#include &lt;sys/socket.h&gt;
+</span><span class='line'>#include &lt;unistd.h&gt;
+</span><span class='line'>#include &lt;sstream&gt;
+</span><span class='line'>#include &lt;stdexcept&gt;
+</span><span class='line'>
+</span><span class='line'>using namespace ThorsAnvil::Socket;
+</span><span class='line'>
+</span><span class='line'>SocketBase::SocketBase(int socketId)
+</span><span class='line'>    : socketId(socketId)
+</span><span class='line'>{
+</span><span class='line'>    //std::cerr &lt;&lt; "SocketBase(" &lt;&lt; socketId &lt;&lt; ")\n";
+</span><span class='line'>    if (socketId == -1)
+</span><span class='line'>    {
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("SocketBase::SocketBase: bad socket: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SocketBase::~SocketBase()
+</span><span class='line'>{
+</span><span class='line'>    close();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SocketBase::close()
+</span><span class='line'>{
+</span><span class='line'>    socketId = 0;   
+</span><span class='line'>    ::close(socketId);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SocketBase::swap(SocketBase& other) noexcept
+</span><span class='line'>{
+</span><span class='line'>    using std::swap;
+</span><span class='line'>    swap(socketId,   other.socketId);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SocketBase::SocketBase(SocketBase&& move) noexcept
+</span><span class='line'>    : socketId(0)
+</span><span class='line'>{
+</span><span class='line'>    move.swap(*this);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SocketBase& SocketBase::operator=(SocketBase&& move) noexcept
+</span><span class='line'>{
+</span><span class='line'>    move.swap(*this);
+</span><span class='line'>    return *this;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>ConnectSocket::ConnectSocket(std::string const& host, int port)
+</span><span class='line'>    : SocketData(::socket(PF_INET, SOCK_STREAM, 0))
+</span><span class='line'>{
+</span><span class='line'>    struct sockaddr_in serverAddr;
+</span><span class='line'>    bzero((char*)&serverAddr, sizeof(serverAddr));
+</span><span class='line'>    serverAddr.sin_family       = AF_INET;
+</span><span class='line'>    serverAddr.sin_port         = htons(port);
+</span><span class='line'>    serverAddr.sin_addr.s_addr  = inet_addr(host.c_str());
+</span><span class='line'>
+</span><span class='line'>    if (::connect(socketId, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) != 0)
+</span><span class='line'>    {
+</span><span class='line'>        close();
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("ConnectSocket::ConnectSocket: connect: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>ServerSocket::ServerSocket(int port)
+</span><span class='line'>    : SocketBase(::socket(PF_INET, SOCK_STREAM, 0))
+</span><span class='line'>{
+</span><span class='line'>    struct sockaddr_in serverAddr;
+</span><span class='line'>    bzero((char*)&serverAddr, sizeof(serverAddr));
+</span><span class='line'>    serverAddr.sin_family       = AF_INET;
+</span><span class='line'>    serverAddr.sin_port         = htons(port);
+</span><span class='line'>    serverAddr.sin_addr.s_addr  = INADDR_ANY;
+</span><span class='line'>
+</span><span class='line'>    if (::bind(socketId, (struct sockaddr *) &serverAddr, sizeof(serverAddr)) != 0)
+</span><span class='line'>    {
+</span><span class='line'>        close();
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("ServerSocket::ServerSocket: bind: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    if (::listen(socketId, 5) != 0)
+</span><span class='line'>    {
+</span><span class='line'>        close();
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("ServerSocket::ServerSocket: listen: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SocketData ServerSocket::accept()
+</span><span class='line'>{
+</span><span class='line'>    struct  sockaddr_storage    serverStorage;
+</span><span class='line'>    socklen_t                   addr_size   = sizeof serverStorage;
+</span><span class='line'>    int newSocket = ::accept(socketId, (struct sockaddr*)&serverStorage, &addr_size);
+</span><span class='line'>    if (newSocket == -1)
+</span><span class='line'>    {
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("ServerSocket:accept: accept: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>    return SocketData(newSocket);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>class StringSizer
+</span><span class='line'>{
+</span><span class='line'>    std::string&    stringData;
+</span><span class='line'>    std::size_t&    currentSize;
+</span><span class='line'>    public:
+</span><span class='line'>        StringSizer(std::string& stringData, std::size_t& currentSize)
+</span><span class='line'>            : stringData(stringData)
+</span><span class='line'>            , currentSize(currentSize)
+</span><span class='line'>        {
+</span><span class='line'>            stringData.resize(stringData.capacity());
+</span><span class='line'>        }
+</span><span class='line'>        ~StringSizer()
+</span><span class='line'>        {
+</span><span class='line'>            stringData.resize(currentSize);
+</span><span class='line'>        }
+</span><span class='line'>        void incrementSize(std::size_t amount)
+</span><span class='line'>        {
+</span><span class='line'>            currentSize += amount;
+</span><span class='line'>        }
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>bool SocketData::getMessage(std::string& message, bool resize)
+</span><span class='line'>{
+</span><span class='line'>    //std::cerr &lt;&lt; "Getting Message\n";
+</span><span class='line'>    std::size_t     dataRead = 0;
+</span><span class='line'>
+</span><span class='line'>    do
+</span><span class='line'>    {
+</span><span class='line'>        StringSizer        stringSizer(message, dataRead);
+</span><span class='line'>        std::size_t const  capacity = message.capacity();
+</span><span class='line'>        std::size_t const  dataMax  = capacity - 1;
+</span><span class='line'>        char*              buffer   = &message[0];
+</span><span class='line'>
+</span><span class='line'>        while(dataRead &lt; dataMax)
+</span><span class='line'>        {
+</span><span class='line'>            std::size_t get = read(socketId, buffer + dataRead, dataMax - dataRead);
+</span><span class='line'>            //std::cerr &lt;&lt; " read: " &lt;&lt; get &lt;&lt; "\n";
+</span><span class='line'>            if (get == -1)
+</span><span class='line'>            {
+</span><span class='line'>                switch(errno)
+</span><span class='line'>                {
+</span><span class='line'>                    case EBADF:
+</span><span class='line'>                    case EFAULT:
+</span><span class='line'>                    case EINVAL:
+</span><span class='line'>                    case ENXIO:
+</span><span class='line'>                    {
+</span><span class='line'>                        // Fatal error. Programming bug
+</span><span class='line'>                        throw std::domain_error(buildErrorMessage("SocketData::getMessage: read: critical error: ", strerror(errno)));
+</span><span class='line'>                    }
+</span><span class='line'>                    case EIO:
+</span><span class='line'>                    case ENOBUFS:
+</span><span class='line'>                    case ENOMEM:
+</span><span class='line'>                    {
+</span><span class='line'>                       // Resource acquisition failure or device error
+</span><span class='line'>                        throw std::runtime_error(buildErrorMessage("SocketData::getMessage: read: resource failure: ", strerror(errno)));
+</span><span class='line'>                    }
+</span><span class='line'>                    case ETIMEDOUT:
+</span><span class='line'>                    case EAGAIN:
+</span><span class='line'>                    case EINTR:
+</span><span class='line'>                    {
+</span><span class='line'>                        // Temporrary error.
+</span><span class='line'>                        // Simply retry the read.
+</span><span class='line'>                        continue;
+</span><span class='line'>                    }
+</span><span class='line'>                    case ECONNRESET:
+</span><span class='line'>                    case ENOTCONN:
+</span><span class='line'>                    {
+</span><span class='line'>                        // Connection broken.
+</span><span class='line'>                        // Return the data we have available and exit
+</span><span class='line'>                        // as if the connection was closed correctly.
+</span><span class='line'>                        get = 0;
+</span><span class='line'>                        break;
+</span><span class='line'>                    }
+</span><span class='line'>                    default:
+</span><span class='line'>                    {
+</span><span class='line'>                        throw std::runtime_error(buildErrorMessage("SocketData::getMessage: read: returned -1: ", strerror(errno)));
+</span><span class='line'>                    }
+</span><span class='line'>                }
+</span><span class='line'>            }
+</span><span class='line'>            if (get == 0)
+</span><span class='line'>            {
+</span><span class='line'>                return dataRead &gt; 0;
+</span><span class='line'>            }
+</span><span class='line'>            dataRead += get;
+</span><span class='line'>            stringSizer.incrementSize(get);
+</span><span class='line'>        }
+</span><span class='line'>        if (resize)
+</span><span class='line'>        {
+</span><span class='line'>            message.reserve(message.capacity() * 1.5);
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>    while(resize);
+</span><span class='line'>    return true;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SocketData::putMessage(std::string const& message)
+</span><span class='line'>{
+</span><span class='line'>    char const*     buffer      = &message[0];
+</span><span class='line'>    std::size_t     size        = message.size();
+</span><span class='line'>    std::size_t     dataWritten = 0;
+</span><span class='line'>
+</span><span class='line'>    while(dataWritten &lt; size)
+</span><span class='line'>    {
+</span><span class='line'>        std::size_t put = write(socketId, buffer + dataWritten, size - dataWritten);
+</span><span class='line'>        if (put == -1)
+</span><span class='line'>        {
+</span><span class='line'>            switch(errno)
+</span><span class='line'>            {
+</span><span class='line'>                case EINVAL:
+</span><span class='line'>                case EBADF:
+</span><span class='line'>                case ECONNRESET:
+</span><span class='line'>                case ENXIO:
+</span><span class='line'>                case EPIPE:
+</span><span class='line'>                {
+</span><span class='line'>                    // Fatal error. Programming bug
+</span><span class='line'>                    throw std::domain_error(buildErrorMessage("SocketData::putMessage: write: critical error: ", strerror(errno)));
+</span><span class='line'>                }
+</span><span class='line'>                case EDQUOT:
+</span><span class='line'>                case EFBIG:
+</span><span class='line'>                case EIO:
+</span><span class='line'>                case ENETDOWN:
+</span><span class='line'>                case ENETUNREACH:
+</span><span class='line'>                case ENOSPC:
+</span><span class='line'>                {
+</span><span class='line'>                    // Resource acquisition failure or device error
+</span><span class='line'>                    throw std::runtime_error(buildErrorMessage("SocketData::putMessage: write: resource failure: ", strerror(errno)));
+</span><span class='line'>                }
+</span><span class='line'>                case EAGAIN:
+</span><span class='line'>                case EINTR:
+</span><span class='line'>                {
+</span><span class='line'>                    // Temporrary error.
+</span><span class='line'>                    // Simply retry the read.
+</span><span class='line'>                    continue;
+</span><span class='line'>                }
+</span><span class='line'>                default:
+</span><span class='line'>                {
+</span><span class='line'>                    throw std::runtime_error(buildErrorMessage("SocketData::putMessage: write: returned -1: ", strerror(errno)));
+</span><span class='line'>                }
+</span><span class='line'>            }
+</span><span class='line'>        }
+</span><span class='line'>        dataWritten += put;
+</span><span class='line'>    }
+</span><span class='line'>    ::shutdown(socketId, SHUT_WR);
+</span><span class='line'>    return;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include "Socket.h"
+</span><span class='line'>#include &lt;iostream&gt;
+</span><span class='line'>
+</span><span class='line'>namespace Sock = ThorsAnvil::Socket;
+</span><span class='line'>
+</span><span class='line'>int main()
+</span><span class='line'>{
+</span><span class='line'>    Sock::ServerSocket   server(8080);
+</span><span class='line'>    int                  finished    = 0;
+</span><span class='line'>    while(!finished)
+</span><span class='line'>    {
+</span><span class='line'>        Sock::SocketData  accept  = server.accept();
+</span><span class='line'>
+</span><span class='line'>        std::string message;
+</span><span class='line'>        while(accept.getMessage(message))
+</span><span class='line'>        {
+</span><span class='line'>            std::cout &lt;&lt; message;
+</span><span class='line'>        }
+</span><span class='line'>        std::cout &lt;&lt; "\n";
+</span><span class='line'>
+</span><span class='line'>        accept.putMessage("OK");
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include "Socket.h"
+</span><span class='line'>#include &lt;cstdlib&gt;
+</span><span class='line'>#include &lt;iostream&gt;
+</span><span class='line'>
+</span><span class='line'>namespace Sock = ThorsAnvil::Socket;
+</span><span class='line'>
+</span><span class='line'>int main(int argc, char* argv[])
+</span><span class='line'>{
+</span><span class='line'>    if (argc != 3)
+</span><span class='line'>    {
+</span><span class='line'>        std::cerr &lt;&lt; "Usage: client &lt;host&gt; &lt;Message&gt;\n";
+</span><span class='line'>        std::exit(1);
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    Sock::ConnectSocket    connect(argv[1], 8080);
+</span><span class='line'>    connect.putMessage(argv[2]);
+</span><span class='line'>
+</span><span class='line'>    std::string message;
+</span><span class='line'>    while(connect.getMessage(message))
+</span><span class='line'>    {
+</span><span class='line'>        std::cout &lt;&lt; message;
+</span><span class='line'>    }
+</span><span class='line'>    std::cout &lt;&lt; "\n";
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/04/11/socket-programming-in-c-version-2/">Socket Programming in C Version 2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-04-11T21:27:01-07:00" pubdate data-updated="true">Apr 11<span>th</span>, 2016</time>
+        
+           | <a href="/blog/2016/04/11/socket-programming-in-c-version-2/#disqus_thread"
+             data-disqus-identifier="http://lokiastari.com/blog/2016/04/11/socket-programming-in-c-version-2/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>C Server</h1>
+
+<p>You can also see all the requests for review for <a href="#SourceC">C version on codereview.stackexchange.com</a>.</p>
+
+<p>Building a client/server application is a common first internet based applications that C developers build. There are many examples out there on the web most of the examples are in C. You can also see all the requests for review for <a href="#SourceC">C version on codereview.stackexchange.com</a>. A lot of people have taken these C version and tried to convert them verbatim to C++ reviews for <a href="#SourceCpp">C++ version on codereview.stackexchange.com</a>.</p>
+
+<p>Note: You can find a fully working version of this code <a href="https://github.com/Loki-Astari/Examples/tree/master/ClientServerCExample">here</a>:</p>
+
+<figure class='code'><figcaption><span>C Server</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &quot;common.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;netinet/in.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;errno.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define SERVER_BUFFER_SIZE     1024</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">socketId</span> <span class="o">=</span> <span class="n">serverSocket</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">socketId</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;%s</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">socketError</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="kt">int</span>                         <span class="n">finished</span>    <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">finished</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">struct</span>  <span class="n">sockaddr_storage</span>    <span class="n">serverStorage</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">socklen_t</span>                   <span class="n">addr_size</span>   <span class="o">=</span> <span class="k">sizeof</span> <span class="n">serverStorage</span><span class="p">;</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">newSocket</span> <span class="o">=</span> <span class="n">accept</span><span class="p">(</span><span class="n">socketId</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">serverStorage</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">addr_size</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">newSocket</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Failed: accept()</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>            <span class="n">close</span><span class="p">(</span><span class="n">socketId</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">static</span> <span class="kt">char</span> <span class="k">const</span><span class="o">*</span>  <span class="n">fullBufferFormat</span> <span class="o">=</span> <span class="s">&quot;%.&quot;</span> <span class="n">QUOTE</span><span class="p">(</span><span class="n">SERVER_BUFFER_SIZE</span><span class="p">)</span> <span class="s">&quot;s&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">static</span> <span class="kt">char</span> <span class="k">const</span><span class="o">*</span>  <span class="n">endBufferFormat</span>  <span class="o">=</span> <span class="s">&quot;%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">int</span>         <span class="n">get</span><span class="p">;</span>
+</span><span class='line'>        <span class="kt">char</span>        <span class="n">buffer</span><span class="p">[</span><span class="n">SERVER_BUFFER_SIZE</span><span class="p">];</span>
+</span><span class='line'>        <span class="k">while</span><span class="p">((</span><span class="n">get</span> <span class="o">=</span> <span class="n">getMessage</span><span class="p">(</span><span class="n">newSocket</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">SERVER_BUFFER_SIZE</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="kt">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">format</span> <span class="o">=</span> <span class="n">get</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">endBufferFormat</span> <span class="o">:</span> <span class="n">fullBufferFormat</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">msg</span>     <span class="o">=</span> <span class="n">get</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">?</span> <span class="s">&quot;OK&quot;</span> <span class="o">:</span> <span class="s">&quot;ERROR&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">sendMessage</span><span class="p">(</span><span class="n">newSocket</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Failed: sendMessage</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>            <span class="n">close</span><span class="p">(</span><span class="n">newSocket</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">close</span><span class="p">(</span><span class="n">socketId</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="s">&quot;Message Complete</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">close</span><span class="p">(</span><span class="n">newSocket</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">close</span><span class="p">(</span><span class="n">socketId</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>C Client</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &quot;common.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;arpa/inet.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;errno.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define CLIENT_BUFFER_SIZE     1024</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Usage: client &lt;host&gt; &lt;Message&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">socketId</span> <span class="o">=</span> <span class="n">clientSocket</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">socketId</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;%s</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">socketError</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">sendMessage</span><span class="p">(</span><span class="n">socketId</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Failed: sendMessage()</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">close</span><span class="p">(</span><span class="n">socketId</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">shutdown</span><span class="p">(</span><span class="n">socketId</span><span class="p">,</span> <span class="n">SHUT_WR</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Failed: shutdown()</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">close</span><span class="p">(</span><span class="n">socketId</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">static</span> <span class="kt">char</span> <span class="k">const</span><span class="o">*</span>  <span class="n">fullBufferFormat</span> <span class="o">=</span> <span class="s">&quot;%s %.&quot;</span> <span class="n">QUOTE</span><span class="p">(</span><span class="n">CLIENT_BUFFER_SIZE</span><span class="p">)</span> <span class="s">&quot;s&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">static</span> <span class="kt">char</span> <span class="k">const</span><span class="o">*</span>  <span class="n">endBufferFormat</span>  <span class="o">=</span> <span class="s">&quot;%s %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">int</span>     <span class="n">get</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span>    <span class="n">buffer</span><span class="p">[</span><span class="n">CLIENT_BUFFER_SIZE</span><span class="p">];</span>
+</span><span class='line'>    <span class="k">while</span><span class="p">((</span><span class="n">get</span> <span class="o">=</span> <span class="n">getMessage</span><span class="p">(</span><span class="n">socketId</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">CLIENT_BUFFER_SIZE</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="kt">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">format</span> <span class="o">=</span> <span class="n">get</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">endBufferFormat</span> <span class="o">:</span> <span class="n">fullBufferFormat</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="s">&quot;Response from server&quot;</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">get</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Failed: getMessage()</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">close</span><span class="p">(</span><span class="n">socketId</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You will notice the extensive code used in error checking and reporting used in C code.</p>
+
+<p>The main advantages, for me, in C++ code is RAII and exceptions. Rewriting the above code using a <code>Socket</code> class to handle resource management and exceptions to provide an error propagation system. These simple changes result in a 20% code reduction and in my opinion make the code is easier to read (I have tried to be fair and provide a fair comparison but I am definitely biased).</p>
+
+<p>Note: You can find a fully working version of this code <a href="https://github.com/Loki-Astari/Examples/tree/master/Socket">here</a>:</p>
+
+<p>A lot of people have taken these C version and tried to convert them verbatim to C++ reviews for <a href="#SourceCpp">C++ version on codereview.stackexchange.com</a>.</p>
+
+<figure class='code'><figcaption><span>C++ Server</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &quot;common.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sstream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;cstdint&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">static</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">okMsg</span>    <span class="o">=</span> <span class="s">&quot;OK&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">static</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">errorMsg</span> <span class="o">=</span> <span class="s">&quot;ERROR&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">try</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">Server</span>  <span class="n">server</span><span class="p">;</span>
+</span><span class='line'>        <span class="kt">int</span>                         <span class="n">finished</span>    <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">finished</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Socket</span>      <span class="n">connection</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">accept</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">bool</span>    <span class="n">ok</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">connection</span><span class="p">.</span><span class="n">getMessage</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">buffer</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'>                          <span class="o">&lt;&lt;</span> <span class="s">&quot;Message Complete</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">ok</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">connection</span><span class="p">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="n">ok</span> <span class="o">?</span> <span class="n">okMsg</span> <span class="o">:</span> <span class="n">errorMsg</span><span class="p">))</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Send Message Failed</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">catch</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exception</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Exception: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">throw</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>C++ Client</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &quot;common.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sstream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;cstdint&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define CLIENT_BUFFER_SIZE     1024</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Usage: client &lt;host&gt; &lt;Message&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">try</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">Client</span>  <span class="n">client</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">client</span><span class="p">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">message</span><span class="p">(</span><span class="s">&quot;Failed: sendMessage()</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">message</span> <span class="o">&lt;&lt;</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">str</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">string</span>     <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="n">getMessage</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Response from server: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">buffer</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">catch</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exception</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Exception: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">throw</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Mimicking the C interface</h2>
+
+<pre><code>void                            SocketCreate();
+void                            SocketBind();
+void                            SocketListen();
+static void*                    SocketAccept(void*);
+static void*                    SocketRead(void*);
+</code></pre>
+
+<h2>Curl Wrapper.</h2>
+
+<ul>
+<li>2012-Aug-06 <a href="http://codereview.stackexchange.com/q/14389/507">Tiny Curl C++ wrapper</a></li>
+</ul>
+
+
+<p>Stuff to Write</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -4635,1204 +5937,6 @@ It simply calls the destructor on all elements currently in the object. Then use
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/">Smart-Pointer - Constructors</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2015-01-23T16:33:14-08:00" pubdate data-updated="true">Jan 23<span>rd</span>, 2015</time>
-        
-           | <a href="/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/#disqus_thread"
-             data-disqus-identifier="http://lokiastari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>In this article we examine constructors that are often missed or overlooked. This article looks at the use cases for these constructors and explains why the added functionality provides a meaningful addition in relation to smart pointers.</p>
-
-<h2>Default Constructor</h2>
-
-<p>Most people remember the default constructor (a zero argument constructor), but every now and then it gets missed.</p>
-
-<p>The default constructor is useful when the type is used in a context where objects of the type need to be instantiated dynamically by another library (an example is a container resized; when a container is made larger by a resize, new members will need to be constructed, it is the default constructor that will provide these extra instances).</p>
-
-<p>The default constructor is usually very trivial and thus worth the investment.</p>
-
-<figure class='code'><figcaption><span>Smart Pointer Default Constructor</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">UP</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">T</span><span class="o">*</span>      <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>            <span class="n">UP</span><span class="p">()</span>
-</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{}</span>
-</span><span class='line'>            <span class="p">.....</span>
-</span><span class='line'>    <span class="p">};</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>The nullptr</h2>
-
-<p>In C++11 the <code>nullptr</code> was introduced to replace the old broken <code>NULL</code> and/or the even more broken <code>0</code> for use in contexts where you want a pointer that points at nothing. The <code>nullptr</code> is automatically convert to any pointer type or a boolean; but fixed the previous bug (or bad feature) and will not convert to a numeric type.</p>
-
-<figure class='code'><figcaption><span>nullptr Usage Example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;string&gt;</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="kt">char</span><span class="o">*</span>           <span class="n">tmp</span> <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>   <span class="c1">// converts the nullptr (type std::nullptr_t) to char*</span>
-</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span>    <span class="n">str</span> <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>   <span class="c1">// hopefully you never do that! but it works.</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="kt">bool</span>            <span class="n">tst</span> <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>   <span class="c1">// False. Yes I know it does not look that useful.</span>
-</span><span class='line'>                                         <span class="c1">//        But when you consider all the funny things</span>
-</span><span class='line'>                                         <span class="c1">//        that can happen with templates this can</span>
-</span><span class='line'>                                         <span class="c1">//        be very useful.</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="kt">int</span>             <span class="n">val</span> <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>   <span class="c1">// Fails to compile.</span>
-</span><span class='line'>        <span class="kt">int</span>             <span class="n">val</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>      <span class="c1">// Pointer assigned to integer value.</span>
-</span><span class='line'>                                         <span class="c1">// Works just fine. But very rarely was this a useful</span>
-</span><span class='line'>                                         <span class="c1">// feature (more usually an over-site that was not</span>
-</span><span class='line'>                                         <span class="c1">// reported by the compiler).</span>
-</span><span class='line'>    <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>nullptr</code> provides some opportunities to make the code shorter/cleaner when initializing smart pointers to be empty. Because we are using explicit one argument constructors the compiler can not convert a <code>nullptr</code> into a smart pointer automatically, it must be done explicitly by the developer.</p>
-
-<figure class='code'><figcaption><span>nullptr failing on Smart Pointer</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">void</span> <span class="n">workWithSP</span><span class="p">(</span><span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;&amp;</span> <span class="n">sp</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span> <span class="cm">/* STUFF*/</span> <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="c1">// This fails to compile.</span>
-</span><span class='line'>    <span class="n">workWithSP</span><span class="p">(</span><span class="n">nullptr</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// Need to be explicit with smart pointers</span>
-</span><span class='line'>    <span class="n">workWithSP</span><span class="p">(</span><span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">nullptr</span><span class="p">));</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is overly verbose, there is no danger involved in forming a smart pointer around a <code>nullptr</code> automatically. Because <code>nullptr</code> has its own type <code>std::nullptr_t</code> we can add a constructor to explicitly simplify this case, which makes it easier to read.</p>
-
-<figure class='code'><figcaption><span>Smart Pointer with std::nullptr_t constructor</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">UP</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">nullptr_t</span><span class="p">)</span>
-</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{}</span>
-</span><span class='line'>  <span class="p">....</span>
-</span><span class='line'>    <span class="p">};</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="c1">// Now we can simplify our use case</span>
-</span><span class='line'><span class="kt">void</span> <span class="n">workWithSP</span><span class="p">(</span><span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;&amp;</span> <span class="n">sp</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span> <span class="cm">/* STUFF*/</span> <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">workWithSP</span><span class="p">(</span><span class="n">nullptr</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// Note this also allows:</span>
-</span><span class='line'>    <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>   <span class="n">data</span>  <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>
-</span><span class='line'>    <span class="c1">// And</span>
-</span><span class='line'>    <span class="n">data</span> <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>       <span class="c1">// Note here we have we convert nullptr to</span>
-</span><span class='line'>                          <span class="c1">// smart pointer using the one argument</span>
-</span><span class='line'>                          <span class="c1">// constructor that binds `nullptr` then</span>
-</span><span class='line'>                          <span class="c1">// call the assignment operator.</span>
-</span><span class='line'>                          <span class="c1">//</span>
-</span><span class='line'>                          <span class="c1">// That seems like a lot extra work. So we</span>
-</span><span class='line'>                          <span class="c1">// may as well define the assignment operator</span>
-</span><span class='line'>                          <span class="c1">// to specifically user `nullptr`.</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Move Semantics</h2>
-
-<p>Move semantics were introduced with C++ 11. So though we can not copy the <code>ThorsAnvil::UP</code> object it can be moved. The compiler will generate a default move constructor for a class under certain situations; but because we have defined a destructor for <code>ThorsAnvil::UP</code> we must manually define the move constructor.</p>
-
-<p>Move semantics say that the source object may be left in an undefined (but must be valid) state. So the easiest way to implement this is simply to swap the state of the current object with the source object (we know our state is valid so just swap it with the incoming object state (its destructor will then take care of destroying the pointer we are holding)).</p>
-
-<figure class='code'><figcaption><span>Smart Pointer Move Semantics</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">UP</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">T</span><span class="o">*</span>      <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>            <span class="c1">// Swap should always be `noexcept` operation</span>
-</span><span class='line'>            <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;</span> <span class="n">src</span><span class="p">)</span> <span class="n">noexcept</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">src</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="c1">// It is a good idea to make your move constructor `noexcept`</span>
-</span><span class='line'>            <span class="c1">// In this case it actually makes no difference (because there</span>
-</span><span class='line'>            <span class="c1">// no copy constructor) but to maintain good practice I still</span>
-</span><span class='line'>            <span class="c1">// think it is a good idea to mark it with `noexcept`.</span>
-</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span> <span class="n">noexcept</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">moving</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span> <span class="n">noexcept</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">moving</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="p">.....</span>
-</span><span class='line'>    <span class="p">};</span>
-</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">rhs</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">lhs</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">rhs</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Derived Type Assignment.</h2>
-
-<p>Assigning derived class pointers to a base class pointer object is quite common feature in C++.</p>
-
-<figure class='code'><figcaption><span>Derived Example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Base</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>        <span class="k">virtual</span> <span class="o">~</span><span class="n">Base</span><span class="p">()</span> <span class="p">{}</span>
-</span><span class='line'>        <span class="k">virtual</span> <span class="kt">void</span> <span class="n">doAction</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'><span class="k">class</span> <span class="nc">Derived1</span><span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>        <span class="k">virtual</span> <span class="kt">void</span> <span class="n">doAction</span><span class="p">()</span> <span class="n">override</span><span class="p">;</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'><span class="k">class</span> <span class="nc">Derived2</span><span class="o">:</span> <span class="k">public</span> <span class="n">Base</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>        <span class="k">virtual</span> <span class="kt">void</span> <span class="n">doAction</span><span class="p">()</span> <span class="n">override</span><span class="p">;</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">Derived1</span><span class="o">*</span>   <span class="n">action1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Derived1</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">Derived2</span><span class="o">*</span>   <span class="n">action2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Derived2</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">Base</span><span class="o">*</span>       <span class="n">action</span>   <span class="o">=</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="o">?</span> <span class="n">action1</span> <span class="o">:</span> <span class="n">action2</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">action</span><span class="o">-&gt;</span><span class="n">doAction</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If we try the same code with the constructors we currently have we will get compile errors.</p>
-
-<figure class='code'><figcaption><span>Derived Example with Smart Pointers</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">Derived1</span><span class="o">&gt;</span>    <span class="n">action1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Derived1</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">Derived2</span><span class="o">&gt;</span>    <span class="n">action2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Derived2</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">Base</span><span class="o">&gt;</span>        <span class="n">action</span>   <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">((</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="o">?</span> <span class="n">action1</span> <span class="o">:</span> <span class="n">action2</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">action</span><span class="o">-&gt;</span><span class="n">doAction</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is because C++ considers <code>ThorsAnvil::UP&lt;Derived1&gt;</code>, <code>ThorsAnvil::UP&lt;Derived2&gt;</code> and <code>ThorsAnvil::UP&lt;Base&gt;</code> are three distinct classes that are unrelated. As this kind of pointer usage is rather inherent in how C++ is used the smart pointer needs to be designed for this use case.</p>
-
-<p>To solve this we need to allow different types of smart pointer be constructed from other types of smart pointer, but only where the inclosed types are related.</p>
-
-<figure class='code'><figcaption><span>Derived Smart Pointer transfer</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">UP</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">T</span><span class="o">*</span>      <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>            <span class="c1">// Release ownership of the pointer.</span>
-</span><span class='line'>            <span class="c1">// Returning the pointer to the caller.</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">*</span>  <span class="n">release</span><span class="p">()</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>
-</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">return</span> <span class="n">tmp</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="c1">// Note: If you try calling this with a U that is not derived from</span>
-</span><span class='line'>            <span class="c1">//       a T then the compiler will generate a compilation error as</span>
-</span><span class='line'>            <span class="c1">//       the pointer assignments will not match correctly.</span>
-</span><span class='line'>            <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
-</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="c1">// We can not use swap directly.</span>
-</span><span class='line'>                <span class="c1">// Even though U is derived from T, the reverse is not true.</span>
-</span><span class='line'>                <span class="c1">// So we have put it in a temporary locally first.</span>
-</span><span class='line'>
-</span><span class='line'>                <span class="c1">// Note: this is still exception safe.</span>
-</span><span class='line'>                <span class="c1">//       The normal constructor will call delete even if it does</span>
-</span><span class='line'>                <span class="c1">//       not finish constructing. So if release completes even</span>
-</span><span class='line'>                <span class="c1">//       starting the call to the constructor guarantees its safety.</span>
-</span><span class='line'>                <span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>   <span class="n">tmp</span><span class="p">(</span><span class="n">moving</span><span class="p">.</span><span class="n">release</span><span class="p">());</span>
-</span><span class='line'>                <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
-</span><span class='line'>            <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>    <span class="n">tmp</span><span class="p">(</span><span class="n">moving</span><span class="p">.</span><span class="n">release</span><span class="p">());</span>
-</span><span class='line'>                <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="p">.....</span>
-</span><span class='line'>    <span class="p">};</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Updated Unique Pointer</h2>
-
-<p>Combine the constructor/assignment operators discussed in this article with the <code>ThorsAnvil::UP</code> that we defined in the first article in the series: <a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Unique Pointer</a> we obtain the following:</p>
-
-<figure class='code'><figcaption><span>ThorsAnvil::UP Version 3</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">UP</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">T</span><span class="o">*</span>   <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>            <span class="n">UP</span><span class="p">()</span>
-</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{}</span>
-</span><span class='line'>            <span class="c1">// Explicit constructor</span>
-</span><span class='line'>            <span class="k">explicit</span> <span class="n">UP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
-</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{}</span>
-</span><span class='line'>            <span class="o">~</span><span class="n">UP</span><span class="p">()</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Constructor/Assignment that binds to nullptr</span>
-</span><span class='line'>            <span class="c1">// This makes usage with nullptr cleaner</span>
-</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">nullptr_t</span><span class="p">)</span>
-</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{}</span>
-</span><span class='line'>            <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">nullptr_t</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">reset</span><span class="p">();</span>
-</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Constructor/Assignment that allows move semantics</span>
-</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span> <span class="n">noexcept</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">moving</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span> <span class="n">noexcept</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">moving</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Constructor/Assignment for use with types derived from T</span>
-</span><span class='line'>            <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
-</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>   <span class="n">tmp</span><span class="p">(</span><span class="n">moving</span><span class="p">.</span><span class="n">release</span><span class="p">());</span>
-</span><span class='line'>                <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
-</span><span class='line'>            <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;&amp;&amp;</span> <span class="n">moving</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>    <span class="n">tmp</span><span class="p">(</span><span class="n">moving</span><span class="p">.</span><span class="n">release</span><span class="p">());</span>
-</span><span class='line'>                <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Remove compiler generated copy semantics.</span>
-</span><span class='line'>            <span class="n">UP</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">)</span>            <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">UP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">UP</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Const correct access owned object</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Access to smart pointer state</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>                 <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>            <span class="k">explicit</span> <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Modify object state</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">release</span><span class="p">()</span> <span class="n">noexcept</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">result</span> <span class="o">=</span> <span class="n">nullptr</span><span class="p">;</span>
-</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">UP</span><span class="o">&amp;</span> <span class="n">src</span><span class="p">)</span> <span class="n">noexcept</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">src</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="kt">void</span> <span class="n">reset</span><span class="p">()</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">T</span><span class="o">*</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">releae</span><span class="p">();</span>
-</span><span class='line'>                <span class="k">delete</span> <span class="n">tmp</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>    <span class="p">};</span>
-</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">UP</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">rhs</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">lhs</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">rhs</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Summary</h2>
-
-<p>In the last two articles (<a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Unique Pointer</a> and <a href="http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/">Shared Pointer</a>) we covered some basic mistakes that I have often seen developers make when attempting to creating their own smart pointer. I also introduce four important C++ concepts:</p>
-
-<ul>
-<li><a href="http://stackoverflow.com/q/4172722/14065">Rule of Three</a></li>
-<li><a href="http://stackoverflow.com/q/3279543/14065">Copy and Swap Idiom</a></li>
-<li><a href="http://stackoverflow.com/a/121163/14065">Explicit One Argument Constructor</a></li>
-<li><a href="http://stackoverflow.com/q/12697625/14065">Try/Catch on Initialization List</a></li>
-</ul>
-
-
-<p>This article I focused on a couple of constructors/assignment operators that can be overlooked overlooked.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/">Smart-Pointer - Shared Pointer</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2015-01-15T08:13:47-08:00" pubdate data-updated="true">Jan 15<span>th</span>, 2015</time>
-        
-           | <a href="/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/#disqus_thread"
-             data-disqus-identifier="http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>So in <a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">the previous article</a> I covered a basic <code>unique</code> pointer where the smart pointer retained sole ownership of the pointer. The other common smart pointer we encounter is the <code>shared</code> pointer (SP). In this case the ownership of the pointer is shared across multiple instances of SP and the pointer is only released (deleted) when all SP instances have been destroyed.</p>
-
-<p>So not only do we have to store the pointer but we need a mechanism for keeping track of all the SP instances that are sharing ownership of the pointer. When the last SP instance is destroyed it also deletes the pointer (The last owner cleans up. A similar principle to the last one to leave the room turns out the lights).</p>
-
-<figure class='code'><figcaption><span>Shared Pointer contextual destructor</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">SP</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">T</span><span class="o">*</span>  <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>            <span class="o">~</span><span class="n">SP</span><span class="p">()</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">amITheLastOwner</span><span class="p">())</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>    <span class="p">};</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>There are two major techniques for tracking the shared owners of a pointer:</p>
-
-<ol>
-  <li>Keep a count:</li>
-  <ul>
-    <li>When the count is 1 you are the last owner.</li>
-    <li>This is a very simple and logical technique. You have a shared counter that is incremented/decrement as SP instances take/release ownership of the pointer. The disadvantages are that you need dynamically allocated memory that must be managed and in a threaded environment you need to serialize accesses to counter.</li>
-  </ul>
-  <li>Use a linked list of the owners:</li>
-  <ul>
-    <li>When you are the only member of the list you are the last owner.</li>
-    <li>When a SP instance take/releases ownership of the pointer they are added/removed to/from the linked list. This is slightly more complex as you need to maintain a circular linked list (for O(1)). The advantage is that you do not need to manage any separate memory for the count (A SP instance simply points at the next SP instance in the chain) and in a threaded environment adding/removing a shared pointer need not always be serialized (though you will still need to lock your neighbors to enforce integrity).</li>
-  </ul>
-</ol>
-
-
-<h2>Shared Count</h2>
-
-<p>The easier of the two to implement correctly is the list version. There are no real gotchas (that I have seen). Though people do struggle with insertion and removal of a link from a circular list. I have another article planned for that at some point so I will cover it then.</p>
-
-<p>The <em>Shared Count</em> is basically the technique used by the <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr"><code>std::shared_ptr</code></a> (though they store slightly more than the count to try and improve efficiency see <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared"><code>std::make_shared</code></a>).</p>
-
-<p>The main mistake I see from beginners is not using dynamically allocated counter (ie they keep the counter in the SP object). You <strong>must</strong> dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted).</p>
-
-<p>You must also serialize access to this counter to make sure that in a threaded environment the count is correctly maintained. In the first version for simplicity I will only consider single threaded environments and thus synchronization is not required.</p>
-
-<figure class='code'><figcaption><span>First Try</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">SP</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">T</span><span class="o">*</span>      <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>        <span class="kt">int</span><span class="o">*</span>    <span class="n">count</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>            <span class="c1">// Remember from ThorsAnvil::UP that the constructor</span>
-</span><span class='line'>            <span class="c1">// needs to be explicit to prevent the compiler creating</span>
-</span><span class='line'>            <span class="c1">// temporary objects on the fly.</span>
-</span><span class='line'>            <span class="k">explicit</span> <span class="n">SP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
-</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">,</span> <span class="n">count</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-</span><span class='line'>            <span class="p">{}</span>
-</span><span class='line'>            <span class="o">~</span><span class="n">SP</span><span class="p">()</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="o">--</span><span class="p">(</span><span class="o">*</span><span class="n">count</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="c1">// Remember from ThorsAnvil::UP that we need to make sure we</span>
-</span><span class='line'>            <span class="c1">// obey the rule of three. So we will implement the copy</span>
-</span><span class='line'>            <span class="c1">// constructor and assignment operator.</span>
-</span><span class='line'>            <span class="n">SP</span><span class="p">(</span><span class="n">SP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
-</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">,</span> <span class="n">count</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">count</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="o">++</span><span class="p">(</span><span class="o">*</span><span class="n">count</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="n">SP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">SP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="c1">// Keep a copy of the old data</span>
-</span><span class='line'>                <span class="n">T</span><span class="o">*</span>   <span class="n">oldData</span>  <span class="o">=</span> <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>                <span class="kt">int</span><span class="o">*</span> <span class="n">oldCount</span> <span class="o">=</span> <span class="n">count</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>                <span class="c1">// now we do an exception safe transfer;</span>
-</span><span class='line'>                <span class="n">data</span>  <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
-</span><span class='line'>                <span class="n">count</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">count</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>                <span class="c1">// Update the counters</span>
-</span><span class='line'>                <span class="o">++</span><span class="p">(</span><span class="o">*</span><span class="n">count</span><span class="p">);</span>
-</span><span class='line'>                <span class="o">--</span><span class="p">(</span><span class="o">*</span><span class="n">oldCount</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>                <span class="c1">// Finally delete the old pointer if required.</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">oldCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="k">delete</span> <span class="n">oldData</span><span class="p">;</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="c1">// Const correct access owned object</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Access to smart pointer state</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>                 <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>            <span class="k">explicit</span> <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>    <span class="p">};</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Problem 1: Potential Constructor Failure</h3>
-
-<p>When a developer (attempts) to create a SP they are handing over ownership of the pointer to the SP instance. Once the constructor starts there is an expectation by the developer that no further checks are needed. But there is a problem with the code as written.</p>
-
-<p>In C++ memory allocation through new does not fail (unlike C where <code>malloc()</code> can return a Null on failure). In C++ a failure to allocate memory via the standard new generates a <code>std::bad_alloc</code> exception. Additionally if we throw an exception out of a constructor the destructor will never be called (the destructor is only called on fully formed objects) when the instance&rsquo;s lifespan ends.</p>
-
-<p>So if an exception is thrown during construction (and thus the destructor will not be called) we must assume responsibility for making sure that pointer is deleted before the exception escapes the constructor, otherwise there will be a resultant leak of the pointer.</p>
-
-<figure class='code'><figcaption><span>Constructor takes responsibility for pointer</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>     <span class="p">.....</span>
-</span><span class='line'>             <span class="k">explicit</span> <span class="n">SP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
-</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">,</span> <span class="n">count</span><span class="p">(</span><span class="k">new</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">nothorw</span><span class="p">)</span> <span class="kt">int</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="c1">// use the no throw version of new.</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="c1">// Check if the pointer correctly allocated</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="n">nullptr</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="c1">// If we failed then delete the pointer</span>
-</span><span class='line'>                    <span class="c1">// and manually throw the exception.</span>
-</span><span class='line'>                    <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>                    <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">bad_alloc</span><span class="p">();</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="c1">// or</span>
-</span><span class='line'>     <span class="p">.....</span>
-</span><span class='line'>            <span class="k">explicit</span> <span class="n">SP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
-</span><span class='line'>            <span class="c1">// The rarely used try/catch for exceptions in argument lists.</span>
-</span><span class='line'>            <span class="k">try</span>
-</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">,</span> <span class="n">count</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-</span><span class='line'>            <span class="p">{}</span>
-</span><span class='line'>            <span class="k">catch</span><span class="p">(...)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="c1">// If we failed because of an exception</span>
-</span><span class='line'>                <span class="c1">// delete the pointer and rethrow the exception.</span>
-</span><span class='line'>                <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>                <span class="k">throw</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Problem 2: DRY up the Assignment</h3>
-
-<p>Currently the assignment operator is exception safe and conforms to the strong exception guarantee so there is no real problem here. <strong>But</strong> there seems to be a lot of duplicated code in the class.</p>
-
-<figure class='code'><figcaption><span>Closer look at assignment</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>     <span class="p">.....</span>
-</span><span class='line'>            <span class="n">SP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">SP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">T</span><span class="o">*</span>   <span class="n">oldData</span>  <span class="o">=</span> <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>                <span class="kt">int</span><span class="o">*</span> <span class="n">oldCount</span> <span class="o">=</span> <span class="n">count</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>                <span class="n">data</span>  <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
-</span><span class='line'>                <span class="n">count</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">count</span><span class="p">;</span>
-</span><span class='line'>                <span class="o">++</span><span class="p">(</span><span class="o">*</span><span class="n">count</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>                <span class="o">--</span><span class="p">(</span><span class="o">*</span><span class="n">oldCount</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">oldCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="k">delete</span> <span class="n">oldData</span><span class="p">;</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Two portions of this look like other code pieces of code that have already been written:</p>
-
-<pre><code>// This looks like the SP copy constructor.
-                data  = rhs.data;
-                count = rhs.count;                    
-                ++(*count);
-
-// This looks like the SP destructor.
-                --(*oldCount);
-                if (*oldCount == 0)
-                {
-                    delete oldData;
-                }
-</code></pre>
-
-<p>This observation is commonly referred to as the <strong><a href="http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom">Copy and Swap Idiom</a></strong>. I will not go through all the details of the transformation here. But we can re-write the assignment operator as:</p>
-
-<figure class='code'><figcaption><span>Copy and Swap Idiom</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'>            <span class="n">SP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">SP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="c1">// constructor of tmp handles increment.</span>
-</span><span class='line'>                <span class="n">SP</span> <span class="n">tmp</span><span class="p">(</span><span class="n">rhs</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">data</span><span class="p">,</span>  <span class="n">tmp</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
-</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">tmp</span><span class="p">.</span><span class="n">count</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>   <span class="c1">// the destructor of tmp is executed here.</span>
-</span><span class='line'>                <span class="c1">// this handles the decrement and release of the pointer</span>
-</span><span class='line'>
-</span><span class='line'>     <span class="c1">// This is usually simplified further into</span>
-</span><span class='line'>            <span class="n">SP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">SP</span> <span class="n">rhs</span><span class="p">)</span> <span class="c1">// Note implicit copy because of pass by value.</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">rhs</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>  <span class="c1">// swaps moved to swap method.</span>
-</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Fixed First Try</h2>
-
-<p>So given the problems described above we can update our implementation to compensate for these issues:</p>
-
-<figure class='code'><figcaption><span>Fixed First Try</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">SP</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">T</span><span class="o">*</span>      <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>        <span class="kt">int</span><span class="o">*</span>    <span class="n">count</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">public</span><span class="o">:</span>
-</span><span class='line'>            <span class="c1">// Explicit constructor</span>
-</span><span class='line'>            <span class="k">explicit</span> <span class="n">SP</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span>
-</span><span class='line'>            <span class="k">try</span>
-</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">,</span> <span class="n">count</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-</span><span class='line'>            <span class="p">{}</span>
-</span><span class='line'>            <span class="k">catch</span><span class="p">(...)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="c1">// If we failed because of an exception</span>
-</span><span class='line'>                <span class="c1">// delete the pointer and rethrow the exception.</span>
-</span><span class='line'>                <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>                <span class="k">throw</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="o">~</span><span class="n">SP</span><span class="p">()</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="o">--</span><span class="p">(</span><span class="o">*</span><span class="n">count</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="n">SP</span><span class="p">(</span><span class="n">SP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
-</span><span class='line'>                <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">,</span> <span class="n">count</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">count</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="o">++</span><span class="p">(</span><span class="o">*</span><span class="n">count</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="c1">// Use the copy and swap idiom</span>
-</span><span class='line'>            <span class="c1">// It works perfectly for this situation.</span>
-</span><span class='line'>            <span class="n">SP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">SP</span> <span class="n">rhs</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">rhs</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="n">SP</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">newData</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">SP</span> <span class="n">tmp</span><span class="p">(</span><span class="n">newData</span><span class="p">);</span>
-</span><span class='line'>                <span class="n">tmp</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="c1">// Always good to have a swap function</span>
-</span><span class='line'>            <span class="c1">// Make sure it is noexcept</span>
-</span><span class='line'>            <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">SP</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="n">noexcept</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">data</span><span class="p">,</span>  <span class="n">other</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
-</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">other</span><span class="p">.</span><span class="n">count</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="c1">// Const correct access owned object</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">*</span><span class="p">()</span>  <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">*</span><span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Access to smart pointer state</span>
-</span><span class='line'>            <span class="n">T</span><span class="o">*</span> <span class="n">get</span><span class="p">()</span>                 <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>            <span class="k">explicit</span> <span class="k">operator</span> <span class="kt">bool</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">data</span><span class="p">;}</span>
-</span><span class='line'>        <span class="p">};</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Summary</h2>
-
-<p>So in this second post we have looked SP and mentioned the two main implementation techniques commonly used. We specifically looked in detail at some common problems usually overlooked in the counted implementation of SP. In the next article I want to look at a couple of other issues common to both types of smart pointers.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -5849,6 +5953,14 @@ It simply calls the destructor on all elements currently in the object. Then use
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/24/socketcpp/">Socket Class</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/11/socket-programming-in-c-version-2/">Socket Programming in C Version 2</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/04/09/socket-read/">Socket Read/Write</a>
       </li>
     
@@ -5858,14 +5970,6 @@ It simply calls the destructor on all elements currently in the object. Then use
     
       <li class="post">
         <a href="/blog/2016/03/25/resizemaths/">Memory Resizing</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/20/vector-the-other-stuff/">Vector - the Other Stuff</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/19/vector-simple-optimizations/">Vector - Simple Optimizations</a>
       </li>
     
   </ul>

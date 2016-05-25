@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-05-25T09:16:17-07:00</updated>
+  <updated>2016-05-25T09:19:20-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,6 +12,1200 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Socket Class]]></title>
+    <link href="http://lokiastari.com/blog/2016/04/24/socketcpp/"/>
+    <updated>2016-04-24T21:13:39-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/04/24/socketcpp</id>
+    <content type="html"><![CDATA[<p>So in the</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#ifndef THORSANVIL_SOCKET_H
+</span><span class='line'>#define THORSANVIL_SOCKET_H
+</span><span class='line'>
+</span><span class='line'>#include &lt;string&gt;
+</span><span class='line'>#include &lt;sstream&gt;
+</span><span class='line'>
+</span><span class='line'>namespace ThorsAnvil
+</span><span class='line'>{
+</span><span class='line'>    namespace Socket
+</span><span class='line'>    {
+</span><span class='line'>
+</span><span class='line'>template&lt;std::size_t I = 0, typename... Tp&gt;
+</span><span class='line'>inline typename std::enable_if&lt;I == sizeof...(Tp), void&gt;::type
+</span><span class='line'>print(std::ostream& s, std::tuple&lt;Tp...&gt; const& t)
+</span><span class='line'>{ }
+</span><span class='line'>
+</span><span class='line'>template&lt;std::size_t I = 0, typename... Tp&gt;
+</span><span class='line'>inline typename std::enable_if&lt;I &lt; sizeof...(Tp), void&gt;::type
+</span><span class='line'>print(std::ostream& s, std::tuple&lt;Tp...&gt; const& t)
+</span><span class='line'>{
+</span><span class='line'>    s &lt;&lt; std::get&lt;I&gt;(t);
+</span><span class='line'>    print&lt;I + 1, Tp...&gt;(s, t);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>template&lt;typename... Args&gt;
+</span><span class='line'>std::string buildErrorMessage(Args const&... args)
+</span><span class='line'>{
+</span><span class='line'>    std::stringstream msg;
+</span><span class='line'>    print(msg, std::make_tuple(args...));
+</span><span class='line'>    return msg.str();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>class SocketBase
+</span><span class='line'>{
+</span><span class='line'>    protected:
+</span><span class='line'>        int     socketId;
+</span><span class='line'>    public:
+</span><span class='line'>        SocketBase(int socketId);
+</span><span class='line'>        ~SocketBase();
+</span><span class='line'>
+</span><span class='line'>        SocketBase(SocketBase&& move)               noexcept;
+</span><span class='line'>        SocketBase& operator=(SocketBase&& move)    noexcept;
+</span><span class='line'>        void swap(SocketBase& other)                noexcept;
+</span><span class='line'>        SocketBase(SocketBase const&)               = delete;
+</span><span class='line'>        SocketBase& operator=(SocketBase const&)    = delete;
+</span><span class='line'>
+</span><span class='line'>        void close();
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>class SocketData: public SocketBase
+</span><span class='line'>{
+</span><span class='line'>    public:
+</span><span class='line'>        using SocketBase::SocketBase;
+</span><span class='line'>
+</span><span class='line'>        bool getMessage(std::string& message, bool resize = false);
+</span><span class='line'>        void putMessage(std::string const& message);
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>class ConnectSocket: public SocketData
+</span><span class='line'>{
+</span><span class='line'>    public:
+</span><span class='line'>        ConnectSocket(std::string const& host, int port);
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>class ServerSocket: public SocketBase
+</span><span class='line'>{
+</span><span class='line'>    public:
+</span><span class='line'>        ServerSocket(int port);
+</span><span class='line'>
+</span><span class='line'>        SocketData accept();
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>#endif</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+<span class='line-number'>209</span>
+<span class='line-number'>210</span>
+<span class='line-number'>211</span>
+<span class='line-number'>212</span>
+<span class='line-number'>213</span>
+<span class='line-number'>214</span>
+<span class='line-number'>215</span>
+<span class='line-number'>216</span>
+<span class='line-number'>217</span>
+<span class='line-number'>218</span>
+<span class='line-number'>219</span>
+<span class='line-number'>220</span>
+<span class='line-number'>221</span>
+<span class='line-number'>222</span>
+<span class='line-number'>223</span>
+<span class='line-number'>224</span>
+<span class='line-number'>225</span>
+<span class='line-number'>226</span>
+<span class='line-number'>227</span>
+<span class='line-number'>228</span>
+<span class='line-number'>229</span>
+<span class='line-number'>230</span>
+<span class='line-number'>231</span>
+<span class='line-number'>232</span>
+<span class='line-number'>233</span>
+<span class='line-number'>234</span>
+<span class='line-number'>235</span>
+<span class='line-number'>236</span>
+<span class='line-number'>237</span>
+<span class='line-number'>238</span>
+<span class='line-number'>239</span>
+<span class='line-number'>240</span>
+<span class='line-number'>241</span>
+<span class='line-number'>242</span>
+<span class='line-number'>243</span>
+<span class='line-number'>244</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include "Socket.h"
+</span><span class='line'>#include &lt;arpa/inet.h&gt;
+</span><span class='line'>#include &lt;sys/types.h&gt;
+</span><span class='line'>#include &lt;sys/socket.h&gt;
+</span><span class='line'>#include &lt;unistd.h&gt;
+</span><span class='line'>#include &lt;sstream&gt;
+</span><span class='line'>#include &lt;stdexcept&gt;
+</span><span class='line'>
+</span><span class='line'>using namespace ThorsAnvil::Socket;
+</span><span class='line'>
+</span><span class='line'>SocketBase::SocketBase(int socketId)
+</span><span class='line'>    : socketId(socketId)
+</span><span class='line'>{
+</span><span class='line'>    //std::cerr &lt;&lt; "SocketBase(" &lt;&lt; socketId &lt;&lt; ")\n";
+</span><span class='line'>    if (socketId == -1)
+</span><span class='line'>    {
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("SocketBase::SocketBase: bad socket: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SocketBase::~SocketBase()
+</span><span class='line'>{
+</span><span class='line'>    close();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SocketBase::close()
+</span><span class='line'>{
+</span><span class='line'>    socketId = 0;   
+</span><span class='line'>    ::close(socketId);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SocketBase::swap(SocketBase& other) noexcept
+</span><span class='line'>{
+</span><span class='line'>    using std::swap;
+</span><span class='line'>    swap(socketId,   other.socketId);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SocketBase::SocketBase(SocketBase&& move) noexcept
+</span><span class='line'>    : socketId(0)
+</span><span class='line'>{
+</span><span class='line'>    move.swap(*this);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SocketBase& SocketBase::operator=(SocketBase&& move) noexcept
+</span><span class='line'>{
+</span><span class='line'>    move.swap(*this);
+</span><span class='line'>    return *this;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>ConnectSocket::ConnectSocket(std::string const& host, int port)
+</span><span class='line'>    : SocketData(::socket(PF_INET, SOCK_STREAM, 0))
+</span><span class='line'>{
+</span><span class='line'>    struct sockaddr_in serverAddr;
+</span><span class='line'>    bzero((char*)&serverAddr, sizeof(serverAddr));
+</span><span class='line'>    serverAddr.sin_family       = AF_INET;
+</span><span class='line'>    serverAddr.sin_port         = htons(port);
+</span><span class='line'>    serverAddr.sin_addr.s_addr  = inet_addr(host.c_str());
+</span><span class='line'>
+</span><span class='line'>    if (::connect(socketId, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) != 0)
+</span><span class='line'>    {
+</span><span class='line'>        close();
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("ConnectSocket::ConnectSocket: connect: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>ServerSocket::ServerSocket(int port)
+</span><span class='line'>    : SocketBase(::socket(PF_INET, SOCK_STREAM, 0))
+</span><span class='line'>{
+</span><span class='line'>    struct sockaddr_in serverAddr;
+</span><span class='line'>    bzero((char*)&serverAddr, sizeof(serverAddr));
+</span><span class='line'>    serverAddr.sin_family       = AF_INET;
+</span><span class='line'>    serverAddr.sin_port         = htons(port);
+</span><span class='line'>    serverAddr.sin_addr.s_addr  = INADDR_ANY;
+</span><span class='line'>
+</span><span class='line'>    if (::bind(socketId, (struct sockaddr *) &serverAddr, sizeof(serverAddr)) != 0)
+</span><span class='line'>    {
+</span><span class='line'>        close();
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("ServerSocket::ServerSocket: bind: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    if (::listen(socketId, 5) != 0)
+</span><span class='line'>    {
+</span><span class='line'>        close();
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("ServerSocket::ServerSocket: listen: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>SocketData ServerSocket::accept()
+</span><span class='line'>{
+</span><span class='line'>    struct  sockaddr_storage    serverStorage;
+</span><span class='line'>    socklen_t                   addr_size   = sizeof serverStorage;
+</span><span class='line'>    int newSocket = ::accept(socketId, (struct sockaddr*)&serverStorage, &addr_size);
+</span><span class='line'>    if (newSocket == -1)
+</span><span class='line'>    {
+</span><span class='line'>        throw std::runtime_error(buildErrorMessage("ServerSocket:accept: accept: ", strerror(errno)));
+</span><span class='line'>    }
+</span><span class='line'>    return SocketData(newSocket);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>class StringSizer
+</span><span class='line'>{
+</span><span class='line'>    std::string&    stringData;
+</span><span class='line'>    std::size_t&    currentSize;
+</span><span class='line'>    public:
+</span><span class='line'>        StringSizer(std::string& stringData, std::size_t& currentSize)
+</span><span class='line'>            : stringData(stringData)
+</span><span class='line'>            , currentSize(currentSize)
+</span><span class='line'>        {
+</span><span class='line'>            stringData.resize(stringData.capacity());
+</span><span class='line'>        }
+</span><span class='line'>        ~StringSizer()
+</span><span class='line'>        {
+</span><span class='line'>            stringData.resize(currentSize);
+</span><span class='line'>        }
+</span><span class='line'>        void incrementSize(std::size_t amount)
+</span><span class='line'>        {
+</span><span class='line'>            currentSize += amount;
+</span><span class='line'>        }
+</span><span class='line'>};
+</span><span class='line'>
+</span><span class='line'>bool SocketData::getMessage(std::string& message, bool resize)
+</span><span class='line'>{
+</span><span class='line'>    //std::cerr &lt;&lt; "Getting Message\n";
+</span><span class='line'>    std::size_t     dataRead = 0;
+</span><span class='line'>
+</span><span class='line'>    do
+</span><span class='line'>    {
+</span><span class='line'>        StringSizer        stringSizer(message, dataRead);
+</span><span class='line'>        std::size_t const  capacity = message.capacity();
+</span><span class='line'>        std::size_t const  dataMax  = capacity - 1;
+</span><span class='line'>        char*              buffer   = &message[0];
+</span><span class='line'>
+</span><span class='line'>        while(dataRead &lt; dataMax)
+</span><span class='line'>        {
+</span><span class='line'>            std::size_t get = read(socketId, buffer + dataRead, dataMax - dataRead);
+</span><span class='line'>            //std::cerr &lt;&lt; " read: " &lt;&lt; get &lt;&lt; "\n";
+</span><span class='line'>            if (get == -1)
+</span><span class='line'>            {
+</span><span class='line'>                switch(errno)
+</span><span class='line'>                {
+</span><span class='line'>                    case EBADF:
+</span><span class='line'>                    case EFAULT:
+</span><span class='line'>                    case EINVAL:
+</span><span class='line'>                    case ENXIO:
+</span><span class='line'>                    {
+</span><span class='line'>                        // Fatal error. Programming bug
+</span><span class='line'>                        throw std::domain_error(buildErrorMessage("SocketData::getMessage: read: critical error: ", strerror(errno)));
+</span><span class='line'>                    }
+</span><span class='line'>                    case EIO:
+</span><span class='line'>                    case ENOBUFS:
+</span><span class='line'>                    case ENOMEM:
+</span><span class='line'>                    {
+</span><span class='line'>                       // Resource acquisition failure or device error
+</span><span class='line'>                        throw std::runtime_error(buildErrorMessage("SocketData::getMessage: read: resource failure: ", strerror(errno)));
+</span><span class='line'>                    }
+</span><span class='line'>                    case ETIMEDOUT:
+</span><span class='line'>                    case EAGAIN:
+</span><span class='line'>                    case EINTR:
+</span><span class='line'>                    {
+</span><span class='line'>                        // Temporrary error.
+</span><span class='line'>                        // Simply retry the read.
+</span><span class='line'>                        continue;
+</span><span class='line'>                    }
+</span><span class='line'>                    case ECONNRESET:
+</span><span class='line'>                    case ENOTCONN:
+</span><span class='line'>                    {
+</span><span class='line'>                        // Connection broken.
+</span><span class='line'>                        // Return the data we have available and exit
+</span><span class='line'>                        // as if the connection was closed correctly.
+</span><span class='line'>                        get = 0;
+</span><span class='line'>                        break;
+</span><span class='line'>                    }
+</span><span class='line'>                    default:
+</span><span class='line'>                    {
+</span><span class='line'>                        throw std::runtime_error(buildErrorMessage("SocketData::getMessage: read: returned -1: ", strerror(errno)));
+</span><span class='line'>                    }
+</span><span class='line'>                }
+</span><span class='line'>            }
+</span><span class='line'>            if (get == 0)
+</span><span class='line'>            {
+</span><span class='line'>                return dataRead &gt; 0;
+</span><span class='line'>            }
+</span><span class='line'>            dataRead += get;
+</span><span class='line'>            stringSizer.incrementSize(get);
+</span><span class='line'>        }
+</span><span class='line'>        if (resize)
+</span><span class='line'>        {
+</span><span class='line'>            message.reserve(message.capacity() * 1.5);
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>    while(resize);
+</span><span class='line'>    return true;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void SocketData::putMessage(std::string const& message)
+</span><span class='line'>{
+</span><span class='line'>    char const*     buffer      = &message[0];
+</span><span class='line'>    std::size_t     size        = message.size();
+</span><span class='line'>    std::size_t     dataWritten = 0;
+</span><span class='line'>
+</span><span class='line'>    while(dataWritten &lt; size)
+</span><span class='line'>    {
+</span><span class='line'>        std::size_t put = write(socketId, buffer + dataWritten, size - dataWritten);
+</span><span class='line'>        if (put == -1)
+</span><span class='line'>        {
+</span><span class='line'>            switch(errno)
+</span><span class='line'>            {
+</span><span class='line'>                case EINVAL:
+</span><span class='line'>                case EBADF:
+</span><span class='line'>                case ECONNRESET:
+</span><span class='line'>                case ENXIO:
+</span><span class='line'>                case EPIPE:
+</span><span class='line'>                {
+</span><span class='line'>                    // Fatal error. Programming bug
+</span><span class='line'>                    throw std::domain_error(buildErrorMessage("SocketData::putMessage: write: critical error: ", strerror(errno)));
+</span><span class='line'>                }
+</span><span class='line'>                case EDQUOT:
+</span><span class='line'>                case EFBIG:
+</span><span class='line'>                case EIO:
+</span><span class='line'>                case ENETDOWN:
+</span><span class='line'>                case ENETUNREACH:
+</span><span class='line'>                case ENOSPC:
+</span><span class='line'>                {
+</span><span class='line'>                    // Resource acquisition failure or device error
+</span><span class='line'>                    throw std::runtime_error(buildErrorMessage("SocketData::putMessage: write: resource failure: ", strerror(errno)));
+</span><span class='line'>                }
+</span><span class='line'>                case EAGAIN:
+</span><span class='line'>                case EINTR:
+</span><span class='line'>                {
+</span><span class='line'>                    // Temporrary error.
+</span><span class='line'>                    // Simply retry the read.
+</span><span class='line'>                    continue;
+</span><span class='line'>                }
+</span><span class='line'>                default:
+</span><span class='line'>                {
+</span><span class='line'>                    throw std::runtime_error(buildErrorMessage("SocketData::putMessage: write: returned -1: ", strerror(errno)));
+</span><span class='line'>                }
+</span><span class='line'>            }
+</span><span class='line'>        }
+</span><span class='line'>        dataWritten += put;
+</span><span class='line'>    }
+</span><span class='line'>    ::shutdown(socketId, SHUT_WR);
+</span><span class='line'>    return;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include "Socket.h"
+</span><span class='line'>#include &lt;iostream&gt;
+</span><span class='line'>
+</span><span class='line'>namespace Sock = ThorsAnvil::Socket;
+</span><span class='line'>
+</span><span class='line'>int main()
+</span><span class='line'>{
+</span><span class='line'>    Sock::ServerSocket   server(8080);
+</span><span class='line'>    int                  finished    = 0;
+</span><span class='line'>    while(!finished)
+</span><span class='line'>    {
+</span><span class='line'>        Sock::SocketData  accept  = server.accept();
+</span><span class='line'>
+</span><span class='line'>        std::string message;
+</span><span class='line'>        while(accept.getMessage(message))
+</span><span class='line'>        {
+</span><span class='line'>            std::cout &lt;&lt; message;
+</span><span class='line'>        }
+</span><span class='line'>        std::cout &lt;&lt; "\n";
+</span><span class='line'>
+</span><span class='line'>        accept.putMessage("OK");
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include "Socket.h"
+</span><span class='line'>#include &lt;cstdlib&gt;
+</span><span class='line'>#include &lt;iostream&gt;
+</span><span class='line'>
+</span><span class='line'>namespace Sock = ThorsAnvil::Socket;
+</span><span class='line'>
+</span><span class='line'>int main(int argc, char* argv[])
+</span><span class='line'>{
+</span><span class='line'>    if (argc != 3)
+</span><span class='line'>    {
+</span><span class='line'>        std::cerr &lt;&lt; "Usage: client &lt;host&gt; &lt;Message&gt;\n";
+</span><span class='line'>        std::exit(1);
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    Sock::ConnectSocket    connect(argv[1], 8080);
+</span><span class='line'>    connect.putMessage(argv[2]);
+</span><span class='line'>
+</span><span class='line'>    std::string message;
+</span><span class='line'>    while(connect.getMessage(message))
+</span><span class='line'>    {
+</span><span class='line'>        std::cout &lt;&lt; message;
+</span><span class='line'>    }
+</span><span class='line'>    std::cout &lt;&lt; "\n";
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Socket Programming in C Version 2]]></title>
+    <link href="http://lokiastari.com/blog/2016/04/11/socket-programming-in-c-version-2/"/>
+    <updated>2016-04-11T21:27:01-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/04/11/socket-programming-in-c-version-2</id>
+    <content type="html"><![CDATA[<h1>C Server</h1>
+
+<p>You can also see all the requests for review for <a href="#SourceC">C version on codereview.stackexchange.com</a>.</p>
+
+<p>Building a client/server application is a common first internet based applications that C developers build. There are many examples out there on the web most of the examples are in C. You can also see all the requests for review for <a href="#SourceC">C version on codereview.stackexchange.com</a>. A lot of people have taken these C version and tried to convert them verbatim to C++ reviews for <a href="#SourceCpp">C++ version on codereview.stackexchange.com</a>.</p>
+
+<p>Note: You can find a fully working version of this code <a href="https://github.com/Loki-Astari/Examples/tree/master/ClientServerCExample">here</a>:</p>
+
+<figure class='code'><figcaption><span>C Server</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &quot;common.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;netinet/in.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;errno.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define SERVER_BUFFER_SIZE     1024</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">socketId</span> <span class="o">=</span> <span class="n">serverSocket</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">socketId</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;%s</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">socketError</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="kt">int</span>                         <span class="n">finished</span>    <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">finished</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">struct</span>  <span class="n">sockaddr_storage</span>    <span class="n">serverStorage</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">socklen_t</span>                   <span class="n">addr_size</span>   <span class="o">=</span> <span class="k">sizeof</span> <span class="n">serverStorage</span><span class="p">;</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">newSocket</span> <span class="o">=</span> <span class="n">accept</span><span class="p">(</span><span class="n">socketId</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">serverStorage</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">addr_size</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">newSocket</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Failed: accept()</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>            <span class="n">close</span><span class="p">(</span><span class="n">socketId</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">static</span> <span class="kt">char</span> <span class="k">const</span><span class="o">*</span>  <span class="n">fullBufferFormat</span> <span class="o">=</span> <span class="s">&quot;%.&quot;</span> <span class="n">QUOTE</span><span class="p">(</span><span class="n">SERVER_BUFFER_SIZE</span><span class="p">)</span> <span class="s">&quot;s&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">static</span> <span class="kt">char</span> <span class="k">const</span><span class="o">*</span>  <span class="n">endBufferFormat</span>  <span class="o">=</span> <span class="s">&quot;%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">int</span>         <span class="n">get</span><span class="p">;</span>
+</span><span class='line'>        <span class="kt">char</span>        <span class="n">buffer</span><span class="p">[</span><span class="n">SERVER_BUFFER_SIZE</span><span class="p">];</span>
+</span><span class='line'>        <span class="k">while</span><span class="p">((</span><span class="n">get</span> <span class="o">=</span> <span class="n">getMessage</span><span class="p">(</span><span class="n">newSocket</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">SERVER_BUFFER_SIZE</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="kt">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">format</span> <span class="o">=</span> <span class="n">get</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">endBufferFormat</span> <span class="o">:</span> <span class="n">fullBufferFormat</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">msg</span>     <span class="o">=</span> <span class="n">get</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">?</span> <span class="s">&quot;OK&quot;</span> <span class="o">:</span> <span class="s">&quot;ERROR&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">sendMessage</span><span class="p">(</span><span class="n">newSocket</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Failed: sendMessage</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>            <span class="n">close</span><span class="p">(</span><span class="n">newSocket</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">close</span><span class="p">(</span><span class="n">socketId</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="s">&quot;Message Complete</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">close</span><span class="p">(</span><span class="n">newSocket</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">close</span><span class="p">(</span><span class="n">socketId</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>C Client</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &quot;common.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;arpa/inet.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;errno.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define CLIENT_BUFFER_SIZE     1024</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Usage: client &lt;host&gt; &lt;Message&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">socketId</span> <span class="o">=</span> <span class="n">clientSocket</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">socketId</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;%s</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">socketError</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">sendMessage</span><span class="p">(</span><span class="n">socketId</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Failed: sendMessage()</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">close</span><span class="p">(</span><span class="n">socketId</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">shutdown</span><span class="p">(</span><span class="n">socketId</span><span class="p">,</span> <span class="n">SHUT_WR</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Failed: shutdown()</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">close</span><span class="p">(</span><span class="n">socketId</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">static</span> <span class="kt">char</span> <span class="k">const</span><span class="o">*</span>  <span class="n">fullBufferFormat</span> <span class="o">=</span> <span class="s">&quot;%s %.&quot;</span> <span class="n">QUOTE</span><span class="p">(</span><span class="n">CLIENT_BUFFER_SIZE</span><span class="p">)</span> <span class="s">&quot;s&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">static</span> <span class="kt">char</span> <span class="k">const</span><span class="o">*</span>  <span class="n">endBufferFormat</span>  <span class="o">=</span> <span class="s">&quot;%s %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">int</span>     <span class="n">get</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span>    <span class="n">buffer</span><span class="p">[</span><span class="n">CLIENT_BUFFER_SIZE</span><span class="p">];</span>
+</span><span class='line'>    <span class="k">while</span><span class="p">((</span><span class="n">get</span> <span class="o">=</span> <span class="n">getMessage</span><span class="p">(</span><span class="n">socketId</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">CLIENT_BUFFER_SIZE</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="kt">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">format</span> <span class="o">=</span> <span class="n">get</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">endBufferFormat</span> <span class="o">:</span> <span class="n">fullBufferFormat</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="s">&quot;Response from server&quot;</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">get</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Failed: getMessage()</span><span class="se">\n</span><span class="s">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">close</span><span class="p">(</span><span class="n">socketId</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You will notice the extensive code used in error checking and reporting used in C code.</p>
+
+<p>The main advantages, for me, in C++ code is RAII and exceptions. Rewriting the above code using a <code>Socket</code> class to handle resource management and exceptions to provide an error propagation system. These simple changes result in a 20% code reduction and in my opinion make the code is easier to read (I have tried to be fair and provide a fair comparison but I am definitely biased).</p>
+
+<p>Note: You can find a fully working version of this code <a href="https://github.com/Loki-Astari/Examples/tree/master/Socket">here</a>:</p>
+
+<p>A lot of people have taken these C version and tried to convert them verbatim to C++ reviews for <a href="#SourceCpp">C++ version on codereview.stackexchange.com</a>.</p>
+
+<figure class='code'><figcaption><span>C++ Server</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &quot;common.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sstream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;cstdint&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">static</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">okMsg</span>    <span class="o">=</span> <span class="s">&quot;OK&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">static</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">errorMsg</span> <span class="o">=</span> <span class="s">&quot;ERROR&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">try</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">Server</span>  <span class="n">server</span><span class="p">;</span>
+</span><span class='line'>        <span class="kt">int</span>                         <span class="n">finished</span>    <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">finished</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Socket</span>      <span class="n">connection</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">accept</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">bool</span>    <span class="n">ok</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">connection</span><span class="p">.</span><span class="n">getMessage</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">buffer</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'>                          <span class="o">&lt;&lt;</span> <span class="s">&quot;Message Complete</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">ok</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">connection</span><span class="p">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="n">ok</span> <span class="o">?</span> <span class="n">okMsg</span> <span class="o">:</span> <span class="n">errorMsg</span><span class="p">))</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Send Message Failed</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">catch</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exception</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Exception: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">throw</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>C++ Client</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &quot;common.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sstream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;cstdint&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define CLIENT_BUFFER_SIZE     1024</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Usage: client &lt;host&gt; &lt;Message&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">try</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">Client</span>  <span class="n">client</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">client</span><span class="p">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">message</span><span class="p">(</span><span class="s">&quot;Failed: sendMessage()</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">message</span> <span class="o">&lt;&lt;</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">str</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">string</span>     <span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="n">getMessage</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Response from server: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">buffer</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">catch</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exception</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Exception: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">throw</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Mimicking the C interface</h2>
+
+<pre><code>void                            SocketCreate();
+void                            SocketBind();
+void                            SocketListen();
+static void*                    SocketAccept(void*);
+static void*                    SocketRead(void*);
+</code></pre>
+
+<h2>Curl Wrapper.</h2>
+
+<ul>
+<li>2012-Aug-06 <a href="http://codereview.stackexchange.com/q/14389/507">Tiny Curl C++ wrapper</a></li>
+</ul>
+
+
+<p>Stuff to Write</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Socket Read/Write]]></title>
@@ -6914,175 +8108,6 @@ This prevents WordPress from mucking with the spaces between the &lt;pre&gt; tag
 
 
 <p>I also asked on <a href="http://wordpress.stackexchange.com/questions/123040/standard-developer-markup-plugins">WordPress.stackexchange.com : Standard developer markup plugins</a> but did not get much help.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Hello World]]></title>
-    <link href="http://lokiastari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1/"/>
-    <updated>2013-11-12T07:59:11-08:00</updated>
-    <id>http://lokiastari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1</id>
-    <content type="html"><![CDATA[<p>This is the first article in the series
-OK. Lets do this.</p>
-
-<p>I keep trying to think about something big and interesting to write about. But that is just not working. All my time is spent trying to think of the blockbuster idea; which just gets in the way of actually writing. So lets start with the small things. If I can get into the habit of writing something a couple of times a week. Then maybe we can work up to interesting stuff.</p>
-
-<p>Step one; write about something I know. C++; we now start the &ldquo;So you want to learn C++&rdquo; series of posts.</p>
-
-<p>I am going to assume two things.</p>
-
-<ul>
-<li>You know how to use the compiler</li>
-<li>That you have some basic programming experience C/Java/C#/Perl/Php (nealy anything) <br/>
-So you understand the basics of program but are unfamiliar with C++</li>
-</ul>
-
-
-<p>First thing everybody needs is to get something working; here is the classic &ldquo;Hello World&rdquo; in C++</p>
-
-<figure class='code'><figcaption><span>helloworld.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello World</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The next step is to accepts user input and generates a response based on that input. Lets move on to the not quite as classic &ldquo;Hi There Bob&rdquo; :&ndash;)</p>
-
-<figure class='code'><figcaption><span>hitherebob.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;string&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hi there what&#39;s your name?</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span>  <span class="n">line</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">getline</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cin</span><span class="p">,</span> <span class="n">line</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;It was good to meet you &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">line</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The above code is relatively simple and only a few things to note:</p>
-
-<ul>
-<li><code>#include &lt;iostream&gt;</code> <br/>
-Imports the standard input and output facilities so you can print messages to the user and read user input.
-
-<ul>
-<li><code>std::cin</code>  <br/>
-Is the standard input stream. From this you can read user input.</li>
-<li><code>std::cout</code>  <br/>
-Is the standard output stream. You can print text to the user console.</li>
-</ul>
-</li>
-<li><code>#include &lt;string&gt;</code> <br/>
-Imports the standard string handling function. Most importantly it imports the type <code>std::string</code>.
-
-<ul>
-<li><code>std::string</code> <br/>
-This is one of the standard types and holds strings (a list of characters). We will go over types (and variables) in a lot more details in subsequent articles. But for just accept that <code>line</code> is a variable (of type std::string) used to hold a line of user input.</li>
-<li><code>std::getline()</code> <br/>
-This is a function that reads a line of text from a <code>std::istream</code> into a <code>std::string</code>. In this case we use <code>std::cin</code> as the input stream (it is a specialization of a std::istream and can thus be used as the input). Thus we read <code>a line</code> of input from the user.</li>
-</ul>
-</li>
-</ul>
-
-
-<p>There are a lot of other concepts encapsulated above that I don&rsquo;t want to get into quite yet. But don&rsquo;t worry I will cover them all.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Interviews Processes]]></title>
-    <link href="http://lokiastari.com/blog/2011/10/21/interviews-processes/"/>
-    <updated>2011-10-21T21:01:23-07:00</updated>
-    <id>http://lokiastari.com/blog/2011/10/21/interviews-processes</id>
-    <content type="html"><![CDATA[<p>We (<a href="http://SEOmoz.org">SEOmoz.org</a>) have been doing a lot of interviews for new engineers lately. I have been asked to help out trying to find the great new team members from the hordes of applicants (luckily we have a great team pre-screening applicants before they get to engineers (thanks you guys).</p>
-
-<p>One of the things the most non-programmers are surprised about is the severity of programming interviews.</p>
-
-<p>An on-site interview (after you have passed all the phone screens) consists of seeing between six and eight people (depending on company); this is going to take a full day and you will be utterly exhausted by the end.<br/>
-But why are &ldquo;Software Engineer&rdquo; interviews so exhaustive? <a href="http://programmers.stackexchange.com/questions/47778/why-are-sw-engineering-interviews-disproportionately-difficult-vs-research-inte/47784#47784">I think this sums it up</a></p>
-
-<h3>What types of interview do I do?</h3>
-
-<p>My field of expertise is technical (not the &ldquo;<a href="http://blog.sironaconsulting.com/sironasays/2011/03/is-your-hr-manager-more-miss-marple-or-hr-20-fun-infographic.html">touchy feely</a>&rdquo; HR stuff or <a href="http://imgur.com/gallery/4D6wd">&ldquo;can you work as a team&rdquo;</a> management stuff). As a result I basically stick to one type of interview with two sub variations:</p>
-
-<ul>
-<li>Can you think on your feet</li>
-<li>Do you know the basics (algorithms/data structures/Big O/CS theory)</li>
-<li>Design an interacting systems at a high level thinking about the interaction</li>
-</ul>
-
-
-<p>I have not done phone screens in a while (this is a different skill set). I have no problem with doing them I just think other people are better than me at this kind of interview. Personally I think it is really hard to get technical information over the phone (even if you use one of those collaborative online writing tools) I would rather render my <del>judgement</del> opinion on the candidate based on talking to them face to face.</p>
-
-<h3>So how do you get good information from a candidate?</h3>
-
-<p>Heck if I know. During the interview it is a lot of gut feeling and pressing the candidate to expresses themselves and provide feedback on what they are thinking. <strong>Please</strong>; <span style="color: #993366;"><em>if you are a candidate explain what you are doing</em></span>, I want to know how you got the solution more than I want to know the solution you provided.</p>
-
-<p> When asking a candidate about the basics, their inability to answer the question does not really tell me much (you may just not have used that technique in a while or missed that one class at college) so don&rsquo;t worry too much I will find something you can answer; but note, your ability to answer the question only tells me a little more (not much).</p>
-
-<p>So when you do answer I want to know <strong>why</strong> you are using a particular technique, are there <strong>any other techniques</strong> and if so <strong>why</strong> use your initial choice over another (&lsquo;it would take too much wide board space&rsquo; is a great answer as it means you understand the alternative is very complex (but now I am going to ask you to do it :&ndash;) ))</p>
-
-<p>Unless the company is looking for a skill in a particular language then generally my interview question are language agnostic and I will let the candidate use the language that they are most comfortable with on a white board. Though the language is not important to me, <strong><em style="text-align: justify;">the usage of the language is important</em></strong> (you better not leak memory in C/C++, you better not build strings with java.lang.string in Java, you better know how to use regular expression matching in Perl, you should understand how to use the fundamental list/dictionary types in python etc.) and most importantly <strong>you better be able to use fluently any language you list on your resume</strong> (if you are just learning/fiddling with a language make that clear).</p>
-
-<p>Notice I have not said anything about syntax. Personally I think this is irrelevant in an interview situation. I mean I get code wrong all the time when I write it (that&rsquo;s why I have the compiler as my first line of defense and unit tests as the second). As long as I can see what you are logically trying to achieve I will not complain about missing semi-colon.</p>
-
-<h3>The does and do not&rsquo;s for a candidate</h3>
-
-<p>This article has a <a href="http://jobs.aol.com/articles/2011/09/12/tips-for-interviews-interviewing-etiquette-infographic/">basic guide on general etiquette</a> for interviews. While this one has some more specific guidance on what to expect at <a href="http://programmers.stackexchange.com/questions/80065/preparing-for-interviews/80073#80073">programming interview</a>.</p>
-
-<p>Both mention to study the company; when I was younger I always though this was silly (I was naive once a long time ago) as I did not think it would help me do my job, but I accepted the advice of my elders and did study the companies before interviews and I must say it always paid off (but never in ways you expect).</p>
-
-<p>Remember that I only have an hour to try and extract as much information as I can from you so don&rsquo;t go off on wild tangents stick to the point and answer the question I ask. If you can show off quickly then do so but make it quick. You should also note that interviewers generally have their questions arranged in themes, if you can answer the questions quickly he is going to move onto the next part of the same question which extends the question making it harder trying to draw more knowledge from you (can you make that more efficient/ can you see the common pit falls how do you avoid them etc).</p>
-
-<p>On the same line don&rsquo;t give the most optimal solution first (unless that is obviously what the interviewer is looking for and you can justify it), a good interviewer is going to walk you up to the optimal solution and see if you know why its the optimal solution (But its also part of the communication I mentioned above, if you explain what you are doing (I will start with a brute force solution) even a bad interviewer should know you have an alternative optimizes solution).</p>
-
-<p>Don&rsquo;t gloss over the complex bit (unless the interviewer tells you too), this is probably the bit they want you to explain, whatever you don&rsquo;t try BS your answer. The interviewer has probably asked the question a hundred times before he has heard all the good/standard ways of solving the problem (and some more exotic ways), if you don&rsquo;t know just let the interviewer know.</p>
-
-<h3>The don&#8217;ts for a interviewer</h3>
-
-<p>I hate interviewers that ask those silly logic problems. They do not tell you anything about a candidates ability to write code or think critically about coding. All it tells you is that they are good a logic problems.</p>
-
-<ul>
-<li>Why is a man hole cover round?</li>
-<li>If a man rows a boat at 4 mph downstream on a river traveling 2 mph. He drops his hat overboard but does not notice for an hour. How long does he need to row upstream to meet his hat?</li>
-<li>Russian roulette: I have a six shooter with 2 bullets in consecutive location. I spin the chamber then shoot myself first (it does not go off). I pass the gun to you. Do you spin the chamber before shooting or not?</li>
-<li>You have 1000 bottles of champagne. One bottle is contaminated and drinking from it will cause vomiting in an hour. You have an hour and ten staff to help you. What is the fewest bottles you need to discard to guarantee none of your guests gets poisoned?</li>
-<li>Many more.</li>
-</ul>
-
-
-<p>Personally I like the problems and do well at interviews that ask them. But I don&rsquo;t think it tells you anything about me as a software engineer. As a result I don&rsquo;t ask these types of question.</p>
-
-<p>Other people argue that it shows people that can think critically about problems. Sorry I disagree. It tends to find people that have heard the problem before and these problems turn up on websites all the time.</p>
-
-<h3>The coding interview</h3>
-
-<p>I previously did a second type. Sit the interviewee in front of a laptop and ask them to write code to solve a particular problem. This would involve: user input (from keyboard or file (as user input was involved I would look for error checking, but since a file was involved no error recovery)). I would provide documentation to an existing library to see if they could read and understand it enough to use it. <em>But this is blog entry for another time. But if you have some hints and comments about please post a comment below</em>.</p>
 ]]></content>
   </entry>
   
