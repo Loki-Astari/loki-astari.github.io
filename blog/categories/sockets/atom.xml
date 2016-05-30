@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sockets | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/sockets/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-05-25T13:22:38-07:00</updated>
+  <updated>2016-05-29T17:35:35-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,6 +12,152 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[C++ Wrapper for Socket]]></title>
+    <link href="http://lokiastari.com/blog/2016/04/18/c-plus-plus-wrapper-for-socket/"/>
+    <updated>2016-04-18T21:13:39-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/04/18/c-plus-plus-wrapper-for-socket</id>
+    <content type="html"><![CDATA[<p>The last two articles examined the &ldquo;C Socket&rdquo; interface that is provided by OS. In this article I wrap this functionality in a very simple C++ class to provide guaranteed closing and apply a consistent exception strategy. The first step is to rewrite the client/server code with all the low level socket code removed. This will help identify the interface that the wrapper class needs to implement.</p>
+
+<p>The client code becomes really trivial. Create a <code>ConnectSocket</code> specifying host and a port. Then use the <code>putMessage()</code> and <code>getMessage()</code> to communicate with the server. Note: I am continuing to use the trivial protocol that was defined in the last article: <code>putMessage()</code> writes a string to the socket then closes the connection; <code>getMessage()</code> reads a socket until it is closed by the other end (I will cover more sophisticated protocols in a subsequent article).</p>
+
+<p>```cpp client.cpp <a href="https://github.com/Loki-Astari/Examples/blob/master/Version2/client.cpp">https://github.com/Loki-Astari/Examples/blob/master/Version2/client.cpp</a> source</p>
+
+<pre><code>ConnectSocket    connect("localhost", 8080);          // Connect to a server
+connect.putMessage("A test message going to the server");
+
+std::string message;
+connect.getMessage(message);
+std::cout &lt;&lt; message &lt;&lt; "\n";
+</code></pre>
+
+<p>```</p>
+
+<p>For the server end this nearly as trivial as the client. Create a <code>ServerSocket</code> and wait for incoming connections from clients. When we get a connection we return a <code>SocketData</code> object. The reason for returning a new Socket like object is that this mimics the behavior of the underlying <code>::accept()</code> call which opens a new port for the client to interact with the server on. The additional benefit of separating this from the <code>ServerSocket</code> is that a subsequent version may allow multiple connections and we want to be able to interact with each connection independently without sharing state, potentially across threads, so modelling it with an object makes sense in an OO world.</p>
+
+<p>```cpp server.cpp <a href="https://github.com/Loki-Astari/Examples/blob/master/Version2/server.cpp">https://github.com/Loki-Astari/Examples/blob/master/Version2/server.cpp</a> source</p>
+
+<pre><code>ServerSocket   server(8080);                          // Create a lisening connection
+while(true)
+{
+    DataSocket  accept  = server.accept();            // Wait for a clinet to connect
+
+    std::string message;
+    accept.getMessage(message);
+    std::cout &lt;&lt; message &lt;&lt; "\n";
+
+    accept.putMessage("OK");
+}
+</code></pre>
+
+<p>```</p>
+
+<p>Surprisingly this actually gives us three types of socket interface (not the two most people expect).</p>
+
+<ul>
+<li>The ServerSocket class has no ability to read/write just accept connections</li>
+<li>The ConnectSocket class connects and can be used to read/write</li>
+<li>The DataSocket class is an already connected socket that can be used to read/write</li>
+</ul>
+
+
+<p>Since a socket is a resource that we don&rsquo;t want duplicated. So this is a resource that can be moved but not copied.</p>
+
+<p>This lets me to define a very simple interface like this:</p>
+
+<p>```cpp Socket.h <a href="https://github.com/Loki-Astari/Examples/blob/master/Version2/Socket.h">https://github.com/Loki-Astari/Examples/blob/master/Version2/Socket.h</a> source
+// An RAII base class for handling sockets.
+// Socket is movable but not copyable.
+class BaseSocket
+{</p>
+
+<pre><code>int     socketId;
+protected:
+    // Designed to be a base class not used used directly.
+    BaseSocket(int socketId);
+    int getSocketId() const {return socketId;}
+public:
+    ~BaseSocket();
+
+    // Moveable but not Copyable
+    BaseSocket(BaseSocket&amp;&amp; move)               noexcept;
+    BaseSocket&amp; operator=(BaseSocket&amp;&amp; move)    noexcept;
+    void swap(BaseSocket&amp; other)                noexcept;
+    BaseSocket(BaseSocket const&amp;)               = delete;
+    BaseSocket&amp; operator=(BaseSocket const&amp;)    = delete;
+
+    // User can manually call close
+    void close();
+</code></pre>
+
+<p>};</p>
+
+<p>// A class that can read/write to a socket
+class DataSocket: public BaseSocket
+{</p>
+
+<pre><code>public:
+    DataSocket(int socketId);
+
+    bool getMessage(std::string&amp; message);
+    void putMessage(std::string const&amp; message);
+</code></pre>
+
+<p>};</p>
+
+<p>// A class the conects to a remote machine
+// Allows read/write accesses to the remote machine
+class ConnectSocket: public DataSocket
+{</p>
+
+<pre><code>public:
+    ConnectSocket(std::string const&amp; host, int port);
+</code></pre>
+
+<p>};</p>
+
+<p>// A server socket that listens on a port for a connection
+class ServerSocket: public BaseSocket
+{</p>
+
+<pre><code>public:
+    ServerSocket(int port);
+
+    // An accepts waits for a connection and returns a socket
+    // object that can be used by the client for communication
+    DataSocket accept();
+</code></pre>
+
+<p>};
+```
+Taking the existing code and wrapping this interface around it becomes trivial. The code full code is provided <a href="https://github.com/Loki-Astari/Examples/tree/master/Version2">here</a>.</p>
+
+<p>In the previous article I talked about the different types of errors that could be generated by read/write. In the following code I take this a step further. Since the code is wrapped inside a class and thus can control the socket resources more cleanly it feels more natural to use exceptions rather than error codes, consequentially error codes are not leaked across any public API boundary.</p>
+
+<ol>
+<li>domain_error
+
+<ul>
+<li>This is caused by an error that theoretically can not happen (since we have full control of the class). If this type of error occurs there is a bug in the socket code or there has been massive data corruption. Consequently you should not be trying to catch these type of exception as there is a fundamental bug in the code. It is better to let the application exit as it is likely there is substantial corruption of any data.</li>
+</ul>
+</li>
+<li>logic_error
+
+<ul>
+<li>This is caused by an error that theoretically can not happen if the class is used correctly. This means that calling code has some form of logic error. It is caused by calling any method on a socket object that was previously closed or moved. Again this type of error should not be caught (but can be). You should try and remove all potential for this type of error by good unit tests.</li>
+</ul>
+</li>
+<li>runtime_error:
+
+<ul>
+<li>This is caused by an unlikely situation that can not be handled by the Socket code. This type of error requires a broader context to be resolved. As result the socket code will throw an exception that the user can catch and potentially correct from.</li>
+</ul>
+</li>
+</ol>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Socket Read/Write]]></title>
