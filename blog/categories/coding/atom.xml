@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Coding | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/coding/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-06-04T12:38:40-07:00</updated>
+  <updated>2016-06-04T12:40:36-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -26,10 +26,10 @@
 
 <pre><code>ConnectSocket    connect("localhost", 8080);          // Connect to a server
 ProtocolSimple   connectSimple(connect);              // Knows how to send/recv a message over a socket
-connect.sendMessage("", "A test message going to the server");
+connectSimple.sendMessage("", "A test message going to the server");
 
 std::string message;
-connect.recvMessage(message);
+connectSimple.recvMessage(message);
 std::cout &lt;&lt; message &lt;&lt; "\n";
 </code></pre>
 
@@ -46,10 +46,10 @@ while(true)
     ProtocolSimple  acceptSimple(accept);                 // Knows how to send/recv a message over a socket
 
     std::string message;
-    accept.recvMessage(message);
+    acceptSimple.recvMessage(message);
     std::cout &lt;&lt; message &lt;&lt; "\n";
 
-    accept.sendMessage("", "OK");
+    acceptSimple.sendMessage("", "OK");
 }
 </code></pre>
 

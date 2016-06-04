@@ -119,10 +119,10 @@
 <span class='line-number'>7</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="n">ConnectSocket</span>    <span class="n">connect</span><span class="p">(</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8080</span><span class="p">);</span>          <span class="c1">// Connect to a server</span>
 </span><span class='line'>    <span class="n">ProtocolSimple</span>   <span class="n">connectSimple</span><span class="p">(</span><span class="n">connect</span><span class="p">);</span>              <span class="c1">// Knows how to send/recv a message over a socket</span>
-</span><span class='line'>    <span class="n">connect</span><span class="p">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;A test message going to the server&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">connectSimple</span><span class="p">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;A test message going to the server&quot;</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">connect</span><span class="p">.</span><span class="n">recvMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">connectSimple</span><span class="p">.</span><span class="n">recvMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">message</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -148,10 +148,10 @@
 </span><span class='line'>    <span class="n">ProtocolSimple</span>  <span class="n">acceptSimple</span><span class="p">(</span><span class="n">accept</span><span class="p">);</span>                 <span class="c1">// Knows how to send/recv a message over a socket</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">accept</span><span class="p">.</span><span class="n">recvMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">acceptSimple</span><span class="p">.</span><span class="n">recvMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">message</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>    <span class="n">accept</span><span class="p">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;OK&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">acceptSimple</span><span class="p">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;OK&quot;</span><span class="p">);</span>
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
