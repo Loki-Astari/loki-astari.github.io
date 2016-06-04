@@ -10,7 +10,7 @@ sharing: true
 footer: true
 subtitle: C++ By Example
 author: Loki Astari, (C)2016
-description: C++ By Example. The Vector Part 3. Because resizing a vector is expensive; the standard vector class uses exponential growth to minimize the number of times that the vector is resized: a technique we replicate in this version. But every now and then you still need to resize the internal buffer.
+description: C++ By Example. The Vector Part 3. Because resizing a vector is expensive; the standard vector class uses exponential growth to minimize the number of times that the vector is resized; a technique we replicate in this version. But every now and then you still need to resize the internal buffer.
 ---
 Because resizing a vector is expensive; the `std::vector` class uses exponential growth to minimize the number of times that the vector is resized: a technique we replicate in this version. But every now and then you still need to resize the internal buffer.
 
