@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-05-29T17:35:35-07:00</updated>
+  <updated>2016-06-04T12:38:40-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[C++ Wrapper for Socket]]></title>
-    <link href="http://lokiastari.com/blog/2016/04/18/c-plus-plus-wrapper-for-socket/"/>
-    <updated>2016-04-18T21:13:39-07:00</updated>
-    <id>http://lokiastari.com/blog/2016/04/18/c-plus-plus-wrapper-for-socket</id>
+    <link href="http://lokiastari.com/blog/2016/05/26/c-plus-plus-wrapper-for-socket/"/>
+    <updated>2016-05-26T21:13:39-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/05/26/c-plus-plus-wrapper-for-socket</id>
     <content type="html"><![CDATA[<p>The last two articles examined the &ldquo;C Socket&rdquo; interface that is provided by OS. In this article I wrap this functionality in a very simple C++ class to provide guaranteed closing and apply a consistent exception strategy. The first step is to rewrite the client/server code with all the low level socket code removed. This will help identify the interface that the wrapper class needs to implement.</p>
 
 <p>The client code becomes really trivial. Create a <code>ConnectSocket</code> specifying host and a port. Then use the <code>putMessage()</code> and <code>getMessage()</code> to communicate with the server. Note: I am continuing to use the trivial protocol that was defined in the last article: <code>putMessage()</code> writes a string to the socket then closes the connection; <code>getMessage()</code> reads a socket until it is closed by the other end (I will cover more sophisticated protocols in a subsequent article).</p>
@@ -25,10 +25,11 @@
 <p>```cpp client.cpp <a href="https://github.com/Loki-Astari/Examples/blob/master/Version2/client.cpp">https://github.com/Loki-Astari/Examples/blob/master/Version2/client.cpp</a> source</p>
 
 <pre><code>ConnectSocket    connect("localhost", 8080);          // Connect to a server
-connect.putMessage("A test message going to the server");
+ProtocolSimple   connectSimple(connect);              // Knows how to send/recv a message over a socket
+connect.sendMessage("", "A test message going to the server");
 
 std::string message;
-connect.getMessage(message);
+connect.recvMessage(message);
 std::cout &lt;&lt; message &lt;&lt; "\n";
 </code></pre>
 
@@ -41,13 +42,14 @@ std::cout &lt;&lt; message &lt;&lt; "\n";
 <pre><code>ServerSocket   server(8080);                          // Create a lisening connection
 while(true)
 {
-    DataSocket  accept  = server.accept();            // Wait for a clinet to connect
+    DataSocket      accept  = server.accept();            // Wait for a clinet to connect
+    ProtocolSimple  acceptSimple(accept);                 // Knows how to send/recv a message over a socket
 
     std::string message;
-    accept.getMessage(message);
+    accept.recvMessage(message);
     std::cout &lt;&lt; message &lt;&lt; "\n";
 
-    accept.putMessage("OK");
+    accept.sendMessage("", "OK");
 }
 </code></pre>
 
@@ -102,6 +104,7 @@ class DataSocket: public BaseSocket
 
     bool getMessage(std::string&amp; message);
     void putMessage(std::string const&amp; message);
+    void putMessageClose();
 </code></pre>
 
 <p>};</p>

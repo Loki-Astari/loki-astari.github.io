@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://lokiastari.com/blog/2016/04/18/c-plus-plus-wrapper-for-socket">
+  <link rel="canonical" href="http://lokiastari.com/blog/2016/05/26/c-plus-plus-wrapper-for-socket">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
@@ -105,7 +105,7 @@
   
 
 
-<time datetime="2016-04-18T21:13:39-07:00" pubdate data-updated="true">Apr 18<span>th</span>, 2016</time>
+<time datetime="2016-05-26T21:13:39-07:00" pubdate data-updated="true">May 26<span>th</span>, 2016</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://lokiastari.com">Comments</a>
@@ -125,11 +125,13 @@
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
+<span class='line-number'>7</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'>    <span class="n">ConnectSocket</span>    <span class="n">connect</span><span class="p">(</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8080</span><span class="p">);</span>          <span class="c1">// Connect to a server</span>
-</span><span class='line'>    <span class="n">connect</span><span class="p">.</span><span class="n">putMessage</span><span class="p">(</span><span class="s">&quot;A test message going to the server&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">ProtocolSimple</span>   <span class="n">connectSimple</span><span class="p">(</span><span class="n">connect</span><span class="p">);</span>              <span class="c1">// Knows how to send/recv a message over a socket</span>
+</span><span class='line'>    <span class="n">connect</span><span class="p">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;A test message going to the server&quot;</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">connect</span><span class="p">.</span><span class="n">getMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">connect</span><span class="p">.</span><span class="n">recvMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">message</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -147,16 +149,18 @@
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
+<span class='line-number'>12</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">ServerSocket</span>   <span class="n">server</span><span class="p">(</span><span class="mi">8080</span><span class="p">);</span>                          <span class="c1">// Create a lisening connection</span>
 </span><span class='line'><span class="k">while</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
 </span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">DataSocket</span>  <span class="n">accept</span>  <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">accept</span><span class="p">();</span>            <span class="c1">// Wait for a clinet to connect</span>
+</span><span class='line'>    <span class="n">DataSocket</span>      <span class="n">accept</span>  <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="n">accept</span><span class="p">();</span>            <span class="c1">// Wait for a clinet to connect</span>
+</span><span class='line'>    <span class="n">ProtocolSimple</span>  <span class="n">acceptSimple</span><span class="p">(</span><span class="n">accept</span><span class="p">);</span>                 <span class="c1">// Knows how to send/recv a message over a socket</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">accept</span><span class="p">.</span><span class="n">getMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">accept</span><span class="p">.</span><span class="n">recvMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
 </span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">message</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>    <span class="n">accept</span><span class="p">.</span><span class="n">putMessage</span><span class="p">(</span><span class="s">&quot;OK&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">accept</span><span class="p">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;OK&quot;</span><span class="p">);</span>
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -225,6 +229,7 @@
 <span class='line-number'>49</span>
 <span class='line-number'>50</span>
 <span class='line-number'>51</span>
+<span class='line-number'>52</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="c1">// An RAII base class for handling sockets.</span>
 </span><span class='line'><span class="c1">// Socket is movable but not copyable.</span>
 </span><span class='line'><span class="k">class</span> <span class="nc">BaseSocket</span>
@@ -256,6 +261,7 @@
 </span><span class='line'>
 </span><span class='line'>        <span class="kt">bool</span> <span class="n">getMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">);</span>
 </span><span class='line'>        <span class="kt">void</span> <span class="n">putMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">);</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">putMessageClose</span><span class="p">();</span>
 </span><span class='line'><span class="p">};</span>
 </span><span class='line'>
 </span><span class='line'><span class="c1">// A class the conects to a remote machine</span>
@@ -326,7 +332,7 @@
   
 
 
-<time datetime="2016-04-18T21:13:39-07:00" pubdate data-updated="true">Apr 18<span>th</span>, 2016</time>
+<time datetime="2016-05-26T21:13:39-07:00" pubdate data-updated="true">May 26<span>th</span>, 2016</time>
       
 
 <span class="categories">
@@ -340,7 +346,7 @@
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://lokiastari.com/blog/2016/04/18/c-plus-plus-wrapper-for-socket/" data-via="LokiAstari" data-counturl="http://lokiastari.com/blog/2016/04/18/c-plus-plus-wrapper-for-socket/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://lokiastari.com/blog/2016/05/26/c-plus-plus-wrapper-for-socket/" data-via="LokiAstari" data-counturl="http://lokiastari.com/blog/2016/05/26/c-plus-plus-wrapper-for-socket/" >Tweet</a>
   
   
   
@@ -385,8 +391,8 @@
       </li>
     
       <li class="post">
-        <!-- <a href="/blog/2016/04/18/c-plus-plus-wrapper-for-socket/">C++ Wrapper for Socket</a> -->
-        <a href="/blog/2016/04/18/c-plus-plus-wrapper-for-socket/">C++ Wrapper for Socket</a>
+        <!-- <a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/">C++ Wrapper for Socket</a> -->
+        <a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/">C++ Wrapper for Socket</a>
       </li>
     
   </ul>
@@ -397,7 +403,7 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2016/04/18/c-plus-plus-wrapper-for-socket/">C++ Wrapper for Socket</a>
+        <a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/">C++ Wrapper for Socket</a>
       </li>
     
       <li class="post">
@@ -498,8 +504,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://lokiastari.com/blog/2016/04/18/c-plus-plus-wrapper-for-socket/';
-        var disqus_url = 'http://lokiastari.com/blog/2016/04/18/c-plus-plus-wrapper-for-socket/';
+        var disqus_identifier = 'http://lokiastari.com/blog/2016/05/26/c-plus-plus-wrapper-for-socket/';
+        var disqus_url = 'http://lokiastari.com/blog/2016/05/26/c-plus-plus-wrapper-for-socket/';
         var disqus_script = 'embed.js';
       
     (function () {
