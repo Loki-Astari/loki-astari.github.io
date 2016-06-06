@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "C++ Wrapper for Socket"
-date: 2016-04-18 21:13:39 -0700
+date: 2016-05-26 21:13:39 -0700
 comments: true
 categories: [C++, Sockets, C++-By-Example, Coding]
 series: Sockets
@@ -19,10 +19,11 @@ The client code becomes really trivial. Create a `ConnectSocket` specifying host
 ```cpp client.cpp https://github.com/Loki-Astari/Examples/blob/master/Version2/client.cpp source
 
     ConnectSocket    connect("localhost", 8080);          // Connect to a server
-    connect.putMessage("A test message going to the server");
+    ProtocolSimple   connectSimple(connect);              // Knows how to send/recv a message over a socket
+    connectSimple.sendMessage("", "A test message going to the server");
 
     std::string message;
-    connect.getMessage(message);
+    connectSimple.recvMessage(message);
     std::cout << message << "\n";
 ```
 
@@ -32,13 +33,14 @@ For the server end this nearly as trivial as the client. Create a `ServerSocket`
     ServerSocket   server(8080);                          // Create a lisening connection
     while(true)
     {
-        DataSocket  accept  = server.accept();            // Wait for a clinet to connect
+        DataSocket      accept  = server.accept();            // Wait for a clinet to connect
+        ProtocolSimple  acceptSimple(accept);                 // Knows how to send/recv a message over a socket
 
         std::string message;
-        accept.getMessage(message);
+        acceptSimple.recvMessage(message);
         std::cout << message << "\n";
 
-        accept.putMessage("OK");
+        acceptSimple.sendMessage("", "OK");
     }
 ```
 
@@ -84,6 +86,7 @@ class DataSocket: public BaseSocket
 
         bool getMessage(std::string& message);
         void putMessage(std::string const& message);
+        void putMessageClose();
 };
 
 // A class the conects to a remote machine
