@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++ | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-06-04T12:40:36-07:00</updated>
+  <updated>2016-06-06T01:05:36-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,6 +12,370 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Socket Protocols]]></title>
+    <link href="http://lokiastari.com/blog/2016/05/29/socket-protocols/"/>
+    <updated>2016-05-29T21:13:39-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/05/29/socket-protocols</id>
+    <content type="html"><![CDATA[<p>In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more robust connection between client and server a communications protocol is required so that we can validate messages are sent correctly and generate appropriate responses that can also be validated.</p>
+
+<p>Designing a communication protocol is a non trivial task and personally I would look for an existing protocol that matches your use case rather than trying to create protocol from scratch.</p>
+
+<h4>Example Protocols</h4>
+
+<ul>
+<li>HTTP&#x003A; &nbsp;<a href="https://tools.ietf.org/html/rfc2616.txt">https://tools.ietf.org/html/rfc2616.txt</a></li>
+<li>IRC&#x003A; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://tools.ietf.org/html/rfc1490.txt">https://tools.ietf.org/html/rfc1490.txt</a></li>
+</ul>
+
+
+<p>Rather than go through all the different protocols I am simply going to pick the HTTP(S) protocol and use that for further discussion. HTTP(S) is relatively well known; It is simple to implement the basics; There are well known server implementations that support it; There are well known client libraries that can be used in application development.</p>
+
+<h4>Example HTTP(S) servers</h4>
+
+<ul>
+<li><a href="https://httpd.apache.org/">Apache</a></li>
+<li><a href="http://nginx.org/en/">nginx</a></li>
+<li><a href="https://nodejs.org/en/about/">Node.js</a></li>
+</ul>
+
+
+<h4>Client Side HTTP Libraries</h4>
+
+<ul>
+<li><a href="https://curl.haxx.se/libcurl/c/">LibCurl</a></li>
+<li><a href="https://www.w3.org/Library/User/Using/">Libwww</a></li>
+<li><a href="http://http-fetcher.sourceforge.net/API/index.html">HttpFetch</a></li>
+</ul>
+
+
+<h2>HTTP(S)</h2>
+
+<p>Basically HTTP(S) defines two object. A request object is sent from the client to the server and response object is sent back as a result of a request. The only difference between the two is the start-line. Both HTTP objects can be broken down into three pieces.</p>
+
+<ol>
+<li>Start-Line</li>
+<li>Header-Section</li>
+<li>Body</li>
+</ol>
+
+
+<h3>Start-Line</h3>
+
+<p>For a request object this is:</p>
+
+<table>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Method:</td><td>HEAD/GET/PUT/POST/DELETE</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">URL:</td><td>Identification of the object/service needed</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">HTTP-Version:</td><td>Usually HTTP/1.1</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally '\r\n'</td></tr>
+</table>
+
+
+<h4>Example:</h4>
+
+<p><code>http
+GET http://google.com/maps?id=456 HTTP/1.1\r\n
+</code></p>
+
+<p>For a response object this is:</p>
+
+<table>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">HTTP-Version:</td><td>Usually HTTP/1.1</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Response Code:</td><td><a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">100->599</a></td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Human Readable Response:</td><td>Human readable explanation of the response code</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally '\r\n'zz</td></tr>
+</table>
+
+
+<h4>Example:</h4>
+
+<p><code>http
+HTTP/1.1 200 OK\r\n
+</code></p>
+
+<h3>Header-Section</h3>
+
+<p>This is a set of key/value pairs one per line separated by a colon. Each Line is terminated by CR/LF and the end of the header section is marked by an empty line.</p>
+
+<table>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Key:</td><td>A text string representing the keys.</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Colon:</td><td>A single colon (note: some implementations are lax and insert a space before the colon).</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character (note: some implementations are lax and more then one space may be present)</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Value:</td><td>A set of characters that does not include CR or LF.</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally '\r\n'</td></tr>
+</table>
+
+
+<h4>Example</h4>
+
+<p><code>http
+Content-Length: 42\r\n
+Content-Type: text/text\r\n
+</code></p>
+
+<h3>Body</h3>
+
+<p>The payload of the object should be in the body. Its size is defined by the headers defined in <a href="https://tools.ietf.org/html/rfc2616#section-4.4">rfc-2616 section 4.4 Message Length</a>.</p>
+
+<h3>Required Headers</h3>
+
+<p>According to the rfc(s) <a href="https://tools.ietf.org/html/rfc7230">7230</a>, <a href="https://tools.ietf.org/html/rfc7231">7231</a>, <a href="https://tools.ietf.org/html/rfc7232">7232</a>, <a href="https://tools.ietf.org/html/rfc7233">7233</a>, <a href="https://tools.ietf.org/html/rfc7234">7234</a> or <a href="https://tools.ietf.org/html/rfc7235">7235</a> there are no header fields there are actually required header fields.</p>
+
+<h4>Request Object</h4>
+
+<p>But real world implementations need some headers to work efficiently, so you probably should send the following headers when making a request to a server:</p>
+
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">Content-Length</a>:   // Or use one of the other techniques to specify length</li>
+<li><a href="https://tools.ietf.org/html/rfc7230#section-5.4">Host</a>:</li>
+</ul>
+
+
+<p>It is also polite to send the following.</p>
+
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-5.5.3">User-Agent</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">Accept</a>:</li>
+</ul>
+
+
+<h4>Response Object</h4>
+
+<p>A server implementation &ldquo;Must&rdquo; send a <code>Date:</code> header field if it is a reasonable approximation of UTC. But that means servers may not supply the <code>Date:</code> field so you can&rsquo;t say it is a requirement of the standard. But you will usually see the following headers returned from a server:</p>
+
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.2">Date</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-7.4.2">Server</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">Content-Length</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a>:</li>
+</ul>
+
+
+<h2>Implementation</h2>
+
+<p>Given this very basic protocol; it seems like the implementation of these requirements should be quite trivial. To be honest the implementation of creating the objects to send is relatively trivial, the hard part is reading objects from the stream in an efficiently and correctly validated manner. You can find my attempt <a href="https://github.com/Loki-Astari/Examples/tree/master/Version3">here</a>: It works but its 500 lines long and only covers the most basics parts of the protocol and does not do any of the hard parts (like authentication or HTTPS).</p>
+
+<p>To use this protocol correctly you really need to use one of the existing libraries. Here I have re-implemented the client using libcurl.</p>
+
+<p>```cpp Client uses libcurl wrapper <a href="https://github.com/Loki-Astari/Examples/blob/master/Version4/client.cpp">https://github.com/Loki-Astari/Examples/blob/master/Version4/client.cpp</a> source</p>
+
+<p>int main(int argc, char* argv[])
+{</p>
+
+<pre><code>namespace Sock = ThorsAnvil::Socket;
+if (argc != 3)
+{
+    std::cerr &lt;&lt; "Usage: client &lt;host&gt; &lt;Message&gt;\n";
+    std::exit(1);
+}
+
+Sock::CurlGlobal    curlInit;
+Sock::CurlConnector connect(argv[1], 8080);
+
+connect.sendMessage("/message", argv[2]);
+
+std::string message;
+connect.recvMessage(message);
+std::cout &lt;&lt; message &lt;&lt; "\n";
+</code></pre>
+
+<p>}
+```</p>
+
+<p>```cpp libCurl simple wrapper <a href="https://github.com/Loki-Astari/Examples/blob/master/Version4/client.cpp">https://github.com/Loki-Astari/Examples/blob/master/Version4/client.cpp</a> source</p>
+
+<h1>include &lt;curl/curl.h></h1>
+
+<h1>include <sstream></h1>
+
+<h1>include <iostream></h1>
+
+<h1>include <cstdlib></h1>
+
+<p>namespace ThorsAnvil
+{</p>
+
+<pre><code>namespace Socket
+{
+</code></pre>
+
+<p>template&lt;std::size_t I = 0, typename&hellip; Args>
+int print(std::ostream&amp; s, Args&hellip; args)
+{</p>
+
+<pre><code>using Expander = int[];
+return Expander{ 0, ((s &lt;&lt; std::forward&lt;Args&gt;(args)), 0)...}[0];
+</code></pre>
+
+<p>}</p>
+
+<p>template&lt;typename&hellip; Args>
+std::string buildErrorMessage(Args const&amp;&hellip; args)
+{</p>
+
+<pre><code>std::stringstream msg;
+print(msg, args...);
+return msg.str();
+</code></pre>
+
+<p>}</p>
+
+<p>class CurlGlobal
+{</p>
+
+<pre><code>public:
+    CurlGlobal()
+    {
+        if (curl_global_init(CURL_GLOBAL_ALL) != 0)
+        {
+            throw std::runtime_error(buildErrorMessage("CurlGlobal::", __func__, ": curl_global_init: fail"));
+        }
+    }
+    ~CurlGlobal()
+    {
+        curl_global_cleanup();
+    }
+</code></pre>
+
+<p>};</p>
+
+<p>extern &ldquo;C&rdquo; size_t curlConnectorGetData(char <em>ptr, size_t size, size_t nmemb, void </em>userdata);</p>
+
+<p>enum RequestType {Get, Head, Put, Post, Delete};
+class CurlConnector
+{</p>
+
+<pre><code>CURL*       curl;
+std::string host;
+int         port;
+std::string response;
+
+friend size_t curlConnectorGetData(char *ptr, size_t size, size_t nmemb, void *userdata);
+std::size_t getData(char *ptr, size_t size)
+{
+    response.append(ptr, size);
+    return size;
+}
+
+
+public:
+    CurlConnector(std::string const&amp; host, int port)
+        : curl(curl_easy_init( ))
+        , host(host)
+        , port(port)
+    {
+        if (curl == NULL)
+        {
+            throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_init: fail"));
+        }
+    }
+    ~CurlConnector()
+    {
+        curl_easy_cleanup(curl);
+    }
+
+    virtual RequestType getRequestType() const {return Post;}
+
+    void sendMessage(std::string const&amp; urlPath, std::string const&amp; message)
+    {
+        std::stringstream url;
+        response.clear();
+        url &lt;&lt; "http://" &lt;&lt; host;
+        if (port != 80)
+        {
+            url &lt;&lt; ":" &lt;&lt; port;
+        }
+        url &lt;&lt; urlPath;
+
+        CURLcode res;
+        auto sListDeleter = [](struct curl_slist* headers){curl_slist_free_all(headers);};
+        std::unique_ptr&lt;struct curl_slist, decltype(sListDeleter)&gt; headers(nullptr, sListDeleter);
+        headers = std::unique_ptr&lt;struct curl_slist, decltype(sListDeleter)&gt;(curl_slist_append(headers.get(), "Content-Type: text/text"), sListDeleter);
+
+        if ((res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers.get())) != CURLE_OK)
+        {
+            throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_HTTPHEADER:", curl_easy_strerror(res)));
+        }
+        if ((res = curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "*/*")) != CURLE_OK)
+        {
+            throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_ACCEPT_ENCODING:", curl_easy_strerror(res)));
+        }
+        if ((res = curl_easy_setopt(curl, CURLOPT_USERAGENT, "ThorsExperimental-Client/0.1")) != CURLE_OK)
+        {
+            throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_USERAGENT:", curl_easy_strerror(res)));
+        }
+        if ((res = curl_easy_setopt(curl, CURLOPT_URL, url.str().c_str())) != CURLE_OK)
+        {
+            throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_URL:", curl_easy_strerror(res)));
+        }
+        if ((res = curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, message.size())) != CURLE_OK)
+        {
+            throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_POSTFIELDSIZE:", curl_easy_strerror(res)));
+        }
+        if ((res = curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, message.data())) != CURLE_OK)
+        {
+            throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_COPYPOSTFIELDS:", curl_easy_strerror(res)));
+        }
+        if ((res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlConnectorGetData)) != CURLE_OK)
+        {
+            throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_WRITEFUNCTION:", curl_easy_strerror(res)));
+        }
+        if ((res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, this)) != CURLE_OK)
+        {
+            throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_WRITEDATA:", curl_easy_strerror(res)));
+        }
+
+
+        switch(getRequestType())
+        {
+            case Get:       res = CURLE_OK; /* The default is GET. So do nothing.*/         break;
+            case Head:      res = curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "HEAD");    break;
+            case Put:       res = curl_easy_setopt(curl, CURLOPT_PUT, 1);                   break;
+            case Post:      res = curl_easy_setopt(curl, CURLOPT_POST, 1);                  break;
+            case Delete:    res = curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");  break;
+            default:
+                throw std::domain_error(buildErrorMessage("CurlConnector::", __func__, ": invalid method: ", static_cast&lt;int&gt;(getRequestType())));
+        }
+        if (res != CURLE_OK)
+        {
+            throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_setopt CURL_METHOD:", curl_easy_strerror(res)));
+        }
+        if ((res = curl_easy_perform(curl)) != CURLE_OK)
+        {
+            throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_perform:", curl_easy_strerror(res)));
+        }
+    }
+    void recvMessage(std::string&amp; message)
+    {
+        message = std::move(response);
+    }
+</code></pre>
+
+<p>};</p>
+
+<p>size_t curlConnectorGetData(char <em>ptr, size_t size, size_t nmemb, void </em>userdata)
+{</p>
+
+<pre><code>CurlConnector*  self = reinterpret_cast&lt;CurlConnector*&gt;(userdata);
+return self-&gt;getData(ptr, size * nmemb);
+</code></pre>
+
+<p>}</p>
+
+<pre><code>}
+</code></pre>
+
+<p>}
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[C++ Wrapper for Socket]]></title>
@@ -769,465 +1133,6 @@ They noticed that:
 <p></notextile></div></p></p>
 
 <p>Thus if <code>r</code> remains in the above range then the above theory holds.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Vector - The Other Stuff]]></title>
-    <link href="http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff/"/>
-    <updated>2016-03-20T22:26:43-07:00</updated>
-    <id>http://lokiastari.com/blog/2016/03/20/vector-the-other-stuff</id>
-    <content type="html"><![CDATA[<p>So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an insight into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).</p>
-
-<p>For details see the <a href="http://stackoverflow.com/a/4653479/14065">latest copy of the C++ standard</a>.</p>
-
-<ul>
-<li>23.2.1  General container requirements [container.requirements.general]</li>
-<li>23.2.3  Sequence containers [sequence.reqmts]</li>
-</ul>
-
-
-<h4>Internal Types</h4>
-
-<ul>
-<li>value&#95;type</li>
-<li>reference</li>
-<li>const&#95;reference</li>
-<li>iterator</li>
-<li>const&#95;iterator</li>
-<li>difference&#95;type</li>
-<li>size&#95;type</li>
-</ul>
-
-
-<p>It is worth specifying the internal types defined here. As this allows you to abstract the implementation details of the container. This will allow you to change the implementation details without users having to change their implementation; as long as the changes still provide the same interface but the interface to reference/pointers/iterators are relatively trivial and well defined.</p>
-
-<h4>Constructors</h4>
-
-<p>In C++11 the <code>std::initializer_list&lt;T&gt;</code> was introduced. This allows a better list initialization syntax to be used with user defined types. Since this is usually defined in terms of the range based construction we should probably add both of these constructors.</p>
-
-<ul>
-<li>Vector(std::initializer&#95;list<T> const&amp; list)</li>
-<li>Vector(I begin, I end)</li>
-</ul>
-
-
-<h4>Iterators</h4>
-
-<ul>
-<li>begin()</li>
-<li>rbegin()</li>
-<li>begin() const</li>
-<li>rbegin() const</li>
-<li>cbegin() const</li>
-<li>crbegin() const</li>
-<li>end()</li>
-<li>rend()</li>
-<li>end() const</li>
-<li>cend() const</li>
-<li>rend() const</li>
-<li>crend() const</li>
-</ul>
-
-
-<p>The iterators are relatively easy to write. They also allow the container to be used with the new range based for that was added in C++14. So this becomes another easy add.</p>
-
-<h4>Member Access</h4>
-
-<ul>
-<li>at(&lt;index&gt;)</li>
-<li>at(&lt;index&gt;) const</li>
-<li>operator&#91;&#93;(&lt;index&gt;)</li>
-<li>operator&#91;&#93;(&lt;index&gt;) const</li>
-<li>front()</li>
-<li>back()</li>
-<li>front() const</li>
-<li>back() const</li>
-</ul>
-
-
-<p>Member access to a vector should be very efficient. As a result normally range checks are not performed on member access, i.e. the user is expected to make sure that the method preconditions have been met before calling the method. This results in very efficient access to the members of a <code>Vector</code>. This is not normally a problem because index ranges are normally checked as part of a loop range as long as these are validated against the size of the array it does not need to be validated again.</p>
-
-<p>```cpp For Loop Vector Access</p>
-
-<pre><code>Vector&lt;T&gt;   d = getData();
-for(int loop = 0; loop &lt; d.size(); ++loop)
-{
-    std::cout &lt;&lt; d[loop];   // No need for antoher range
-                            // check here as we know that loop is inside the
-                            // bounds of the vector d.
-}
-</code></pre>
-
-<p>```</p>
-
-<p>There is also the <code>at()</code> method which does validate the index provided before accessing the element (throwing an exception if the index is out of range).</p>
-
-<h4>Non-Mutating Member Functions</h4>
-
-<ul>
-<li>size() const</li>
-<li>bool() const</li>
-</ul>
-
-
-<p>To allow us to check the preconditions on the element access methods we need some functions that check the state of the object. These are provided here.</p>
-
-<h4>Mutating Member Functions</h4>
-
-<ul>
-<li>push&#95;back(&lt;object-ref&gt;)</li>
-<li>push&#95;back(&lt;object-rvalue-ref&gt;)</li>
-<li>emplace&#95;back(&lt;args&hellip;&gt;)</li>
-<li>pop&#95;back()</li>
-</ul>
-
-
-<p>The following members are standard easy to implement methods of <code>std::vector</code> (O(1)) that I would expect to see in every implementation.</p>
-
-<p>The other mutating member functions are less trivial as they require elements to be moved around. They are not that hard but you must put some thought into the most efficient techniques to move elements (i.e. move or copy) and make sure that capacity is not exceeded by multiple inserts. As a result I would expect to see these methods only on an as needed basis.</p>
-
-<h4>Comparators</h4>
-
-<ul>
-<li>operator== const</li>
-<li>operator!= const</li>
-</ul>
-
-
-<p>Easy comparison operators.
-Optionally you can provide the other comparison operators.</p>
-
-<h1>Final</h1>
-
-<p><strong>No idea why Jackal is adding all the blank lines to my source</strong>
-```cpp Vector</p>
-
-<h1>include &lt;type_traits></h1>
-
-<h1>include <memory></h1>
-
-<h1>include <algorithm></h1>
-
-<h1>include <stdexcept></h1>
-
-<h1>include <iterator></h1>
-
-<p>template<typename T>
-class Vector
-{</p>
-
-<pre><code>public:
-    using value_type        = T;
-    using reference         = T&amp;;
-    using const_reference   = T const&amp;;
-    using pointer           = T*;
-    using const_pointer     = T const*;
-    using iterator          = T*;
-    using const_iterator    = T const*;
-    using riterator         = std::reverse_iterator&lt;iterator&gt;;
-    using const_riterator   = std::reverse_iterator&lt;const_iterator&gt;;
-    using difference_type   = std::ptrdiff_t;
-    using size_type         = std::size_t;
-
-private:
-    size_type       capacity;
-    size_type       length;
-    T*              buffer;
-
-    struct Deleter
-    {
-        void operator()(T* buffer) const
-        {
-            ::operator delete(buffer);
-        }
-    };
-
-public:
-    Vector(int capacity = 10)
-        : capacity(capacity)
-        , length(0)
-        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
-    {}
-    template&lt;typename I&gt;
-    Vector(I begin, I end)
-        : capacity(std::distance(begin, end))
-        , length(0)
-        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
-    {
-        for(auto loop = begin;loop != end; ++loop)
-        {
-            pushBackInternal(*loop);
-        }
-    }
-    Vector(std::initializer_list&lt;T&gt; const&amp; list)
-        : Vector(std::begin(list), std::end(list))
-    {}
-    ~Vector()
-    {
-        // Make sure the buffer is deleted even with exceptions
-        // This will be called to release the pointer at the end
-        // of scope.
-        std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
-        clearElements&lt;T&gt;();
-    }
-    Vector(Vector const&amp; copy)
-        : capacity(copy.length)
-        , length(0)
-        , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
-    {
-        try
-        {
-            for(int loop = 0; loop &lt; copy.length; ++loop)
-            {
-                push_back(copy.buffer[loop]);
-            }
-        }
-        catch(...)
-        {
-            std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
-            clearElements&lt;T&gt;();
-
-            // Make sure the exceptions continue propagating after
-            // the cleanup has completed.
-            throw;
-        }
-    }
-    Vector&amp; operator=(Vector const&amp; copy)
-    {
-        copyAssign&lt;T&gt;(copy);
-        return *this;
-    }
-    Vector(Vector&amp;&amp; move) noexcept
-        : capacity(0)
-        , length(0)
-        , buffer(nullptr)
-    {
-        move.swap(*this);
-    }
-    Vector&amp; operator=(Vector&amp;&amp; move) noexcept
-    {
-        move.swap(*this);
-        return *this;
-    }
-    void swap(Vector&amp; other) noexcept
-    {
-        using std::swap;
-        swap(capacity,      other.capacity);
-        swap(length,        other.length);
-        swap(buffer,        other.buffer);
-    }
-
-    // Non-Mutating functions
-    size_type           size() const                        {return length;}
-    bool                empty() const                       {return length == 0;}
-
-    // Validated element access
-    reference           at(size_type index)                 {validateIndex(index);return buffer[index];}
-    const_reference     at(size_type index) const           {validateIndex(index);return buffer[index];}
-
-    // Non-Validated element access
-    reference           operator[](size_type index)         {return buffer[index];}
-    const_reference     operator[](size_type index) const   {return buffer[index];}
-    reference           front()                             {return buffer[0];}
-    const_reference     front() const                       {return buffer[0];}
-    reference           back()                              {return buffer[length - 1];}
-    const_reference     back() const                        {return buffer[length - 1];}
-
-    // Iterators
-    iterator            begin()                             {return buffer;}
-    riterator           rbegin()                            {return riterator(end());}
-    const_iterator      begin() const                       {return buffer;}
-    const_riterator     rbegin() const                      {return const_riterator(end());}
-
-    iterator            end()                               {return buffer + length;}
-    riterator           rend()                              {return riterator(begin());}
-    const_iterator      end() const                         {return buffer + length;}
-    const_riterator     rend() const                        {return const_riterator(begin());}
-
-    const_iterator      cbegin() const                      {return begin();}
-    const_riterator     crbegin() const                     {return rbegin();}
-    const_iterator      cend() const                        {return end();}
-    const_riterator     crend() const                       {return rend();}
-
-    // Comparison
-    bool operator!=(Vector const&amp; rhs) const {return !(*this == rhs);}
-    bool operator==(Vector const&amp; rhs) const
-    {
-        return  (size() == rhs.size())
-            &amp;&amp;  std::equal(begin(), end(), rhs.begin());
-    }
-
-    // Mutating functions
-    void push_back(T const&amp; value)
-    {
-        resizeIfRequire();
-        pushBackInternal(value);
-    }
-    void push_back(T&amp;&amp; value)
-    {
-        resizeIfRequire();
-        moveBackInternal(std::forward&lt;T&gt;(value));
-    }
-    template&lt;typename... Args&gt;
-    void emplace_back(Args&amp;&amp;... args)
-    {
-        resizeIfRequire();
-        emplaceBackInternal(std::forward&lt;T&gt;(args)...);
-    }
-    void pop_back()
-    {
-        --length;
-        buffer[length].~T();
-    }
-    void reserve(size_type capacityUpperBound)
-    {
-        if (capacityUpperBound &gt; capacity)
-        {
-            reserveCapacity(capacityUpperBound);
-        }
-    }
-private:
-    void validateIndex(size_type index) const
-    {
-        if (index &gt;= length)
-        {
-            throw std::out_of_range("Out of Range");
-        }
-    }
-
-    void resizeIfRequire()
-    {
-        if (length == capacity)
-        {
-            size_type     newCapacity  = std::max(2.0, capacity * 1.5);
-            reserveCapacity(newCapacity);
-        }
-    }
-    void reserveCapacity(size_type newCapacity)
-    {
-        Vector&lt;T&gt;  tmpBuffer(newCapacity);
-
-        simpleCopy&lt;T&gt;(tmpBuffer);
-
-        tmpBuffer.swap(*this);
-    }
-
-    // Add new element to the end using placement new
-    void pushBackInternal(T const&amp; value)
-    {
-        new (buffer + length) T(value);
-        ++length;
-    }
-    void moveBackInternal(T&amp;&amp; value)
-    {
-        new (buffer + length) T(std::move(value));
-        ++length;
-    }
-    template&lt;typename... Args&gt;
-    void emplaceBackInternal(Args&amp;&amp;... args)
-    {
-        new (buffer + length) T(std::forward&lt;Args&gt;(args)...);
-        ++length;
-    }
-
-    // Optimizations that use SFINAE to only instantiate one
-    // of two versions of a function.
-    //      simpleCopy()        Moves when no exceptions are guaranteed, otherwise copies.
-    //      clearElements()     When no destructor remove loop.
-    //      copyAssign()        Avoid resource allocation when no exceptions guaranteed.
-    //                          ie. When copying integers reuse the buffer if we can
-    //                          to avoid expensive resource allocation.
-
-    template&lt;typename X&gt;
-    typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == false&gt;::type
-    simpleCopy(Vector&lt;T&gt;&amp; dst)
-    {
-        std::for_each(buffer, buffer + length,
-                      [&amp;dst](T const&amp; v){dst.pushBackInternal(v);}
-                     );
-    }
-    template&lt;typename X&gt;
-    typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == true&gt;::type
-    simpleCopy(Vector&lt;T&gt;&amp; dst)
-    {
-        std::for_each(buffer, buffer + length,
-                      [&amp;dst](T&amp; v){dst.moveBackInternal(std::move(v));}
-                     );
-    }
-
-
-    template&lt;typename X&gt;
-    typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == false&gt;::type
-    clearElements()
-    {
-        // Call the destructor on all the members in reverse order
-        for(int loop = 0; loop &lt; length; ++loop)
-        {
-            // Note we destroy the elements in reverse order.
-            buffer[length - 1 - loop].~T();
-        }
-    }
-
-    template&lt;typename X&gt;
-    typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == true&gt;::type
-    clearElements()
-    {
-        // Trivially destructible objects can be reused without using the destructor.
-    }
-
-    template&lt;typename X&gt;
-    typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
-                        &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == true&gt;::type
-    copyAssign(Vector&lt;X&gt;&amp; copy)
-    {
-        // This function is only used if there is no chance of an exception being
-        // thrown during destruction or copy construction of the type T.
-
-
-        // Quick return for self assignment.
-        if (this == &amp;copy)
-        {
-            return;
-        }
-
-        if (capacity &lt;= copy.length)
-        {
-            // If we have enough space to copy then reuse the space we currently
-            // have to avoid the need to perform an expensive resource allocation.
-
-            clearElements&lt;T&gt;();     // Potentially does nothing (see above)
-                                    // But if required will call the destructor of
-                                    // all elements.
-
-            // buffer now ready to get a copy of the data.
-            length = 0;
-            for(int loop = 0; loop &lt; copy.length; ++loop)
-            {
-                pushBackInternal(copy[loop]);
-            }
-        }
-        else
-        {
-            // Fallback to copy and swap if we need to more space anyway
-            Vector&lt;T&gt;  tmp(copy);
-            tmp.swap(*this);
-        }
-    }
-
-    template&lt;typename X&gt;
-    typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
-                         &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == false&gt;::type
-    copyAssign(Vector&lt;X&gt;&amp; copy)
-    {
-        // Copy and Swap idiom
-        Vector&lt;T&gt;  tmp(copy);
-        tmp.swap(*this);
-    }
-</code></pre>
-
-<p>};
-```</p>
 ]]></content>
   </entry>
   

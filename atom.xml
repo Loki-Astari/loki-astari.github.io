@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-06-04T12:40:36-07:00</updated>
+  <updated>2016-06-06T01:05:36-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -12,6 +12,529 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Socket Protocols]]></title>
+    <link href="http://lokiastari.com/blog/2016/05/29/socket-protocols/"/>
+    <updated>2016-05-29T21:13:39-07:00</updated>
+    <id>http://lokiastari.com/blog/2016/05/29/socket-protocols</id>
+    <content type="html"><![CDATA[<p>In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more robust connection between client and server a communications protocol is required so that we can validate messages are sent correctly and generate appropriate responses that can also be validated.</p>
+
+<p>Designing a communication protocol is a non trivial task and personally I would look for an existing protocol that matches your use case rather than trying to create protocol from scratch.</p>
+
+<h4>Example Protocols</h4>
+
+<ul>
+<li>HTTP&#x003A; &nbsp;<a href="https://tools.ietf.org/html/rfc2616.txt">https://tools.ietf.org/html/rfc2616.txt</a></li>
+<li>IRC&#x003A; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://tools.ietf.org/html/rfc1490.txt">https://tools.ietf.org/html/rfc1490.txt</a></li>
+</ul>
+
+
+<p>Rather than go through all the different protocols I am simply going to pick the HTTP(S) protocol and use that for further discussion. HTTP(S) is relatively well known; It is simple to implement the basics; There are well known server implementations that support it; There are well known client libraries that can be used in application development.</p>
+
+<h4>Example HTTP(S) servers</h4>
+
+<ul>
+<li><a href="https://httpd.apache.org/">Apache</a></li>
+<li><a href="http://nginx.org/en/">nginx</a></li>
+<li><a href="https://nodejs.org/en/about/">Node.js</a></li>
+</ul>
+
+
+<h4>Client Side HTTP Libraries</h4>
+
+<ul>
+<li><a href="https://curl.haxx.se/libcurl/c/">LibCurl</a></li>
+<li><a href="https://www.w3.org/Library/User/Using/">Libwww</a></li>
+<li><a href="http://http-fetcher.sourceforge.net/API/index.html">HttpFetch</a></li>
+</ul>
+
+
+<h2>HTTP(S)</h2>
+
+<p>Basically HTTP(S) defines two object. A request object is sent from the client to the server and response object is sent back as a result of a request. The only difference between the two is the start-line. Both HTTP objects can be broken down into three pieces.</p>
+
+<ol>
+<li>Start-Line</li>
+<li>Header-Section</li>
+<li>Body</li>
+</ol>
+
+
+<h3>Start-Line</h3>
+
+<p>For a request object this is:</p>
+
+<table>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Method:</td><td>HEAD/GET/PUT/POST/DELETE</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">URL:</td><td>Identification of the object/service needed</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">HTTP-Version:</td><td>Usually HTTP/1.1</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally &#8216;\r\n&#8217;</td></tr>
+</table>
+
+
+<h4>Example:</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='http'><span class='line'><span class="err">GET http://google.com/maps?id=456 HTTP/1.1\r\n</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For a response object this is:</p>
+
+<table>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">HTTP-Version:</td><td>Usually HTTP/1.1</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Response Code:</td><td><a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">100->599</a></td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Human Readable Response:</td><td>Human readable explanation of the response code</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally &#8216;\r\n&#8217;zz</td></tr>
+</table>
+
+
+<h4>Example:</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='http'><span class='line'><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK\r\n</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Header-Section</h3>
+
+<p>This is a set of key/value pairs one per line separated by a colon. Each Line is terminated by CR/LF and the end of the header section is marked by an empty line.</p>
+
+<table>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Key:</td><td>A text string representing the keys.</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Colon:</td><td>A single colon (note: some implementations are lax and insert a space before the colon).</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character (note: some implementations are lax and more then one space may be present)</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Value:</td><td>A set of characters that does not include CR or LF.</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally &#8216;\r\n&#8217;</td></tr>
+</table>
+
+
+<h4>Example</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='http'><span class='line'><span class="err">Content-Length: 42\r\n</span>
+</span><span class='line'><span class="err">Content-Type: text/text\r\n</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Body</h3>
+
+<p>The payload of the object should be in the body. Its size is defined by the headers defined in <a href="https://tools.ietf.org/html/rfc2616#section-4.4">rfc-2616 section 4.4 Message Length</a>.</p>
+
+<h3>Required Headers</h3>
+
+<p>According to the rfc(s) <a href="https://tools.ietf.org/html/rfc7230">7230</a>, <a href="https://tools.ietf.org/html/rfc7231">7231</a>, <a href="https://tools.ietf.org/html/rfc7232">7232</a>, <a href="https://tools.ietf.org/html/rfc7233">7233</a>, <a href="https://tools.ietf.org/html/rfc7234">7234</a> or <a href="https://tools.ietf.org/html/rfc7235">7235</a> there are no header fields there are actually required header fields.</p>
+
+<h4>Request Object</h4>
+
+<p>But real world implementations need some headers to work efficiently, so you probably should send the following headers when making a request to a server:</p>
+
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">Content-Length</a>:   // Or use one of the other techniques to specify length</li>
+<li><a href="https://tools.ietf.org/html/rfc7230#section-5.4">Host</a>:</li>
+</ul>
+
+
+<p>It is also polite to send the following.</p>
+
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-5.5.3">User-Agent</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">Accept</a>:</li>
+</ul>
+
+
+<h4>Response Object</h4>
+
+<p>A server implementation &ldquo;Must&rdquo; send a <code>Date:</code> header field if it is a reasonable approximation of UTC. But that means servers may not supply the <code>Date:</code> field so you can&rsquo;t say it is a requirement of the standard. But you will usually see the following headers returned from a server:</p>
+
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.2">Date</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-7.4.2">Server</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">Content-Length</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a>:</li>
+</ul>
+
+
+<h2>Implementation</h2>
+
+<p>Given this very basic protocol; it seems like the implementation of these requirements should be quite trivial. To be honest the implementation of creating the objects to send is relatively trivial, the hard part is reading objects from the stream in an efficiently and correctly validated manner. You can find my attempt <a href="https://github.com/Loki-Astari/Examples/tree/master/Version3">here</a>: It works but its 500 lines long and only covers the most basics parts of the protocol and does not do any of the hard parts (like authentication or HTTPS).</p>
+
+<p>To use this protocol correctly you really need to use one of the existing libraries. Here I have re-implemented the client using libcurl.</p>
+
+<figure class='code'><figcaption><span>Client uses libcurl wrapper</span><a href='https://github.com/Loki-Astari/Examples/blob/master/Version4/client.cpp'>source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">namespace</span> <span class="n">Sock</span> <span class="o">=</span> <span class="n">ThorsAnvil</span><span class="o">::</span><span class="n">Socket</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Usage: client &lt;host&gt; &lt;Message&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Sock</span><span class="o">::</span><span class="n">CurlGlobal</span>    <span class="n">curlInit</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">Sock</span><span class="o">::</span><span class="n">CurlConnector</span> <span class="n">connect</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">8080</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">connect</span><span class="p">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="s">&quot;/message&quot;</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">message</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">connect</span><span class="p">.</span><span class="n">recvMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">message</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>libCurl simple wrapper</span><a href='https://github.com/Loki-Astari/Examples/blob/master/Version4/client.cpp'>source</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;curl/curl.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sstream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;cstdlib&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">namespace</span> <span class="n">Socket</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">I</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="k">typename</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">print</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">,</span> <span class="n">Args</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">using</span> <span class="n">Expander</span> <span class="o">=</span> <span class="kt">int</span><span class="p">[];</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">Expander</span><span class="p">{</span> <span class="mi">0</span><span class="p">,</span> <span class="p">((</span><span class="n">s</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Args</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)),</span> <span class="mi">0</span><span class="p">)...}[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">buildErrorMessage</span><span class="p">(</span><span class="n">Args</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">msg</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">args</span><span class="p">...);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">msg</span><span class="p">.</span><span class="n">str</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">CurlGlobal</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">CurlGlobal</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">curl_global_init</span><span class="p">(</span><span class="n">CURL_GLOBAL_ALL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlGlobal::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: curl_global_init: fail&quot;</span><span class="p">));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="o">~</span><span class="n">CurlGlobal</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">curl_global_cleanup</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">extern</span> <span class="s">&quot;C&quot;</span> <span class="n">size_t</span> <span class="n">curlConnectorGetData</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">nmemb</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">enum</span> <span class="n">RequestType</span> <span class="p">{</span><span class="n">Get</span><span class="p">,</span> <span class="n">Head</span><span class="p">,</span> <span class="n">Put</span><span class="p">,</span> <span class="n">Post</span><span class="p">,</span> <span class="n">Delete</span><span class="p">};</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">CurlConnector</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">CURL</span><span class="o">*</span>       <span class="n">curl</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">host</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span>         <span class="n">port</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">response</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">friend</span> <span class="n">size_t</span> <span class="n">curlConnectorGetData</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">nmemb</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">getData</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">response</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">size</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">CurlConnector</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">host</span><span class="p">,</span> <span class="kt">int</span> <span class="n">port</span><span class="p">)</span>
+</span><span class='line'>            <span class="o">:</span> <span class="n">curl</span><span class="p">(</span><span class="n">curl_easy_init</span><span class="p">(</span> <span class="p">))</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">host</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">,</span> <span class="n">port</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">curl</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlConnector::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: curl_easy_init: fail&quot;</span><span class="p">));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="o">~</span><span class="n">CurlConnector</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">curl_easy_cleanup</span><span class="p">(</span><span class="n">curl</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">virtual</span> <span class="n">RequestType</span> <span class="n">getRequestType</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">Post</span><span class="p">;}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">sendMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">urlPath</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">url</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">response</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+</span><span class='line'>            <span class="n">url</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;http://&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">host</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">port</span> <span class="o">!=</span> <span class="mi">80</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">url</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">port</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="n">url</span> <span class="o">&lt;&lt;</span> <span class="n">urlPath</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">CURLcode</span> <span class="n">res</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">auto</span> <span class="n">sListDeleter</span> <span class="o">=</span> <span class="p">[](</span><span class="k">struct</span> <span class="n">curl_slist</span><span class="o">*</span> <span class="n">headers</span><span class="p">){</span><span class="n">curl_slist_free_all</span><span class="p">(</span><span class="n">headers</span><span class="p">);};</span>
+</span><span class='line'>            <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="k">struct</span> <span class="n">curl_slist</span><span class="p">,</span> <span class="n">decltype</span><span class="p">(</span><span class="n">sListDeleter</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">headers</span><span class="p">(</span><span class="n">nullptr</span><span class="p">,</span> <span class="n">sListDeleter</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">headers</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="k">struct</span> <span class="n">curl_slist</span><span class="p">,</span> <span class="n">decltype</span><span class="p">(</span><span class="n">sListDeleter</span><span class="p">)</span><span class="o">&gt;</span><span class="p">(</span><span class="n">curl_slist_append</span><span class="p">(</span><span class="n">headers</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span> <span class="s">&quot;Content-Type: text/text&quot;</span><span class="p">),</span> <span class="n">sListDeleter</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">if</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">CURLOPT_HTTPHEADER</span><span class="p">,</span> <span class="n">headers</span><span class="p">.</span><span class="n">get</span><span class="p">()))</span> <span class="o">!=</span> <span class="n">CURLE_OK</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlConnector::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: curl_easy_setopt CURLOPT_HTTPHEADER:&quot;</span><span class="p">,</span> <span class="n">curl_easy_strerror</span><span class="p">(</span><span class="n">res</span><span class="p">)));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">CURLOPT_ACCEPT_ENCODING</span><span class="p">,</span> <span class="s">&quot;*/*&quot;</span><span class="p">))</span> <span class="o">!=</span> <span class="n">CURLE_OK</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlConnector::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: curl_easy_setopt CURLOPT_ACCEPT_ENCODING:&quot;</span><span class="p">,</span> <span class="n">curl_easy_strerror</span><span class="p">(</span><span class="n">res</span><span class="p">)));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">CURLOPT_USERAGENT</span><span class="p">,</span> <span class="s">&quot;ThorsExperimental-Client/0.1&quot;</span><span class="p">))</span> <span class="o">!=</span> <span class="n">CURLE_OK</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlConnector::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: curl_easy_setopt CURLOPT_USERAGENT:&quot;</span><span class="p">,</span> <span class="n">curl_easy_strerror</span><span class="p">(</span><span class="n">res</span><span class="p">)));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">CURLOPT_URL</span><span class="p">,</span> <span class="n">url</span><span class="p">.</span><span class="n">str</span><span class="p">().</span><span class="n">c_str</span><span class="p">()))</span> <span class="o">!=</span> <span class="n">CURLE_OK</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlConnector::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: curl_easy_setopt CURLOPT_URL:&quot;</span><span class="p">,</span> <span class="n">curl_easy_strerror</span><span class="p">(</span><span class="n">res</span><span class="p">)));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">CURLOPT_POSTFIELDSIZE</span><span class="p">,</span> <span class="n">message</span><span class="p">.</span><span class="n">size</span><span class="p">()))</span> <span class="o">!=</span> <span class="n">CURLE_OK</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlConnector::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: curl_easy_setopt CURLOPT_POSTFIELDSIZE:&quot;</span><span class="p">,</span> <span class="n">curl_easy_strerror</span><span class="p">(</span><span class="n">res</span><span class="p">)));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">CURLOPT_COPYPOSTFIELDS</span><span class="p">,</span> <span class="n">message</span><span class="p">.</span><span class="n">data</span><span class="p">()))</span> <span class="o">!=</span> <span class="n">CURLE_OK</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlConnector::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: curl_easy_setopt CURLOPT_COPYPOSTFIELDS:&quot;</span><span class="p">,</span> <span class="n">curl_easy_strerror</span><span class="p">(</span><span class="n">res</span><span class="p">)));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">CURLOPT_WRITEFUNCTION</span><span class="p">,</span> <span class="n">curlConnectorGetData</span><span class="p">))</span> <span class="o">!=</span> <span class="n">CURLE_OK</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlConnector::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: curl_easy_setopt CURLOPT_WRITEFUNCTION:&quot;</span><span class="p">,</span> <span class="n">curl_easy_strerror</span><span class="p">(</span><span class="n">res</span><span class="p">)));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">CURLOPT_WRITEDATA</span><span class="p">,</span> <span class="k">this</span><span class="p">))</span> <span class="o">!=</span> <span class="n">CURLE_OK</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlConnector::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: curl_easy_setopt CURLOPT_WRITEDATA:&quot;</span><span class="p">,</span> <span class="n">curl_easy_strerror</span><span class="p">(</span><span class="n">res</span><span class="p">)));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">switch</span><span class="p">(</span><span class="n">getRequestType</span><span class="p">())</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">case</span> <span class="nl">Get:</span>       <span class="n">res</span> <span class="o">=</span> <span class="n">CURLE_OK</span><span class="p">;</span> <span class="cm">/* The default is GET. So do nothing.*/</span>         <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">case</span> <span class="nl">Head:</span>      <span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">CURLOPT_CUSTOMREQUEST</span><span class="p">,</span> <span class="s">&quot;HEAD&quot;</span><span class="p">);</span>    <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">case</span> <span class="nl">Put:</span>       <span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">CURLOPT_PUT</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>                   <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">case</span> <span class="nl">Post:</span>      <span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">CURLOPT_POST</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>                  <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">case</span> <span class="nl">Delete:</span>    <span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_setopt</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">CURLOPT_CUSTOMREQUEST</span><span class="p">,</span> <span class="s">&quot;DELETE&quot;</span><span class="p">);</span>  <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>                <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>                    <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">domain_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlConnector::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: invalid method: &quot;</span><span class="p">,</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">getRequestType</span><span class="p">())));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">res</span> <span class="o">!=</span> <span class="n">CURLE_OK</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlConnector::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: curl_easy_setopt CURL_METHOD:&quot;</span><span class="p">,</span> <span class="n">curl_easy_strerror</span><span class="p">(</span><span class="n">res</span><span class="p">)));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">((</span><span class="n">res</span> <span class="o">=</span> <span class="n">curl_easy_perform</span><span class="p">(</span><span class="n">curl</span><span class="p">))</span> <span class="o">!=</span> <span class="n">CURLE_OK</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="n">buildErrorMessage</span><span class="p">(</span><span class="s">&quot;CurlConnector::&quot;</span><span class="p">,</span> <span class="n">__func__</span><span class="p">,</span> <span class="s">&quot;: curl_easy_perform:&quot;</span><span class="p">,</span> <span class="n">curl_easy_strerror</span><span class="p">(</span><span class="n">res</span><span class="p">)));</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">recvMessage</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">message</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">response</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">size_t</span> <span class="n">curlConnectorGetData</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">nmemb</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">userdata</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">CurlConnector</span><span class="o">*</span>  <span class="n">self</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">CurlConnector</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">userdata</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">self</span><span class="o">-&gt;</span><span class="n">getData</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">size</span> <span class="o">*</span> <span class="n">nmemb</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[C++ Wrapper for Socket]]></title>
@@ -7117,103 +7640,6 @@ This prevents WordPress from mucking with the spaces between the &lt;pre&gt; tag
 
 
 <p>I also asked on <a href="http://wordpress.stackexchange.com/questions/123040/standard-developer-markup-plugins">WordPress.stackexchange.com : Standard developer markup plugins</a> but did not get much help.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Hello World]]></title>
-    <link href="http://lokiastari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1/"/>
-    <updated>2013-11-12T07:59:11-08:00</updated>
-    <id>http://lokiastari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1</id>
-    <content type="html"><![CDATA[<p>This is the first article in the series
-OK. Lets do this.</p>
-
-<p>I keep trying to think about something big and interesting to write about. But that is just not working. All my time is spent trying to think of the blockbuster idea; which just gets in the way of actually writing. So lets start with the small things. If I can get into the habit of writing something a couple of times a week. Then maybe we can work up to interesting stuff.</p>
-
-<p>Step one; write about something I know. C++; we now start the &ldquo;So you want to learn C++&rdquo; series of posts.</p>
-
-<p>I am going to assume two things.</p>
-
-<ul>
-<li>You know how to use the compiler</li>
-<li>That you have some basic programming experience C/Java/C#/Perl/Php (nealy anything) <br/>
-So you understand the basics of program but are unfamiliar with C++</li>
-</ul>
-
-
-<p>First thing everybody needs is to get something working; here is the classic &ldquo;Hello World&rdquo; in C++</p>
-
-<figure class='code'><figcaption><span>helloworld.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello World</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The next step is to accepts user input and generates a response based on that input. Lets move on to the not quite as classic &ldquo;Hi There Bob&rdquo; :&ndash;)</p>
-
-<figure class='code'><figcaption><span>hitherebob.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;string&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hi there what&#39;s your name?</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span>  <span class="n">line</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">getline</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cin</span><span class="p">,</span> <span class="n">line</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;It was good to meet you &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">line</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The above code is relatively simple and only a few things to note:</p>
-
-<ul>
-<li><code>#include &lt;iostream&gt;</code> <br/>
-Imports the standard input and output facilities so you can print messages to the user and read user input.
-
-<ul>
-<li><code>std::cin</code>  <br/>
-Is the standard input stream. From this you can read user input.</li>
-<li><code>std::cout</code>  <br/>
-Is the standard output stream. You can print text to the user console.</li>
-</ul>
-</li>
-<li><code>#include &lt;string&gt;</code> <br/>
-Imports the standard string handling function. Most importantly it imports the type <code>std::string</code>.
-
-<ul>
-<li><code>std::string</code> <br/>
-This is one of the standard types and holds strings (a list of characters). We will go over types (and variables) in a lot more details in subsequent articles. But for just accept that <code>line</code> is a variable (of type std::string) used to hold a line of user input.</li>
-<li><code>std::getline()</code> <br/>
-This is a function that reads a line of text from a <code>std::istream</code> into a <code>std::string</code>. In this case we use <code>std::cin</code> as the input stream (it is a specialization of a std::istream and can thus be used as the input). Thus we read <code>a line</code> of input from the user.</li>
-</ul>
-</li>
-</ul>
-
-
-<p>There are a lot of other concepts encapsulated above that I don&rsquo;t want to get into quite yet. But don&rsquo;t worry I will cover them all.</p>
 ]]></content>
   </entry>
   
