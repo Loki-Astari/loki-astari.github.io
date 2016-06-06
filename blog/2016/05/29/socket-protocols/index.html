@@ -217,8 +217,10 @@
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
+<span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='http'><span class='line'><span class="err">Content-Length: 42\r\n</span>
 </span><span class='line'><span class="err">Content-Type: text/text\r\n</span>
+</span><span class='line'><span class="err">\r\n</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -468,7 +470,14 @@
 <span class='line-number'>158</span>
 <span class='line-number'>159</span>
 <span class='line-number'>160</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;curl/curl.h&gt;</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &quot;Utility.h&quot;</span>
+</span><span class='line'><span class="cp">#include &lt;curl/curl.h&gt;</span>
 </span><span class='line'><span class="cp">#include &lt;sstream&gt;</span>
 </span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
 </span><span class='line'><span class="cp">#include &lt;cstdlib&gt;</span>
@@ -477,21 +486,6 @@
 </span><span class='line'><span class="p">{</span>
 </span><span class='line'>    <span class="k">namespace</span> <span class="n">Socket</span>
 </span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">I</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="k">typename</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
-</span><span class='line'><span class="kt">int</span> <span class="n">print</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">,</span> <span class="n">Args</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">using</span> <span class="n">Expander</span> <span class="o">=</span> <span class="kt">int</span><span class="p">[];</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">Expander</span><span class="p">{</span> <span class="mi">0</span><span class="p">,</span> <span class="p">((</span><span class="n">s</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Args</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)),</span> <span class="mi">0</span><span class="p">)...}[</span><span class="mi">0</span><span class="p">];</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
-</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">buildErrorMessage</span><span class="p">(</span><span class="n">Args</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">msg</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">args</span><span class="p">...);</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">msg</span><span class="p">.</span><span class="n">str</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
 </span><span class='line'><span class="k">class</span> <span class="nc">CurlGlobal</span>
 </span><span class='line'><span class="p">{</span>
@@ -541,6 +535,26 @@
 </span><span class='line'>        <span class="o">~</span><span class="n">CurlConnector</span><span class="p">()</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">curl_easy_cleanup</span><span class="p">(</span><span class="n">curl</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">CurlConnector</span><span class="p">(</span><span class="n">CurlConnector</span><span class="o">&amp;</span><span class="p">)</span>               <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">CurlConnector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">CurlConnector</span><span class="o">&amp;</span><span class="p">)</span>    <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">CurlConnector</span><span class="p">(</span><span class="n">CurlConnector</span><span class="o">&amp;&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="n">noexcept</span>
+</span><span class='line'>            <span class="o">:</span> <span class="n">curl</span><span class="p">(</span><span class="n">nullptr</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">rhs</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">CurlConnector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">CurlConnector</span><span class="o">&amp;&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="n">noexcept</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">rhs</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">swap</span><span class="p">(</span><span class="n">CurlConnector</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="n">noexcept</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">using</span> <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">swap</span><span class="p">(</span><span class="n">curl</span><span class="p">,</span> <span class="n">other</span><span class="p">.</span><span class="n">curl</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">swap</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">other</span><span class="p">.</span><span class="n">host</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">swap</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">other</span><span class="p">.</span><span class="n">port</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">swap</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">other</span><span class="p">.</span><span class="n">response</span><span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="k">virtual</span> <span class="n">RequestType</span> <span class="n">getRequestType</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">Post</span><span class="p">;}</span>

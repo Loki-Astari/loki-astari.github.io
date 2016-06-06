@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-06-06T01:05:36-07:00</updated>
+  <updated>2016-06-06T06:41:55-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -117,6 +117,7 @@ HTTP/1.1 200 OK\r\n
 <p><code>http
 Content-Length: 42\r\n
 Content-Type: text/text\r\n
+\r\n
 </code></p>
 
 <h3>Body</h3>
@@ -191,6 +192,8 @@ std::cout &lt;&lt; message &lt;&lt; "\n";
 
 <p>```cpp libCurl simple wrapper <a href="https://github.com/Loki-Astari/Examples/blob/master/Version4/client.cpp">https://github.com/Loki-Astari/Examples/blob/master/Version4/client.cpp</a> source</p>
 
+<h1>include &ldquo;Utility.h&rdquo;</h1>
+
 <h1>include &lt;curl/curl.h></h1>
 
 <h1>include <sstream></h1>
@@ -205,27 +208,6 @@ std::cout &lt;&lt; message &lt;&lt; "\n";
 <pre><code>namespace Socket
 {
 </code></pre>
-
-<p>template&lt;std::size_t I = 0, typename&hellip; Args>
-int print(std::ostream&amp; s, Args&hellip; args)
-{</p>
-
-<pre><code>using Expander = int[];
-return Expander{ 0, ((s &lt;&lt; std::forward&lt;Args&gt;(args)), 0)...}[0];
-</code></pre>
-
-<p>}</p>
-
-<p>template&lt;typename&hellip; Args>
-std::string buildErrorMessage(Args const&amp;&hellip; args)
-{</p>
-
-<pre><code>std::stringstream msg;
-print(msg, args...);
-return msg.str();
-</code></pre>
-
-<p>}</p>
 
 <p>class CurlGlobal
 {</p>
@@ -279,6 +261,26 @@ public:
     ~CurlConnector()
     {
         curl_easy_cleanup(curl);
+    }
+    CurlConnector(CurlConnector&amp;)               = delete;
+    CurlConnector&amp; operator=(CurlConnector&amp;)    = delete;
+    CurlConnector(CurlConnector&amp;&amp; rhs) noexcept
+        : curl(nullptr)
+    {
+        rhs.swap(*this);
+    }
+    CurlConnector&amp; operator=(CurlConnector&amp;&amp; rhs) noexcept
+    {
+        rhs.swap(*this);
+        return *this;
+    }
+    void swap(CurlConnector&amp; other) noexcept
+    {
+        using std::swap;
+        swap(curl, other.curl);
+        swap(host, other.host);
+        swap(port, other.port);
+        swap(response, other.response);
     }
 
     virtual RequestType getRequestType() const {return Post;}
