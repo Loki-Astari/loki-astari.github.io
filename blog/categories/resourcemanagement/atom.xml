@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ResourceManagement | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/resourcemanagement/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-06-06T07:02:07-07:00</updated>
+  <updated>2016-07-28T10:51:50-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -1418,7 +1418,7 @@ Vector(Vector const&amp; copy)
     // Copy constructor is simple.
     // We create a new resource area of the required size.
     // Then we copy the data from the old buffer to the new buffer.
-    std::copy(copy.buffer, copy.buffer + copy.size, copy);
+    std::copy(copy.buffer, copy.buffer + copy.size, buffer);
 }
 Vector&amp; operator=(Vector const&amp; copy)
 {

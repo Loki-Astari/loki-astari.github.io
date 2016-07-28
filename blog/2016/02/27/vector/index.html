@@ -271,7 +271,7 @@
 </span><span class='line'>        <span class="c1">// Copy constructor is simple.</span>
 </span><span class='line'>        <span class="c1">// We create a new resource area of the required size.</span>
 </span><span class='line'>        <span class="c1">// Then we copy the data from the old buffer to the new buffer.</span>
-</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">copy</span><span class="p">.</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">copy</span><span class="p">.</span><span class="n">size</span><span class="p">,</span> <span class="n">copy</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="n">copy</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">copy</span><span class="p">.</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">copy</span><span class="p">.</span><span class="n">size</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
 </span><span class='line'>    <span class="p">}</span>
 </span><span class='line'>    <span class="n">Vector</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Vector</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>
 </span><span class='line'>    <span class="p">{</span>
