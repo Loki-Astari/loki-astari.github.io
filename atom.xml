@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-07-28T10:51:50-07:00</updated>
+  <updated>2016-07-28T18:15:45-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -2147,21 +2147,21 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>
 </span><span class='line'>        <span class="c1">// Mutating functions</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="n">value_type</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">resizeIfRequire</span><span class="p">();</span>
 </span><span class='line'>            <span class="n">pushBackInternal</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
 </span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>        <span class="kt">void</span> <span class="n">push_back</span><span class="p">(</span><span class="n">value_type</span><span class="o">&amp;&amp;</span> <span class="n">value</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">resizeIfRequire</span><span class="p">();</span>
-</span><span class='line'>            <span class="n">moveBackInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
+</span><span class='line'>            <span class="n">moveBackInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
 </span><span class='line'>        <span class="kt">void</span> <span class="n">emplace_back</span><span class="p">(</span><span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
 </span><span class='line'>            <span class="n">resizeIfRequire</span><span class="p">();</span>
-</span><span class='line'>            <span class="n">emplaceBackInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...);</span>
+</span><span class='line'>            <span class="n">emplaceBackInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...);</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>        <span class="kt">void</span> <span class="n">pop_back</span><span class="p">()</span>
 </span><span class='line'>        <span class="p">{</span>
@@ -2215,7 +2215,7 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>        <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
 </span><span class='line'>        <span class="kt">void</span> <span class="n">emplaceBackInternal</span><span class="p">(</span><span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span>
 </span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Args</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...);</span>
+</span><span class='line'>            <span class="k">new</span> <span class="p">(</span><span class="n">buffer</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span> <span class="n">T</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="o">&lt;</span><span class="n">Args</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...);</span>
 </span><span class='line'>            <span class="o">++</span><span class="n">length</span><span class="p">;</span>
 </span><span class='line'>        <span class="p">}</span>
 </span><span class='line'>

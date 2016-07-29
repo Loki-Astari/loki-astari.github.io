@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Vector | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/vector/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-07-28T10:51:50-07:00</updated>
+  <updated>2016-07-28T18:15:45-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -300,21 +300,21 @@ public:
     }
 
     // Mutating functions
-    void push_back(T const&amp; value)
+    void push_back(value_type const&amp; value)
     {
         resizeIfRequire();
         pushBackInternal(value);
     }
-    void push_back(T&amp;&amp; value)
+    void push_back(value_type&amp;&amp; value)
     {
         resizeIfRequire();
-        moveBackInternal(std::forward&lt;T&gt;(value));
+        moveBackInternal(std::move&lt;T&gt;(value));
     }
     template&lt;typename... Args&gt;
     void emplace_back(Args&amp;&amp;... args)
     {
         resizeIfRequire();
-        emplaceBackInternal(std::forward&lt;T&gt;(args)...);
+        emplaceBackInternal(std::move&lt;T&gt;(args)...);
     }
     void pop_back()
     {
@@ -368,7 +368,7 @@ private:
     template&lt;typename... Args&gt;
     void emplaceBackInternal(Args&amp;&amp;... args)
     {
-        new (buffer + length) T(std::forward&lt;Args&gt;(args)...);
+        new (buffer + length) T(std::move&lt;Args&gt;(args)...);
         ++length;
     }
 
