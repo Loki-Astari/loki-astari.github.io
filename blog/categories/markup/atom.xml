@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Markup | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/markup/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-08-10T03:51:15-07:00</updated>
+  <updated>2016-08-10T04:27:26-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -40,8 +40,6 @@ This prevents WordPress from mucking with the spaces between the &lt;pre&gt; tag
 </li>
 </ul>
 
-
-<p>I also asked on <a href="http://wordpress.stackexchange.com/questions/123040/standard-developer-markup-plugins">WordPress.stackexchange.com : Standard developer markup plugins</a> but did not get much help.</p>
 ]]></content>
   </entry>
   
