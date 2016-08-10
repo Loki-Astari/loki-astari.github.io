@@ -53,7 +53,7 @@ The easier of the two to implement correctly is the list version. There are no r
 
 The *Shared Count* is basically the technique used by the [`std::shared_ptr`](http://en.cppreference.com/w/cpp/memory/shared_ptr) (though they store slightly more than the count to try and improve efficiency see [`std::make_shared`](http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared)).
 
-The main mistake I see from beginners is not using dynamically allocated counter (ie they keep the counter in the SP object). You **must** dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted). 
+The main mistake I see from beginners is not using dynamically allocated counter (i.e. they keep the counter in the SP object). You **must** dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted). 
 
 You must also serialize access to this counter to make sure that in a threaded environment the count is correctly maintained. In the first version for simplicity I will only consider single threaded environments and thus synchronization is not required.
 ```cpp First Try

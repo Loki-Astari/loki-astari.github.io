@@ -165,7 +165,7 @@ class Vector
 
 The copy and swap idiom is about dealing with replacing an object state from another object. It is very commonly used in the copy assignment operator but has application whenever state is being changed and the [strong exception guarantee](https://en.wikipedia.org/wiki/Exception_safety) is required.
 
-The above code works perfectly. But in Part-2 the swap looks like a normal swap operation so let's use that rather than doing it manually. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it makes the normal operation even more efficient. Since the occurrence of self assignment is extremely rare I would not prematurely optimize for it but rather make the most common case the best optimized. So one final refactor of the copy constructor leaves us with this.
+The above code works perfectly. But in Part-2 the swap looks like a normal swap operation so let's use that rather than doing it manually. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it makes the normal operation even more efficient. Since the occurrence of self assignment is extremely rare I would not prematurely optimize for it but rather make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.
 
 ```cpp Copy Assignment (Try 4)
 class Vector

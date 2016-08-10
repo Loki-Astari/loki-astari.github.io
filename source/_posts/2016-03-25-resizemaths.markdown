@@ -95,7 +95,7 @@ This is were my maths broke down and I had to plot some graphs (my old "maths" t
 {% img /images/Root8.png 400 200 "n=8"%}
 <br><br>
 
-So after looking at the graphs (to undrestand the formula) then talking to some smart people.  
+So after looking at the graphs (to understand the formula) then talking to some smart people.  
 They noticed that:
 {% verbatim tag:p %}
     \[ (r^2 - r - 1) root . when . r = \Phi \]

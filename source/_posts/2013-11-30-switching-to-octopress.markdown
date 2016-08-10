@@ -13,7 +13,7 @@ I have not blogged much, until recently, so I am not an HTML/CSS/Javascript expe
 
 ###MarkDown
 
-Markdown is a very simplistic form of 'Markup' (yes programmers think they are funny with the up/down thing) that is designed specifically to be simple and deal with the common issues of writing word based articles. Coder sites usually extend this with basic support for placing code (or preformatted text) directly into the article. It is not designed for non technical people (they should be using a 'Visual' interface not markup) but for the technical writer who does not want the full blown power of HTML, but wants slightly more control than visual interfaces provide.
+Markdown is a very simplistic form of 'Markup' (yes programmers think they are funny with the up/down thing) that is designed specifically to be simple and deal with the common issues of writing word based articles. Coder sites usually extend this with basic support for placing code (or pre-formatted text) directly into the article. It is not designed for non technical people (they should be using a 'Visual' interface not markup) but for the technical writer who does not want the full blown power of HTML, but wants slightly more control than visual interfaces provide.
 
 ###Attack Vector
 

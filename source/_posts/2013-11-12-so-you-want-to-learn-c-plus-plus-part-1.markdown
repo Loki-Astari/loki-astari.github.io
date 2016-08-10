@@ -22,7 +22,7 @@ Step one; write about something I know. C++; we now start the "So you want to le
 I am going to assume two things.
 
 * You know how to use the compiler
-* That you have some basic programming experience C/Java/C#/Perl/Php (nealy anything)   
+* That you have some basic programming experience C/Java/C#/Perl/PHP (nearly anything)   
 So you understand the basics of program but are unfamiliar with C++
 
 First thing everybody needs is to get something working; here is the classic "Hello World" in C++

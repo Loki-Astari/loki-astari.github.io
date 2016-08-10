@@ -98,9 +98,9 @@ These error codes are generated when you have a non-blocking stream. In a future
 The exact action that you take will depend on your application (like doing some useful work) but for our simple application simply re-trying the read operation will be the standard action. Again we will come back to this, but taking advantage of timeouts will require a slightly more sophisticated approach rather than using the sockets API directly.
 
 > **EINTR:**  
-> An important note about signals. There are a lot of signals that are non leathal and will result in this EINTR error code. But one should note that leathal signals like SIGINT by default will kill the application and thus will not cause this error code (as the call to read() will never return).
+> An important note about signals. There are a lot of signals that are non lethal and will result in this EINTR error code. But one should note that lethal signals like SIGINT by default will kill the application and thus will not cause this error code (as the call to read() will never return).
 >
->But you can override the SIGINT signal handler and a allow your application to continue and at this point your read operation will recieve this error. How your code interacts with signals like SIGINT is beyond the scope of this article and it will be discussed just like other signals.
+>But you can override the SIGINT signal handler and a allow your application to continue and at this point your read operation will receive this error. How your code interacts with signals like SIGINT is beyond the scope of this article and it will be discussed just like other signals.
 
 ```c getMessage() Improved
 /*

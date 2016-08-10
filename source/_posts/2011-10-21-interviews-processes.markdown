@@ -36,12 +36,12 @@ Unless the company is looking for a skill in a particular language then generall
 
 Notice I have not said anything about syntax. Personally I think this is irrelevant in an interview situation. I mean I get code wrong all the time when I write it (that's why I have the compiler as my first line of defense and unit tests as the second). As long as I can see what you are logically trying to achieve I will not complain about missing semi-colon.
 
-###The does and do not's for a candidate
+###The dos and don'ts for a candidate
 This article has a [basic guide on general etiquette](http://jobs.aol.com/articles/2011/09/12/tips-for-interviews-interviewing-etiquette-infographic/) for interviews. While this one has some more specific guidance on what to expect at [programming interview](http://programmers.stackexchange.com/questions/80065/preparing-for-interviews/80073#80073).
 
 Both mention to study the company; when I was younger I always though this was silly (I was naive once a long time ago) as I did not think it would help me do my job, but I accepted the advice of my elders and did study the companies before interviews and I must say it always paid off (but never in ways you expect).
 
-Remember that I only have an hour to try and extract as much information as I can from you so don't go off on wild tangents stick to the point and answer the question I ask. If you can show off quickly then do so but make it quick. You should also note that interviewers generally have their questions arranged in themes, if you can answer the questions quickly he is going to move onto the next part of the same question which extends the question making it harder trying to draw more knowledge from you (can you make that more efficient/ can you see the common pit falls how do you avoid them etc).
+Remember that I only have an hour to try and extract as much information as I can from you so don't go off on wild tangents stick to the point and answer the question I ask. If you can show off quickly then do so but make it quick. You should also note that interviewers generally have their questions arranged in themes, if you can answer the questions quickly he is going to move onto the next part of the same question which extends the question making it harder trying to draw more knowledge from you (can you make that more efficient/ can you see the common pit falls how do you avoid them etc..).
 
 On the same line don't give the most optimal solution first (unless that is obviously what the interviewer is looking for and you can justify it), a good interviewer is going to walk you up to the optimal solution and see if you know why its the optimal solution (But its also part of the communication I mentioned above, if you explain what you are doing (I will start with a brute force solution) even a bad interviewer should know you have an alternative optimizes solution).
 

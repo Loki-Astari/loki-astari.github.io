@@ -102,7 +102,7 @@ class Vector
         // Copy constructor is simple.
         // We create a new resource area of the required size.
         // Then we copy the data from the old buffer to the new buffer.
-        std::copy(copy.buffer, copy.buffer + copy.size, copy);
+        std::copy(copy.buffer, copy.buffer + copy.size, buffer);
     }
     Vector& operator=(Vector const& copy)
     {

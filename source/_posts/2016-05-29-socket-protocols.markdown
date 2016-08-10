@@ -65,7 +65,7 @@ For a response object this is:
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">Response Code:</td><td><a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">100->599</a></td></tr>
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">Human Readable Response:</td><td>Human readable explanation of the response code</td></tr>
-<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally '\r\n'zz</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally '\r\n'</td></tr>
 </table>
 
 ####Example:

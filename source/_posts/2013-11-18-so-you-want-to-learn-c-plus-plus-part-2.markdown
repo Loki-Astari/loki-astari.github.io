@@ -14,7 +14,7 @@ author: Loki Astari, (C)2013
 description: C++ for beginners. Part 2 Common Mistakes
 ---
 
-###1: using namspace
+###1: using namespace
 
 Every new developer that comes to C++ always starts writing code like this:
 ``` cpp myfirstprog.cpp
@@ -55,7 +55,7 @@ If you think adding `std::` as a prefix to anything in the standard namespace is
     }
 ```
 
-An additional technique to shorten namespace prefixes are namespace alias. These are very useful when things are nested inside multiple namespaces (or have very long unhelpful names)
+An additional technique to shorten namespace prefixes are namespace alias. These are very useful when things are nested inside multiple namespaces' (or have very long unhelpful names)
 ``` cpp alias.cpp
     #include <boost/numeric/ublas/vector.hpp>
 
