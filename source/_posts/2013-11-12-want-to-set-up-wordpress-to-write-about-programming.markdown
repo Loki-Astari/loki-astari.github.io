@@ -23,5 +23,4 @@ Here is a list of things I did to make myself productive:
     + Preserve Code Formatting:   
     This prevents WordPress from mucking with the spaces between the &lt;pre&gt; tags. 
 
-I also asked on [WordPress.stackexchange.com : Standard developer markup plugins](http://wordpress.stackexchange.com/questions/123040/standard-developer-markup-plugins) but did not get much help.
 
