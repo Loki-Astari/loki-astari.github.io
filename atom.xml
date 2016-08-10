@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-07-28T18:15:45-07:00</updated>
+  <updated>2016-08-10T03:51:15-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -90,7 +90,7 @@
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">Response Code:</td><td><a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">100->599</a></td></tr>
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">Human Readable Response:</td><td>Human readable explanation of the response code</td></tr>
-<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally &#8216;\r\n&#8217;zz</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally &#8216;\r\n&#8217;</td></tr>
 </table>
 
 
@@ -867,9 +867,9 @@
 <p>The exact action that you take will depend on your application (like doing some useful work) but for our simple application simply re-trying the read operation will be the standard action. Again we will come back to this, but taking advantage of timeouts will require a slightly more sophisticated approach rather than using the sockets API directly.</p>
 
 <blockquote><p><strong>EINTR:</strong><br/>
-An important note about signals. There are a lot of signals that are non leathal and will result in this EINTR error code. But one should note that leathal signals like SIGINT by default will kill the application and thus will not cause this error code (as the call to read() will never return).</p>
+An important note about signals. There are a lot of signals that are non lethal and will result in this EINTR error code. But one should note that lethal signals like SIGINT by default will kill the application and thus will not cause this error code (as the call to read() will never return).</p>
 
-<p>But you can override the SIGINT signal handler and a allow your application to continue and at this point your read operation will recieve this error. How your code interacts with signals like SIGINT is beyond the scope of this article and it will be discussed just like other signals.</p></blockquote>
+<p>But you can override the SIGINT signal handler and a allow your application to continue and at this point your read operation will receive this error. How your code interacts with signals like SIGINT is beyond the scope of this article and it will be discussed just like other signals.</p></blockquote>
 
 <figure class='code'><figcaption><span>getMessage() Improved</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1524,7 +1524,7 @@ Resize 4        80            48              72                 -8 // Reuse rel
 <br><br>
 
 
-<p>So after looking at the graphs (to undrestand the formula) then talking to some smart people.<br/>
+<p>So after looking at the graphs (to understand the formula) then talking to some smart people.<br/>
 They noticed that:</p>
 
 <p>
@@ -2004,7 +2004,7 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>
 </span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
 </span><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
-</span><span class='line'><span class="p">{</span>
+</span><span class='line'>
 </span><span class='line'>    <span class="k">public</span><span class="o">:</span>
 </span><span class='line'>        <span class="k">using</span> <span class="n">value_type</span>        <span class="o">=</span> <span class="n">T</span><span class="p">;</span>
 </span><span class='line'>        <span class="k">using</span> <span class="n">reference</span>         <span class="o">=</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">;</span>
@@ -3983,7 +3983,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 
 <p>The copy and swap idiom is about dealing with replacing an object state from another object. It is very commonly used in the copy assignment operator but has application whenever state is being changed and the <a href="https://en.wikipedia.org/wiki/Exception_safety">strong exception guarantee</a> is required.</p>
 
-<p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation so let&rsquo;s use that rather than doing it manually. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it makes the normal operation even more efficient. Since the occurrence of self assignment is extremely rare I would not prematurely optimize for it but rather make the most common case the best optimized. So one final refactor of the copy constructor leaves us with this.</p>
+<p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation so let&rsquo;s use that rather than doing it manually. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it makes the normal operation even more efficient. Since the occurrence of self assignment is extremely rare I would not prematurely optimize for it but rather make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.</p>
 
 <figure class='code'><figcaption><span>Copy Assignment (Try 4)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -5749,7 +5749,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 
 <p>The <em>Shared Count</em> is basically the technique used by the <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr"><code>std::shared_ptr</code></a> (though they store slightly more than the count to try and improve efficiency see <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared"><code>std::make_shared</code></a>).</p>
 
-<p>The main mistake I see from beginners is not using dynamically allocated counter (ie they keep the counter in the SP object). You <strong>must</strong> dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted).</p>
+<p>The main mistake I see from beginners is not using dynamically allocated counter (i.e. they keep the counter in the SP object). You <strong>must</strong> dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted).</p>
 
 <p>You must also serialize access to this counter to make sure that in a threaded environment the count is correctly maintained. In the first version for simplicity I will only consider single threaded environments and thus synchronization is not required.</p>
 
@@ -7032,7 +7032,7 @@ Note II: You should always use a <strong>Default Statement</strong> . If the val
 
 <h3>MarkDown</h3>
 
-<p>Markdown is a very simplistic form of &lsquo;Markup&rsquo; (yes programmers think they are funny with the up/down thing) that is designed specifically to be simple and deal with the common issues of writing word based articles. Coder sites usually extend this with basic support for placing code (or preformatted text) directly into the article. It is not designed for non technical people (they should be using a &lsquo;Visual&rsquo; interface not markup) but for the technical writer who does not want the full blown power of HTML, but wants slightly more control than visual interfaces provide.</p>
+<p>Markdown is a very simplistic form of &lsquo;Markup&rsquo; (yes programmers think they are funny with the up/down thing) that is designed specifically to be simple and deal with the common issues of writing word based articles. Coder sites usually extend this with basic support for placing code (or pre-formatted text) directly into the article. It is not designed for non technical people (they should be using a &lsquo;Visual&rsquo; interface not markup) but for the technical writer who does not want the full blown power of HTML, but wants slightly more control than visual interfaces provide.</p>
 
 <h3>Attack Vector</h3>
 
@@ -7466,7 +7466,7 @@ Note II: You should always use a <strong>Default Statement</strong> . If the val
     <link href="http://lokiastari.com/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/"/>
     <updated>2013-11-18T08:58:28-08:00</updated>
     <id>http://lokiastari.com/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2</id>
-    <content type="html"><![CDATA[<h3>1: using namspace</h3>
+    <content type="html"><![CDATA[<h3>1: using namespace</h3>
 
 <p>Every new developer that comes to C++ always starts writing code like this:</p>
 
@@ -7527,7 +7527,7 @@ Note II: You should always use a <strong>Default Statement</strong> . If the val
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>An additional technique to shorten namespace prefixes are namespace alias. These are very useful when things are nested inside multiple namespaces (or have very long unhelpful names)</p>
+<p>An additional technique to shorten namespace prefixes are namespace alias. These are very useful when things are nested inside multiple namespaces&#8217; (or have very long unhelpful names)</p>
 
 <figure class='code'><figcaption><span>alias.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>

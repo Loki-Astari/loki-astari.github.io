@@ -178,7 +178,7 @@
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">Response Code:</td><td><a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">100->599</a></td></tr>
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">Human Readable Response:</td><td>Human readable explanation of the response code</td></tr>
-<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally &#8216;\r\n&#8217;zz</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally &#8216;\r\n&#8217;</td></tr>
 </table>
 
 
@@ -1015,9 +1015,9 @@
 <p>The exact action that you take will depend on your application (like doing some useful work) but for our simple application simply re-trying the read operation will be the standard action. Again we will come back to this, but taking advantage of timeouts will require a slightly more sophisticated approach rather than using the sockets API directly.</p>
 
 <blockquote><p><strong>EINTR:</strong><br/>
-An important note about signals. There are a lot of signals that are non leathal and will result in this EINTR error code. But one should note that leathal signals like SIGINT by default will kill the application and thus will not cause this error code (as the call to read() will never return).</p>
+An important note about signals. There are a lot of signals that are non lethal and will result in this EINTR error code. But one should note that lethal signals like SIGINT by default will kill the application and thus will not cause this error code (as the call to read() will never return).</p>
 
-<p>But you can override the SIGINT signal handler and a allow your application to continue and at this point your read operation will recieve this error. How your code interacts with signals like SIGINT is beyond the scope of this article and it will be discussed just like other signals.</p></blockquote>
+<p>But you can override the SIGINT signal handler and a allow your application to continue and at this point your read operation will receive this error. How your code interacts with signals like SIGINT is beyond the scope of this article and it will be discussed just like other signals.</p></blockquote>
 
 <figure class='code'><figcaption><span>getMessage() Improved</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1732,7 +1732,7 @@ Resize 4        80            48              72                 -8 // Reuse rel
 <br><br>
 
 
-<p>So after looking at the graphs (to undrestand the formula) then talking to some smart people.<br/>
+<p>So after looking at the graphs (to understand the formula) then talking to some smart people.<br/>
 They noticed that:</p>
 
 <p>
@@ -2242,7 +2242,7 @@ Optionally you can provide the other comparison operators.</p>
 </span><span class='line'>
 </span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
 </span><span class='line'><span class="k">class</span> <span class="nc">Vector</span>
-</span><span class='line'><span class="p">{</span>
+</span><span class='line'>
 </span><span class='line'>    <span class="k">public</span><span class="o">:</span>
 </span><span class='line'>        <span class="k">using</span> <span class="n">value_type</span>        <span class="o">=</span> <span class="n">T</span><span class="p">;</span>
 </span><span class='line'>        <span class="k">using</span> <span class="n">reference</span>         <span class="o">=</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">;</span>
@@ -4311,7 +4311,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 
 <p>The copy and swap idiom is about dealing with replacing an object state from another object. It is very commonly used in the copy assignment operator but has application whenever state is being changed and the <a href="https://en.wikipedia.org/wiki/Exception_safety">strong exception guarantee</a> is required.</p>
 
-<p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation so let&rsquo;s use that rather than doing it manually. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it makes the normal operation even more efficient. Since the occurrence of self assignment is extremely rare I would not prematurely optimize for it but rather make the most common case the best optimized. So one final refactor of the copy constructor leaves us with this.</p>
+<p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation so let&rsquo;s use that rather than doing it manually. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it makes the normal operation even more efficient. Since the occurrence of self assignment is extremely rare I would not prematurely optimize for it but rather make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.</p>
 
 <figure class='code'><figcaption><span>Copy Assignment (Try 4)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>

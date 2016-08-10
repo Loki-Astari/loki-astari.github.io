@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Smart-Pointer | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/smart-pointer/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-07-28T18:15:45-07:00</updated>
+  <updated>2016-08-10T03:51:15-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -436,7 +436,7 @@ There are two major techniques for tracking the shared owners of a pointer:</p>
 
 <p>The <em>Shared Count</em> is basically the technique used by the <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr"><code>std::shared_ptr</code></a> (though they store slightly more than the count to try and improve efficiency see <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared"><code>std::make_shared</code></a>).</p>
 
-<p>The main mistake I see from beginners is not using dynamically allocated counter (ie they keep the counter in the SP object). You <strong>must</strong> dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted).</p>
+<p>The main mistake I see from beginners is not using dynamically allocated counter (i.e. they keep the counter in the SP object). You <strong>must</strong> dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted).</p>
 
 <p>You must also serialize access to this counter to make sure that in a threaded environment the count is correctly maintained. In the first version for simplicity I will only consider single threaded environments and thus synchronization is not required.
 ```cpp First Try</p>

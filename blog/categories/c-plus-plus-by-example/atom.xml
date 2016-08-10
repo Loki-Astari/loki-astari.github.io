@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C++-By-Example | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/c-plus-plus-by-example/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-07-28T18:15:45-07:00</updated>
+  <updated>2016-08-10T03:51:15-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -89,7 +89,7 @@ GET http://google.com/maps?id=456 HTTP/1.1\r\n
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">Response Code:</td><td><a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">100->599</a></td></tr>
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">Human Readable Response:</td><td>Human readable explanation of the response code</td></tr>
-<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally '\r\n'zz</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally '\r\n'</td></tr>
 </table>
 
 
@@ -626,9 +626,9 @@ return dataRead;
 <p>The exact action that you take will depend on your application (like doing some useful work) but for our simple application simply re-trying the read operation will be the standard action. Again we will come back to this, but taking advantage of timeouts will require a slightly more sophisticated approach rather than using the sockets API directly.</p>
 
 <blockquote><p><strong>EINTR:</strong><br/>
-An important note about signals. There are a lot of signals that are non leathal and will result in this EINTR error code. But one should note that leathal signals like SIGINT by default will kill the application and thus will not cause this error code (as the call to read() will never return).</p>
+An important note about signals. There are a lot of signals that are non lethal and will result in this EINTR error code. But one should note that lethal signals like SIGINT by default will kill the application and thus will not cause this error code (as the call to read() will never return).</p>
 
-<p>But you can override the SIGINT signal handler and a allow your application to continue and at this point your read operation will recieve this error. How your code interacts with signals like SIGINT is beyond the scope of this article and it will be discussed just like other signals.</p></blockquote>
+<p>But you can override the SIGINT signal handler and a allow your application to continue and at this point your read operation will receive this error. How your code interacts with signals like SIGINT is beyond the scope of this article and it will be discussed just like other signals.</p></blockquote>
 
 <p>```c getMessage() Improved
 /<em>
@@ -1107,7 +1107,7 @@ Resize 4        80            48              72                 -8 // Reuse rel
 <br><br>
 
 
-<p>So after looking at the graphs (to undrestand the formula) then talking to some smart people.<br/>
+<p>So after looking at the graphs (to understand the formula) then talking to some smart people.<br/>
 They noticed that:
 <p><div class='bogus-wrapper'><notextile></p>
 

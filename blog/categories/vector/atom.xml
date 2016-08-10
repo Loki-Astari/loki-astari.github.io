@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Vector | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/vector/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-07-28T18:15:45-07:00</updated>
+  <updated>2016-08-10T03:51:15-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -155,8 +155,7 @@ Optionally you can provide the other comparison operators.</p>
 <h1>include <iterator></h1>
 
 <p>template<typename T>
-class Vector
-{</p>
+class Vector</p>
 
 <pre><code>public:
     using value_type        = T;
@@ -1429,7 +1428,7 @@ Vector&amp; operator=(Vector const&amp; copy)
 
 <p>The copy and swap idiom is about dealing with replacing an object state from another object. It is very commonly used in the copy assignment operator but has application whenever state is being changed and the <a href="https://en.wikipedia.org/wiki/Exception_safety">strong exception guarantee</a> is required.</p>
 
-<p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation so let&rsquo;s use that rather than doing it manually. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it makes the normal operation even more efficient. Since the occurrence of self assignment is extremely rare I would not prematurely optimize for it but rather make the most common case the best optimized. So one final refactor of the copy constructor leaves us with this.</p>
+<p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation so let&rsquo;s use that rather than doing it manually. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it makes the normal operation even more efficient. Since the occurrence of self assignment is extremely rare I would not prematurely optimize for it but rather make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.</p>
 
 <p>```cpp Copy Assignment (Try 4)
 class Vector

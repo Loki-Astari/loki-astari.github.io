@@ -825,7 +825,7 @@
 
 <p>The <em>Shared Count</em> is basically the technique used by the <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr"><code>std::shared_ptr</code></a> (though they store slightly more than the count to try and improve efficiency see <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared"><code>std::make_shared</code></a>).</p>
 
-<p>The main mistake I see from beginners is not using dynamically allocated counter (ie they keep the counter in the SP object). You <strong>must</strong> dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted).</p>
+<p>The main mistake I see from beginners is not using dynamically allocated counter (i.e. they keep the counter in the SP object). You <strong>must</strong> dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted).</p>
 
 <p>You must also serialize access to this counter to make sure that in a threaded environment the count is correctly maintained. In the first version for simplicity I will only consider single threaded environments and thus synchronization is not required.</p>
 
@@ -2228,7 +2228,7 @@ Note II: You should always use a <strong>Default Statement</strong> . If the val
 
 <h3>MarkDown</h3>
 
-<p>Markdown is a very simplistic form of &lsquo;Markup&rsquo; (yes programmers think they are funny with the up/down thing) that is designed specifically to be simple and deal with the common issues of writing word based articles. Coder sites usually extend this with basic support for placing code (or preformatted text) directly into the article. It is not designed for non technical people (they should be using a &lsquo;Visual&rsquo; interface not markup) but for the technical writer who does not want the full blown power of HTML, but wants slightly more control than visual interfaces provide.</p>
+<p>Markdown is a very simplistic form of &lsquo;Markup&rsquo; (yes programmers think they are funny with the up/down thing) that is designed specifically to be simple and deal with the common issues of writing word based articles. Coder sites usually extend this with basic support for placing code (or pre-formatted text) directly into the article. It is not designed for non technical people (they should be using a &lsquo;Visual&rsquo; interface not markup) but for the technical writer who does not want the full blown power of HTML, but wants slightly more control than visual interfaces provide.</p>
 
 <h3>Attack Vector</h3>
 
@@ -2752,7 +2752,7 @@ Note II: You should always use a <strong>Default Statement</strong> . If the val
   </header>
 
 
-  <div class="entry-content"><h3>1: using namspace</h3>
+  <div class="entry-content"><h3>1: using namespace</h3>
 
 <p>Every new developer that comes to C++ always starts writing code like this:</p>
 
@@ -2813,7 +2813,7 @@ Note II: You should always use a <strong>Default Statement</strong> . If the val
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>An additional technique to shorten namespace prefixes are namespace alias. These are very useful when things are nested inside multiple namespaces (or have very long unhelpful names)</p>
+<p>An additional technique to shorten namespace prefixes are namespace alias. These are very useful when things are nested inside multiple namespaces&#8217; (or have very long unhelpful names)</p>
 
 <figure class='code'><figcaption><span>alias.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
