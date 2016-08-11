@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Vector | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/vector/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-08-11T03:48:36-07:00</updated>
+  <updated>2016-08-11T03:53:40-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -730,7 +730,7 @@ class Vector
         {
             if (length == capacity)
             {
-                std::size_t     newCapacity  = std::max(2.0, capacity * 1.62);
+                std::size_t     newCapacity  = std::max(2.0, capacity * 1.5);
                 reserveCapacity(newCapacity);
             }
         }
@@ -1191,7 +1191,7 @@ private:
     {
         if (length == capacity)
         {
-            std::size_t     newCapacity  = std::max(2.0, capacity * 1.62);
+            std::size_t     newCapacity  = std::max(2.0, capacity * 1.5);
             reserveCapacity(newCapacity);
         }
     }
@@ -1476,7 +1476,7 @@ void resizeIfRequire()
     if (length == capacity)
     {
         // Create a temporary object with a larger capacity.
-        std::size_t     newCapacity  = std::max(2.0, capacity * 1.62);
+        std::size_t     newCapacity  = std::max(2.0, capacity * 1.5);
         Vector&lt;T&gt;  tmpBuffer(newCapacity);
 
         // Copy the state of this object into the new object.
@@ -1609,7 +1609,7 @@ private:
     {
         if (length == capacity)
         {
-            std::size_t     newCapacity  = std::max(2.0, capacity * 1.62);
+            std::size_t     newCapacity  = std::max(2.0, capacity * 1.5);
             reserveCapacity(newCapacity);
         }
     }
