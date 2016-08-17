@@ -189,7 +189,7 @@ class Vector
 };
 ```
 
-# Resizing Underling buffer
+# Resizing Underlying buffer
 
 When pushing data into the array we need to verify that capacity has not been exceeded. If it has then we need to allocate more capacity then copy the current content into the new buffer and destroy the old buffer after calling the destructor on all elements.
 
@@ -208,7 +208,7 @@ class Vector
         if (length == capacity)
         {
             // Create a temporary object with a larger capacity.
-            std::size_t     newCapacity  = std::max(2.0, capacity * 1.62);
+            std::size_t     newCapacity  = std::max(2.0, capacity * 1.5);
             Vector<T>  tmpBuffer(newCapacity);
 
             // Copy the state of this object into the new object.
@@ -338,7 +338,7 @@ class Vector
         {
             if (length == capacity)
             {
-                std::size_t     newCapacity  = std::max(2.0, capacity * 1.62);
+                std::size_t     newCapacity  = std::max(2.0, capacity * 1.5);
                 reserveCapacity(newCapacity);
             }
         }

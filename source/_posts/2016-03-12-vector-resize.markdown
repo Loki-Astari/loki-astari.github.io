@@ -341,7 +341,7 @@ class Vector
         {
             if (length == capacity)
             {
-                std::size_t     newCapacity  = std::max(2.0, capacity * 1.62);
+                std::size_t     newCapacity  = std::max(2.0, capacity * 1.5);
                 reserveCapacity(newCapacity);
             }
         }

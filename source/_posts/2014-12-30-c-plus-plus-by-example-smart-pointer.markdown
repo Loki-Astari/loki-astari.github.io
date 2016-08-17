@@ -33,7 +33,7 @@ Writing you own implementation of a smart pointer is a bad idea (IMO). The stand
 
 I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) getting it working correctly in all contexts is rather a complex endeavor.
 
-But because it is such a frequent request for review; I want take a look at smart pointers as a teaching exercise. In the next couple of articles I will step through the processes of building a smart pointer and look at some of the common mistakes that I see (and probably make a few as I go).
+But because it is such a frequent request for review; I want to take a look at smart pointers as a teaching exercise. In the next couple of articles I will step through the processes of building a smart pointer and look at some of the common mistakes that I see (and probably make a few as I go).
 
 ###Warning:
 This article is not for absolute beginners. I assume you already know the basics of C++.
