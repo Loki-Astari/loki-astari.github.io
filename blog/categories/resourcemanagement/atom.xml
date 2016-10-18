@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ResourceManagement | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/resourcemanagement/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-08-19T09:22:48-07:00</updated>
+  <updated>2016-10-18T14:30:17-07:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -216,7 +216,7 @@ They noticed that:
     }
 
     template&lt;typename X&gt;
-    typename std::enable_if&lt;std::std::is_trivially_destructible&lt;X&gt;::value == false&gt;::type
+    typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == false&gt;::type
     clearElements()
     {
         // Call the destructor on all the members in reverse order
@@ -228,7 +228,7 @@ They noticed that:
     }
 
     template&lt;typename X&gt;
-    typename std::enable_if&lt;std::std::is_trivially_destructible&lt;X&gt;::value == true&gt;::type
+    typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == true&gt;::type
     clearElements()
     {
         // Trivially destructible objects can be re-used without using the destructor.
