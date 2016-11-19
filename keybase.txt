@@ -1,0 +1,68 @@
+==================================================================
+https://keybase.io/lokiastari
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://lokiastari.com
+  * I am lokiastari (https://keybase.io/lokiastari) on keybase.
+  * I have a public key with fingerprint DDE7 6133 9778 81A6 1959  4FA6 6C32 9220 E22C ED34
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "eldest_kid": "01018cb79a56ff9c6a87e72659b55671a884406319cca83a852cfd22991fed5d38fe0a",
+            "fingerprint": "dde76133977881a619594fa66c329220e22ced34",
+            "host": "keybase.io",
+            "key_id": "6c329220e22ced34",
+            "kid": "01018cb79a56ff9c6a87e72659b55671a884406319cca83a852cfd22991fed5d38fe0a",
+            "uid": "7aa00938923f5ea7b7eb43ff2cf1ed19",
+            "username": "lokiastari"
+        },
+        "service": {
+            "hostname": "lokiastari.com",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1479576334,
+    "expire_in": 157680000,
+    "prev": "ee2e483f06f9fb2c6e7646477b4a1af16db5acbf87b316a44a7d0450a0e3c496",
+    "seqno": 6,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.0.58
+Comment: https://keybase.io/crypto
+
+yMInAnicrVJrSBVBGL3X3komEjeCnou9zGRnZ3Z290JPyuhmpdBTjNvs7ux1UXdv
+e9cXJhURET3oQURlQUGhPQiCFK3Aosgys1AiJEvLXkiFSBRG2qzUr/rZ/BnmzDln
+zvfNd3fsMF+8f2DRHjHUcXafv+n2ySLfRn5fYjmn2noZFyzn8unQRgt0GnPD+abO
+BTke8EDWVEkhIjYMRcNElqgkYFFRRRFLgMgyQjyGQNE0IkMii4Jm6IKgKMCguqhD
+2aA84dI4w7Qi1Ik6puUyW12nEgYQKpIky4BgoIgKMgjGGhQUQeCpIGhUh4gJ8+yY
+p2DhVBKj6abNMHYID8X7B/8/5y4aspMI4XkFyooADZESSZWoiqBhMBGgOlA8Yow6
+FimkjF1g55sk5hLH5CrSOIYXmxr1WuvV8hcnXbMLmT7q2K6t2QXsLs91o0FP6pZF
+PW4JVcO/XcKqaemslUxQTJ2YaVtcEDCm5pqeLUCSIkoYQpTG0dKo6dCw6TEYJvNs
+ec/QYmZJqUCRDA0eG4qhChpm/4EwkiQVEUAMgHVVJJpqyJIKASYIEUnnkcgTnkIN
+KZjz6tpq2VwQs5gkwixjZsQibpFDuYo7DbnDff5438gRcd6I+eLHJP0ZvHUjRvXH
+lXU/WlkTeJKedbWeTmmu7kiobZk9M2X66qPZu/tnPHeP+NCywe+TKve3vLZndlrb
+P6T3Ze9alHqs9mLypoPX2qpLqnJXlW75lDPY/3Pa8XkLNizl0m7aVR2n0KG6bcCe
+mrKmd0eoq+ZK87gl2qvUA53vRq+vSk5Iynz7gI6teF95py7Y2N7QEFqZGmrpWaal
+/hgYuJIUMB63uvfPncnOubY3qy3S9+h0ZO3XXC5jvPs58GVh/MPErOVR83JXe+/d
+FZVLVbV7bnbC5ozDgQm34hYfvNr8MXR+mHui5+WL+bffXHpWfX1O072Js4ICvNDe
+7c8ErbsTG/2TAzdyzhdveVq/s/fbLzN+Qwk=
+=6zE2
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/lokiastari
+
+==================================================================
