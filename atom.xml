@@ -4,7 +4,7 @@
   <title><![CDATA[Loki Astari]]></title>
   <link href="http://lokiastari.com/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-10-18T14:30:17-07:00</updated>
+  <updated>2017-01-06T01:58:34-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -5816,6 +5816,8 @@ It simply calls the destructor on all elements currently in the object. Then use
 <span class='line-number'>59</span>
 <span class='line-number'>60</span>
 <span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
 </span><span class='line'><span class="p">{</span>
 </span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
@@ -5837,6 +5839,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 </span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
 </span><span class='line'>                <span class="p">{</span>
 </span><span class='line'>                    <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
+</span><span class='line'>                    <span class="k">delete</span> <span class="n">count</span><span class="p">;</span>
 </span><span class='line'>                <span class="p">}</span>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>            <span class="c1">// Remember from ThorsAnvil::UP that we need to make sure we</span>
@@ -5866,6 +5869,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 </span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">oldCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
 </span><span class='line'>                <span class="p">{</span>
 </span><span class='line'>                    <span class="k">delete</span> <span class="n">oldData</span><span class="p">;</span>
+</span><span class='line'>                    <span class="k">delete</span> <span class="n">oldCount</span><span class="p">;</span>
 </span><span class='line'>                <span class="p">}</span>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>            <span class="c1">// Const correct access owned object</span>
@@ -5978,6 +5982,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 <span class='line-number'>17</span>
 <span class='line-number'>18</span>
 <span class='line-number'>19</span>
+<span class='line-number'>20</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
 </span><span class='line'><span class="p">{</span>
 </span><span class='line'>     <span class="p">.....</span>
@@ -5994,6 +5999,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 </span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">oldCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
 </span><span class='line'>                <span class="p">{</span>
 </span><span class='line'>                    <span class="k">delete</span> <span class="n">oldData</span><span class="p">;</span>
+</span><span class='line'>                    <span class="k">delete</span> <span class="n">oldCount</span><span class="p">;</span>
 </span><span class='line'>                <span class="p">}</span>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'><span class="p">}</span>
@@ -6012,6 +6018,7 @@ It simply calls the destructor on all elements currently in the object. Then use
                 if (*oldCount == 0)
                 {
                     delete oldData;
+                    delete oldCount;
                 }
 </code></pre>
 
@@ -6122,6 +6129,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 <span class='line-number'>62</span>
 <span class='line-number'>63</span>
 <span class='line-number'>64</span>
+<span class='line-number'>65</span>
 </pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">namespace</span> <span class="n">ThorsAnvil</span>
 </span><span class='line'><span class="p">{</span>
 </span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
@@ -6149,6 +6157,7 @@ It simply calls the destructor on all elements currently in the object. Then use
 </span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
 </span><span class='line'>                <span class="p">{</span>
 </span><span class='line'>                    <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
+</span><span class='line'>                    <span class="k">delete</span> <span class="n">count</span><span class="p">;</span>
 </span><span class='line'>                <span class="p">}</span>
 </span><span class='line'>            <span class="p">}</span>
 </span><span class='line'>            <span class="n">SP</span><span class="p">(</span><span class="n">SP</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">copy</span><span class="p">)</span>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Smart-Pointer | Loki Astari]]></title>
   <link href="http://lokiastari.com/blog/categories/smart-pointer/atom.xml" rel="self"/>
   <link href="http://lokiastari.com/"/>
-  <updated>2016-10-18T14:30:17-07:00</updated>
+  <updated>2017-01-06T01:58:34-08:00</updated>
   <id>http://lokiastari.com/</id>
   <author>
     <name><![CDATA[Loki Astari]]></name>
@@ -462,6 +462,7 @@ There are two major techniques for tracking the shared owners of a pointer:</p>
                 if (*count == 0)
                 {
                     delete data;
+                    delete count;
                 }
             }
             // Remember from ThorsAnvil::UP that we need to make sure we
@@ -491,6 +492,7 @@ There are two major techniques for tracking the shared owners of a pointer:</p>
                 if (*oldCount == 0)
                 {
                     delete oldData;
+                    delete oldCount;
                 }
             }
             // Const correct access owned object
@@ -572,6 +574,7 @@ There are two major techniques for tracking the shared owners of a pointer:</p>
                 if (*oldCount == 0)
                 {
                     delete oldData;
+                    delete oldCount;
                 }
             }
 }
@@ -590,6 +593,7 @@ Two portions of this look like other code pieces of code that have already been 
                 if (*oldCount == 0)
                 {
                     delete oldData;
+                    delete oldCount;
                 }
 </code></pre>
 
@@ -649,6 +653,7 @@ Two portions of this look like other code pieces of code that have already been 
                 if (*count == 0)
                 {
                     delete data;
+                    delete count;
                 }
             }
             SP(SP const&amp; copy)
