@@ -2,6 +2,20 @@
     "author": "Loki Astari",
     "title": "Loki Astari",
     "description": "Thoughts of a former code monkey.",
+    "site": "https://LokiAstari.com",
     "theme": "landscape",
-    "themeGit": "https://github.com/Loki-Astari/andvari-theme-landscape.git"
+    "themeGit": "https://github.com/Loki-Astari/andvari-theme-landscape.git",
+    "menu":  [{"name":"blog","url":"/"}, {"name":"about", "url": "/about/"}, {"name":"series", "url":"/series/"}, {"name":"archives", "url":"/archives/"} ],
+    "twitter": {
+        "user": "LokiAstari"
+    },
+    "github": {
+        "user": "Loki-Astari",
+        "count": 5
+    },
+    "disqueSite": true,
+    "disque": {
+        "site":     "lokiastari",
+        "count":    false
+    }
 }
