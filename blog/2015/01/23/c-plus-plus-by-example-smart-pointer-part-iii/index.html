@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html>
+
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Loki Astari</title>
+    <meta name="author" content="Loki Astari">
+
+
+    <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
+
+
+    <!-- http://t.co/dKP3o1e -->
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="/favicon.png" rel="icon">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+
+    <!-- MathJax configuration -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
+    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+
+</head>
+
+<body>
+<header role="banner">
+    <div class="header-left">
+        <hgroup>
+            <h1><a href="/">Loki Astari</a></h1>
+            
+            <div class="subtitle">
+                <h2>Thoughts of a former code monkey.</h2>
+            </div>
+            
+        </hgroup>
+    </div>
+
+    
+    <div class="header-right">
+        <ul class="main-navigation">
+            
+                <div  >
+                    <li><a href="/">blog</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/about/">about</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/series/">series</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/archives/">archives</a></li></div><div class="spacer">
+                </div>
+            
+        </ul>
+    </div>
+    
+</header>
+
+<div id="main">
+    <div id="content">
+        <div class="blog-index">
+                <article class="hentry" role="article">
+<!--
+This is article 4 of the 4 part Series: "<span style="color:red">Sockets</span>".<br>
+See side panel "Series" for details.<br><br>
+-->
+
+    <header>
+    <h1 class="entry-title"><a href="/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/index.html">Smart-Pointer - Constructors</a></h1>
+        <p class="meta">
+            <time datetime="2015-01-24T00:33:14Z" pubdate>Jan 23 <span>rd</span>, 2015</time>
+            
+                | <a href="/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/">Comments</a>
+            
+        </p>
+</header>
+
+    <p>In this article we examine constructors that are often missed or overlooked. This article looks at the use cases for these constructors and explains why the added functionality provides a meaningful addition in relation to smart pointers.</p>
+<h2 id="defaultconstructor">Default Constructor</h2>
+<p>Most people remember the default constructor (a zero argument constructor), but every now and then it gets missed.</p>
+<p>The default constructor is useful when the type is used in a context where objects of the type need to be instantiated dynamically by another library (an example is a container resized; when a container is made larger by a resize, new members will need to be constructed, it is the default constructor that will provide these extra instances).</p>
+<p>The default constructor is usually very trivial and thus worth the investment.</p>
+<p>Smart Pointer Default Constructor</p>
+<pre><code class="c language-c">namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class UP
+    {
+        T*      data;
+        public:
+            UP()
+                : data(nullptr)
+            {}
+            .....
+    };
+}
+</code></pre>
+<h2 id="thenullptr">The nullptr</h2>
+<p>In C++11 the <code>nullptr</code> was introduced to replace the old broken <code>NULL</code> and/or the even more broken <code>0</code> for use in contexts where you want a pointer that points at nothing. The <code>nullptr</code> is automatically convert to any pointer type or a boolean; but fixed the previous bug (or bad feature) and will not convert to a numeric type.</p>
+<p>nullptr Usage Example</p>
+<pre><code class="c language-c">#include &lt;string&gt;
+int main()
+{
+    char*           tmp = nullptr;   // converts the nullptr (type std::nullptr_t) to char*
+    std::string*    str = nullptr;   // hopefully you never do that! but it works.
+
+    bool            tst = nullptr;   // False. Yes I know it does not look that useful.
+                                     //        But when you consider all the funny things
+                                     //        that can happen with templates this can
+                                     //        be very useful.
+
+    int             val = nullptr;   // Fails to compile.
+    int             val = NULL;      // Pointer assigned to integer value.
+                                     // Works just fine. But very rarely was this a useful
+                                     // feature (more usually an over-site that was not
+                                     // reported by the compiler).
+}
+</code></pre>
+<p>The <code>nullptr</code> provides some opportunities to make the code shorter/cleaner when initializing smart pointers to be empty. Because we are using explicit one argument constructors the compiler can not convert a <code>nullptr</code> into a smart pointer automatically, it must be done explicitly by the developer.</p>
+<p>nullptr failing on Smart Pointer</p>
+<pre><code class="c language-c">void workWithSP(ThorsAnvil::UP&lt;int&gt;&amp;&amp; sp)
+{ /* STUFF*/ }
+
+int main()
+{
+    // This fails to compile.
+    workWithSP(nullptr);
+
+    // Need to be explicit with smart pointers
+    workWithSP(ThorsAnvil::UP&lt;int&gt;(nullptr));
+}
+</code></pre>
+<p>This is overly verbose, there is no danger involved in forming a smart pointer around a <code>nullptr</code> automatically. Because <code>nullptr</code> has its own type <code>std::nullptr_t</code> we can add a constructor to explicitly simplify this case, which makes it easier to read.</p>
+<p>Smart Pointer with std::nullptr_t constructor</p>
+<pre><code class="c language-c">namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class UP
+    {
+        public:
+            UP(std::nullptr_t)
+                : data(nullptr)
+            {}
+    ....
+    };
+}
+// Now we can simplify our use case
+void workWithSP(ThorsAnvil::UP&lt;int&gt;&amp;&amp; sp)
+{ /* STUFF*/ }
+
+int main()
+{
+    workWithSP(nullptr);
+
+    // Note this also allows:
+    ThorsAnvil::UP&lt;int&gt;   data  = nullptr;
+    // And
+    data = nullptr;       // Note here we have we convert nullptr to
+                          // smart pointer using the one argument
+                          // constructor that binds `nullptr` then
+                          // call the assignment operator.
+                          //
+                          // That seems like a lot extra work. So we
+                          // may as well define the assignment operator
+                          // to specifically user `nullptr`.
+}
+</code></pre>
+<h2 id="movesemantics">Move Semantics</h2>
+<p>Move semantics were introduced with C++ 11. So though we can not copy the <code>ThorsAnvil::UP</code> object it can be moved. The compiler will generate a default move constructor for a class under certain situations; but because we have defined a destructor for <code>ThorsAnvil::UP</code> we must manually define the move constructor.</p>
+<p>Move semantics say that the source object may be left in an undefined (but must be valid) state. So the easiest way to implement this is simply to swap the state of the current object with the source object (we know our state is valid so just swap it with the incoming object state (its destructor will then take care of destroying the pointer we are holding)).</p>
+<p>Smart Pointer Move Semantics</p>
+<pre><code class="c language-c">namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class UP
+    {
+        T*      data;
+        public:
+            // Swap should always be `noexcept` operation
+            void swap(UP&amp; src) noexcept
+            {
+                std::swap(data, src.data);
+            }
+            // It is a good idea to make your move constructor `noexcept`
+            // In this case it actually makes no difference (because there
+            // no copy constructor) but to maintain good practice I still
+            // think it is a good idea to mark it with `noexcept`.
+            UP(UP&amp;&amp; moving) noexcept
+            {
+                moving.swap(*this);
+            }
+            UP&amp; operator=(UP&amp;&amp; moving) noexcept
+            {
+                moving.swap(*this);
+                return *this;
+            }
+            .....
+    };
+    template&lt;typename T&gt;
+    void swap(UP&lt;T&gt;&amp; lhs, UP&lt;T&gt;&amp; rhs)
+    {
+        lhs.swap(rhs);
+    }
+}
+</code></pre>
+<h2 id="derivedtypeassignment">Derived Type Assignment.</h2>
+<p>Assigning derived class pointers to a base class pointer object is quite common feature in C++.</p>
+<p>Derived Example</p>
+<pre><code class="c language-c">class Base
+{
+    public:
+        virtual ~Base() {}
+        virtual void doAction() = 0;
+};
+class Derived1: public Base
+{
+    public:
+        virtual void doAction() override;
+};
+class Derived2: public Base
+{
+    public:
+        virtual void doAction() override;
+};
+int main(int argc, char* argv[])
+{
+    Derived1*   action1 = new Derived1;
+    Derived2*   action2 = new Derived2;
+
+    Base*       action   = (argc == 2) ? action1 : action2;
+    action-&gt;doAction();
+}
+</code></pre>
+<p>If we try the same code with the constructors we currently have we will get compile errors.</p>
+<p>Derived Example with Smart Pointers</p>
+<pre><code class="c language-c">int main(int argc, char* argv[])
+{
+    ThorsAnvil::UP&lt;Derived1&gt;    action1 = new Derived1;
+    ThorsAnvil::UP&lt;Derived2&gt;    action2 = new Derived2;
+
+    ThorsAnvil::UP&lt;Base&gt;        action   = std::move((argc == 2) ? action1 : action2);
+    action-&gt;doAction();
+}
+</code></pre>
+<p>This is because C++ considers <code>ThorsAnvil::UP&lt;Derived1&gt;</code>, <code>ThorsAnvil::UP&lt;Derived2&gt;</code> and <code>ThorsAnvil::UP&lt;Base&gt;</code> are three distinct classes that are unrelated. As this kind of pointer usage is rather inherent in how C++ is used the smart pointer needs to be designed for this use case.</p>
+<p>To solve this we need to allow different types of smart pointer be constructed from other types of smart pointer, but only where the inclosed types are related.</p>
+<p>Derived Smart Pointer transfer</p>
+<pre><code class="c language-c">namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class UP
+    {
+        T*      data;
+        public:
+            // Release ownership of the pointer.
+            // Returning the pointer to the caller.
+            T*  release()
+            {
+                T* tmp = nullptr;
+                std::swap(tmp, data);
+                return tmp;
+            }
+            // Note: If you try calling this with a U that is not derived from
+            //       a T then the compiler will generate a compilation error as
+            //       the pointer assignments will not match correctly.
+            template&lt;typename U&gt;
+            UP(UP&lt;U&gt;&amp;&amp; moving)
+            {
+                // We can not use swap directly.
+                // Even though U is derived from T, the reverse is not true.
+                // So we have put it in a temporary locally first.
+
+                // Note: this is still exception safe.
+                //       The normal constructor will call delete even if it does
+                //       not finish constructing. So if release completes even
+                //       starting the call to the constructor guarantees its safety.
+                UP&lt;T&gt;   tmp(moving.release());
+                tmp.swap(*this);
+            }
+            template&lt;typename U&gt;
+            UP&amp; operator=(UP&lt;U&gt;&amp;&amp; moving)
+            {
+                UP&lt;T&gt;    tmp(moving.release());
+                tmp.swap(*this);
+                return *this;
+            }
+            .....
+    };
+}
+</code></pre>
+<h2 id="updateduniquepointer">Updated Unique Pointer</h2>
+<p>Combine the constructor/assignment operators discussed in this article with the <code>ThorsAnvil::UP</code> that we defined in the first article in the series: <a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Unique Pointer</a> we obtain the following:</p>
+<p>ThorsAnvil::UP Version 3</p>
+<pre><code class="c language-c">namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class UP
+    {
+        T*   data;
+        public:
+            UP()
+                : data(nullptr)
+            {}
+            // Explicit constructor
+            explicit UP(T* data)
+                : data(data)
+            {}
+            ~UP()
+            {
+                delete data;
+            }
+
+            // Constructor/Assignment that binds to nullptr
+            // This makes usage with nullptr cleaner
+            UP(std::nullptr_t)
+                : data(nullptr)
+            {}
+            UP&amp; operator=(std::nullptr_t)
+            {
+                reset();
+                return *this;
+            }
+
+            // Constructor/Assignment that allows move semantics
+            UP(UP&amp;&amp; moving) noexcept
+            {
+                moving.swap(*this);
+            }
+            UP&amp; operator=(UP&amp;&amp; moving) noexcept
+            {
+                moving.swap(*this);
+                return *this;
+            }
+
+            // Constructor/Assignment for use with types derived from T
+            template&lt;typename U&gt;
+            UP(UP&lt;U&gt;&amp;&amp; moving)
+            {
+                UP&lt;T&gt;   tmp(moving.release());
+                tmp.swap(*this);
+            }
+            template&lt;typename U&gt;
+            UP&amp; operator=(UP&lt;U&gt;&amp;&amp; moving)
+            {
+                UP&lt;T&gt;    tmp(moving.release());
+                tmp.swap(*this);
+                return *this;
+            }
+
+            // Remove compiler generated copy semantics.
+            UP(UP const&amp;)            = delete;
+            UP&amp; operator=(UP const&amp;) = delete;
+
+            // Const correct access owned object
+            T* operator-&gt;() const {return data;}
+            T&amp; operator*()  const {return *data;}
+
+            // Access to smart pointer state
+            T* get()                 const {return data;}
+            explicit operator bool() const {return data;}
+
+            // Modify object state
+            T* release() noexcept
+            {
+                T* result = nullptr;
+                std::swap(result, data);
+                return result;
+            }
+            void swap(UP&amp; src) noexcept
+            {
+                std::swap(data, src.data);
+            }
+            void reset()
+            {
+                T* tmp = releae();
+                delete tmp;
+            }
+    };
+    template&lt;typename T&gt;
+    void swap(UP&lt;T&gt;&amp; lhs, UP&lt;T&gt;&amp; rhs)
+    {
+        lhs.swap(rhs);
+    }
+}
+</code></pre>
+<h2 id="summary">Summary</h2>
+<p>In the last two articles (<a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Unique Pointer</a> and <a href="http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/">Shared Pointer</a>) we covered some basic mistakes that I have often seen developers make when attempting to creating their own smart pointer. I also introduce four important C++ concepts:</p>
+<ul>
+<li><a href="http://stackoverflow.com/q/4172722/14065">Rule of Three</a></li>
+<li><a href="http://stackoverflow.com/q/3279543/14065">Copy and Swap Idiom</a></li>
+<li><a href="http://stackoverflow.com/a/121163/14065">Explicit One Argument Constructor</a></li>
+<li><a href="http://stackoverflow.com/q/12697625/14065">Try/Catch on Initialization List</a></li>
+</ul>
+<p>This article I focused on a couple of constructors/assignment operators that can be overlooked overlooked.</p>
+
+    <footer>
+    <p class="meta">
+        <span class="byline author vcard">Posted by <span class="fn">Loki Astari, (C)2014 (C)2016</span></span>
+        <time datetime="2015-01-24T00:33:14Z" pubdate>Jan 23 <span>rd</span>, 2015</time>
+        
+            <span class="categories">
+            
+                <a class="category" href="/categories/c-plus-plus/index.html">C++</a>,
+            
+                <a class="category" href="/categories/smart-pointer/index.html">Smart-Pointer</a>,
+            
+                <a class="category" href="/categories/c-plus-plus-by-example/index.html">C++-By-Example</a>,
+            
+                <a class="category" href="/categories/coding/index.html">Coding</a>,
+            
+            </span>
+        
+    </p>
+    <p class="meta">
+        
+            <a class="basic-alignment left" href="/blog/2016/02/27/vector/index.html" title="Previous Post: Vector - Resource Management Allocation">&laquo; Vector - Resource Management Allocation</a>
+        
+            <a class="basic-alignment right" href="/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/index.html" title="Next Post: Smart-Pointer - Shared Pointer">Smart-Pointer - Shared Pointer &raquo;</a>
+        
+    </p>
+</footer>
+
+
+    </article>
+
+            <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite">
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+</section>
+
+        </div>
+        <aside class="sidebar">
+
+    <section>
+    <h1>Posts</h1>
+    <ul id="recent_posts">
+        
+            <li class="post"><a href="/blog/2016/05/29/socket-protocols/index.html">Socket Protocols</a></li>
+        
+            <li class="post"><a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">C++ Wrapper for Socket</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/09/socket-read/index.html">Socket Read/Write</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html">Socket Programming in C</a></li>
+        
+            <li class="post"><a href="/blog/2016/03/25/resizemaths/index.html">Memory Resizing</a></li>
+        
+    </ul>
+</section>
+
+
+    <section class="well">
+    <h1>Latest Tweets</h1>
+    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <ul id="tweets">
+        <li class="post">
+            <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </li>
+    </ul>
+</section>
+
+
+    <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+        <li class="loading">Status updating&#8230;</li>
+    </ul>
+
+    <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+    </script>
+    <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+</aside>
+
+    </div>
+</div>
+<footer role="contentinfo"><hr>
+    <p>
+        Copyright &copy; 2017 - Loki Astari -
+        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
+    </p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+
+
+
+        var disqus_identifier = 'https://LokiAstari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/';
+        var disqus_url        = 'https://LokiAstari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/';
+        var disqus_script = 'embed.js';
+
+
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>

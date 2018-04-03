@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Loki Astari</title>
+    <meta name="author" content="Loki Astari">
+
+
+    <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
+
+
+    <!-- http://t.co/dKP3o1e -->
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="/favicon.png" rel="icon">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+
+    <!-- MathJax configuration -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
+    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+
+</head>
+
+<body>
+<header role="banner">
+    <div class="header-left">
+        <hgroup>
+            <h1><a href="/">Loki Astari</a></h1>
+            
+            <div class="subtitle">
+                <h2>Thoughts of a former code monkey.</h2>
+            </div>
+            
+        </hgroup>
+    </div>
+
+    
+    <div class="header-right">
+        <ul class="main-navigation">
+            
+                <div  >
+                    <li><a href="/">blog</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/about/">about</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/series/">series</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/archives/">archives</a></li></div><div class="spacer">
+                </div>
+            
+        </ul>
+    </div>
+    
+</header>
+
+<div id="main">
+    <div id="content">
+        <div class="blog-index">
+                <article class="hentry" role="article">
+<!--
+This is article 4 of the 4 part Series: "<span style="color:red">Sockets</span>".<br>
+See side panel "Series" for details.<br><br>
+-->
+
+    <header>
+    <h1 class="entry-title"><a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">C++ Wrapper for Socket</a></h1>
+        <p class="meta">
+            <time datetime="2016-05-27T04:13:39Z" pubdate>May 26 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/05/26/c-plus-plus-wrapper-for-socket/">Comments</a>
+            
+        </p>
+</header>
+
+    <p>The last two articles examined the "C Socket" interface that is provided by OS. In this article I wrap this functionality in a very simple C++ class to provide guaranteed closing and apply a consistent exception strategy. The first step is to rewrite the client/server code with all the low level socket code removed. This will help identify the interface that the wrapper class needs to implement.</p>
+<p>The client code becomes really trivial. Create a <code>ConnectSocket</code> specifying host and a port. Then use the <code>putMessage()</code> and <code>getMessage()</code> to communicate with the server. Note: I am continuing to use the trivial protocol that was defined in the last article: <code>putMessage()</code> writes a string to the socket then closes the connection; <code>getMessage()</code> reads a socket until it is closed by the other end (I will cover more sophisticated protocols in a subsequent article).</p>
+<p><a href="https://github.com/Loki-Astari/Examples/blob/master/Version2/client.cpp">client.cpp</a></p>
+<pre><code class="c language-c">ConnectSocket    connect("localhost", 8080);          // Connect to a server
+ProtocolSimple   connectSimple(connect);              // Knows how to send/recv a message over a socket
+connectSimple.sendMessage("", "A test message going to the server");
+
+std::string message;
+connectSimple.recvMessage(message);
+std::cout &lt;&lt; message &lt;&lt; "\n";
+</code></pre>
+<p>For the server end this nearly as trivial as the client. Create a <code>ServerSocket</code> and wait for incoming connections from clients. When we get a connection we return a <code>SocketData</code> object. The reason for returning a new Socket like object is that this mimics the behavior of the underlying <code>::accept()</code> call which opens a new port for the client to interact with the server on. The additional benefit of separating this from the <code>ServerSocket</code> is that a subsequent version may allow multiple connections and we want to be able to interact with each connection independently without sharing state, potentially across threads, so modelling it with an object makes sense in an OO world.</p>
+<p><a href="https://github.com/Loki-Astari/Examples/blob/master/Version2/server.cpp">server.cpp</a></p>
+<pre><code class="c language-c">ServerSocket   server(8080);                          // Create a lisening connection
+while(true)
+{
+    DataSocket      accept  = server.accept();            // Wait for a clinet to connect
+    ProtocolSimple  acceptSimple(accept);                 // Knows how to send/recv a message over a socket
+
+    std::string message;
+    acceptSimple.recvMessage(message);
+    std::cout &lt;&lt; message &lt;&lt; "\n";
+
+    acceptSimple.sendMessage("", "OK");
+}
+</code></pre>
+<p>Surprisingly this actually gives us three types of socket interface (not the two most people expect).</p>
+<ul>
+<li>The ServerSocket class has no ability to read/write just accept connections</li>
+<li>The ConnectSocket class connects and can be used to read/write</li>
+<li>The DataSocket class is an already connected socket that can be used to read/write</li>
+</ul>
+<p>Since a socket is a resource that we don't want duplicated. So this is a resource that can be moved but not copied.</p>
+<p>This lets me to define a very simple interface like this:</p>
+<p><a href="https://github.com/Loki-Astari/Examples/blob/master/Version2/Socket.h">Socket.h</a></p>
+<pre><code class="c language-c">// An RAII base class for handling sockets.
+// Socket is movable but not copyable.
+class BaseSocket
+{
+    int     socketId;
+    protected:
+        // Designed to be a base class not used used directly.
+        BaseSocket(int socketId);
+        int getSocketId() const {return socketId;}
+    public:
+        ~BaseSocket();
+
+        // Moveable but not Copyable
+        BaseSocket(BaseSocket&amp;&amp; move)               noexcept;
+        BaseSocket&amp; operator=(BaseSocket&amp;&amp; move)    noexcept;
+        void swap(BaseSocket&amp; other)                noexcept;
+        BaseSocket(BaseSocket const&amp;)               = delete;
+        BaseSocket&amp; operator=(BaseSocket const&amp;)    = delete;
+
+        // User can manually call close
+        void close();
+};
+
+// A class that can read/write to a socket
+class DataSocket: public BaseSocket
+{
+    public:
+        DataSocket(int socketId);
+
+        bool getMessage(std::string&amp; message);
+        void putMessage(std::string const&amp; message);
+        void putMessageClose();
+};
+
+// A class the conects to a remote machine
+// Allows read/write accesses to the remote machine
+class ConnectSocket: public DataSocket
+{
+    public:
+        ConnectSocket(std::string const&amp; host, int port);
+};
+
+// A server socket that listens on a port for a connection
+class ServerSocket: public BaseSocket
+{
+    public:
+        ServerSocket(int port);
+
+        // An accepts waits for a connection and returns a socket
+        // object that can be used by the client for communication
+        DataSocket accept();
+};
+</code></pre>
+<p>Taking the existing code and wrapping this interface around it becomes trivial. The code full code is provided <a href="https://github.com/Loki-Astari/Examples/tree/master/Version2">here</a>.</p>
+<p>In the previous article I talked about the different types of errors that could be generated by read/write. In the following code I take this a step further. Since the code is wrapped inside a class and thus can control the socket resources more cleanly it feels more natural to use exceptions rather than error codes, consequentially error codes are not leaked across any public API boundary.</p>
+<ol>
+<li>domain_error<ul>
+<li>This is caused by an error that theoretically can not happen (since we have full control of the class). If this type of error occurs there is a bug in the socket code or there has been massive data corruption. Consequently you should not be trying to catch these type of exception as there is a fundamental bug in the code. It is better to let the application exit as it is likely there is substantial corruption of any data.</li></ul></li>
+<li>logic_error<ul>
+<li>This is caused by an error that theoretically can not happen if the class is used correctly. This means that calling code has some form of logic error. It is caused by calling any method on a socket object that was previously closed or moved. Again this type of error should not be caught (but can be). You should try and remove all potential for this type of error by good unit tests.</li></ul></li>
+<li>runtime_error:<ul>
+<li>This is caused by an unlikely situation that can not be handled by the Socket code. This type of error requires a broader context to be resolved. As result the socket code will throw an exception that the user can catch and potentially correct from.</li></ul></li>
+</ol>
+
+    <footer>
+    <p class="meta">
+        <span class="byline author vcard">Posted by <span class="fn">Loki Astari (C)2016 (C)2016</span></span>
+        <time datetime="2016-05-27T04:13:39Z" pubdate>May 26 <span>th</span>, 2016</time>
+        
+            <span class="categories">
+            
+                <a class="category" href="/categories/c-plus-plus/index.html">C++</a>,
+            
+                <a class="category" href="/categories/sockets/index.html">Sockets</a>,
+            
+                <a class="category" href="/categories/c-plus-plus-by-example/index.html">C++-By-Example</a>,
+            
+                <a class="category" href="/categories/coding/index.html">Coding</a>,
+            
+            </span>
+        
+    </p>
+    <p class="meta">
+        
+            <a class="basic-alignment left" href="/blog/2016/05/29/socket-protocols/index.html" title="Previous Post: Socket Protocols">&laquo; Socket Protocols</a>
+        
+            <a class="basic-alignment right" href="/blog/2016/04/09/socket-read/index.html" title="Next Post: Socket Read/Write">Socket Read/Write &raquo;</a>
+        
+    </p>
+</footer>
+
+
+    </article>
+
+            <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite">
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+</section>
+
+        </div>
+        <aside class="sidebar">
+
+    <section>
+    <h1>Posts</h1>
+    <ul id="recent_posts">
+        
+            <li class="post"><a href="/blog/2016/05/29/socket-protocols/index.html">Socket Protocols</a></li>
+        
+            <li class="post"><a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">C++ Wrapper for Socket</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/09/socket-read/index.html">Socket Read/Write</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html">Socket Programming in C</a></li>
+        
+            <li class="post"><a href="/blog/2016/03/25/resizemaths/index.html">Memory Resizing</a></li>
+        
+    </ul>
+</section>
+
+
+    <section class="well">
+    <h1>Latest Tweets</h1>
+    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <ul id="tweets">
+        <li class="post">
+            <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </li>
+    </ul>
+</section>
+
+
+    <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+        <li class="loading">Status updating&#8230;</li>
+    </ul>
+
+    <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+    </script>
+    <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+</aside>
+
+    </div>
+</div>
+<footer role="contentinfo"><hr>
+    <p>
+        Copyright &copy; 2017 - Loki Astari -
+        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
+    </p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+
+
+
+        var disqus_identifier = 'https://LokiAstari.com/blog/2016/05/26/c-plus-plus-wrapper-for-socket/';
+        var disqus_url        = 'https://LokiAstari.com/blog/2016/05/26/c-plus-plus-wrapper-for-socket/';
+        var disqus_script = 'embed.js';
+
+
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>

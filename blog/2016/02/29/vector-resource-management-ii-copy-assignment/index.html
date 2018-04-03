@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html>
+
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Loki Astari</title>
+    <meta name="author" content="Loki Astari">
+
+
+    <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
+
+
+    <!-- http://t.co/dKP3o1e -->
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="/favicon.png" rel="icon">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+
+    <!-- MathJax configuration -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
+    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+
+</head>
+
+<body>
+<header role="banner">
+    <div class="header-left">
+        <hgroup>
+            <h1><a href="/">Loki Astari</a></h1>
+            
+            <div class="subtitle">
+                <h2>Thoughts of a former code monkey.</h2>
+            </div>
+            
+        </hgroup>
+    </div>
+
+    
+    <div class="header-right">
+        <ul class="main-navigation">
+            
+                <div  >
+                    <li><a href="/">blog</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/about/">about</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/series/">series</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/archives/">archives</a></li></div><div class="spacer">
+                </div>
+            
+        </ul>
+    </div>
+    
+</header>
+
+<div id="main">
+    <div id="content">
+        <div class="blog-index">
+                <article class="hentry" role="article">
+<!--
+This is article 4 of the 4 part Series: "<span style="color:red">Sockets</span>".<br>
+See side panel "Series" for details.<br><br>
+-->
+
+    <header>
+    <h1 class="entry-title"><a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/index.html">Vector - Resource Management Copy Swap</a></h1>
+        <p class="meta">
+            <time datetime="2016-02-29T20:29:20Z" pubdate>Feb 29 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/02/29/vector-resource-management-ii-copy-assignment/">Comments</a>
+            
+        </p>
+</header>
+
+    <p>In the previous article I went over basic allocation for a <code>Vector</code> like class. In this article I want to put some detail around the copy assignment operator and resizing the underlying <code>Vector</code>. Unlike the other methods previously discussed these methods have to deal with both construction and destruction of elements and the potential of exceptions interrupting the processes. The goal is to provide exception safe methods that provide the strong exception guarantee for the object and do not leak resources.</p>
+<h1 id="copyassignment">Copy Assignment</h1>
+<h2 id="firsttry">First Try</h2>
+<p>This is a very common first attempt at a copy constructor.
+It simply calls the destructor on all elements currently in the object. Then uses the existing <code>push_back()</code> method to copy member elements from the source object, thus allowing the object to automatically resize if required.</p>
+<p>Copy Assignment (Try 1)</p>
+<pre><code class="c language-c">class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+    // STUFF
+    Vector&amp; operator=(Vector const&amp; copy)
+    {
+        if (&amp;copy == this)
+        {
+            // Early exit for self assignment
+            return *this;
+        }
+        // First we have to destroy all the current elements.
+        for(int loop = 0; loop &lt; length; ++loop)
+        {
+            // Destroy in reverse order
+            buffer[length - 1 - loop].~T();
+        }
+        // Now the buffer is empty so reset size to zero.
+        length = 0;
+
+        // Now copy all the elements from the source into this object
+        for(int loop = 0; loop &lt; copy.length; ++loop)
+        {
+            push_back(copy.buffer[loop]);
+        }
+        return *this;
+    }
+};
+</code></pre>
+<h2 id="strongexceptionguarantee">Strong Exception Guarantee</h2>
+<p>The obvious problems about efficiency when a resize is required is a minor issue here. The real problem is that this does not provide the strong exception guarantee. If any of the constructors/destructor throw then the object will be left in an inconsistent state with no way to restore the original state. The strong exception guarantee basically means that the operation works or does not change the state of the object. The easiest technique to achieve this is to create a copy in a new temporary buffer that can be thrown away if things go wrong (leaving the current object untouched). If the copy succeeds then we use it and throw away the original data.</p>
+<p>Copy Assignment (Try 2)</p>
+<pre><code class="c language-c">class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+    // STUFF
+    Vector&amp; operator=(Vector const&amp; copy)
+    {
+        if (&amp;copy == this)
+        {
+            // Early exit for self assignment
+            return *this;
+        }
+        // Part-1 Create a copy of the src object.
+        std::size_t tmpCap    = copy.length;
+        std::size_t tmpSize   = 0;
+        T*          tmpBuffer = static_cast&lt;T*&gt;(::operator new(sizeof(T) * tmpCap));
+
+        // Now copy all the elements from the source into the temporary object
+        for(int loop = 0; loop &lt; copy.length; ++loop)
+        {
+            new (tmpBuffer + tmpSize) T(copy.buffer[loop]);
+            ++tmpSize;
+        }
+
+        // Part-2 Swap the state
+        // We have successfully created the new version of this object
+        // So swap the temporary and object states.
+        std::swap(tmpCap,    capacity);
+        std::swap(tmpSize,   length);
+        std::swap(tmpBuffer, buffer);
+
+        // Part-3 Destroy the old state.
+        // Now we have to delete the old state.
+        // If this fails it does not matter the state of the object is consistent
+        for(int loop = 0; loop &lt; tmpSize; ++loop)
+        {
+            tmpBuffer[tmpSize - 1 - loop].~T();
+        }
+        ::operator delete(tmpBuffer);
+        return *this;
+    }
+};
+</code></pre>
+<h2 id="copyandswap">Copy and Swap</h2>
+<p>This second attempt is a better attempt. But it still leaks if an exception is throw. But before we add exception handling, let us take a closer look at the three sections of the assignment operator.</p>
+<p>Part-1 looks exactly like the copy constructor of Vector.</p>
+<p>Copy Assignment Part 1</p>
+<pre><code class="c language-c">        std::size_t tmpCap    = copy.length;
+        std::size_t tmpSize   = 0;
+        T*          tmpBuffer = static_cast&lt;T*&gt;(::operator new(sizeof(T) * tmpCap));
+
+        // Now copy all the elements from the source into the temporary object
+        for(int loop = 0; loop &lt; copy.length; ++loop)
+        {
+            // This looks exactly like push_back()
+            new (tmpBuffer + tmpSize) T(copy.buffer[loop]);
+            ++tmpSize;
+        }
+</code></pre>
+<p>Part-3 looks exactly like destructor of Vector.</p>
+<p>Copy Assignment Part 3</p>
+<pre><code class="c language-c">        // Now we have to delete the old state.
+        for(int loop = 0; loop &lt; tmpSize; ++loop)
+        {
+            tmpBuffer[tmpSize - 1 - loop].~T();
+        }
+        ::operator delete(tmpBuffer);
+</code></pre>
+<p>Using these two observations we have a rewrite of the copy assignment operator.</p>
+<p>Copy Assignment (Try 3)</p>
+<pre><code class="c language-c">class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+    // STUFF
+    Vector&amp; operator=(Vector const&amp; copy)
+    {
+        if (&amp;copy == this)
+        {
+            // Early exit for self assignment
+            return *this;
+        }
+        // Part-1 Create a copy
+        Vector  tmp(copy);
+
+        // Part-2 Swap the state
+        std::swap(tmp.capacity, capacity);
+        std::swap(tmp.length,   length);
+        std::swap(tmp.buffer,   buffer);
+
+        return *this;
+        // Part-3 Destructor called at end of scope.
+        // No actual code required here.
+    }
+};
+</code></pre>
+<h2 id="copyandswapidiomhttpstackoverflowcomq327954314065"><a href="http://stackoverflow.com/q/3279543/14065">Copy And Swap Idiom</a></h2>
+<p>The copy and swap idiom is about dealing with replacing an object state from another object. It is very commonly used in the copy assignment operator but has application whenever state is being changed and the <a href="https://en.wikipedia.org/wiki/Exception_safety">strong exception guarantee</a> is required.</p>
+<p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation so let's use that rather than doing it manually. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it makes the normal operation even more efficient. Since the occurrence of self assignment is extremely rare I would not prematurely optimize for it but rather make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.</p>
+<p>Copy Assignment (Try 4)</p>
+<pre><code class="c language-c">class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+    // STUFF
+    Vector&amp; operator=(Vector const&amp; copy)
+    {
+        Vector  tmp(copy);
+        tmp.swap(*this);
+        return *this;
+    }
+    void swap(Vector&amp; other) noexcept
+    {
+        std::swap(other.capacity, capacity);
+        std::swap(other.length,   length);
+        std::swap(other.buffer,   buffer);
+    }
+};
+</code></pre>
+<h1 id="resizingunderlyingbuffer">Resizing Underlying buffer</h1>
+<p>When pushing data into the array we need to verify that capacity has not been exceeded. If it has then we need to allocate more capacity then copy the current content into the new buffer and destroy the old buffer after calling the destructor on all elements.</p>
+<h2 id="usingcopyandswap">Using Copy and Swap</h2>
+<p>This operation is exceedingly similar to the description of the copy assignment operator. As a result the best solution looks very similar and uses the Copy and Swap idiom.</p>
+<p>Vector Reallocating Buffer</p>
+<pre><code class="c language-c">class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+    // STUFF
+    void resizeIfRequire()
+    {
+        if (length == capacity)
+        {
+            // Create a temporary object with a larger capacity.
+            std::size_t     newCapacity  = std::max(2.0, capacity * 1.5);
+            Vector&lt;T&gt;  tmpBuffer(newCapacity);
+
+            // Copy the state of this object into the new object.
+            std::for_each(buffer, buffer + length, [&amp;tmpBuffer](T const&amp; item){tmpBuffer.push_back(item);});
+
+            // All the work has been successfully done. So swap
+            // the state of the temporary and the current object.
+            tmpBuffer.swap(*this);
+
+            // The temporary object goes out of scope here and
+            // tidies up the state that is no longer needed.
+        }
+    }
+};
+</code></pre>
+<h1 id="finalversionaidvectorversion2a">Final Version <a id="VectorVersion-2"></a></h1>
+<p>Vector Final Version</p>
+<pre><code class="c language-c">template&lt;typename T&gt;
+class Vector
+{
+    std::size_t     capacity;
+    std::size_t     length;
+    T*              buffer;
+
+    struct Deleter
+    {
+        void operator()(T* buffer) const
+        {
+            ::operator delete(buffer);
+        }
+    };
+
+    public:
+        Vector(int capacity = 10)
+            : capacity(capacity)
+            , length(0)
+            , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+        {}
+        ~Vector()
+        {
+            // Make sure the buffer is deleted even with exceptions
+            // This will be called to release the pointer at the end
+            // of scope.
+            std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+
+            // Call the destructor on all the members in reverse order
+            for(int loop = 0; loop &lt; length; ++loop)
+            {
+                // Note we destroy the elements in reverse order.
+                buffer[length - 1 - loop].~T();
+            }
+        }
+        Vector(Vector const&amp; copy)
+            : capacity(copy.length)
+            , length(0)
+            , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+        {
+            try
+            {
+                for(int loop = 0; loop &lt; copy.length; ++loop)
+                {
+                    push_back(copy.buffer[loop]);
+                }
+            }
+            catch(...)
+            {
+                std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+                // If there was an exception then destroy everything
+                // that was created to make it exception safe.
+                for(int loop = 0; loop &lt; length; ++loop)
+                {
+                    buffer[length - 1 - loop].~T();
+                }
+
+                // Make sure the exceptions continue propagating after
+                // the cleanup has completed.
+                throw;
+            }
+        }
+        Vector&amp; operator=(Vector const&amp; copy)
+        {
+            // Copy and Swap idiom
+            Vector&lt;T&gt;  tmp(copy);
+            tmp.swap(*this);
+            return *this;
+        }
+        Vector(Vector&amp;&amp; move) noexcept
+            : capacity(0)
+            , length(0)
+            , buffer(nullptr)
+        {
+            move.swap(*this);
+        }
+        Vector&amp; operator=(Vector&amp;&amp; move) noexcept
+        {
+            move.swap(*this);
+            return *this;
+        }
+        void swap(Vector&amp; other) noexcept
+        {
+            using std::swap;
+            swap(capacity,      other.capacity);
+            swap(length,        other.length);
+            swap(buffer,        other.buffer);
+        }
+        void push_back(T const&amp; value)
+        {
+            resizeIfRequire();
+            pushBackInternal(value);
+        }
+        void pop_back()
+        {
+            --length;
+            buffer[length].~T();
+        }
+        void reserve(std::size_t capacityUpperBound)
+        {
+            if (capacityUpperBound &gt; capacity)
+            {
+                reserveCapacity(capacityUpperBound);
+            }
+        }
+    private:
+        void resizeIfRequire()
+        {
+            if (length == capacity)
+            {
+                std::size_t     newCapacity  = std::max(2.0, capacity * 1.5);
+                reserveCapacity(newCapacity);
+            }
+        }
+        void pushBackInternal(T const&amp; value)
+        {
+            new (buffer + length) T(value);
+            ++length;
+        }
+        void reserveCapacity(std::size_t newCapacity)
+        {
+            Vector&lt;T&gt;  tmpBuffer(newCapacity);
+            std::for_each(buffer, buffer + length, [&amp;tmpBuffer](T const&amp; v){tmpBuffer.pushBackInternal(v);});
+
+            tmpBuffer.swap(*this);
+        }
+};
+</code></pre>
+<h1 id="summary">Summary</h1>
+<p>This article has gone over the design of the Copy and Swap idiom and shown how it is used in the Copy Assignment Operator and the resize operation.</p>
+<ul>
+<li>Separation Of Concerns</li>
+<li>Copy and Swap Idiom</li>
+<li>Exception Gurantees</li>
+</ul>
+
+    <footer>
+    <p class="meta">
+        <span class="byline author vcard">Posted by <span class="fn">Loki Astari, (C)2016 (C)2016</span></span>
+        <time datetime="2016-02-29T20:29:20Z" pubdate>Feb 29 <span>th</span>, 2016</time>
+        
+            <span class="categories">
+            
+                <a class="category" href="/categories/c-plus-plus/index.html">C++</a>,
+            
+                <a class="category" href="/categories/vector/index.html">Vector</a>,
+            
+                <a class="category" href="/categories/resourcemanagement/index.html">ResourceManagement</a>,
+            
+                <a class="category" href="/categories/c-plus-plus-by-example/index.html">C++-By-Example</a>,
+            
+                <a class="category" href="/categories/coding/index.html">Coding</a>,
+            
+            </span>
+        
+    </p>
+    <p class="meta">
+        
+            <a class="basic-alignment left" href="/blog/2016/03/12/vector-resize/index.html" title="Previous Post: Vector - Resize">&laquo; Vector - Resize</a>
+        
+            <a class="basic-alignment right" href="/blog/2016/02/27/vector/index.html" title="Next Post: Vector - Resource Management Allocation">Vector - Resource Management Allocation &raquo;</a>
+        
+    </p>
+</footer>
+
+
+    </article>
+
+            <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite">
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+</section>
+
+        </div>
+        <aside class="sidebar">
+
+    <section>
+    <h1>Posts</h1>
+    <ul id="recent_posts">
+        
+            <li class="post"><a href="/blog/2016/05/29/socket-protocols/index.html">Socket Protocols</a></li>
+        
+            <li class="post"><a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">C++ Wrapper for Socket</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/09/socket-read/index.html">Socket Read/Write</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html">Socket Programming in C</a></li>
+        
+            <li class="post"><a href="/blog/2016/03/25/resizemaths/index.html">Memory Resizing</a></li>
+        
+    </ul>
+</section>
+
+
+    <section class="well">
+    <h1>Latest Tweets</h1>
+    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <ul id="tweets">
+        <li class="post">
+            <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </li>
+    </ul>
+</section>
+
+
+    <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+        <li class="loading">Status updating&#8230;</li>
+    </ul>
+
+    <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+    </script>
+    <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+</aside>
+
+    </div>
+</div>
+<footer role="contentinfo"><hr>
+    <p>
+        Copyright &copy; 2017 - Loki Astari -
+        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
+    </p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+
+
+
+        var disqus_identifier = 'https://LokiAstari.com/blog/2016/02/29/vector-resource-management-ii-copy-assignment/';
+        var disqus_url        = 'https://LokiAstari.com/blog/2016/02/29/vector-resource-management-ii-copy-assignment/';
+        var disqus_script = 'embed.js';
+
+
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>

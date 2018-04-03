@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Loki Astari</title>
+    <meta name="author" content="Loki Astari">
+
+
+    <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
+
+
+    <!-- http://t.co/dKP3o1e -->
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="/favicon.png" rel="icon">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+
+    <!-- MathJax configuration -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
+    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+
+</head>
+
+<body>
+<header role="banner">
+    <div class="header-left">
+        <hgroup>
+            <h1><a href="/">Loki Astari</a></h1>
+            
+            <div class="subtitle">
+                <h2>Thoughts of a former code monkey.</h2>
+            </div>
+            
+        </hgroup>
+    </div>
+
+    
+    <div class="header-right">
+        <ul class="main-navigation">
+            
+                <div  >
+                    <li><a href="/">blog</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/about/">about</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/series/">series</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/archives/">archives</a></li></div><div class="spacer">
+                </div>
+            
+        </ul>
+    </div>
+    
+</header>
+
+<div id="main">
+    <div id="content">
+        <div class="blog-index">
+                <article class="hentry" role="article">
+<!--
+This is article 4 of the 4 part Series: "<span style="color:red">Sockets</span>".<br>
+See side panel "Series" for details.<br><br>
+-->
+
+    <header>
+    <h1 class="entry-title"><a href="/blog/2016/03/25/resizemaths/index.html">Memory Resizing</a></h1>
+        <p class="meta">
+            <time datetime="2016-03-25T12:53:07Z" pubdate>Mar 25 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/03/25/resizemaths/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/03/25/resizemaths/">Comments</a>
+            
+        </p>
+</header>
+
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script>
+<p>So I never really considered why the resize of vector used a constant expansion of 1.5 or 2 (in some popular implementations). That was until I did my previous article Xseries <a href="https://LokiAstari.com/blog/2016/02/27/vector/">"Vector"</a> where I concentrated a lot on resource management and did a section on <a href="https://LokiAstari.com/blog/2016/03/12/vector-resize/">resizing the vector</a>. Originally in the code I tried to be clever, a mistake. I used a resize value of 1.62 (an approximation of <code>Phi</code>), because I vaguely remembered reading an article that this was the optimum resize factor. When I put this out for code review it was pointed out to me that this value was too large, the optimum value must be less than or equal to <code>Phi</code> (1.6180339887) and that exceeding this limit actually made things a lot worse.</p>
+<p>So I had to know why….</p>
+<p>So the theory goes: You have a memory resource of size <code>B</code>. If you resize this resource by a constant factor <code>r</code> by re-allocating a new block then releasing the old block. Then if the value of <code>r</code> is smaller than or equal to <code>Phi</code> you will eventually be able to reuse memory that has previously been released; otherwise the new block of memory being allocated will always be larger than the previously released memory.</p>
+<p>So I thought lets try that:
+Test one <code>r &gt; Phi</code>:</p>
+<pre><code>B=10
+r=2.0
+
+            Sum Memory      Memory      Memory Needed       Difference
+             Released     Allocated     Next Iteration
+Start            0            10              20                 20
+Resize 1        10            20              40                 30
+Resize 2        30            40              80                 50
+Resize 3        70            80             160                 90
+Resize 4       150           160             320                170
+</code></pre>
+<p>OK. That seems to be holding (at least in the short term). Lo lets try a smaller value.
+Test two <code>r &lt; Phi</code>:</p>
+<pre><code>B=10
+r=1.5
+
+            Sum Memory      Memory      Memory Needed       Difference
+             Released     Allocated     Next Iteration
+Start            0            10              15                 15
+Resize 1        10            15              22                 12
+Resize 2        25            22              33                  8
+Resize 3        47            33              48                  1
+Resize 4        80            48              72                 -8 // Reuse released memory next iteration
+</code></pre>
+<p>OK. That also seems to be holding. But can we show that holds for all values of B? Also this is a bit anecdotal can we actually show this relationship actually hold? Time to break out some maths (not math as my American cousins seem to insist on for the shortening of mathematics).</p>
+<p>So the size <code>S</code> of any block after <code>n</code> resize operations will be:</p>
+<p>$$ S   = Br^n $$</p>
+<p>Thus the size of <code>Released Memory</code> can be expressed as:</p>
+<p>$$ \sum_{k=0}^{n-1}\ Br^k $$</p>
+<p>Also the size of the next block will be:</p>
+<p>$$ Br^{n+1} $$</p>
+<p>So if the amount of <code>Released Memory</code> &gt;= the amount required for the next block, then we can reuse the <code>Released Memory</code>.</p>
+<p>$$ \sum_{k=0}^{n-1}\ Br^k &gt;= Br^{n+1} $$</p>
+<p>$$ B \sum_{k=0}^{n-1}\ r^k &gt;= Br^{n+1} $$</p>
+<p>$$ \sum_{k=0}^{n-1}\ r^k &gt;= r^{n+1} $$</p>
+<p>$$ {1-r^{(n-1)+1}\over1-r} &gt;= r^{n+1} $$</p>
+<p>$$ {1-r^n\over1-r} &gt;= r^{n+1} $$</p>
+<p>$$ 1-r^n &gt;= r^{n+1} (1-r) $$</p>
+<p>$$ 1-r^n &gt;= r^{n+1} - r^{n+2} $$</p>
+<p>$$ 1 + r^{n+2} - r^{n+1} - r^n &gt;= 0 $$</p>
+<p>$$ 1 + r^n (r^2 - r - 1) &gt;= 0 $$</p>
+<p>This is were my maths broke down and I had to plot some graphs (my old "maths" teacher would have been so proud).<br></p>
+<p>{% img /images/Root4.png 400 200 "n=4"%}
+{% img /images/Root8.png 400 200 "n=8"%}
+<br><br></p>
+<p>So after looking at the graphs (to understand the formula) then talking to some smart people.
+They noticed that:</p>
+<p>$$ \sqrt{(r^2 - r - 1)} . when . r = \Phi $$</p>
+<p>We find that the first root of the equation is 1. The second root of the equation depends on <code>n</code>, as <code>n</code> tends to <code>infinity</code> the other root tends towards <code>Phi</code>. From this we can infer the following:</p>
+<p>$$ 1 &lt; r &lt;= \Phi $$</p>
+<p>Thus if <code>r</code> remains in the above range then the above theory holds.</p>
+
+    <footer>
+    <p class="meta">
+        <span class="byline author vcard">Posted by <span class="fn">Loki Astari (C)2016 (C)2016</span></span>
+        <time datetime="2016-03-25T12:53:07Z" pubdate>Mar 25 <span>th</span>, 2016</time>
+        
+            <span class="categories">
+            
+                <a class="category" href="/categories/c-plus-plus/index.html">C++</a>,
+            
+                <a class="category" href="/categories/resourcemanagement/index.html">ResourceManagement</a>,
+            
+                <a class="category" href="/categories/c-plus-plus-by-example/index.html">C++-By-Example</a>,
+            
+                <a class="category" href="/categories/coding/index.html">Coding</a>,
+            
+            </span>
+        
+    </p>
+    <p class="meta">
+        
+            <a class="basic-alignment left" href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html" title="Previous Post: Socket Programming in C">&laquo; Socket Programming in C</a>
+        
+            <a class="basic-alignment right" href="/blog/2016/03/20/vector-the-other-stuff/index.html" title="Next Post: Vector - The Other Stuff">Vector - The Other Stuff &raquo;</a>
+        
+    </p>
+</footer>
+
+
+    </article>
+
+            <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite">
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+</section>
+
+        </div>
+        <aside class="sidebar">
+
+    <section>
+    <h1>Posts</h1>
+    <ul id="recent_posts">
+        
+            <li class="post"><a href="/blog/2016/05/29/socket-protocols/index.html">Socket Protocols</a></li>
+        
+            <li class="post"><a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">C++ Wrapper for Socket</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/09/socket-read/index.html">Socket Read/Write</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html">Socket Programming in C</a></li>
+        
+            <li class="post"><a href="/blog/2016/03/25/resizemaths/index.html">Memory Resizing</a></li>
+        
+    </ul>
+</section>
+
+
+    <section class="well">
+    <h1>Latest Tweets</h1>
+    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <ul id="tweets">
+        <li class="post">
+            <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </li>
+    </ul>
+</section>
+
+
+    <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+        <li class="loading">Status updating&#8230;</li>
+    </ul>
+
+    <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+    </script>
+    <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+</aside>
+
+    </div>
+</div>
+<footer role="contentinfo"><hr>
+    <p>
+        Copyright &copy; 2017 - Loki Astari -
+        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
+    </p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+
+
+
+        var disqus_identifier = 'https://LokiAstari.com/blog/2016/03/25/resizemaths/';
+        var disqus_url        = 'https://LokiAstari.com/blog/2016/03/25/resizemaths/';
+        var disqus_script = 'embed.js';
+
+
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>

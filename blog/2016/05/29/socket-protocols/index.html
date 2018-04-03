@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Loki Astari</title>
+    <meta name="author" content="Loki Astari">
+
+
+    <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
+
+
+    <!-- http://t.co/dKP3o1e -->
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="/favicon.png" rel="icon">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+
+    <!-- MathJax configuration -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
+    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+
+</head>
+
+<body>
+<header role="banner">
+    <div class="header-left">
+        <hgroup>
+            <h1><a href="/">Loki Astari</a></h1>
+            
+            <div class="subtitle">
+                <h2>Thoughts of a former code monkey.</h2>
+            </div>
+            
+        </hgroup>
+    </div>
+
+    
+    <div class="header-right">
+        <ul class="main-navigation">
+            
+                <div  >
+                    <li><a href="/">blog</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/about/">about</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/series/">series</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/archives/">archives</a></li></div><div class="spacer">
+                </div>
+            
+        </ul>
+    </div>
+    
+</header>
+
+<div id="main">
+    <div id="content">
+        <div class="blog-index">
+                <article class="hentry" role="article">
+<!--
+This is article 4 of the 4 part Series: "<span style="color:red">Sockets</span>".<br>
+See side panel "Series" for details.<br><br>
+-->
+
+    <header>
+    <h1 class="entry-title"><a href="/blog/2016/05/29/socket-protocols/index.html">Socket Protocols</a></h1>
+        <p class="meta">
+            <time datetime="2016-05-30T04:13:39Z" pubdate>May 29 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/05/29/socket-protocols/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/05/29/socket-protocols/">Comments</a>
+            
+        </p>
+</header>
+
+    <p>In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more robust connection between client and server a communications protocol is required so that we can validate messages are sent correctly and generate appropriate responses that can also be validated.</p>
+<p>Designing a communication protocol is a non trivial task and personally I would look for an existing protocol that matches your use case rather than trying to create protocol from scratch.</p>
+<h4 id="exampleprotocols">Example Protocols</h4>
+<ul>
+<li>HTTP&#x003A; &nbsp;https://tools.ietf.org/html/rfc2616.txt</li>
+<li>IRC&#x003A; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://tools.ietf.org/html/rfc1490.txt</li>
+</ul>
+<p>Rather than go through all the different protocols I am simply going to pick the HTTP(S) protocol and use that for further discussion. HTTP(S) is relatively well known; It is simple to implement the basics; There are well known server implementations that support it; There are well known client libraries that can be used in application development.</p>
+<h4 id="examplehttpsservers">Example HTTP(S) servers</h4>
+<ul>
+<li><a href="https://httpd.apache.org/">Apache</a></li>
+<li><a href="http://nginx.org/en/">nginx</a></li>
+<li><a href="https://nodejs.org/en/about/">Node.js</a></li>
+</ul>
+<h4 id="clientsidehttplibraries">Client Side HTTP Libraries</h4>
+<ul>
+<li><a href="https://curl.haxx.se/libcurl/c/">LibCurl</a></li>
+<li><a href="https://www.w3.org/Library/User/Using/">Libwww</a></li>
+<li><a href="http://http-fetcher.sourceforge.net/API/index.html">HttpFetch</a></li>
+</ul>
+<h2 id="https">HTTP(S)</h2>
+<p>Basically HTTP(S) defines two object. A request object is sent from the client to the server and response object is sent back as a result of a request. The only difference between the two is the start-line. Both HTTP objects can be broken down into three pieces.</p>
+<ol>
+<li>Start-Line</li>
+<li>Header-Section</li>
+<li>Body</li>
+</ol>
+<h3 id="startline">Start-Line</h3>
+<p>For a request object this is:</p>
+<table>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Method:</td><td>HEAD/GET/PUT/POST/DELETE</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">URL:</td><td>Identification of the object/service needed</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">HTTP-Version:</td><td>Usually HTTP/1.1</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally '\r\n'</td></tr>
+</table>
+<h4 id="example">Example:</h4>
+<pre><code class="http language-http">GET http://google.com/maps?id=456 HTTP/1.1\r\n
+</code></pre>
+<p>For a response object this is:</p>
+<table>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">HTTP-Version:</td><td>Usually HTTP/1.1</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Response Code:</td><td><a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">100->599</a></td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Human Readable Response:</td><td>Human readable explanation of the response code</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally '\r\n'</td></tr>
+</table>
+<h4 id="example-1">Example:</h4>
+<pre><code class="http language-http">HTTP/1.1 200 OK\r\n
+</code></pre>
+<h3 id="headersection">Header-Section</h3>
+<p>This is a set of key/value pairs one per line separated by a colon. Each Line is terminated by CR/LF and the end of the header section is marked by an empty line.</p>
+<table>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Key:</td><td>A text string representing the keys.</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Colon:</td><td>A single colon (note: some implementations are lax and insert a space before the colon).</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Space:</td><td>One Space character (note: some implementations are lax and more then one space may be present)</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">Value:</td><td>A set of characters that does not include CR or LF.</td></tr>
+<tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally '\r\n'</td></tr>
+</table>
+<h4 id="example-2">Example</h4>
+<pre><code class="http language-http">Content-Length: 42\r\n
+Content-Type: text/text\r\n
+\r\n
+</code></pre>
+<h3 id="body">Body</h3>
+<p>The payload of the object should be in the body. Its size is defined by the headers defined in <a href="https://tools.ietf.org/html/rfc2616#section-4.4">rfc-2616 section 4.4 Message Length</a>.</p>
+<h3 id="requiredheaders">Required Headers</h3>
+<p>According to the rfc(s) <a href="https://tools.ietf.org/html/rfc7230">7230</a>, <a href="https://tools.ietf.org/html/rfc7231">7231</a>, <a href="https://tools.ietf.org/html/rfc7232">7232</a>, <a href="https://tools.ietf.org/html/rfc7233">7233</a>, <a href="https://tools.ietf.org/html/rfc7234">7234</a> or <a href="https://tools.ietf.org/html/rfc7235">7235</a> there are no header fields there are actually required header fields.</p>
+<h4 id="requestobject">Request Object</h4>
+<p>But real world implementations need some headers to work efficiently, so you probably should send the following headers when making a request to a server:</p>
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">Content-Length</a>:   // Or use one of the other techniques to specify length</li>
+<li><a href="https://tools.ietf.org/html/rfc7230#section-5.4">Host</a>:</li>
+</ul>
+<p>It is also polite to send the following.</p>
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-5.5.3">User-Agent</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">Accept</a>:</li>
+</ul>
+<h4 id="responseobject">Response Object</h4>
+<p>A server implementation "Must" send a <code>Date:</code> header field if it is a reasonable approximation of UTC. But that means servers may not supply the <code>Date:</code> field so you can't say it is a requirement of the standard. But you will usually see the following headers returned from a server:</p>
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.2">Date</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-7.4.2">Server</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">Content-Length</a>:</li>
+<li><a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a>:</li>
+</ul>
+<h2 id="implementation">Implementation</h2>
+<p>Given this very basic protocol; it seems like the implementation of these requirements should be quite trivial. To be honest the implementation of creating the objects to send is relatively trivial, the hard part is reading objects from the stream in an efficiently and correctly validated manner. You can find my attempt <a href="https://github.com/Loki-Astari/Examples/tree/master/Version3">here</a>: It works but its 500 lines long and only covers the most basics parts of the protocol and does not do any of the hard parts (like authentication or HTTPS).</p>
+<p>To use this protocol correctly you really need to use one of the existing libraries. Here I have re-implemented the client using libcurl.</p>
+<p><a href="https://github.com/Loki-Astari/Examples/blob/master/Version4/client.cpp">Client uses libcurl wrapper</a></p>
+<pre><code class="c language-c">int main(int argc, char* argv[])
+{
+    namespace Sock = ThorsAnvil::Socket;
+    if (argc != 3)
+    {
+        std::cerr &lt;&lt; "Usage: client &lt;host&gt; &lt;Message&gt;\n";
+        std::exit(1);
+    }
+
+    Sock::CurlGlobal    curlInit;
+    Sock::CurlPost      connect(argv[1], 8080);
+
+    connect.sendMessage("/message", argv[2]);
+
+    std::string message;
+    connect.recvMessage(message);
+    std::cout &lt;&lt; message &lt;&lt; "\n";
+}
+</code></pre>
+<p><a href="https://github.com/Loki-Astari/Examples/blob/master/Version4/client.cpp">libCurl simple wrapper</a></p>
+<pre><code class="c language-c">#include "Utility.h"
+#include &lt;curl/curl.h&gt;
+#include &lt;sstream&gt;
+#include &lt;iostream&gt;
+#include &lt;cstdlib&gt;
+
+namespace ThorsAnvil
+{
+    namespace Socket
+    {
+
+class CurlGlobal
+{
+    public:
+        CurlGlobal()
+        {
+            if (curl_global_init(CURL_GLOBAL_ALL) != 0)
+            {
+                throw std::runtime_error(buildErrorMessage("CurlGlobal::", __func__, ": curl_global_init: fail"));
+            }
+        }
+        ~CurlGlobal()
+        {
+            curl_global_cleanup();
+        }
+};
+
+extern "C" size_t curlConnectorGetData(char *ptr, size_t size, size_t nmemb, void *userdata);
+
+enum RequestType {Get, Head, Put, Post, Delete};
+class CurlConnector
+{
+    CURL*       curl;
+    std::string host;
+    int         port;
+    std::string response;
+
+    friend size_t curlConnectorGetData(char *ptr, size_t size, size_t nmemb, void *userdata);
+    std::size_t getData(char *ptr, size_t size)
+    {
+        response.append(ptr, size);
+        return size;
+    }
+    template&lt;typename Param, typename... Args&gt;
+    void curlSetOptionWrapper(CURLoption option, Param parameter, Args... errorMessage)
+    {
+        CURLcode res;
+        if ((res = curl_easy_setopt(curl, option, parameter)) != CURLE_OK)
+        {
+            throw std::runtime_error(buildErrorMessage(errorMessage..., curl_easy_strerror(res)));
+        }
+    }
+
+    public:
+        CurlConnector(std::string const&amp; host, int port)
+            : curl(curl_easy_init( ))
+            , host(host)
+            , port(port)
+        {
+            if (curl == NULL)
+            {
+                throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_init: fail"));
+            }
+        }
+        ~CurlConnector()
+        {
+            curl_easy_cleanup(curl);
+        }
+        CurlConnector(CurlConnector&amp;)               = delete;
+        CurlConnector&amp; operator=(CurlConnector&amp;)    = delete;
+        CurlConnector(CurlConnector&amp;&amp; rhs) noexcept
+            : curl(nullptr)
+        {
+            rhs.swap(*this);
+        }
+        CurlConnector&amp; operator=(CurlConnector&amp;&amp; rhs) noexcept
+        {
+            rhs.swap(*this);
+            return *this;
+        }
+        void swap(CurlConnector&amp; other) noexcept
+        {
+            using std::swap;
+            swap(curl, other.curl);
+            swap(host, other.host);
+            swap(port, other.port);
+            swap(response, other.response);
+        }
+
+        virtual RequestType getRequestType() const = 0;
+
+        void sendMessage(std::string const&amp; urlPath, std::string const&amp; message)
+        {
+            std::stringstream url;
+            response.clear();
+            url &lt;&lt; "http://" &lt;&lt; host;
+            if (port != 80)
+            {
+                url &lt;&lt; ":" &lt;&lt; port;
+            }
+            url &lt;&lt; urlPath;
+
+            CURLcode res;
+            auto sListDeleter = [](struct curl_slist* headers){curl_slist_free_all(headers);};
+            std::unique_ptr&lt;struct curl_slist, decltype(sListDeleter)&gt; headers(nullptr, sListDeleter);
+            headers = std::unique_ptr&lt;struct curl_slist, decltype(sListDeleter)&gt;(curl_slist_append(headers.get(), "Content-Type: text/text"), sListDeleter);
+
+            curlSetOptionWrapper(CURLOPT_HTTPHEADER,        headers.get(),          "CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_HTTPHEADER:");
+            curlSetOptionWrapper(CURLOPT_ACCEPT_ENCODING,   "*/*",                  "CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_ACCEPT_ENCODING:");
+            curlSetOptionWrapper(CURLOPT_USERAGENT,         "ThorsCurl-Client/0.1", "CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_USERAGENT:");
+            curlSetOptionWrapper(CURLOPT_URL,               url.str().c_str(),      "CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_URL:");
+            curlSetOptionWrapper(CURLOPT_POSTFIELDSIZE,     message.size(),         "CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_POSTFIELDSIZE:");
+            curlSetOptionWrapper(CURLOPT_COPYPOSTFIELDS,    message.data(),         "CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_COPYPOSTFIELDS:");
+            curlSetOptionWrapper(CURLOPT_WRITEFUNCTION,     curlConnectorGetData,   "CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_WRITEFUNCTION:");
+            curlSetOptionWrapper(CURLOPT_WRITEDATA,         this,                   "CurlConnector::", __func__, ": curl_easy_setopt CURLOPT_WRITEDATA:");
+
+            switch(getRequestType())
+            {
+                case Get:       res = CURLE_OK; /* The default is GET. So do nothing.*/         break;
+                case Head:      res = curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "HEAD");    break;
+                case Put:       res = curl_easy_setopt(curl, CURLOPT_PUT, 1);                   break;
+                case Post:      res = curl_easy_setopt(curl, CURLOPT_POST, 1);                  break;
+                case Delete:    res = curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");  break;
+                default:
+                    throw std::domain_error(buildErrorMessage("CurlConnector::", __func__, ": invalid method: ", static_cast&lt;int&gt;(getRequestType())));
+            }
+            if (res != CURLE_OK)
+            {
+                throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_setopt CURL_METHOD:", curl_easy_strerror(res)));
+            }
+            if ((res = curl_easy_perform(curl)) != CURLE_OK)
+            {
+                throw std::runtime_error(buildErrorMessage("CurlConnector::", __func__, ": curl_easy_perform:", curl_easy_strerror(res)));
+            }
+        }
+        void recvMessage(std::string&amp; message)
+        {
+            message = std::move(response);
+        }
+};
+
+class CurlPost: public CurlConnector
+{
+    public:
+        using CurlConnector::CurlConnector;
+        virtual RequestType getRequestType() const {return Post;}
+
+};
+
+size_t curlConnectorGetData(char *ptr, size_t size, size_t nmemb, void *userdata)
+{
+    CurlConnector*  self = reinterpret_cast&lt;CurlConnector*&gt;(userdata);
+    return self-&gt;getData(ptr, size * nmemb);
+}
+
+    }
+}
+</code></pre>
+
+    <footer>
+    <p class="meta">
+        <span class="byline author vcard">Posted by <span class="fn">Loki Astari (C)2016 (C)2016</span></span>
+        <time datetime="2016-05-30T04:13:39Z" pubdate>May 29 <span>th</span>, 2016</time>
+        
+            <span class="categories">
+            
+                <a class="category" href="/categories/c-plus-plus/index.html">C++</a>,
+            
+                <a class="category" href="/categories/sockets/index.html">Sockets</a>,
+            
+                <a class="category" href="/categories/c-plus-plus-by-example/index.html">C++-By-Example</a>,
+            
+                <a class="category" href="/categories/coding/index.html">Coding</a>,
+            
+            </span>
+        
+    </p>
+    <p class="meta">
+        
+            <a class="basic-alignment right" href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html" title="Next Post: C++ Wrapper for Socket">C++ Wrapper for Socket &raquo;</a>
+        
+    </p>
+</footer>
+
+
+    </article>
+
+            <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite">
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+</section>
+
+        </div>
+        <aside class="sidebar">
+
+    <section>
+    <h1>Posts</h1>
+    <ul id="recent_posts">
+        
+            <li class="post"><a href="/blog/2016/05/29/socket-protocols/index.html">Socket Protocols</a></li>
+        
+            <li class="post"><a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">C++ Wrapper for Socket</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/09/socket-read/index.html">Socket Read/Write</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html">Socket Programming in C</a></li>
+        
+            <li class="post"><a href="/blog/2016/03/25/resizemaths/index.html">Memory Resizing</a></li>
+        
+    </ul>
+</section>
+
+
+    <section class="well">
+    <h1>Latest Tweets</h1>
+    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <ul id="tweets">
+        <li class="post">
+            <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </li>
+    </ul>
+</section>
+
+
+    <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+        <li class="loading">Status updating&#8230;</li>
+    </ul>
+
+    <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+    </script>
+    <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+</aside>
+
+    </div>
+</div>
+<footer role="contentinfo"><hr>
+    <p>
+        Copyright &copy; 2017 - Loki Astari -
+        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
+    </p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+
+
+
+        var disqus_identifier = 'https://LokiAstari.com/blog/2016/05/29/socket-protocols/';
+        var disqus_url        = 'https://LokiAstari.com/blog/2016/05/29/socket-protocols/';
+        var disqus_script = 'embed.js';
+
+
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>

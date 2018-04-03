@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Loki Astari</title>
+    <meta name="author" content="Loki Astari">
+
+
+    <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
+
+
+    <!-- http://t.co/dKP3o1e -->
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="/favicon.png" rel="icon">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+
+    <!-- MathJax configuration -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
+    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+
+</head>
+
+<body>
+<header role="banner">
+    <div class="header-left">
+        <hgroup>
+            <h1><a href="/">Loki Astari</a></h1>
+            
+            <div class="subtitle">
+                <h2>Thoughts of a former code monkey.</h2>
+            </div>
+            
+        </hgroup>
+    </div>
+
+    
+    <div class="header-right">
+        <ul class="main-navigation">
+            
+                <div  >
+                    <li><a href="/">blog</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/about/">about</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/series/">series</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/archives/">archives</a></li></div><div class="spacer">
+                </div>
+            
+        </ul>
+    </div>
+    
+</header>
+
+<div id="main">
+    <div id="content">
+        <div class="blog-index">
+                <article class="hentry" role="article">
+<!--
+This is article 4 of the 4 part Series: "<span style="color:red">Sockets</span>".<br>
+See side panel "Series" for details.<br><br>
+-->
+
+    <header>
+    <h1 class="entry-title"><a href="/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/index.html">Smart-Pointer - Shared Pointer</a></h1>
+        <p class="meta">
+            <time datetime="2015-01-15T16:13:47Z" pubdate>Jan 15 <span>th</span>, 2015</time>
+            
+                | <a href="/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/">Comments</a>
+            
+        </p>
+</header>
+
+    <p>So in <a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">the previous article</a> I covered a basic <code>unique</code> pointer where the smart pointer retained sole ownership of the pointer. The other common smart pointer we encounter is the <code>shared</code> pointer (SP). In this case the ownership of the pointer is shared across multiple instances of SP and the pointer is only released (deleted) when all SP instances have been destroyed.</p>
+<p>So not only do we have to store the pointer but we need a mechanism for keeping track of all the SP instances that are sharing ownership of the pointer. When the last SP instance is destroyed it also deletes the pointer (The last owner cleans up. A similar principle to the last one to leave the room turns out the lights).</p>
+<p>Shared Pointer contextual destructor</p>
+<pre><code class="c language-c">namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class SP
+    {
+        T*  data;
+        public:
+            ~SP()
+            {
+                if (amITheLastOwner())
+                {
+                    delete data;
+                }
+            }
+    };
+}
+</code></pre>
+<p>There are two major techniques for tracking the shared owners of a pointer:</p>
+<ol>
+  <li>Keep a count:</li>
+  <ul>
+    <li>When the count is 1 you are the last owner.</li>
+    <li>This is a very simple and logical technique. You have a shared counter that is incremented/decrement as SP instances take/release ownership of the pointer. The disadvantages are that you need dynamically allocated memory that must be managed and in a threaded environment you need to serialize accesses to counter.</li>
+  </ul>
+  <li>Use a linked list of the owners:</li>
+  <ul>
+    <li>When you are the only member of the list you are the last owner.</li>
+    <li>When a SP instance take/releases ownership of the pointer they are added/removed to/from the linked list. This is slightly more complex as you need to maintain a circular linked list (for O(1)). The advantage is that you do not need to manage any separate memory for the count (A SP instance simply points at the next SP instance in the chain) and in a threaded environment adding/removing a shared pointer need not always be serialized (though you will still need to lock your neighbors to enforce integrity).</li>
+  </ul>
+</ol>
+<h2 id="sharedcount">Shared Count</h2>
+<p>The easier of the two to implement correctly is the list version. There are no real gotchas (that I have seen). Though people do struggle with insertion and removal of a link from a circular list. I have another article planned for that at some point so I will cover it then.</p>
+<p>The <em>Shared Count</em> is basically the technique used by the <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr"><code>std::shared_ptr</code></a> (though they store slightly more than the count to try and improve efficiency see <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared"><code>std::make_shared</code></a>).</p>
+<p>The main mistake I see from beginners is not using dynamically allocated counter (i.e. they keep the counter in the SP object). You <strong>must</strong> dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted).</p>
+<p>You must also serialize access to this counter to make sure that in a threaded environment the count is correctly maintained. In the first version for simplicity I will only consider single threaded environments and thus synchronization is not required.</p>
+<p>First Try</p>
+<pre><code class="c language-c">namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class SP
+    {
+        T*      data;
+        int*    count;
+        public:
+            // Remember from ThorsAnvil::UP that the constructor
+            // needs to be explicit to prevent the compiler creating
+            // temporary objects on the fly.
+            explicit SP(T* data)
+                : data(data)
+                , count(new int(1))
+            {}
+            ~SP()
+            {
+                --(*count);
+                if (*count == 0)
+                {
+                    delete data;
+                }
+            }
+            // Remember from ThorsAnvil::UP that we need to make sure we
+            // obey the rule of three. So we will implement the copy
+            // constructor and assignment operator.
+            SP(SP const&amp; copy)
+                : data(copy.data)
+                , count(copy.count)
+            {
+                ++(*count);
+            }
+            SP&amp; operator=(SP const&amp; rhs)
+            {
+                // Keep a copy of the old data
+                T*   oldData  = data;
+                int* oldCount = count;
+
+                // now we do an exception safe transfer;
+                data  = rhs.data;
+                count = rhs.count;
+
+                // Update the counters
+                ++(*count);
+                --(*oldCount);
+
+                // Finally delete the old pointer if required.
+                if (*oldCount == 0)
+                {
+                    delete oldData;
+                }
+            }
+            // Const correct access owned object
+            T* operator-&gt;() const {return data;}
+            T&amp; operator*()  const {return *data;}
+
+            // Access to smart pointer state
+            T* get()                 const {return data;}
+            explicit operator bool() const {return data;}
+    };
+}
+</code></pre>
+<h3 id="problem1potentialconstructorfailure">Problem 1: Potential Constructor Failure</h3>
+<p>When a developer (attempts) to create a SP they are handing over ownership of the pointer to the SP instance. Once the constructor starts there is an expectation by the developer that no further checks are needed. But there is a problem with the code as written.</p>
+<p>In C++ memory allocation through new does not fail (unlike C where <code>malloc()</code> can return a Null on failure). In C++ a failure to allocate memory via the standard new generates a <code>std::bad_alloc</code> exception. Additionally if we throw an exception out of a constructor the destructor will never be called (the destructor is only called on fully formed objects) when the instance's lifespan ends.</p>
+<p>So if an exception is thrown during construction (and thus the destructor will not be called) we must assume responsibility for making sure that pointer is deleted before the exception escapes the constructor, otherwise there will be a resultant leak of the pointer.</p>
+<p>Constructor takes responsibility for pointer</p>
+<pre><code class="c language-c">namespace ThorsAnvil
+{
+     .....
+             explicit SP(T* data)
+                : data(data)
+                , count(new (std::nothorw) int(1)) // use the no throw version of new.
+            {
+                // Check if the pointer correctly allocated
+                if (count == nullptr)
+                {
+                    // If we failed then delete the pointer
+                    // and manually throw the exception.
+                    delete data;
+                    throw std::bad_alloc();
+                }
+            }
+            // or
+     .....
+            explicit SP(T* data)
+            // The rarely used try/catch for exceptions in argument lists.
+            try
+                : data(data)
+                , count(new int(1))
+            {}
+            catch(...)
+            {
+                // If we failed because of an exception
+                // delete the pointer and rethrow the exception.
+                delete data;
+                throw;
+            }
+}
+</code></pre>
+<h3 id="problem2dryuptheassignment">Problem 2: DRY up the Assignment</h3>
+<p>Currently the assignment operator is exception safe and conforms to the strong exception guarantee so there is no real problem here. <strong>But</strong> there seems to be a lot of duplicated code in the class.</p>
+<p>Closer look at assignment</p>
+<pre><code class="c language-c">namespace ThorsAnvil
+{
+     .....
+            SP&amp; operator=(SP const&amp; rhs)
+            {
+                T*   oldData  = data;
+                int* oldCount = count;
+
+                data  = rhs.data;
+                count = rhs.count;
+                ++(*count);
+
+                --(*oldCount);
+                if (*oldCount == 0)
+                {
+                    delete oldData;
+                }
+            }
+}
+</code></pre>
+<p>Two portions of this look like other code pieces of code that have already been written:</p>
+<pre><code>// This looks like the SP copy constructor.
+                data  = rhs.data;
+                count = rhs.count;
+                ++(*count);
+
+// This looks like the SP destructor.
+                --(*oldCount);
+                if (*oldCount == 0)
+                {
+                    delete oldData;
+                }
+</code></pre>
+<p>This observation is commonly referred to as the <strong><a href="http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom">Copy and Swap Idiom</a></strong>. I will not go through all the details of the transformation here. But we can re-write the assignment operator as:</p>
+<p>Copy and Swap Idiom</p>
+<pre><code class="c language-c">SP&amp; operator=(SP const&amp; rhs)
+{
+    // constructor of tmp handles increment.
+    SP tmp(rhs);
+
+    std::swap(data,  tmp.data);
+    std::swap(count, tmp.count);
+    return *this;
+}   // the destructor of tmp is executed here.
+    // this handles the decrement and release of the pointer
+
+// This is usually simplified further into
+SP&amp; operator=(SP rhs) // Note implicit copy because of pass by value.
+{
+    rhs.swap(*this);  // swaps moved to swap method.
+    return *this;
+}
+</code></pre>
+<h2 id="fixedfirsttry">Fixed First Try</h2>
+<p>So given the problems described above we can update our implementation to compensate for these issues:</p>
+<p>Fixed First Try</p>
+<pre><code class="c language-c">namespace ThorsAnvil
+{
+    template&lt;typename T&gt;
+    class SP
+    {
+        T*      data;
+        int*    count;
+        public:
+            // Explicit constructor
+            explicit SP(T* data)
+            try
+                : data(data)
+                , count(new int(1))
+            {}
+            catch(...)
+            {
+                // If we failed because of an exception
+                // delete the pointer and rethrow the exception.
+                delete data;
+                throw;
+            }
+            ~SP()
+            {
+                --(*count);
+                if (*count == 0)
+                {
+                    delete data;
+                }
+            }
+            SP(SP const&amp; copy)
+                : data(copy.data)
+                , count(copy.count)
+            {
+                ++(*count);
+            }
+            // Use the copy and swap idiom
+            // It works perfectly for this situation.
+            SP&amp; operator=(SP rhs)
+            {
+                rhs.swap(*this);
+                return *this;
+            }
+            SP&amp; operator=(T* newData)
+            {
+                SP tmp(newData);
+                tmp.swap(*this);
+                return *this;
+            }
+            // Always good to have a swap function
+            // Make sure it is noexcept
+            void swap(SP&amp; other) noexcept
+            {
+                std::swap(data,  other.data);
+                std::swap(count, other.count);
+            }
+            // Const correct access owned object
+            T* operator-&gt;() const {return data;}
+            T&amp; operator*()  const {return *data;}
+
+            // Access to smart pointer state
+            T* get()                 const {return data;}
+            explicit operator bool() const {return data;}
+        };
+}
+</code></pre>
+<h2 id="summary">Summary</h2>
+<p>So in this second post we have looked SP and mentioned the two main implementation techniques commonly used. We specifically looked in detail at some common problems usually overlooked in the counted implementation of SP. In the next article I want to look at a couple of other issues common to both types of smart pointers.</p>
+
+    <footer>
+    <p class="meta">
+        <span class="byline author vcard">Posted by <span class="fn">Loki Astari, (C)2013 (C)2016</span></span>
+        <time datetime="2015-01-15T16:13:47Z" pubdate>Jan 15 <span>th</span>, 2015</time>
+        
+            <span class="categories">
+            
+                <a class="category" href="/categories/c-plus-plus/index.html">C++</a>,
+            
+                <a class="category" href="/categories/smart-pointer/index.html">Smart-Pointer</a>,
+            
+                <a class="category" href="/categories/c-plus-plus-by-example/index.html">C++-By-Example</a>,
+            
+                <a class="category" href="/categories/coding/index.html">Coding</a>,
+            
+            </span>
+        
+    </p>
+    <p class="meta">
+        
+            <a class="basic-alignment left" href="/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/index.html" title="Previous Post: Smart-Pointer - Constructors">&laquo; Smart-Pointer - Constructors</a>
+        
+            <a class="basic-alignment right" href="/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/index.html" title="Next Post: Smart-Pointer - Unique Pointer">Smart-Pointer - Unique Pointer &raquo;</a>
+        
+    </p>
+</footer>
+
+
+    </article>
+
+            <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite">
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+</section>
+
+        </div>
+        <aside class="sidebar">
+
+    <section>
+    <h1>Posts</h1>
+    <ul id="recent_posts">
+        
+            <li class="post"><a href="/blog/2016/05/29/socket-protocols/index.html">Socket Protocols</a></li>
+        
+            <li class="post"><a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">C++ Wrapper for Socket</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/09/socket-read/index.html">Socket Read/Write</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html">Socket Programming in C</a></li>
+        
+            <li class="post"><a href="/blog/2016/03/25/resizemaths/index.html">Memory Resizing</a></li>
+        
+    </ul>
+</section>
+
+
+    <section class="well">
+    <h1>Latest Tweets</h1>
+    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <ul id="tweets">
+        <li class="post">
+            <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </li>
+    </ul>
+</section>
+
+
+    <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+        <li class="loading">Status updating&#8230;</li>
+    </ul>
+
+    <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+    </script>
+    <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+</aside>
+
+    </div>
+</div>
+<footer role="contentinfo"><hr>
+    <p>
+        Copyright &copy; 2017 - Loki Astari -
+        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
+    </p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+
+
+
+        var disqus_identifier = 'https://LokiAstari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/';
+        var disqus_url        = 'https://LokiAstari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/';
+        var disqus_script = 'embed.js';
+
+
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>

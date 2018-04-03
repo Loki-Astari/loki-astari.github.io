@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Loki Astari</title>
+    <meta name="author" content="Loki Astari">
+
+
+    <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
+
+
+    <!-- http://t.co/dKP3o1e -->
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="/favicon.png" rel="icon">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+
+    <!-- MathJax configuration -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
+    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+
+</head>
+
+<body>
+<header role="banner">
+    <div class="header-left">
+        <hgroup>
+            <h1><a href="/">Loki Astari</a></h1>
+            
+            <div class="subtitle">
+                <h2>Thoughts of a former code monkey.</h2>
+            </div>
+            
+        </hgroup>
+    </div>
+
+    
+    <div class="header-right">
+        <ul class="main-navigation">
+            
+                <div  >
+                    <li><a href="/">blog</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/about/">about</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/series/">series</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/archives/">archives</a></li></div><div class="spacer">
+                </div>
+            
+        </ul>
+    </div>
+    
+</header>
+
+<div id="main">
+    <div id="content">
+        <div class="blog-index">
+                <article class="hentry" role="article">
+<!--
+This is article 4 of the 4 part Series: "<span style="color:red">Sockets</span>".<br>
+See side panel "Series" for details.<br><br>
+-->
+
+    <header>
+    <h1 class="entry-title"><a href="/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/index.html">Variables</a></h1>
+        <p class="meta">
+            <time datetime="2013-11-19T17:15:16Z" pubdate>Nov 19 <span>th</span>, 2013</time>
+            
+                | <a href="/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/">Comments</a>
+            
+        </p>
+</header>
+
+    <h2 id="variables">Variables</h2>
+<p>In most programming languages you have the concept of variables. These are simply named objects that hold a value (more formerly refereed to as state). By manipulating a variable you manipulate the state of the object that the variable referees too.</p>
+<p>add.cpp</p>
+<pre><code class="c language-c">void addFunction()
+{
+    int   x = 0;      // Declare (and initialize) a variable called "x"
+
+    x = x + 5;        // Manipulate the variable "x".
+                      // The variable "x" now holds the value "5"
+
+    int   y = x + 3;  // Declare (and initialize) a variable called "y"
+                      // This will take the value "8" by adding "+" 3
+                      // to the value of "x"
+}
+</code></pre>
+<p>C++ is a strongly typed language. This means that each variable has a specific type that does not change (above that type is <strong>int</strong>). The operations that can be performed on an object are dependent on the type of the object and the result of the operation can depend on the types involved. C++ has several built in types (listed below) but allows the definition of new user defined types (which will be described in a later article). The standard library provides a set of commonly used user defined types (listed below).</p>
+<p>Built in Types</p>
+<pre><code class="c language-c">char                    // Represents a character.
+bool                    // Represents a boolean true/false value.
+short                   // Represents an integer of at least 16 bits
+int                     // Represents an integer of at least 32 bits
+long                    // Represents an integer of at least 32 bits
+long long               // Represents an integer of at least 64 bits
+float                   // Represents a floating point number
+double                  // Represents a double precision floating point number
+</code></pre>
+<p>Standard Types</p>
+<pre><code class="c language-c">// This is a list of the most commonly used types (there are many more)
+std::string             // Represents a string of characters.
+std::vector&lt;T&gt;          // Represents a dynamically sizable array
+                        //     of objects with the type 'T'
+std::array&lt;T, size&gt;     // Represents a fixed 'size'  array
+                        //     of objects with the type 'T'
+std::list&lt;T&gt;            // Represents a list of objects with the type 'T'
+std::map&lt;Key, Value&gt;    // Represents a dictionary of key, value pairs (index by key).
+                        //     The key   has type 'Key'
+                        //     The value has type 'Value'
+std::set&lt;Key&gt;           // Represents a set of keys of type 'Key'
+</code></pre>
+<p>The list may seem a bit daunting at first, but while you are learning if you restrict yourselves to three built in types (<strong>bool</strong>, <strong>int</strong> and <strong>double</strong>) and two standard types (<strong>std::string</strong> and <strong>std::vector&lt;T&gt;</strong>) you will be able to solve most beginner/training problems.</p>
+<p>The other built in types are usually used when you need larger range of values or need to save space. The additional standard type (shown above) are different types of container and provide different accesses characteristics (which will be explained later). We will cover all these types in due course.</p>
+<p>So an example of usage of the most common types is:</p>
+<p>variables.cpp</p>
+<pre><code class="c language-c">#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    int                       age   = 28;
+    std::string               name  = "Loki";
+    double                    grade = 12.45;
+    std::vector&lt;std::string&gt;  courseNames = { "C++", "Teaching", "Maths", "Art", "Music"};
+
+    std::cout &lt;&lt; "Name: " &lt;&lt; name  &lt;&lt; "\n";
+    std::cout &lt;&lt; "Age:  " &lt;&lt; age   &lt;&lt; "\n";
+    std::cout &lt;&lt; "Grade:" &lt;&lt; grade &lt;&lt; "\n";
+    std::cout &lt;&lt; "Course 1: " &lt;&lt; courseNames[1] &lt;&lt; "\n";
+}
+</code></pre>
+
+    <footer>
+    <p class="meta">
+        <span class="byline author vcard">Posted by <span class="fn">Loki Astari, (C)2013 (C)2016</span></span>
+        <time datetime="2013-11-19T17:15:16Z" pubdate>Nov 19 <span>th</span>, 2013</time>
+        
+            <span class="categories">
+            
+                <a class="category" href="/categories/c-plus-plus/index.html">C++</a>,
+            
+                <a class="category" href="/categories/so-you-want-to-learn-c-plus-plus/index.html">So-You-Want-To-Learn-C++</a>,
+            
+                <a class="category" href="/categories/coding/index.html">Coding</a>,
+            
+            </span>
+        
+    </p>
+    <p class="meta">
+        
+            <a class="basic-alignment left" href="/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/index.html" title="Previous Post: Functions">&laquo; Functions</a>
+        
+            <a class="basic-alignment right" href="/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/index.html" title="Next Post: Common Mistakes">Common Mistakes &raquo;</a>
+        
+    </p>
+</footer>
+
+
+    </article>
+
+            <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite">
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+</section>
+
+        </div>
+        <aside class="sidebar">
+
+    <section>
+    <h1>Posts</h1>
+    <ul id="recent_posts">
+        
+            <li class="post"><a href="/blog/2016/05/29/socket-protocols/index.html">Socket Protocols</a></li>
+        
+            <li class="post"><a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">C++ Wrapper for Socket</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/09/socket-read/index.html">Socket Read/Write</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html">Socket Programming in C</a></li>
+        
+            <li class="post"><a href="/blog/2016/03/25/resizemaths/index.html">Memory Resizing</a></li>
+        
+    </ul>
+</section>
+
+
+    <section class="well">
+    <h1>Latest Tweets</h1>
+    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <ul id="tweets">
+        <li class="post">
+            <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </li>
+    </ul>
+</section>
+
+
+    <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+        <li class="loading">Status updating&#8230;</li>
+    </ul>
+
+    <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+    </script>
+    <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+</aside>
+
+    </div>
+</div>
+<footer role="contentinfo"><hr>
+    <p>
+        Copyright &copy; 2017 - Loki Astari -
+        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
+    </p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+
+
+
+        var disqus_identifier = 'https://LokiAstari.com/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/';
+        var disqus_url        = 'https://LokiAstari.com/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/';
+        var disqus_script = 'embed.js';
+
+
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>
