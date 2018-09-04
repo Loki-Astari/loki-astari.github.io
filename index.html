@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Loki Astari</title>
+    <meta name="author" content="Loki Astari">
+
+
+    <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
+
+
+    <!-- http://t.co/dKP3o1e -->
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="/favicon.png" rel="icon">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+
+    <!-- MathJax configuration -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
+    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+
+</head>
+
+<body>
+<header role="banner">
+    <div class="header-left">
+        <hgroup>
+            <h1><a href="/">Loki Astari</a></h1>
+            
+            <div class="subtitle">
+                <h2>Thoughts of a former code monkey.</h2>
+            </div>
+            
+        </hgroup>
+    </div>
+
+    
+    <div class="header-right">
+        <ul class="main-navigation">
+            
+                <div  class="selected"  >
+                    <li><a href="/">blog</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/about/">about</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/series/">series</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/archives/">archives</a></li></div><div class="spacer">
+                </div>
+            
+        </ul>
+    </div>
+    
+</header>
+
+<div id="main">
+    <div id="content">
+        <div class="blog-index">
+            
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2016/05/29/socket-protocols/index.html">Socket Protocols</a></h1>
+        <p class="meta">
+            <time datetime="2016-05-30T04:13:39Z" pubdate>May 29 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/05/29/socket-protocols/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/05/29/socket-protocols/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more robust connection between client and server a communications protocol is required so that we can vali<a href="/blog/2016/05/29/socket-protocols/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">C++ Wrapper for Socket</a></h1>
+        <p class="meta">
+            <time datetime="2016-05-27T04:13:39Z" pubdate>May 26 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/05/26/c-plus-plus-wrapper-for-socket/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>The last two articles examined the "C Socket" interface that is provided by OS. In this article I wrap this functionality in a very simple C++ class to provide guaranteed closing and apply a consistent exception strategy. The first step is to rewrite<a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2016/04/09/socket-read/index.html">Socket Read/Write</a></h1>
+        <p class="meta">
+            <time datetime="2016-04-10T04:11:25Z" pubdate>Apr 9 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/04/09/socket-read/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/04/09/socket-read/">Comments</a>
+            
+        </p>
+</header>
+
+            <h2 id="checking-readwrite-success">Checking read/write success</h2>
+<p>The <code>read()</code> and <code>write()</code> command can fail in a couple of ways but can also succeed without reading/writing all the data, a common mistake is not to check the amount of data read/written from/to a stream. Interesting<a href="/blog/2016/04/09/socket-read/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html">Socket Programming in C</a></h1>
+        <p class="meta">
+            <time datetime="2016-04-08T16:47:01Z" pubdate>Apr 8 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/04/08/socket-programming-in-c-version-1/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/04/08/socket-programming-in-c-version-1/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>Building a simple client/server application is the common first internet based applications developers attempt. These applications are built on top of the socket communication library, but socket programming in C++ is not obvious as there are no sta<a href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2016/03/25/resizemaths/index.html">Memory Resizing</a></h1>
+        <p class="meta">
+            <time datetime="2016-03-25T12:53:07Z" pubdate>Mar 25 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/03/25/resizemaths/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/03/25/resizemaths/">Comments</a>
+            
+        </p>
+</header>
+
+            <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script>
+<p>So I never really considered why the resize of vector used a constant expa<a href="/blog/2016/03/25/resizemaths/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2016/03/20/vector-the-other-stuff/index.html">Vector - The Other Stuff</a></h1>
+        <p class="meta">
+            <time datetime="2016-03-21T05:26:43Z" pubdate>Mar 20 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/03/20/vector-the-other-stuff/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/03/20/vector-the-other-stuff/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an insi<a href="/blog/2016/03/20/vector-the-other-stuff/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2016/03/19/vector-simple-optimizations/index.html">Vector - Simple Optimizations</a></h1>
+        <p class="meta">
+            <time datetime="2016-03-19T22:06:40Z" pubdate>Mar 19 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/03/19/vector-simple-optimizations/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/03/19/vector-simple-optimizations/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>So now that we have used <code>std::is_nothrow_move_constructible</code> we can also look at a couple of other types available in the template utility library.</p>
+<h1 id="optimized-destruction">Optimized Destruction</h1>
+<p>Since we have to manually call the destructor on all objects in the contai<a href="/blog/2016/03/19/vector-simple-optimizations/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2016/03/12/vector-resize/index.html">Vector - Resize</a></h1>
+        <p class="meta">
+            <time datetime="2016-03-12T12:53:07Z" pubdate>Mar 12 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/03/12/vector-resize/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/03/12/vector-resize/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>Because resizing a vector is expensive; the <code>std::vector</code> class uses exponential growth to minimize the number of times that the vector is resized: a technique we replicate in this version. But every now and then you still need to resize the internal<a href="/blog/2016/03/12/vector-resize/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/index.html">Vector - Resource Management Copy Swap</a></h1>
+        <p class="meta">
+            <time datetime="2016-02-29T20:29:20Z" pubdate>Feb 29 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/02/29/vector-resource-management-ii-copy-assignment/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>In the previous article I went over basic allocation for a <code>Vector</code> like class. In this article I want to put some detail around the copy assignment operator and resizing the underlying <code>Vector</code>. Unlike the other methods previously discussed these m<a href="/blog/2016/02/29/vector-resource-management-ii-copy-assignment/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2016/02/27/vector/index.html">Vector - Resource Management Allocation</a></h1>
+        <p class="meta">
+            <time datetime="2016-02-27T20:00:31Z" pubdate>Feb 27 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/02/27/vector/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/02/27/vector/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>A lot of new developers to C++ attempt to build a <code>Vector</code> like container as a learning processes. Getting a simple version of this working for POD types (like int) is not that complicated. The next step in getting this working for arbitrary data ty<a href="/blog/2016/02/27/vector/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/index.html">Smart-Pointer - Constructors</a></h1>
+        <p class="meta">
+            <time datetime="2015-01-24T00:33:14Z" pubdate>Jan 23 <span>rd</span>, 2015</time>
+            
+                | <a href="/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>In this article we examine constructors that are often missed or overlooked. This article looks at the use cases for these constructors and explains why the added functionality provides a meaningful addition in relation to smart pointers.</p>
+<h2 id="defaultmoreblog20150123c-plus-plus-by-example-smart-pointer-part-iiiindexhtml">Default<a href="/blog/2015/01/23/c-plus-plus-by-example-smart-pointer-part-iii/index.html">…more</a></h2>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/index.html">Smart-Pointer - Shared Pointer</a></h1>
+        <p class="meta">
+            <time datetime="2015-01-15T16:13:47Z" pubdate>Jan 15 <span>th</span>, 2015</time>
+            
+                | <a href="/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>So in <a href="http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">the previous article</a> I covered a basic <code>unique</code> pointer where the smart pointer retained sole ownership of the pointer. The other common smart pointer we encounter i<a href="/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/index.html">Smart-Pointer - Unique Pointer</a></h1>
+        <p class="meta">
+            <time datetime="2014-12-31T02:41:42Z" pubdate>Dec 30 <span>th</span>, 2014</time>
+            
+                | <a href="/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>On <a href="http://codereview.stackexchange.com">codereview.stackexchange.com</a> in the C++ tag it seems that it is a write of passage to implement your own version of a smart pointer. A quick search brings up the following:</p>
+<ul>
+<li>02/Sep/2011 - [shared_ptr implem<a href="/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/index.html">…more</a></li>
+</ul>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2014/12/06/nearly-new-year-slash-new-resolution/index.html">Nearly New Year/New Resolution</a></h1>
+        <p class="meta">
+            <time datetime="2014-12-06T19:44:00Z" pubdate>Dec 6 <span>th</span>, 2014</time>
+            
+                | <a href="/blog/2014/12/06/nearly-new-year-slash-new-resolution/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2014/12/06/nearly-new-year-slash-new-resolution/">Comments</a>
+            
+        </p>
+</header>
+
+            <h2 id="new-yearnew-resolution">New Year/New Resolution</h2>
+<p>They say you can only get better at something by doing it.</p>
+<p>I want to get better at writing articles about what I do so I better keep trying. Reading the articles I wrote last year (with the hindsight of a year) it seems my<a href="/blog/2014/12/06/nearly-new-year-slash-new-resolution/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/index.html">Control Flow</a></h1>
+        <p class="meta">
+            <time datetime="2013-12-02T20:00:11Z" pubdate>Dec 2 <span>nd</span>, 2013</time>
+            
+                | <a href="/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>So far we have demonstrated basic programs that just do a single task without making any decisions. Most (all but the most trivial) programming languages provide constructs for decision making (Conditional Branching).</p>
+<p>C++ provides two forms of bran<a href="/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2013/11/30/switching-to-octopress/index.html">Switching to OctoPress</a></h1>
+        <p class="meta">
+            <time datetime="2013-11-30T23:37:34Z" pubdate>Nov 30 <span>th</span>, 2013</time>
+            
+                | <a href="/blog/2013/11/30/switching-to-octopress/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2013/11/30/switching-to-octopress/">Comments</a>
+            
+        </p>
+</header>
+
+            <h2 id="switching-to-octopress-and-github">Switching to OctoPress and Github</h2>
+<p>I have not blogged much, until recently, so I am not an HTML/CSS/Javascript expert. Thus layout, or layout during writing an article, is not of supreme importance for me. I expect the framework to handle that al<a href="/blog/2013/11/30/switching-to-octopress/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/index.html">Functions</a></h1>
+        <p class="meta">
+            <time datetime="2013-11-24T17:22:04Z" pubdate>Nov 24 <span>th</span>, 2013</time>
+            
+                | <a href="/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/">Comments</a>
+            
+        </p>
+</header>
+
+            <h3 id="usage">Usage</h3>
+<p>All C++ applications must have at least one function; this is called <code>main()</code>. Additionally, you can have user defined functions that encapsulate individual tasks, thus allowing the code to be cleaner and easier to read. Therefore, this is<a href="/blog/2013/11/24/so-you-want-to-learn-c-plus-plus-part-4/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/index.html">Variables</a></h1>
+        <p class="meta">
+            <time datetime="2013-11-19T17:15:16Z" pubdate>Nov 19 <span>th</span>, 2013</time>
+            
+                | <a href="/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/">Comments</a>
+            
+        </p>
+</header>
+
+            <h2 id="variables">Variables</h2>
+<p>In most programming languages you have the concept of variables. These are simply named objects that hold a value (more formerly refereed to as state). By manipulating a variable you manipulate the state of the object that the variable<a href="/blog/2013/11/19/so-you-want-to-learn-c-plus-plus-part-3/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/index.html">Common Mistakes</a></h1>
+        <p class="meta">
+            <time datetime="2013-11-18T16:58:28Z" pubdate>Nov 18 <span>th</span>, 2013</time>
+            
+                | <a href="/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/">Comments</a>
+            
+        </p>
+</header>
+
+            <h3 id="1-using-namespace">1: using namespace</h3>
+<p>Every new developer that comes to C++ always starts writing code like this:</p>
+<p>myfirstprog.cpp</p>
+<pre><code class="c language-c">#include &lt;iostream&gt;
+
+using namespace std;</code></pre>
+<p>It seems reasonable and every book on learning C++ out there perpetrates the sam<a href="/blog/2013/11/18/so-you-want-to-learn-c-plus-plus-part-2/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2013/11/12/want-to-set-up-wordpress-to-write-about-programming/index.html">Want to set up WordPress to write about Programming</a></h1>
+        <p class="meta">
+            <time datetime="2013-11-12T19:43:06Z" pubdate>Nov 12 <span>th</span>, 2013</time>
+            
+                | <a href="/blog/2013/11/12/want-to-set-up-wordpress-to-write-about-programming/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2013/11/12/want-to-set-up-wordpress-to-write-about-programming/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>Setting up WordPress to display syntax highlighted code was a struggle due to different plugins that don’t all seem to work together, the different types of editor, etc. I don’t want to learn all about WordPress. I just want to write some simple art<a href="/blog/2013/11/12/want-to-set-up-wordpress-to-write-about-programming/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1/index.html">Hello World</a></h1>
+        <p class="meta">
+            <time datetime="2013-11-12T15:59:11Z" pubdate>Nov 12 <span>th</span>, 2013</time>
+            
+                | <a href="/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>This is the first article in the series<br />
+OK. Lets do this.</p>
+<p>I keep trying to think about something big and interesting to write about. But that is just not working. All my time is spent trying to think of the blockbuster idea; which just gets in the w<a href="/blog/2013/11/12/so-you-want-to-learn-c-plus-plus-part-1/index.html">…more</a></p>
+
+        </article>
+
+        <article>
+            <header>
+    <h1 class="entry-title"><a href="/blog/2011/10/21/interviews-processes/index.html">Interviews Processes</a></h1>
+        <p class="meta">
+            <time datetime="2011-10-22T04:01:23Z" pubdate>Oct 21 <span>st</span>, 2011</time>
+            
+                | <a href="/blog/2011/10/21/interviews-processes/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2011/10/21/interviews-processes/">Comments</a>
+            
+        </p>
+</header>
+
+            <p>We (<a href="http://SEOmoz.org">SEOmoz.org</a>) have been doing a lot of interviews for new engineers lately. I have been asked to help out trying to find the great new team members from the hordes of applicants (luckily we have a great team pre-screening appl<a href="/blog/2011/10/21/interviews-processes/index.html">…more</a></p>
+
+        </article>
+
+
+            <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite">
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+</section>
+
+        </div>
+        <aside class="sidebar">
+
+    <section>
+    <h1>Posts</h1>
+    <ul id="recent_posts">
+        
+            <li class="post"><a href="/blog/2016/05/29/socket-protocols/index.html">Socket Protocols</a></li>
+        
+            <li class="post"><a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">C++ Wrapper for Socket</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/09/socket-read/index.html">Socket Read/Write</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html">Socket Programming in C</a></li>
+        
+            <li class="post"><a href="/blog/2016/03/25/resizemaths/index.html">Memory Resizing</a></li>
+        
+    </ul>
+</section>
+
+
+    <section class="well">
+    <h1>Latest Tweets</h1>
+    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <ul id="tweets">
+        <li class="post">
+            <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </li>
+    </ul>
+</section>
+
+
+    <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+        <li class="loading">Status updating&#8230;</li>
+    </ul>
+
+    <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+    </script>
+    <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+</aside>
+
+    </div>
+</div>
+<footer role="contentinfo"><hr>
+    <p>
+        Copyright &copy; 2017 - Loki Astari -
+        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
+    </p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+
+
+
+        var disqus_script = 'count.js';
+
+
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>
