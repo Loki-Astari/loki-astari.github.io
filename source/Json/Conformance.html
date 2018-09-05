@@ -332,6 +332,9 @@ Type,Library,Test,Result
 1. Parse Validation,gason (C++11),pass02,true
 1. Parse Validation,gason (C++11),pass01,true
 1. Parse Validation,gason (C++11),pass03,true
+1. Parse Validation,jsoncons (C++),pass02,true
+1. Parse Validation,jsoncons (C++),pass01,true
+1. Parse Validation,jsoncons (C++),pass03,true
 1. Parse Validation,RapidJSON_AutoUTF (C++),pass02,true
 1. Parse Validation,RapidJSON_AutoUTF (C++),pass01,true
 1. Parse Validation,RapidJSON_AutoUTF (C++),pass03,true
@@ -350,9 +353,6 @@ Type,Library,Test,Result
 1. Parse Validation,sajson (C++),pass02,true
 1. Parse Validation,sajson (C++),pass01,true
 1. Parse Validation,sajson (C++),pass03,true
-1. Parse Validation,SimpleJSON (C++),pass02,true
-1. Parse Validation,SimpleJSON (C++),pass01,true
-1. Parse Validation,SimpleJSON (C++),pass03,true
 1. Parse Validation,ThorsSerializer,pass02,false
 1. Parse Validation,ThorsSerializer,pass01,false
 1. Parse Validation,ThorsSerializer,pass03,true
@@ -452,6 +452,37 @@ Type,Library,Test,Result
 1. Parse Validation,gason (C++11),fail05,true
 1. Parse Validation,gason (C++11),fail04,false
 1. Parse Validation,gason (C++11),fail20,true
+1. Parse Validation,jsoncons (C++),fail10,true
+1. Parse Validation,jsoncons (C++),fail06,true
+1. Parse Validation,jsoncons (C++),fail07,true
+1. Parse Validation,jsoncons (C++),fail33,true
+1. Parse Validation,jsoncons (C++),fail02,true
+1. Parse Validation,jsoncons (C++),fail13,true
+1. Parse Validation,jsoncons (C++),fail29,true
+1. Parse Validation,jsoncons (C++),fail19,true
+1. Parse Validation,jsoncons (C++),fail17,true
+1. Parse Validation,jsoncons (C++),fail21,true
+1. Parse Validation,jsoncons (C++),fail12,true
+1. Parse Validation,jsoncons (C++),fail08,true
+1. Parse Validation,jsoncons (C++),fail24,true
+1. Parse Validation,jsoncons (C++),fail16,true
+1. Parse Validation,jsoncons (C++),fail30,true
+1. Parse Validation,jsoncons (C++),fail26,true
+1. Parse Validation,jsoncons (C++),fail22,true
+1. Parse Validation,jsoncons (C++),fail25,true
+1. Parse Validation,jsoncons (C++),fail11,true
+1. Parse Validation,jsoncons (C++),fail15,true
+1. Parse Validation,jsoncons (C++),fail27,true
+1. Parse Validation,jsoncons (C++),fail09,true
+1. Parse Validation,jsoncons (C++),fail32,true
+1. Parse Validation,jsoncons (C++),fail23,true
+1. Parse Validation,jsoncons (C++),fail31,true
+1. Parse Validation,jsoncons (C++),fail28,true
+1. Parse Validation,jsoncons (C++),fail14,true
+1. Parse Validation,jsoncons (C++),fail03,true
+1. Parse Validation,jsoncons (C++),fail05,true
+1. Parse Validation,jsoncons (C++),fail04,true
+1. Parse Validation,jsoncons (C++),fail20,true
 1. Parse Validation,RapidJSON_AutoUTF (C++),fail10,true
 1. Parse Validation,RapidJSON_AutoUTF (C++),fail06,true
 1. Parse Validation,RapidJSON_AutoUTF (C++),fail07,true
@@ -638,37 +669,6 @@ Type,Library,Test,Result
 1. Parse Validation,sajson (C++),fail05,true
 1. Parse Validation,sajson (C++),fail04,true
 1. Parse Validation,sajson (C++),fail20,true
-1. Parse Validation,SimpleJSON (C++),fail10,true
-1. Parse Validation,SimpleJSON (C++),fail06,true
-1. Parse Validation,SimpleJSON (C++),fail07,true
-1. Parse Validation,SimpleJSON (C++),fail33,true
-1. Parse Validation,SimpleJSON (C++),fail02,true
-1. Parse Validation,SimpleJSON (C++),fail13,true
-1. Parse Validation,SimpleJSON (C++),fail29,true
-1. Parse Validation,SimpleJSON (C++),fail19,true
-1. Parse Validation,SimpleJSON (C++),fail17,true
-1. Parse Validation,SimpleJSON (C++),fail21,true
-1. Parse Validation,SimpleJSON (C++),fail12,true
-1. Parse Validation,SimpleJSON (C++),fail08,true
-1. Parse Validation,SimpleJSON (C++),fail24,true
-1. Parse Validation,SimpleJSON (C++),fail16,true
-1. Parse Validation,SimpleJSON (C++),fail30,true
-1. Parse Validation,SimpleJSON (C++),fail26,true
-1. Parse Validation,SimpleJSON (C++),fail22,true
-1. Parse Validation,SimpleJSON (C++),fail25,false
-1. Parse Validation,SimpleJSON (C++),fail11,true
-1. Parse Validation,SimpleJSON (C++),fail15,true
-1. Parse Validation,SimpleJSON (C++),fail27,true
-1. Parse Validation,SimpleJSON (C++),fail09,true
-1. Parse Validation,SimpleJSON (C++),fail32,true
-1. Parse Validation,SimpleJSON (C++),fail23,true
-1. Parse Validation,SimpleJSON (C++),fail31,true
-1. Parse Validation,SimpleJSON (C++),fail28,true
-1. Parse Validation,SimpleJSON (C++),fail14,true
-1. Parse Validation,SimpleJSON (C++),fail03,true
-1. Parse Validation,SimpleJSON (C++),fail05,true
-1. Parse Validation,SimpleJSON (C++),fail04,true
-1. Parse Validation,SimpleJSON (C++),fail20,true
 1. Parse Validation,ThorsSerializer,fail10,true
 1. Parse Validation,ThorsSerializer,fail06,true
 1. Parse Validation,ThorsSerializer,fail07,true
@@ -809,7 +809,7 @@ Type,Library,Test,Result
 2. Parse Double,mikeando/FastJson (C++),test19,true
 2. Parse Double,mikeando/FastJson (C++),test53,true
 2. Parse Double,mikeando/FastJson (C++),test67,true
-2. Parse Double,mikeando/FastJson (C++),test68,true
+2. Parse Double,mikeando/FastJson (C++),test68,false
 2. Parse Double,mikeando/FastJson (C++),test17,true
 2. Parse Double,mikeando/FastJson (C++),test23,true
 2. Parse Double,mikeando/FastJson (C++),test43,true
@@ -938,6 +938,75 @@ Type,Library,Test,Result
 2. Parse Double,gason (C++11),test26,true
 2. Parse Double,gason (C++11),test61,false
 2. Parse Double,gason (C++11),test30,false
+2. Parse Double,jsoncons (C++),test65,false
+2. Parse Double,jsoncons (C++),test34,true
+2. Parse Double,jsoncons (C++),test56,true
+2. Parse Double,jsoncons (C++),test36,true
+2. Parse Double,jsoncons (C++),test64,false
+2. Parse Double,jsoncons (C++),test54,true
+2. Parse Double,jsoncons (C++),test19,true
+2. Parse Double,jsoncons (C++),test53,true
+2. Parse Double,jsoncons (C++),test67,true
+2. Parse Double,jsoncons (C++),test68,false
+2. Parse Double,jsoncons (C++),test17,true
+2. Parse Double,jsoncons (C++),test23,true
+2. Parse Double,jsoncons (C++),test43,true
+2. Parse Double,jsoncons (C++),test14,true
+2. Parse Double,jsoncons (C++),test39,true
+2. Parse Double,jsoncons (C++),test59,false
+2. Parse Double,jsoncons (C++),test52,true
+2. Parse Double,jsoncons (C++),test35,true
+2. Parse Double,jsoncons (C++),test20,true
+2. Parse Double,jsoncons (C++),test58,false
+2. Parse Double,jsoncons (C++),test47,true
+2. Parse Double,jsoncons (C++),test44,true
+2. Parse Double,jsoncons (C++),test31,true
+2. Parse Double,jsoncons (C++),test46,true
+2. Parse Double,jsoncons (C++),test48,true
+2. Parse Double,jsoncons (C++),test13,true
+2. Parse Double,jsoncons (C++),test60,false
+2. Parse Double,jsoncons (C++),test38,true
+2. Parse Double,jsoncons (C++),test66,true
+2. Parse Double,jsoncons (C++),test22,true
+2. Parse Double,jsoncons (C++),test32,true
+2. Parse Double,jsoncons (C++),test4,true
+2. Parse Double,jsoncons (C++),test42,true
+2. Parse Double,jsoncons (C++),test37,true
+2. Parse Double,jsoncons (C++),test69,true
+2. Parse Double,jsoncons (C++),test62,true
+2. Parse Double,jsoncons (C++),test49,true
+2. Parse Double,jsoncons (C++),test3,true
+2. Parse Double,jsoncons (C++),test10,true
+2. Parse Double,jsoncons (C++),test50,true
+2. Parse Double,jsoncons (C++),test51,true
+2. Parse Double,jsoncons (C++),test5,true
+2. Parse Double,jsoncons (C++),test33,true
+2. Parse Double,jsoncons (C++),test9,true
+2. Parse Double,jsoncons (C++),test24,true
+2. Parse Double,jsoncons (C++),test18,true
+2. Parse Double,jsoncons (C++),test57,true
+2. Parse Double,jsoncons (C++),test45,true
+2. Parse Double,jsoncons (C++),test55,true
+2. Parse Double,jsoncons (C++),test25,true
+2. Parse Double,jsoncons (C++),test8,true
+2. Parse Double,jsoncons (C++),test41,true
+2. Parse Double,jsoncons (C++),test27,false
+2. Parse Double,jsoncons (C++),test6,true
+2. Parse Double,jsoncons (C++),test12,true
+2. Parse Double,jsoncons (C++),test63,false
+2. Parse Double,jsoncons (C++),test1,true
+2. Parse Double,jsoncons (C++),test28,false
+2. Parse Double,jsoncons (C++),test21,true
+2. Parse Double,jsoncons (C++),test2,true
+2. Parse Double,jsoncons (C++),test15,true
+2. Parse Double,jsoncons (C++),test29,true
+2. Parse Double,jsoncons (C++),test7,true
+2. Parse Double,jsoncons (C++),test16,true
+2. Parse Double,jsoncons (C++),test40,true
+2. Parse Double,jsoncons (C++),test11,true
+2. Parse Double,jsoncons (C++),test26,true
+2. Parse Double,jsoncons (C++),test61,true
+2. Parse Double,jsoncons (C++),test30,true
 2. Parse Double,RapidJSON_AutoUTF (C++),test65,false
 2. Parse Double,RapidJSON_AutoUTF (C++),test34,true
 2. Parse Double,RapidJSON_AutoUTF (C++),test56,true
@@ -1352,75 +1421,6 @@ Type,Library,Test,Result
 2. Parse Double,sajson (C++),test26,true
 2. Parse Double,sajson (C++),test61,true
 2. Parse Double,sajson (C++),test30,true
-2. Parse Double,SimpleJSON (C++),test65,false
-2. Parse Double,SimpleJSON (C++),test34,true
-2. Parse Double,SimpleJSON (C++),test56,false
-2. Parse Double,SimpleJSON (C++),test36,true
-2. Parse Double,SimpleJSON (C++),test64,false
-2. Parse Double,SimpleJSON (C++),test54,false
-2. Parse Double,SimpleJSON (C++),test19,false
-2. Parse Double,SimpleJSON (C++),test53,false
-2. Parse Double,SimpleJSON (C++),test67,false
-2. Parse Double,SimpleJSON (C++),test68,false
-2. Parse Double,SimpleJSON (C++),test17,true
-2. Parse Double,SimpleJSON (C++),test23,false
-2. Parse Double,SimpleJSON (C++),test43,true
-2. Parse Double,SimpleJSON (C++),test14,true
-2. Parse Double,SimpleJSON (C++),test39,false
-2. Parse Double,SimpleJSON (C++),test59,false
-2. Parse Double,SimpleJSON (C++),test52,false
-2. Parse Double,SimpleJSON (C++),test35,true
-2. Parse Double,SimpleJSON (C++),test20,false
-2. Parse Double,SimpleJSON (C++),test58,false
-2. Parse Double,SimpleJSON (C++),test47,true
-2. Parse Double,SimpleJSON (C++),test44,false
-2. Parse Double,SimpleJSON (C++),test31,true
-2. Parse Double,SimpleJSON (C++),test46,false
-2. Parse Double,SimpleJSON (C++),test48,true
-2. Parse Double,SimpleJSON (C++),test13,true
-2. Parse Double,SimpleJSON (C++),test60,false
-2. Parse Double,SimpleJSON (C++),test38,false
-2. Parse Double,SimpleJSON (C++),test66,false
-2. Parse Double,SimpleJSON (C++),test22,true
-2. Parse Double,SimpleJSON (C++),test32,false
-2. Parse Double,SimpleJSON (C++),test4,true
-2. Parse Double,SimpleJSON (C++),test42,false
-2. Parse Double,SimpleJSON (C++),test37,true
-2. Parse Double,SimpleJSON (C++),test69,false
-2. Parse Double,SimpleJSON (C++),test62,false
-2. Parse Double,SimpleJSON (C++),test49,true
-2. Parse Double,SimpleJSON (C++),test3,true
-2. Parse Double,SimpleJSON (C++),test10,true
-2. Parse Double,SimpleJSON (C++),test50,false
-2. Parse Double,SimpleJSON (C++),test51,false
-2. Parse Double,SimpleJSON (C++),test5,true
-2. Parse Double,SimpleJSON (C++),test33,true
-2. Parse Double,SimpleJSON (C++),test9,true
-2. Parse Double,SimpleJSON (C++),test24,false
-2. Parse Double,SimpleJSON (C++),test18,false
-2. Parse Double,SimpleJSON (C++),test57,true
-2. Parse Double,SimpleJSON (C++),test45,false
-2. Parse Double,SimpleJSON (C++),test55,true
-2. Parse Double,SimpleJSON (C++),test25,false
-2. Parse Double,SimpleJSON (C++),test8,true
-2. Parse Double,SimpleJSON (C++),test41,false
-2. Parse Double,SimpleJSON (C++),test27,true
-2. Parse Double,SimpleJSON (C++),test6,true
-2. Parse Double,SimpleJSON (C++),test12,true
-2. Parse Double,SimpleJSON (C++),test63,false
-2. Parse Double,SimpleJSON (C++),test1,true
-2. Parse Double,SimpleJSON (C++),test28,false
-2. Parse Double,SimpleJSON (C++),test21,false
-2. Parse Double,SimpleJSON (C++),test2,true
-2. Parse Double,SimpleJSON (C++),test15,false
-2. Parse Double,SimpleJSON (C++),test29,true
-2. Parse Double,SimpleJSON (C++),test7,true
-2. Parse Double,SimpleJSON (C++),test16,true
-2. Parse Double,SimpleJSON (C++),test40,false
-2. Parse Double,SimpleJSON (C++),test11,false
-2. Parse Double,SimpleJSON (C++),test26,true
-2. Parse Double,SimpleJSON (C++),test61,false
-2. Parse Double,SimpleJSON (C++),test30,false
 2. Parse Double,ThorsSerializer,test65,true
 2. Parse Double,ThorsSerializer,test34,true
 2. Parse Double,ThorsSerializer,test56,true
@@ -1586,6 +1586,15 @@ Type,Library,Test,Result
 3. Parse String,gason (C++11),test1,true
 3. Parse String,gason (C++11),test2,true
 3. Parse String,gason (C++11),test11,false
+3. Parse String,jsoncons (C++),test3,true
+3. Parse String,jsoncons (C++),test10,true
+3. Parse String,jsoncons (C++),test5,true
+3. Parse String,jsoncons (C++),test9,true
+3. Parse String,jsoncons (C++),test8,true
+3. Parse String,jsoncons (C++),test6,true
+3. Parse String,jsoncons (C++),test1,true
+3. Parse String,jsoncons (C++),test2,true
+3. Parse String,jsoncons (C++),test11,true
 3. Parse String,RapidJSON_AutoUTF (C++),test3,true
 3. Parse String,RapidJSON_AutoUTF (C++),test10,true
 3. Parse String,RapidJSON_AutoUTF (C++),test5,true
@@ -1640,15 +1649,6 @@ Type,Library,Test,Result
 3. Parse String,sajson (C++),test1,true
 3. Parse String,sajson (C++),test2,true
 3. Parse String,sajson (C++),test11,true
-3. Parse String,SimpleJSON (C++),test3,true
-3. Parse String,SimpleJSON (C++),test10,true
-3. Parse String,SimpleJSON (C++),test5,false
-3. Parse String,SimpleJSON (C++),test9,true
-3. Parse String,SimpleJSON (C++),test8,true
-3. Parse String,SimpleJSON (C++),test6,true
-3. Parse String,SimpleJSON (C++),test1,true
-3. Parse String,SimpleJSON (C++),test2,true
-3. Parse String,SimpleJSON (C++),test11,false
 3. Parse String,ThorsSerializer,test3,true
 3. Parse String,ThorsSerializer,test10,true
 3. Parse String,ThorsSerializer,test5,true
@@ -1748,6 +1748,33 @@ Type,Library,Test,Result
 4. Roundtrip,gason (C++11),roundtrip02,true
 4. Roundtrip,gason (C++11),roundtrip18,true
 4. Roundtrip,gason (C++11),roundtrip17,true
+4. Roundtrip,jsoncons (C++),roundtrip14,true
+4. Roundtrip,jsoncons (C++),roundtrip07,true
+4. Roundtrip,jsoncons (C++),roundtrip01,true
+4. Roundtrip,jsoncons (C++),roundtrip03,true
+4. Roundtrip,jsoncons (C++),roundtrip15,true
+4. Roundtrip,jsoncons (C++),roundtrip26,true
+4. Roundtrip,jsoncons (C++),roundtrip21,true
+4. Roundtrip,jsoncons (C++),roundtrip24,true
+4. Roundtrip,jsoncons (C++),roundtrip08,true
+4. Roundtrip,jsoncons (C++),roundtrip12,true
+4. Roundtrip,jsoncons (C++),roundtrip19,true
+4. Roundtrip,jsoncons (C++),roundtrip05,true
+4. Roundtrip,jsoncons (C++),roundtrip20,true
+4. Roundtrip,jsoncons (C++),roundtrip04,true
+4. Roundtrip,jsoncons (C++),roundtrip09,true
+4. Roundtrip,jsoncons (C++),roundtrip11,true
+4. Roundtrip,jsoncons (C++),roundtrip27,true
+4. Roundtrip,jsoncons (C++),roundtrip25,true
+4. Roundtrip,jsoncons (C++),roundtrip13,true
+4. Roundtrip,jsoncons (C++),roundtrip10,true
+4. Roundtrip,jsoncons (C++),roundtrip22,true
+4. Roundtrip,jsoncons (C++),roundtrip06,true
+4. Roundtrip,jsoncons (C++),roundtrip23,true
+4. Roundtrip,jsoncons (C++),roundtrip16,true
+4. Roundtrip,jsoncons (C++),roundtrip02,true
+4. Roundtrip,jsoncons (C++),roundtrip18,true
+4. Roundtrip,jsoncons (C++),roundtrip17,true
 4. Roundtrip,RapidJSON_AutoUTF (C++),roundtrip14,true
 4. Roundtrip,RapidJSON_AutoUTF (C++),roundtrip07,true
 4. Roundtrip,RapidJSON_AutoUTF (C++),roundtrip01,true
@@ -1910,33 +1937,6 @@ Type,Library,Test,Result
 4. Roundtrip,sajson (C++),roundtrip02,true
 4. Roundtrip,sajson (C++),roundtrip18,true
 4. Roundtrip,sajson (C++),roundtrip17,true
-4. Roundtrip,SimpleJSON (C++),roundtrip14,true
-4. Roundtrip,SimpleJSON (C++),roundtrip07,true
-4. Roundtrip,SimpleJSON (C++),roundtrip01,true
-4. Roundtrip,SimpleJSON (C++),roundtrip03,true
-4. Roundtrip,SimpleJSON (C++),roundtrip15,true
-4. Roundtrip,SimpleJSON (C++),roundtrip26,true
-4. Roundtrip,SimpleJSON (C++),roundtrip21,true
-4. Roundtrip,SimpleJSON (C++),roundtrip24,true
-4. Roundtrip,SimpleJSON (C++),roundtrip08,true
-4. Roundtrip,SimpleJSON (C++),roundtrip12,true
-4. Roundtrip,SimpleJSON (C++),roundtrip19,true
-4. Roundtrip,SimpleJSON (C++),roundtrip05,true
-4. Roundtrip,SimpleJSON (C++),roundtrip20,true
-4. Roundtrip,SimpleJSON (C++),roundtrip04,true
-4. Roundtrip,SimpleJSON (C++),roundtrip09,true
-4. Roundtrip,SimpleJSON (C++),roundtrip11,true
-4. Roundtrip,SimpleJSON (C++),roundtrip27,true
-4. Roundtrip,SimpleJSON (C++),roundtrip25,true
-4. Roundtrip,SimpleJSON (C++),roundtrip13,true
-4. Roundtrip,SimpleJSON (C++),roundtrip10,true
-4. Roundtrip,SimpleJSON (C++),roundtrip22,true
-4. Roundtrip,SimpleJSON (C++),roundtrip06,true
-4. Roundtrip,SimpleJSON (C++),roundtrip23,true
-4. Roundtrip,SimpleJSON (C++),roundtrip16,true
-4. Roundtrip,SimpleJSON (C++),roundtrip02,true
-4. Roundtrip,SimpleJSON (C++),roundtrip18,true
-4. Roundtrip,SimpleJSON (C++),roundtrip17,true
 4. Roundtrip,ThorsSerializer,roundtrip14,true
 4. Roundtrip,ThorsSerializer,roundtrip07,true
 4. Roundtrip,ThorsSerializer,roundtrip01,true
