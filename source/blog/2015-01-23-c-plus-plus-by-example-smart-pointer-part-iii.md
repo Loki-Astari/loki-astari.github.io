@@ -247,7 +247,7 @@ namespace ThorsAnvil
 }
 ```
 ## Updated Unique Pointer
-Combine the constructor/assignment operators discussed in this article with the `ThorsAnvil::UP` that we defined in the first article in the series: [Unique Pointer](http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/) we obtain the following:
+Combine the constructor/assignment operators discussed in this article with the `ThorsAnvil::UP` that we defined in the first article in the series: [Unique Pointer](https://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/) we obtain the following:
 
 ThorsAnvil::UP Version 3
 ```c
@@ -344,7 +344,7 @@ namespace ThorsAnvil
 }
 ```
 ## Summary
-In the last two articles ([Unique Pointer](http://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/) and [Shared Pointer](http://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/)) we covered some basic mistakes that I have often seen developers make when attempting to creating their own smart pointer. I also introduce four important C++ concepts:
+In the last two articles ([Unique Pointer](https://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/) and [Shared Pointer](https://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/)) we covered some basic mistakes that I have often seen developers make when attempting to creating their own smart pointer. I also introduce four important C++ concepts:
 
  - [Rule of Three](http://stackoverflow.com/q/4172722/14065)
  - [Copy and Swap Idiom](http://stackoverflow.com/q/3279543/14065)

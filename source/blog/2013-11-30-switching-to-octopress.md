@@ -9,7 +9,7 @@ description: Switching the blog to octopress.
 
 ## Switching to OctoPress and Github
 
-I have not blogged much, until recently, so I am not an HTML/CSS/Javascript expert. Thus layout, or layout during writing an article, is not of supreme importance for me. I expect the framework to handle that all for me. But that was my issue with WordPress. As a normal blogger I am sure it is not an issue, but the tools for blogging about code are rudimentary and not well integrated in to WordPress; basically forcing me to write in HTML (see [Set up WordPress](http://lokiastari.com/blog/2013/11/12/want-to-set-up-wordpress-to-write-about-programming/)). I do write a lot on other sites that specialize in coding and these sites have developed a style called &lt;MarkDown&gt;. The two most common versions are '[StackOverFlow markdown](http://stackoverflow.com/editing-help)' and '[GitHub markdown](http://daringfireball.net/projects/markdown/syntax)'.
+I have not blogged much, until recently, so I am not an HTML/CSS/Javascript expert. Thus layout, or layout during writing an article, is not of supreme importance for me. I expect the framework to handle that all for me. But that was my issue with WordPress. As a normal blogger I am sure it is not an issue, but the tools for blogging about code are rudimentary and not well integrated in to WordPress; basically forcing me to write in HTML (see [Set up WordPress](https://lokiastari.com/blog/2013/11/12/want-to-set-up-wordpress-to-write-about-programming/)). I do write a lot on other sites that specialize in coding and these sites have developed a style called &lt;MarkDown&gt;. The two most common versions are '[StackOverFlow markdown](http://stackoverflow.com/editing-help)' and '[GitHub markdown](http://daringfireball.net/projects/markdown/syntax)'.
 
 ### MarkDown
 
@@ -19,7 +19,7 @@ Markdown is a very simplistic form of 'Markup' (yes programmers think they are f
 
 WordPress is also infamous for being the target of attackers, thus new attacks are constantly being developed (the joy of being top dog). This can be mitigated by putting your WordPress site on [wordpress.com](http://wordpress.com). This not only provides you with free hosting, but they do keep on top of security vulnerabilities and make sure all hosted sites are not overexposed.
 
-If you want use your own domain name (i.e. [LokiAstari.com](http://LokiAstari.com)) or any other "featured" services then you either need to fork up the cash (not an insignificant sum) or run your own WordPress site. So I have been running my own WordPress sites. However, running your own site opens you to the vulnerabilities of WordPress attacks. To be honest not a big deal until I actually tweeted about my articles (now very much so).
+If you want use your own domain name (i.e. [LokiAstari.com](https://LokiAstari.com)) or any other "featured" services then you either need to fork up the cash (not an insignificant sum) or run your own WordPress site. So I have been running my own WordPress sites. However, running your own site opens you to the vulnerabilities of WordPress attacks. To be honest not a big deal until I actually tweeted about my articles (now very much so).
 
 So the combination of these two issues has made me look for alternatives.
 
