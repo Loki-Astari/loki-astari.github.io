@@ -219,7 +219,7 @@ It simply calls the destructor on all elements currently in the object. Then use
         // No actual code required here.
     }
 };</code></pre>
-<h2 id="copy-and-swap-idiomhttpstackoverflowcomq327954314065"><a href="http://stackoverflow.com/q/3279543/14065">Copy And Swap Idiom</a></h2>
+<h2 id="copy-and-swap-idiomhttpsstackoverflowcomq327954314065"><a href="https://stackoverflow.com/q/3279543/14065">Copy And Swap Idiom</a></h2>
 <p>The copy and swap idiom is about dealing with replacing an object state from another object. It is very commonly used in the copy assignment operator but has application whenever state is being changed and the <a href="https://en.wikipedia.org/wiki/Exception_safety">strong exception guarantee</a> is required.</p>
 <p>The above code works perfectly. But in Part-2 the swap looks like a normal swap operation so let's use that rather than doing it manually. Also self assignment now works without the need for a test (because we are copying into a temporary). So we can remove the check for self assignment. Yes this does make the performance for self assignment worse, but it makes the normal operation even more efficient. Since the occurrence of self assignment is extremely rare I would not prematurely optimize for it but rather make the most common case the best optimized. So one final re-factor of the copy constructor leaves us with this.</p>
 <p>Copy Assignment (Try 4)</p>
