@@ -70,7 +70,7 @@ If they do happen in production there is no way to correct for them pragmaticall
 One could argue that because these should never happen the application can abort, but for now we will settle for the read operation aborting with an error code. If we wrap this in a C++ class to control the state of the socket then exceptions may be more appropriate and we will look into that approach in a subsequent article.
 
 The following errors are potentially recoverable from.
-<!-- http://stackoverflow.com/questions/8471577/linux-tcp-connect-failure-with-etimedout -->
+<!-- https://stackoverflow.com/questions/8471577/linux-tcp-connect-failure-with-etimedout -->
 
     [EIO]              An I/O error occurred while reading from the file system.
     [ENOBUFS]          An attempt to allocate a memory buffer fails.
@@ -80,8 +80,8 @@ The following errors are potentially recoverable from.
 But in reality recovering from them within the context of a read operation is not practical (you need to recover from these operations at a point were resource are controlled or user interaction is possible). So for now we will abort the read operation with an error code (we will revisit this in a later article).
 
 The following error codes means that no more data will be available because the connection has been interrupted.
-<!-- http://stackoverflow.com/questions/2974021/what-does-econnreset-mean-in-the-context-of-an-af-local-socket -->
-<!-- http://stackoverflow.com/questions/900042/what-causes-the-enotconn-error -->
+<!-- https://stackoverflow.com/questions/2974021/what-does-econnreset-mean-in-the-context-of-an-af-local-socket -->
+<!-- https://stackoverflow.com/questions/900042/what-causes-the-enotconn-error -->
 
     [ECONNRESET]       The connection is closed by the peer during a read attempt on a socket.
     [ENOTCONN]         A read is attempted on an unconnected socket.
@@ -252,8 +252,8 @@ This article has shown the most important error that people skip over when readi
 The next most important point is that not all error codes are fatal (most people actually check these) **but** an interrupt (EINTR) can be relatively common and you can continue reading after it has happened.
 # Inspiration
 
-* 2015-Jun-25 [Impromptu TCP sender/receiver](http://codereview.stackexchange.com/q/94608/507)
-* 2015-Jul-03 [Raw Text TCP Client v3](http://codereview.stackexchange.com/q/95638/507)
-* 2015-Dec-20 [Server / client desynchronisation of messages ](http://codereview.stackexchange.com/q/114551/507)
+* 2015-Jun-25 [Impromptu TCP sender/receiver](https://codereview.stackexchange.com/q/94608/507)
+* 2015-Jul-03 [Raw Text TCP Client v3](https://codereview.stackexchange.com/q/95638/507)
+* 2015-Dec-20 [Server / client desynchronisation of messages ](https://codereview.stackexchange.com/q/114551/507)
 
 

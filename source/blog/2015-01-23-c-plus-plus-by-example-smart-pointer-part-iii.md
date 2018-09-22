@@ -346,9 +346,9 @@ namespace ThorsAnvil
 ## Summary
 In the last two articles ([Unique Pointer](https://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/) and [Shared Pointer](https://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/)) we covered some basic mistakes that I have often seen developers make when attempting to creating their own smart pointer. I also introduce four important C++ concepts:
 
- - [Rule of Three](http://stackoverflow.com/q/4172722/14065)
- - [Copy and Swap Idiom](http://stackoverflow.com/q/3279543/14065)
- - [Explicit One Argument Constructor](http://stackoverflow.com/a/121163/14065)
- - [Try/Catch on Initialization List](http://stackoverflow.com/q/12697625/14065)
+ - [Rule of Three](https://stackoverflow.com/q/4172722/14065)
+ - [Copy and Swap Idiom](https://stackoverflow.com/q/3279543/14065)
+ - [Explicit One Argument Constructor](https://stackoverflow.com/a/121163/14065)
+ - [Try/Catch on Initialization List](https://stackoverflow.com/q/12697625/14065)
 
 This article I focused on a couple of constructors/assignment operators that can be overlooked overlooked.

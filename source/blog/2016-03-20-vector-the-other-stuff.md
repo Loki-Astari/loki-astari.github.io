@@ -15,7 +15,7 @@ description: C++ By Example. The Vector Part 5. So the C++ standard specifies a 
 
 So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an insight into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).
 
-For details see the [latest copy of the C++ standard](http://stackoverflow.com/a/4653479/14065).
+For details see the [latest copy of the C++ standard](https://stackoverflow.com/a/4653479/14065).
 
 * 23.2.1  General container requirements [container.requirements.general]
 * 23.2.3  Sequence containers [sequence.reqmts]

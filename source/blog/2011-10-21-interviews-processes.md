@@ -9,15 +9,15 @@ footer: true
 description: One of the things the most non-programmers are surprised about is the severity of programming interviews. So why are they so intense?
 ---
 
-We ([SEOmoz.org](http://SEOmoz.org)) have been doing a lot of interviews for new engineers lately. I have been asked to help out trying to find the great new team members from the hordes of applicants (luckily we have a great team pre-screening applicants before they get to engineers (thanks you guys).
+We ([SEOmoz.org](https://SEOmoz.org)) have been doing a lot of interviews for new engineers lately. I have been asked to help out trying to find the great new team members from the hordes of applicants (luckily we have a great team pre-screening applicants before they get to engineers (thanks you guys).
 
 One of the things the most non-programmers are surprised about is the severity of programming interviews.
 
 An on-site interview (after you have passed all the phone screens) consists of seeing between six and eight people (depending on company); this is going to take a full day and you will be utterly exhausted by the end.
-But why are "Software Engineer" interviews so exhaustive? [I think this sums it up](http://programmers.stackexchange.com/questions/47778/why-are-sw-engineering-interviews-disproportionately-difficult-vs-research-inte/47784#47784)
+But why are "Software Engineer" interviews so exhaustive? [I think this sums it up](https://programmers.stackexchange.com/questions/47778/why-are-sw-engineering-interviews-disproportionately-difficult-vs-research-inte/47784#47784)
 
 ### What types of interview do I do?
-My field of expertise is technical (not the "[touchy feely](http://blog.sironaconsulting.com/sironasays/2011/03/is-your-hr-manager-more-miss-marple-or-hr-20-fun-infographic.html)" HR stuff or ["can you work as a team"](http://imgur.com/gallery/4D6wd) management stuff). As a result I basically stick to one type of interview with two sub variations:
+My field of expertise is technical (not the "[touchy feely](https://blog.sironaconsulting.com/sironasays/2011/03/is-your-hr-manager-more-miss-marple-or-hr-20-fun-infographic.html)" HR stuff or ["can you work as a team"](https://imgur.com/gallery/4D6wd) management stuff). As a result I basically stick to one type of interview with two sub variations:
 
 * Can you think on your feet
  * Do you know the basics (algorithms/data structures/Big O/CS theory)
@@ -37,7 +37,7 @@ Unless the company is looking for a skill in a particular language then generall
 Notice I have not said anything about syntax. Personally I think this is irrelevant in an interview situation. I mean I get code wrong all the time when I write it (that's why I have the compiler as my first line of defense and unit tests as the second). As long as I can see what you are logically trying to achieve I will not complain about missing semi-colon.
 
 ### The dos and don'ts for a candidate
-This article has a [basic guide on general etiquette](http://jobs.aol.com/articles/2011/09/12/tips-for-interviews-interviewing-etiquette-infographic/) for interviews. While this one has some more specific guidance on what to expect at [programming interview](http://programmers.stackexchange.com/questions/80065/preparing-for-interviews/80073#80073).
+This article has a [basic guide on general etiquette](https://jobs.aol.com/articles/2011/09/12/tips-for-interviews-interviewing-etiquette-infographic/) for interviews. While this one has some more specific guidance on what to expect at [programming interview](https://programmers.stackexchange.com/questions/80065/preparing-for-interviews/80073#80073).
 
 Both mention to study the company; when I was younger I always though this was silly (I was naive once a long time ago) as I did not think it would help me do my job, but I accepted the advice of my elders and did study the companies before interviews and I must say it always paid off (but never in ways you expect).
 

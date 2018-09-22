@@ -167,7 +167,7 @@ class Vector
     }
 };
 ```
-## [Copy And Swap Idiom](http://stackoverflow.com/q/3279543/14065)
+## [Copy And Swap Idiom](https://stackoverflow.com/q/3279543/14065)
 
 The copy and swap idiom is about dealing with replacing an object state from another object. It is very commonly used in the copy assignment operator but has application whenever state is being changed and the [strong exception guarantee](https://en.wikipedia.org/wiki/Exception_safety) is required.
 

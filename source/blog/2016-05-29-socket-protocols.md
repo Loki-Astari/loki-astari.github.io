@@ -25,13 +25,13 @@ Rather than go through all the different protocols I am simply going to pick the
 
 #### Example HTTP(S) servers
 * [Apache](https://httpd.apache.org/)
-* [nginx](http://nginx.org/en/)
+* [nginx](https://nginx.org/en/)
 * [Node.js](https://nodejs.org/en/about/)
 
 #### Client Side HTTP Libraries
 * [LibCurl](https://curl.haxx.se/libcurl/c/)
 * [Libwww](https://www.w3.org/Library/User/Using/)
-* [HttpFetch](http://http-fetcher.sourceforge.net/API/index.html)
+* [HttpFetch](https://http-fetcher.sourceforge.net/API/index.html)
 
 
 ## HTTP(S)

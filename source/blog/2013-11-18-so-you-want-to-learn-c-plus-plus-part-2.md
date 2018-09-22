@@ -26,7 +26,7 @@ using namespace std;
 
 It seems reasonable and every book on learning C++ out there perpetrates the same mistake. The problem is the " **using namespace std;** ". On programs that are only 10 lines long (like in most books) it does not cause any problems. But as soon as your code strays to any meaningful size then it starts to become an issue. The problem with teaching new developers this technique is that they are not aware of the problems it causes and so it becomes a habit for all code they write. Break this habit **now** before you start doing it without thinking at the top of every source file you write.
 
-So what are the actual issues? Please read this article: [Why is “using namespace std;” considered bad practice?](http://stackoverflow.com/q/1452721/14065) and the [best Answer](http://stackoverflow.com/a/1453605/14065) that explains what the problem is in detail.
+So what are the actual issues? Please read this article: [Why is “using namespace std;” considered bad practice?](https://stackoverflow.com/q/1452721/14065) and the [best Answer](https://stackoverflow.com/a/1453605/14065) that explains what the problem is in detail.
 
 We call this problem namespace pollution. What the `using` clause is doing is pulling everything from the named namespace into the current namespace; this will cause issues if there is already code in the current namespace. Doing this in your source file is bad enough but even worse is doing this in your header file. The problem with doing it in a header file is that you pollute the namespace for every source file that includes your header file. If the user of the header file is not aware of this pollution then trying to track down a suddenly new issue becomes really very hard.
 
@@ -75,7 +75,7 @@ boost::numeric::ublas::vector<double>    data2;
 ### 2: Prefixing identifiers with &#39;&#95;&#39;
 A lot of developers new to C++ try to learn by browsing the standard libraries and getting there habits from things done there or bring conventions from their current favorite languages into there C++ code. One of the things they ultimately pick up on is using '&#95;' as a prefix for identifiers.
 
-Though technically not wrong in all situations the actual rules on using the '&#95;' as an identifier prefix are non trivial. Thus making it a habit will eventually get you burnt. The issue is that most identifiers that have prefix '&#95;' are reserved for use by the implementation, thus the compiler/linker may potentially do special things with them. You can read up on the issue here: [What are the rules about using an underscore in a C++ identifier?](http://stackoverflow.com/q/228783/14065).
+Though technically not wrong in all situations the actual rules on using the '&#95;' as an identifier prefix are non trivial. Thus making it a habit will eventually get you burnt. The issue is that most identifiers that have prefix '&#95;' are reserved for use by the implementation, thus the compiler/linker may potentially do special things with them. You can read up on the issue here: [What are the rules about using an underscore in a C++ identifier?](https://stackoverflow.com/q/228783/14065).
 
 ### 3: void main()
 There are only two valid declarations from main in C++

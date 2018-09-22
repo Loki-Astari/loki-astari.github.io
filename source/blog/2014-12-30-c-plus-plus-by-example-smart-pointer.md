@@ -12,24 +12,24 @@ subtitle: C++ By Example
 author: Loki Astari, (C)2013
 description: C++ By Example. Part 1 Unique Pointer. It seems that it is a write of passage to implement your own version of a smart pointer. This article examines some of the common mistakes made by developers developing their own smart pointers.
 ---
-On [codereview.stackexchange.com](http://codereview.stackexchange.com) in the C++ tag it seems that it is a write of passage to implement your own version of a smart pointer. A quick search brings up the following:
+On [codereview.stackexchange.com](https://codereview.stackexchange.com) in the C++ tag it seems that it is a write of passage to implement your own version of a smart pointer. A quick search brings up the following:
 
-* 02/Sep/2011 - [shared_ptr implementation](http://codereview.stackexchange.com/q/4550/507)
-* 26/Nov/2011 - [Shared Pointer implementation](http://codereview.stackexchange.com/q/6320/507)
-* 18/Apr/2013 - [Request for review: reference counting smart pointer](http://codereview.stackexchange.com/q/25214/507)
-* 20/May/2013 - [Efficient smart pointer implementation in C++](http://codereview.stackexchange.com/q/26353/507)
-* 11/Aug/2013 - [C++98 Unique Pointer Implementation](http://codereview.stackexchange.com/q/29629/507)
-* 14/Aug/2013 - [I wrote a class to implement auto_ptr](http://codereview.stackexchange.com/q/29734/507)
-* 28/Aug/2013 - [yet another shared pointer](http://codereview.stackexchange.com/q/30398/507)
-* 04/Mar/2014 - [Smart pointer implementation](http://codereview.stackexchange.com/q/43472/507)
-* 13/May/2014 - [One more shared pointer](http://codereview.stackexchange.com/q/49672/507)
-* 14/Jun/2014 - [Is this a meaningful Intrusive Pointer Class?](http://codereview.stackexchange.com/q/54220/507)
-* 04/Aug/2014 - [Simple shared pointer](http://codereview.stackexchange.com/q/59004/507)
-* 08/Oct/2014 - [Smart but simple pointers](http://codereview.stackexchange.com/q/65127/507)
-* 15/Nov/2014 - [Simple auto_ptr](http://codereview.stackexchange.com/q/69943/507)
-* 19/Dec/2014 - [Yet another smart pointer implementation for learning](http://codereview.stackexchange.com/q/74166/507)
+* 02/Sep/2011 - [shared_ptr implementation](https://codereview.stackexchange.com/q/4550/507)
+* 26/Nov/2011 - [Shared Pointer implementation](https://codereview.stackexchange.com/q/6320/507)
+* 18/Apr/2013 - [Request for review: reference counting smart pointer](https://codereview.stackexchange.com/q/25214/507)
+* 20/May/2013 - [Efficient smart pointer implementation in C++](https://codereview.stackexchange.com/q/26353/507)
+* 11/Aug/2013 - [C++98 Unique Pointer Implementation](https://codereview.stackexchange.com/q/29629/507)
+* 14/Aug/2013 - [I wrote a class to implement auto_ptr](https://codereview.stackexchange.com/q/29734/507)
+* 28/Aug/2013 - [yet another shared pointer](https://codereview.stackexchange.com/q/30398/507)
+* 04/Mar/2014 - [Smart pointer implementation](https://codereview.stackexchange.com/q/43472/507)
+* 13/May/2014 - [One more shared pointer](https://codereview.stackexchange.com/q/49672/507)
+* 14/Jun/2014 - [Is this a meaningful Intrusive Pointer Class?](https://codereview.stackexchange.com/q/54220/507)
+* 04/Aug/2014 - [Simple shared pointer](https://codereview.stackexchange.com/q/59004/507)
+* 08/Oct/2014 - [Smart but simple pointers](https://codereview.stackexchange.com/q/65127/507)
+* 15/Nov/2014 - [Simple auto_ptr](https://codereview.stackexchange.com/q/69943/507)
+* 19/Dec/2014 - [Yet another smart pointer implementation for learning](https://codereview.stackexchange.com/q/74166/507)
 
-Writing you own implementation of a smart pointer is a bad idea (IMO). The standardization and testing of smart pointers was a nine year process through [boost](http://www.boost.org/), with [boost::shared_ptr](http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/shared_ptr.htm) and [boost::scoped_ptr](http://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/scoped_ptr.htm), finally resulting in the standardized versions being released in C++11: [std::shared_ptr](http://en.cppreference.com/w/cpp/memory/shared_ptr) and [std::unique_ptr](http://en.cppreference.com/w/cpp/memory/unique_ptr).
+Writing you own implementation of a smart pointer is a bad idea (IMO). The standardization and testing of smart pointers was a nine year process through [boost](https://www.boost.org/), with [boost::shared_ptr](https://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/shared_ptr.htm) and [boost::scoped_ptr](https://www.boost.org/doc/libs/1_57_0/libs/smart_ptr/scoped_ptr.htm), finally resulting in the standardized versions being released in C++11: [std::shared_ptr](https://en.cppreference.com/w/cpp/memory/shared_ptr) and [std::unique_ptr](https://en.cppreference.com/w/cpp/memory/unique_ptr).
 
 I would even say that I dislike the smart pointer as a learning device; it seems like a very simple project for a newbie, but in reality (as indicated by the nine year standardization processes) getting it working correctly in all contexts is rather a complex endeavor.
 
@@ -73,7 +73,7 @@ namespace ThorsAnvil
 }
 ```
 ### Problem 1: Rule of Three Violation
-The first problem here is that we are not obeying the "[rule of three](http://stackoverflow.com/q/4172722/14065)". Since we have a destructor that does memory management we should also handle the copy constructor and assignment operator. Otherwise the following is allowed and will cause undefined behavior:
+The first problem here is that we are not obeying the "[rule of three](https://stackoverflow.com/q/4172722/14065)". Since we have a destructor that does memory management we should also handle the copy constructor and assignment operator. Otherwise the following is allowed and will cause undefined behavior:
 
 Rule of Three Copy Constructor
 ```c
@@ -117,7 +117,7 @@ int test2()
 }
 // Same issues with double delete as the copy constructor.
 ```
-This is caused by the compiler atomically generating default implementations of certain methods (see discussion on the [rule of three](http://stackoverflow.com/q/4172722/14065)) if the user does not explicitly specify otherwise. In this case the problem comes because of the compiler generated versions of the copy constructor and assignment operator (see below)
+This is caused by the compiler atomically generating default implementations of certain methods (see discussion on the [rule of three](https://stackoverflow.com/q/4172722/14065)) if the user does not explicitly specify otherwise. In this case the problem comes because of the compiler generated versions of the copy constructor and assignment operator (see below)
 
 Compiler Generated Methods.
 ```c

@@ -13,9 +13,9 @@ author: Loki Astari (C)2016
 description: Socket wrappers in C++
 ---
 
-Building a simple client/server application is the common first internet based applications developers attempt. These applications are built on top of the socket communication library, but socket programming in C++ is not obvious as there are no standard libraries and thus you have to fall back to the C API. The closest "standardish" sort of thing we have is [Boost.asio](http://www.boost.org/doc/libs/1_60_0/doc/html/boost_asio/overview.html) which is at the other end of the spectrum in terms of API and involves a cognitive leap to understand what is happening underneath (or you can just trust the library maintainers). The other alternative is [libcurl](https://curl.haxx.se/libcurl/c/); the "easy curl" layer is an abstraction of the `socket()` API, while the "multi curl" layer is an abstraction of the `pselect()` API that allows multiple sockets to be handled in a single thread.
+Building a simple client/server application is the common first internet based applications developers attempt. These applications are built on top of the socket communication library, but socket programming in C++ is not obvious as there are no standard libraries and thus you have to fall back to the C API. The closest "standardish" sort of thing we have is [Boost.asio](https://www.boost.org/doc/libs/1_60_0/doc/html/boost_asio/overview.html) which is at the other end of the spectrum in terms of API and involves a cognitive leap to understand what is happening underneath (or you can just trust the library maintainers). The other alternative is [libcurl](https://curl.haxx.se/libcurl/c/); the "easy curl" layer is an abstraction of the `socket()` API, while the "multi curl" layer is an abstraction of the `pselect()` API that allows multiple sockets to be handled in a single thread.
 
-I am writing a series of articles that start with a basic C++ client/server application and walk through building a C++ communication library. During this processes I will be using examples from [codereview.stackexchange.com](http://codereview.stackexchange.com) to illustrate common mistakes and try to show how to write the code correctly (This will also be a learning exercise for me so please let me know if you spot a mistake).
+I am writing a series of articles that start with a basic C++ client/server application and walk through building a C++ communication library. During this processes I will be using examples from [codereview.stackexchange.com](https://codereview.stackexchange.com) to illustrate common mistakes and try to show how to write the code correctly (This will also be a learning exercise for me so please let me know if you spot a mistake).
 
 Currently the plan is to write the following articles:
 
@@ -176,9 +176,9 @@ The basic socket programs are relatively trivial. But this version 1 has some ob
 
 # Inspiration for Article
 
-* 2012-Jul-09 [Two-way communication in TCP: server-client implementation](http://codereview.stackexchange.com/q/13461/507)
-* 2012-Jul-23 [Stupidly simple TCP client/server](http://codereview.stackexchange.com/q/13933/507)
-* 2013-May-28 [How is this for a “Hello World” of socket programming?](http://codereview.stackexchange.com/q/26683/507)
-* 2013-Sep-06 [Extract location from HTTP socket](http://codereview.stackexchange.com/q/30852/507)
-* 2014-Mar-10 [Client/server implementation in C (sending data/files)](http://codereview.stackexchange.com/q/43914/507)
+* 2012-Jul-09 [Two-way communication in TCP: server-client implementation](https://codereview.stackexchange.com/q/13461/507)
+* 2012-Jul-23 [Stupidly simple TCP client/server](https://codereview.stackexchange.com/q/13933/507)
+* 2013-May-28 [How is this for a “Hello World” of socket programming?](https://codereview.stackexchange.com/q/26683/507)
+* 2013-Sep-06 [Extract location from HTTP socket](https://codereview.stackexchange.com/q/30852/507)
+* 2014-Mar-10 [Client/server implementation in C (sending data/files)](https://codereview.stackexchange.com/q/43914/507)
 

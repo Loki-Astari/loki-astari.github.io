@@ -53,7 +53,7 @@ There are two major techniques for tracking the shared owners of a pointer:
 ## Shared Count
 The easier of the two to implement correctly is the list version. There are no real gotchas (that I have seen). Though people do struggle with insertion and removal of a link from a circular list. I have another article planned for that at some point so I will cover it then.
 
-The *Shared Count* is basically the technique used by the [`std::shared_ptr`](http://en.cppreference.com/w/cpp/memory/shared_ptr) (though they store slightly more than the count to try and improve efficiency see [`std::make_shared`](http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared)).
+The *Shared Count* is basically the technique used by the [`std::shared_ptr`](https://en.cppreference.com/w/cpp/memory/shared_ptr) (though they store slightly more than the count to try and improve efficiency see [`std::make_shared`](https://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared)).
 
 The main mistake I see from beginners is not using dynamically allocated counter (i.e. they keep the counter in the SP object). You **must** dynamically allocate memory for the counter so that it can be shared by all SP instances (you can not tell how many there will be or the order in which they will be deleted).
 
@@ -203,7 +203,7 @@ Two portions of this look like other code pieces of code that have already been 
                     {
                         delete oldData;
                     }
-This observation is commonly referred to as the **[Copy and Swap Idiom](http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom)**. I will not go through all the details of the transformation here. But we can re-write the assignment operator as:
+This observation is commonly referred to as the **[Copy and Swap Idiom](https://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom)**. I will not go through all the details of the transformation here. But we can re-write the assignment operator as:
 
 Copy and Swap Idiom
 ```c
