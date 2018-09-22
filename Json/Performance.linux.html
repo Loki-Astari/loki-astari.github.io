@@ -326,14 +326,14 @@ function drawPivotBarChart(type, data, title) {
 // https://jsfiddle.net/P6XXM/
 function sanitize(svg) {
     svg = svg
-        .replace(/\<svg/,'<svg xmlns="https://www.w3.org/2000/svg" version="1.1"')
+        .replace(/\<svg/,'<svg xmlns="http://www.w3.org/2000/svg" version="1.1"')
         .replace(/zIndex="[^"]+"/g, '')
         .replace(/isShadow="[^"]+"/g, '')
         .replace(/symbolName="[^"]+"/g, '')
         .replace(/jQuery[0-9]+="[^"]+"/g, '')
         .replace(/isTracker="[^"]+"/g, '')
         .replace(/url\([^#]+#/g, 'url(#')
-        .replace('<svg xmlns:xlink="https://www.w3.org/1999/xlink" ', '<svg ')
+        .replace('<svg xmlns:xlink="http://www.w3.org/1999/xlink" ', '<svg ')
         .replace(/ href=/g, ' xlink:href=')
     /*.replace(/preserveAspectRatio="none">/g, 'preserveAspectRatio="none"/>')*/
     /* This fails in IE < 8
