@@ -13,7 +13,7 @@
     <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
 
 
-    <!-- http://t.co/dKP3o1e -->
+    <!-- https://t.co/dKP3o1e -->
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,11 +21,11 @@
 
     <link href="/favicon.png" rel="icon">
     <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+    <link href="https://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
 
     <!-- MathJax configuration -->
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
-    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+    <!-- script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,https://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
 
 </head>
 
@@ -131,15 +131,15 @@ int getMessage(int socketId, char* buffer, std::ssize_t size)
 <p>If they do happen in production there is no way to correct for them pragmatically because the error has happened in another part of the code unassociated with this function.</p>
 <p>One could argue that because these should never happen the application can abort, but for now we will settle for the read operation aborting with an error code. If we wrap this in a C++ class to control the state of the socket then exceptions may be more appropriate and we will look into that approach in a subsequent article.</p>
 <p>The following errors are potentially recoverable from.</p>
-<!-- http://stackoverflow.com/questions/8471577/linux-tcp-connect-failure-with-etimedout -->
+<!-- https://stackoverflow.com/questions/8471577/linux-tcp-connect-failure-with-etimedout -->
 <pre><code>[EIO]              An I/O error occurred while reading from the file system.
 [ENOBUFS]          An attempt to allocate a memory buffer fails.
 [ENOMEM]           Insufficient memory is available.
 [ETIMEDOUT]        A transmission timeout occurs during a read attempt on a socket.</code></pre>
 <p>But in reality recovering from them within the context of a read operation is not practical (you need to recover from these operations at a point were resource are controlled or user interaction is possible). So for now we will abort the read operation with an error code (we will revisit this in a later article).</p>
 <p>The following error codes means that no more data will be available because the connection has been interrupted.</p>
-<!-- http://stackoverflow.com/questions/2974021/what-does-econnreset-mean-in-the-context-of-an-af-local-socket -->
-<!-- http://stackoverflow.com/questions/900042/what-causes-the-enotconn-error -->
+<!-- https://stackoverflow.com/questions/2974021/what-does-econnreset-mean-in-the-context-of-an-af-local-socket -->
+<!-- https://stackoverflow.com/questions/900042/what-causes-the-enotconn-error -->
 <pre><code>[ECONNRESET]       The connection is closed by the peer during a read attempt on a socket.
 [ENOTCONN]         A read is attempted on an unconnected socket.</code></pre>
 <p>How the application reacts to a broken connection depends on the communication protocol. For the simple protocol defined above we can return any data that has been retrieved from the socket and then indicating to the calling code that we have reached the end of the message (we will revisit this in a later article). This is probably the most iffy decision in handling error codes and returning an error code could be more appropriate but I want to illustrate that we can potentially continue depending on the situation.</p>
@@ -285,9 +285,9 @@ int putMessage(int socketId, char* buffer, ssize_t size)
 <p>The next most important point is that not all error codes are fatal (most people actually check these) <strong>but</strong> an interrupt (EINTR) can be relatively common and you can continue reading after it has happened.</p>
 <h1 id="inspiration">Inspiration</h1>
 <ul>
-<li>2015-Jun-25 <a href="http://codereview.stackexchange.com/q/94608/507">Impromptu TCP sender/receiver</a></li>
-<li>2015-Jul-03 <a href="http://codereview.stackexchange.com/q/95638/507">Raw Text TCP Client v3</a></li>
-<li>2015-Dec-20 <a href="http://codereview.stackexchange.com/q/114551/507">Server / client desynchronisation of messages </a></li>
+<li>2015-Jun-25 <a href="https://codereview.stackexchange.com/q/94608/507">Impromptu TCP sender/receiver</a></li>
+<li>2015-Jul-03 <a href="https://codereview.stackexchange.com/q/95638/507">Raw Text TCP Client v3</a></li>
+<li>2015-Dec-20 <a href="https://codereview.stackexchange.com/q/114551/507">Server / client desynchronisation of messages </a></li>
 </ul>
 
     <footer>
@@ -323,7 +323,7 @@ int putMessage(int socketId, char* buffer, ssize_t size)
             <section>
     <h1>Comments</h1>
     <div id="disqus_thread" aria-live="polite">
-        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     </div>
 </section>
 
@@ -350,7 +350,7 @@ int putMessage(int socketId, char* buffer, ssize_t size)
 
     <section class="well">
     <h1>Latest Tweets</h1>
-    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <a href="https://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
     <ul id="tweets">
         <li class="post">
             <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
@@ -397,7 +397,7 @@ int putMessage(int socketId, char* buffer, ssize_t size)
 <footer role="contentinfo"><hr>
     <p>
         Copyright &copy; 2017 - Loki Astari -
-        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        <span class="credit">Powered by <a href="https://andvariToro.com">Andvari</a></span>
         using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
     </p>
 

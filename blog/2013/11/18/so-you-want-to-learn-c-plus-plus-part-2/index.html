@@ -13,7 +13,7 @@
     <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
 
 
-    <!-- http://t.co/dKP3o1e -->
+    <!-- https://t.co/dKP3o1e -->
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,11 +21,11 @@
 
     <link href="/favicon.png" rel="icon">
     <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+    <link href="https://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
 
     <!-- MathJax configuration -->
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
-    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+    <!-- script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,https://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
 
 </head>
 
@@ -93,7 +93,7 @@ See side panel "Series" for details.<br><br>
 
 using namespace std;</code></pre>
 <p>It seems reasonable and every book on learning C++ out there perpetrates the same mistake. The problem is the " <strong>using namespace std;</strong> ". On programs that are only 10 lines long (like in most books) it does not cause any problems. But as soon as your code strays to any meaningful size then it starts to become an issue. The problem with teaching new developers this technique is that they are not aware of the problems it causes and so it becomes a habit for all code they write. Break this habit <strong>now</strong> before you start doing it without thinking at the top of every source file you write.</p>
-<p>So what are the actual issues? Please read this article: <a href="http://stackoverflow.com/q/1452721/14065">Why is “using namespace std;” considered bad practice?</a> and the <a href="http://stackoverflow.com/a/1453605/14065">best Answer</a> that explains what the problem is in detail.</p>
+<p>So what are the actual issues? Please read this article: <a href="https://stackoverflow.com/q/1452721/14065">Why is “using namespace std;” considered bad practice?</a> and the <a href="https://stackoverflow.com/a/1453605/14065">best Answer</a> that explains what the problem is in detail.</p>
 <p>We call this problem namespace pollution. What the <code>using</code> clause is doing is pulling everything from the named namespace into the current namespace; this will cause issues if there is already code in the current namespace. Doing this in your source file is bad enough but even worse is doing this in your header file. The problem with doing it in a header file is that you pollute the namespace for every source file that includes your header file. If the user of the header file is not aware of this pollution then trying to track down a suddenly new issue becomes really very hard.</p>
 <p>But not doing this is causing my much more typing!</p>
 <p>toomuch.cpp</p>
@@ -127,7 +127,7 @@ bnu::vector&lt;double&gt;                      data1;
 boost::numeric::ublas::vector&lt;double&gt;    data2;</code></pre>
 <h3 id="2-prefixing-identifiers-with-399539">2: Prefixing identifiers with &#39;&#95;&#39;</h3>
 <p>A lot of developers new to C++ try to learn by browsing the standard libraries and getting there habits from things done there or bring conventions from their current favorite languages into there C++ code. One of the things they ultimately pick up on is using '&#95;' as a prefix for identifiers.</p>
-<p>Though technically not wrong in all situations the actual rules on using the '&#95;' as an identifier prefix are non trivial. Thus making it a habit will eventually get you burnt. The issue is that most identifiers that have prefix '&#95;' are reserved for use by the implementation, thus the compiler/linker may potentially do special things with them. You can read up on the issue here: <a href="http://stackoverflow.com/q/228783/14065">What are the rules about using an underscore in a C++ identifier?</a>.</p>
+<p>Though technically not wrong in all situations the actual rules on using the '&#95;' as an identifier prefix are non trivial. Thus making it a habit will eventually get you burnt. The issue is that most identifiers that have prefix '&#95;' are reserved for use by the implementation, thus the compiler/linker may potentially do special things with them. You can read up on the issue here: <a href="https://stackoverflow.com/q/228783/14065">What are the rules about using an underscore in a C++ identifier?</a>.</p>
 <h3 id="3-void-main">3: void main()</h3>
 <p>There are only two valid declarations from main in C++</p>
 <p>main.cpp</p>
@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
             <section>
     <h1>Comments</h1>
     <div id="disqus_thread" aria-live="polite">
-        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     </div>
 </section>
 
@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
 
     <section class="well">
     <h1>Latest Tweets</h1>
-    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <a href="https://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
     <ul id="tweets">
         <li class="post">
             <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
@@ -259,7 +259,7 @@ int main(int argc, char* argv[])
 <footer role="contentinfo"><hr>
     <p>
         Copyright &copy; 2017 - Loki Astari -
-        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        <span class="credit">Powered by <a href="https://andvariToro.com">Andvari</a></span>
         using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
     </p>
 

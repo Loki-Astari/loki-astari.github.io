@@ -13,7 +13,7 @@
     <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
 
 
-    <!-- http://t.co/dKP3o1e -->
+    <!-- https://t.co/dKP3o1e -->
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,11 +21,11 @@
 
     <link href="/favicon.png" rel="icon">
     <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+    <link href="https://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
 
     <!-- MathJax configuration -->
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
-    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+    <!-- script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,https://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
 
 </head>
 
@@ -86,8 +86,8 @@ See side panel "Series" for details.<br><br>
         </p>
 </header>
 
-    <p>Building a simple client/server application is the common first internet based applications developers attempt. These applications are built on top of the socket communication library, but socket programming in C++ is not obvious as there are no standard libraries and thus you have to fall back to the C API. The closest "standardish" sort of thing we have is <a href="http://www.boost.org/doc/libs/1_60_0/doc/html/boost_asio/overview.html">Boost.asio</a> which is at the other end of the spectrum in terms of API and involves a cognitive leap to understand what is happening underneath (or you can just trust the library maintainers). The other alternative is <a href="https://curl.haxx.se/libcurl/c/">libcurl</a>; the "easy curl" layer is an abstraction of the <code>socket()</code> API, while the "multi curl" layer is an abstraction of the <code>pselect()</code> API that allows multiple sockets to be handled in a single thread.</p>
-<p>I am writing a series of articles that start with a basic C++ client/server application and walk through building a C++ communication library. During this processes I will be using examples from <a href="http://codereview.stackexchange.com">codereview.stackexchange.com</a> to illustrate common mistakes and try to show how to write the code correctly (This will also be a learning exercise for me so please let me know if you spot a mistake).</p>
+    <p>Building a simple client/server application is the common first internet based applications developers attempt. These applications are built on top of the socket communication library, but socket programming in C++ is not obvious as there are no standard libraries and thus you have to fall back to the C API. The closest "standardish" sort of thing we have is <a href="https://www.boost.org/doc/libs/1_60_0/doc/html/boost_asio/overview.html">Boost.asio</a> which is at the other end of the spectrum in terms of API and involves a cognitive leap to understand what is happening underneath (or you can just trust the library maintainers). The other alternative is <a href="https://curl.haxx.se/libcurl/c/">libcurl</a>; the "easy curl" layer is an abstraction of the <code>socket()</code> API, while the "multi curl" layer is an abstraction of the <code>pselect()</code> API that allows multiple sockets to be handled in a single thread.</p>
+<p>I am writing a series of articles that start with a basic C++ client/server application and walk through building a C++ communication library. During this processes I will be using examples from <a href="https://codereview.stackexchange.com">codereview.stackexchange.com</a> to illustrate common mistakes and try to show how to write the code correctly (This will also be a learning exercise for me so please let me know if you spot a mistake).</p>
 <p>Currently the plan is to write the following articles:</p>
 <!-- Server listening for program sockets -->
 <ul>
@@ -221,11 +221,11 @@ if (socketId == -1)
 <p>The basic socket programs are relatively trivial. But this version 1 has some obvious flaws the major one being checking error states (which a lot of beginners forget in their first version). The next article will look into some more details about read and write operations on the socket.</p>
 <h1 id="inspiration-for-article">Inspiration for Article</h1>
 <ul>
-<li>2012-Jul-09 <a href="http://codereview.stackexchange.com/q/13461/507">Two-way communication in TCP: server-client implementation</a></li>
-<li>2012-Jul-23 <a href="http://codereview.stackexchange.com/q/13933/507">Stupidly simple TCP client/server</a></li>
-<li>2013-May-28 <a href="http://codereview.stackexchange.com/q/26683/507">How is this for a “Hello World” of socket programming?</a></li>
-<li>2013-Sep-06 <a href="http://codereview.stackexchange.com/q/30852/507">Extract location from HTTP socket</a></li>
-<li>2014-Mar-10 <a href="http://codereview.stackexchange.com/q/43914/507">Client/server implementation in C (sending data/files)</a></li>
+<li>2012-Jul-09 <a href="https://codereview.stackexchange.com/q/13461/507">Two-way communication in TCP: server-client implementation</a></li>
+<li>2012-Jul-23 <a href="https://codereview.stackexchange.com/q/13933/507">Stupidly simple TCP client/server</a></li>
+<li>2013-May-28 <a href="https://codereview.stackexchange.com/q/26683/507">How is this for a “Hello World” of socket programming?</a></li>
+<li>2013-Sep-06 <a href="https://codereview.stackexchange.com/q/30852/507">Extract location from HTTP socket</a></li>
+<li>2014-Mar-10 <a href="https://codereview.stackexchange.com/q/43914/507">Client/server implementation in C (sending data/files)</a></li>
 </ul>
 
     <footer>
@@ -261,7 +261,7 @@ if (socketId == -1)
             <section>
     <h1>Comments</h1>
     <div id="disqus_thread" aria-live="polite">
-        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     </div>
 </section>
 
@@ -288,7 +288,7 @@ if (socketId == -1)
 
     <section class="well">
     <h1>Latest Tweets</h1>
-    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <a href="https://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
     <ul id="tweets">
         <li class="post">
             <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
@@ -335,7 +335,7 @@ if (socketId == -1)
 <footer role="contentinfo"><hr>
     <p>
         Copyright &copy; 2017 - Loki Astari -
-        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        <span class="credit">Powered by <a href="https://andvariToro.com">Andvari</a></span>
         using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
     </p>
 

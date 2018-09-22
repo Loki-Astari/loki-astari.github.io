@@ -13,7 +13,7 @@
     <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
 
 
-    <!-- http://t.co/dKP3o1e -->
+    <!-- https://t.co/dKP3o1e -->
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,11 +21,11 @@
 
     <link href="/favicon.png" rel="icon">
     <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+    <link href="https://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
 
     <!-- MathJax configuration -->
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
-    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+    <!-- script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,https://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
 
 </head>
 
@@ -97,14 +97,14 @@ See side panel "Series" for details.<br><br>
 <h4 id="example-https-servers">Example HTTP(S) servers</h4>
 <ul>
 <li><a href="https://httpd.apache.org/">Apache</a></li>
-<li><a href="http://nginx.org/en/">nginx</a></li>
+<li><a href="https://nginx.org/en/">nginx</a></li>
 <li><a href="https://nodejs.org/en/about/">Node.js</a></li>
 </ul>
 <h4 id="client-side-http-libraries">Client Side HTTP Libraries</h4>
 <ul>
 <li><a href="https://curl.haxx.se/libcurl/c/">LibCurl</a></li>
 <li><a href="https://www.w3.org/Library/User/Using/">Libwww</a></li>
-<li><a href="http://http-fetcher.sourceforge.net/API/index.html">HttpFetch</a></li>
+<li><a href="https://http-fetcher.sourceforge.net/API/index.html">HttpFetch</a></li>
 </ul>
 <h2 id="https">HTTP(S)</h2>
 <p>Basically HTTP(S) defines two object. A request object is sent from the client to the server and response object is sent back as a result of a request. The only difference between the two is the start-line. Both HTTP objects can be broken down into three pieces.</p>
@@ -124,7 +124,7 @@ See side panel "Series" for details.<br><br>
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally '\r\n'</td></tr>
 </table>
 <h4 id="example">Example:</h4>
-<pre><code class="http language-http">GET http://google.com/maps?id=456 HTTP/1.1\r\n</code></pre>
+<pre><code class="http language-http">GET https://google.com/maps?id=456 HTTP/1.1\r\n</code></pre>
 <p>For a response object this is:</p>
 <table>
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">HTTP-Version:</td><td>Usually HTTP/1.1</td></tr>
@@ -291,7 +291,7 @@ class CurlConnector
         {
             std::stringstream url;
             response.clear();
-            url &lt;&lt; "http://" &lt;&lt; host;
+            url &lt;&lt; "https://" &lt;&lt; host;
             if (port != 80)
             {
                 url &lt;&lt; ":" &lt;&lt; port;
@@ -385,7 +385,7 @@ size_t curlConnectorGetData(char *ptr, size_t size, size_t nmemb, void *userdata
             <section>
     <h1>Comments</h1>
     <div id="disqus_thread" aria-live="polite">
-        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     </div>
 </section>
 
@@ -412,7 +412,7 @@ size_t curlConnectorGetData(char *ptr, size_t size, size_t nmemb, void *userdata
 
     <section class="well">
     <h1>Latest Tweets</h1>
-    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <a href="https://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
     <ul id="tweets">
         <li class="post">
             <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
@@ -459,7 +459,7 @@ size_t curlConnectorGetData(char *ptr, size_t size, size_t nmemb, void *userdata
 <footer role="contentinfo"><hr>
     <p>
         Copyright &copy; 2017 - Loki Astari -
-        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        <span class="credit">Powered by <a href="https://andvariToro.com">Andvari</a></span>
         using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
     </p>
 

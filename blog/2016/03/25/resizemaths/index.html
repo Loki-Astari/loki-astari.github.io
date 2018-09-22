@@ -13,7 +13,7 @@
     <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
 
 
-    <!-- http://t.co/dKP3o1e -->
+    <!-- https://t.co/dKP3o1e -->
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,11 +21,11 @@
 
     <link href="/favicon.png" rel="icon">
     <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-    <link href="http://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+    <link href="https://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
 
     <!-- MathJax configuration -->
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
-    <!-- script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+    <!-- script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,https://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
 
 </head>
 
@@ -86,7 +86,7 @@ See side panel "Series" for details.<br><br>
         </p>
 </header>
 
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,http://arnabocean.com/javascripts/MathJaxLocal.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,https://arnabocean.com/javascripts/MathJaxLocal.js"></script>
 <p>So I never really considered why the resize of vector used a constant expansion of 1.5 or 2 (in some popular implementations). That was until I did my previous article Xseries <a href="https://LokiAstari.com/blog/2016/02/27/vector/">"Vector"</a> where I concentrated a lot on resource management and did a section on <a href="https://LokiAstari.com/blog/2016/03/12/vector-resize/">resizing the vector</a>. Originally in the code I tried to be clever, a mistake. I used a resize value of 1.62 (an approximation of <code>Phi</code>), because I vaguely remembered reading an article that this was the optimum resize factor. When I put this out for code review it was pointed out to me that this value was too large, the optimum value must be less than or equal to <code>Phi</code> (1.6180339887) and that exceeding this limit actually made things a lot worse.</p>
 <p>So I had to know why….</p>
 <p>So the theory goes: You have a memory resource of size <code>B</code>. If you resize this resource by a constant factor <code>r</code> by re-allocating a new block then releasing the old block. Then if the value of <code>r</code> is smaller than or equal to <code>Phi</code> you will eventually be able to reuse memory that has previously been released; otherwise the new block of memory being allocated will always be larger than the previously released memory.</p>
@@ -175,7 +175,7 @@ They noticed that:</p>
             <section>
     <h1>Comments</h1>
     <div id="disqus_thread" aria-live="polite">
-        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     </div>
 </section>
 
@@ -202,7 +202,7 @@ They noticed that:</p>
 
     <section class="well">
     <h1>Latest Tweets</h1>
-    <a href="http://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <a href="https://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
     <ul id="tweets">
         <li class="post">
             <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
@@ -249,7 +249,7 @@ They noticed that:</p>
 <footer role="contentinfo"><hr>
     <p>
         Copyright &copy; 2017 - Loki Astari -
-        <span class="credit">Powered by <a href="http://andvariToro.com">Andvari</a></span>
+        <span class="credit">Powered by <a href="https://andvariToro.com">Andvari</a></span>
         using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
     </p>
 
