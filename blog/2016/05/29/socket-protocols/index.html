@@ -124,7 +124,7 @@ See side panel "Series" for details.<br><br>
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">CR/LF:</td><td>Literally '\r\n'</td></tr>
 </table>
 <h4 id="example">Example:</h4>
-<pre><code class="http language-http">GET http://google.com/maps?id=456 HTTP/1.1\r\n</code></pre>
+<pre><code class="http language-http">GET https://google.com/maps?id=456 HTTP/1.1\r\n</code></pre>
 <p>For a response object this is:</p>
 <table>
 <tr><td>&#8226;&nbsp;</td><td style="width:300px">HTTP-Version:</td><td>Usually HTTP/1.1</td></tr>
@@ -291,7 +291,7 @@ class CurlConnector
         {
             std::stringstream url;
             response.clear();
-            url &lt;&lt; "http://" &lt;&lt; host;
+            url &lt;&lt; "https://" &lt;&lt; host;
             if (port != 80)
             {
                 url &lt;&lt; ":" &lt;&lt; port;
