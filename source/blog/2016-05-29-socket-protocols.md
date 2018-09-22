@@ -55,7 +55,7 @@ For a request object this is:
 
 #### Example:
 ```http
-GET http://google.com/maps?id=456 HTTP/1.1\r\n
+GET https://google.com/maps?id=456 HTTP/1.1\r\n
 ```
 
 For a response object this is:
@@ -246,7 +246,7 @@ class CurlConnector
         {
             std::stringstream url;
             response.clear();
-            url << "http://" << host;
+            url << "https://" << host;
             if (port != 80)
             {
                 url << ":" << port;
