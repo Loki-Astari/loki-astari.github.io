@@ -251,8 +251,8 @@ if (value) {
 }</code></pre>
 <p>But the compiler will also use the conversion operators when it is trying to coerce objects that nearly match. For example you can now test two <code>UP</code> with <code>operator==</code> even though there does not exists an actual <code>operator==</code> for the <code>UP&lt;&gt;</code> class. This is because the compiler can convert both <code>UP&lt;&gt;</code> objects to bool and these can be compared.</p>
 <p>Auto conversion is bad (mostly)</p>
-<pre><code class="c language-c">ThorsAnvil::UP&lt;int&gt;    value1(int(8));
-ThorsAnvil::UP&lt;int&gt;    value2(int(9));
+<pre><code class="c language-c">ThorsAnvil::UP&lt;int&gt;    value1(new int(8));
+ThorsAnvil::UP&lt;int&gt;    value2(new int(9));
 
 if (value1 == value2) {
     // unfortunately this will print "They match".
@@ -264,8 +264,8 @@ if (value1 == value2) {
 <p>explicit converter</p>
 <pre><code class="c language-c">explicit operator bool() {return data;}
 ...
-ThorsAnvil::UP&lt;int&gt;    value1(int(8));
-ThorsAnvil::UP&lt;int&gt;    value2(int(9));
+ThorsAnvil::UP&lt;int&gt;    value1(new int(8));
+ThorsAnvil::UP&lt;int&gt;    value2(new int(9));
 
 if (value1) { // This is expecting a boolean expression.
     std::cout &lt;&lt; "Not nullptr\n";
