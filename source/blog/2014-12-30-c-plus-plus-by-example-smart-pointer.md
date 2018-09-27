@@ -222,8 +222,8 @@ But the compiler will also use the conversion operators when it is trying to coe
 
 Auto conversion is bad (mostly)
 ```c
-ThorsAnvil::UP<int>    value1(int(8));
-ThorsAnvil::UP<int>    value2(int(9));
+ThorsAnvil::UP<int>    value1(new int(8));
+ThorsAnvil::UP<int>    value2(new int(9));
 
 if (value1 == value2) {
     // unfortunately this will print "They match".
@@ -238,8 +238,8 @@ explicit converter
 ```c
 explicit operator bool() {return data;}
 ...
-ThorsAnvil::UP<int>    value1(int(8));
-ThorsAnvil::UP<int>    value2(int(9));
+ThorsAnvil::UP<int>    value1(new int(8));
+ThorsAnvil::UP<int>    value2(new int(9));
 
 if (value1) { // This is expecting a boolean expression.
     std::cout << "Not nullptr\n";

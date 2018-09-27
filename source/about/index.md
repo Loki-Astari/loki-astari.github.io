@@ -2,8 +2,8 @@
 layout: about
 menu: about
 ---
-#About
-##About Loki
+# About
+## About Loki
 **Born:** April 25, 1969<br>
 **Occupation:** Director of Engineering<br>
 
