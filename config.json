@@ -5,7 +5,13 @@
     "site": "https://LokiAstari.com",
     "theme": "landscape",
     "themeGit": "https://github.com/Loki-Astari/andvari-theme-landscape.git",
-    "menu":  [{"name":"blog","url":"/"}, {"name":"about", "url": "/about/"}, {"name":"series", "url":"/series/"}, {"name":"archives", "url":"/archives/"} ],
+    "menu":  [
+        {"name":"blog","url":"/"},
+        {"name":"about", "url": "/about/"},
+        {"name":"series", "url":"/series/"},
+        {"name":"archives", "url":"/archives/"},
+        {"name":"documentation", "url":"/documentation/"}
+    ],
     "twitter": {
         "user": "LokiAstari"
     },
