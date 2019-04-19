@@ -5,6 +5,7 @@
     "site": "https://LokiAstari.com",
     "theme": "landscape",
     "themeGit": "https://github.com/Loki-Astari/andvari-theme-landscape.git",
+    "sidebar": ["linkedin", "posts", "twitter", "github"],
     "menu":  [
         {"name":"blog","url":"/"},
         {"name":"about", "url": "/about/"},
