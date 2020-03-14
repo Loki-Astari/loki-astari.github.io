@@ -118,7 +118,7 @@ Vector
 
 template<typename T>
 class Vector
-
+{
     public:
         using value_type        = T;
         using reference         = T&;
@@ -269,13 +269,13 @@ class Vector
         void push_back(value_type&& value)
         {
             resizeIfRequire();
-            moveBackInternal(std::move<T>(value));
+            moveBackInternal(std::move(value));
         }
         template<typename... Args>
         void emplace_back(Args&&... args)
         {
             resizeIfRequire();
-            emplaceBackInternal(std::move<T>(args)...);
+            emplaceBackInternal(std::move(args)...);
         }
         void pop_back()
         {
@@ -329,7 +329,7 @@ class Vector
         template<typename... Args>
         void emplaceBackInternal(Args&&... args)
         {
-            new (buffer + length) T(std::move<Args>(args)...);
+            new (buffer + length) T(std::move(args)...);
             ++length;
         }
 
