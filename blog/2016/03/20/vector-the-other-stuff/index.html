@@ -183,7 +183,7 @@ Optionally you can provide the other comparison operators.</p>
 
 template&lt;typename T&gt;
 class Vector
-
+{
     public:
         using value_type        = T;
         using reference         = T&amp;;
@@ -334,13 +334,13 @@ class Vector
         void push_back(value_type&amp;&amp; value)
         {
             resizeIfRequire();
-            moveBackInternal(std::move&lt;T&gt;(value));
+            moveBackInternal(std::move(value));
         }
         template&lt;typename... Args&gt;
         void emplace_back(Args&amp;&amp;... args)
         {
             resizeIfRequire();
-            emplaceBackInternal(std::move&lt;T&gt;(args)...);
+            emplaceBackInternal(std::move(args)...);
         }
         void pop_back()
         {
@@ -394,7 +394,7 @@ class Vector
         template&lt;typename... Args&gt;
         void emplaceBackInternal(Args&amp;&amp;... args)
         {
-            new (buffer + length) T(std::move&lt;Args&gt;(args)...);
+            new (buffer + length) T(std::move(args)...);
             ++length;
         }
 
