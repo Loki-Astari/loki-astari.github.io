@@ -34,29 +34,14 @@ $(function() {
       var col1 = [];
       for (var i = 1; i < overallDt.getNumberOfColumns(); i++)
         col1.push(i);
-      overallDt = google.visualization.data.join(overallDt, dt, 'full', [[0, 0]], col1, [1]);
+      overallDt = google.visualization.data.join(overallDt, dt, 'left', [[0, 0]], col1, [1]);
     }
 
     var newCol = overallDt.getNumberOfColumns() - 1;
-    overallDt.setColumnLabel(newCol, type + ' ' + overallDt.getColumnLabel(newCol))
-    var formatter1 = new google.visualization.NumberFormat({ fractionDigits: 0 });
-    formatter1.format(overallDt, newCol);
+    overallDt.setColumnLabel(newCol, overallDt.getColumnLabel(newCol))
+    //var formatter1 = new google.visualization.NumberFormat({ fractionDigits: 0 });
+    //formatter1.format(overallDt, newCol);
 
-    for (var row = 0; row < overallDt.getNumberOfRows(); row++) {
-      if (overallDt.getValue(row, newCol) == null) {
-        overallDt.setValue(row, newCol, Number.POSITIVE_INFINITY);
-        overallDt.setFormattedValue(row, newCol, "");
-      }
-    }
-  }
-
-  function createSortEvent(type, dt, chart) {
-    return function(e) {
-      if (e.column == 0 || e.column == 1) {
-        var t = dt.clone();
-        drawBarChart(type, t, chart, [{column: e.column, desc: !e.ascending }]);
-      }
-    }
   }
 
   addSection("0. Overall");
@@ -66,87 +51,22 @@ $(function() {
   $("#main").append(overallDiv);
 
   // Per type sections
-  var types = dt.getDistinctValues(0);
   var overallDt;
-  for (var i in types) {
-    var type = types[i];
-    addSection(type);
+  for (var loop = 1; loop < dt.getNumberOfColumns(); ++loop) {
+    var type = dt.getColumnLabel(loop);
 
     var view = new google.visualization.DataView(dt);
-    view.setRows(view.getFilteredRows([{column: 0, value: type}]));
+    view.setRows(view.getFilteredRows([{column: loop}]));
 
-    if (type.search("Code size") != -1) {
-      var sizedt = google.visualization.data.group(
+    console.log("Data: " + dt.getFormattedValue(4,3));
+
+    var timedt = google.visualization.data.group(
         view,
-        [1], 
-        [{"column": 9, "aggregation": google.visualization.data.sum, 'type': 'number' }]
-      );
-      AddToOverall(sizedt);
-      sortCaseInsensitive(sizedt, 0);
-      addSubsection(sizedt.getColumnLabel(1));
-      var sizeTable = drawTable(type, sizedt.clone(), false);
-      var sizeChart = drawBarChart(type, sizedt.clone());
-      google.visualization.events.addListener(sizeTable, 'sort', createSortEvent(type, sizedt, sizeChart));
-    }
-    else {
-      addSubsection("Time");
+        [0], 
+        [{"column": loop, "aggregation": google.visualization.data.max, 'type': dt.getColumnType(loop) }]
+    );
 
-      var timedt = google.visualization.data.group(
-        view,
-        [1], 
-        [{"column": 3, "aggregation": google.visualization.data.sum, 'type': 'number' }]
-      );
-
-      AddToOverall(timedt);
-      sortCaseInsensitive(timedt, 0);
-      var timeTable = drawTable(type, timedt.clone(), true);
-      var timeChart = drawBarChart(type, timedt.clone());
-      google.visualization.events.addListener(timeTable, 'sort', createSortEvent(type, timedt, timeChart));
-
-      // Per JSON
-      drawPivotBarChart(
-        type + " per JSON",
-        pivotTable(google.visualization.data.group(
-          view,
-          [2, 1],
-          [{"column": 3, "aggregation": google.visualization.data.sum, 'type': 'number' }]
-        )),
-        dt.getColumnLabel(3)
-      );
-
-      // Only show memory of Parse
-      if (type.search("Parse") != -1) {
-        for (var column = 4; column <= 6; column++) {
-          var memorydt = google.visualization.data.group(
-            view,
-            [1], 
-            [{"column": column, "aggregation": google.visualization.data.sum, 'type': 'number' }]
-          );
-          AddToOverall(memorydt);
-          sortCaseInsensitive(memorydt, 0);
-          addSubsection(memorydt.getColumnLabel(1));
-          var memoryTable = drawTable(type, memorydt.clone(), false);
-          var memoryChart = drawBarChart(type, memorydt.clone());
-
-          google.visualization.events.addListener(memoryTable, 'sort', createSortEvent(type, memorydt, memoryChart));
-        }
-      }
-      // Get memory leak information.
-      for (var column = 7; column <= 8; column++) {
-        var memorydt = google.visualization.data.group(
-          view,
-          [1], 
-          [{"column": column, "aggregation": google.visualization.data.sum, 'type': 'number' }]
-        );
-        AddToOverall(memorydt);
-        sortCaseInsensitive(memorydt, 0);
-        addSubsection(memorydt.getColumnLabel(1));
-        var memoryTable = drawTable(type, memorydt.clone(), false);
-        var memoryChart = drawBarChart(type, memorydt.clone());
-
-        google.visualization.events.addListener(memoryTable, 'sort', createSortEvent(type, memorydt, memoryChart));
-      }
-    }
+    AddToOverall(timedt);
   }
 
   var overallTable = new google.visualization.Table(overallDiv);
@@ -171,39 +91,13 @@ $(function() {
 
   // Add configurations
   var thisConfig = "Stats";
-  var configurations = ["Conformance","Performance","Stats"];
+  var configurations = [ "Conformance.osx", "Conformance.linux", "Performance.osx", "Performance.linux", "Stats"];
 
   for (var i in configurations) {
     var c = configurations[i];
     $("#benchmark").append($("<li>", {class : (c == thisConfig ? "active" : "")}).append($("<a>", {href: c + ".html"}).append(c)));
   }
 });
-
-function pivotTable(src) {
-  var dst = new google.visualization.DataTable();
-  
-  // Add columns
-  var key = src.getDistinctValues(1);
-  var keyColumnMap = {};
-  dst.addColumn(src.getColumnType(0), src.getColumnLabel(0));  
-  for (var k in key)
-    keyColumnMap[key[k]] = dst.addColumn(src.getColumnType(2), key[k]);
-
-  // Add rows
-  var pivot = src.getDistinctValues(0);
-  var pivotRowMap = {};  
-  for (var p in pivot)
-    dst.setValue(pivotRowMap[[pivot[p]]] = dst.addRow(), 0, pivot[p]);
-
-  // Fill cells
-  for (var row = 0; row < src.getNumberOfRows(); row++)
-    dst.setValue(
-      pivotRowMap[src.getValue(row, 0)],
-      keyColumnMap[src.getValue(row, 1)],
-      src.getValue(row, 2));
-
-  return dst;
-}
 
 function addSection(name) {
   $("#main").append(
@@ -213,158 +107,6 @@ function addSection(name) {
   $("#section").append($("<li>").append($("<a>", {href: "#" + name}).append(name)));
 }
 
-function addSubsection(name) {
-  $("#main").append(
-    $("<h3>", {style: "padding-top: 70px; margin-top: -70px;"}).append(name)
-  );
-}
-
-function drawTable(type, data, isSpeedup) {
-  if (isSpeedup)
-    data.addColumn('number', 'Speedup');
-  else
-    data.addColumn('number', 'Ratio');
-  //data.sort([{ column: 1, desc: true }]);
-  var formatter1 = new google.visualization.NumberFormat({ fractionDigits: 0 });
-  formatter1.format(data, 1);
-
-  var div = document.createElement("div");
-  div.className = "tablechart";
-  $("#main").append(div);
-    var table = new google.visualization.Table(div);
-    redrawTable(0);
-    table.setSelection([{ row: 0, column: null}]);
-
-  function redrawTable(selectedRow) {
-      var s = table.getSortInfo();
-      // Compute relative time using the first row as basis
-      var basis = data.getValue(selectedRow, 1);
-      for (var rowIndex = 0; rowIndex < data.getNumberOfRows(); rowIndex++)
-        data.setValue(rowIndex, 2, isSpeedup ? basis / data.getValue(rowIndex, 1) : data.getValue(rowIndex, 1) / basis);
-
-      var formatter = new google.visualization.NumberFormat({suffix: 'x'});
-      formatter.format(data, 2); // Apply formatter to second column
-
-      table.draw(data, s != null ? {sortColumn: s.column, sortAscending: s.ascending} : null);
-  }
-
-  google.visualization.events.addListener(table, 'select',
-  function() {
-      var selection = table.getSelection();
-      if (selection.length > 0) {
-          var item = selection[0];
-          if (item.row != null)
-              redrawTable(item.row);
-      }
-  });
-
-  return table;
-}
-
-function drawBarChart(type, data, chart, sortOptions) {
-  // Using same colors as in series
-  var colors = ["#3366cc","#dc3912","#ff9900","#109618","#990099","#0099c6","#dd4477","#66aa00","#b82e2e","#316395","#994499","#22aa99","#aaaa11","#6633cc","#e67300","#8b0707","#651067","#329262","#5574a6","#3b3eac","#b77322","#16d620","#b91383","#f4359e","#9c5935","#a9c413","#2a778d","#668d1c","#bea413","#0c5922","#743411","#3366cc","#dc3912","#ff9900","#109618","#990099","#0099c6","#dd4477","#66aa00","#b82e2e","#316395","#994499","#22aa99","#aaaa11","#6633cc","#e67300","#8b0707","#651067","#329262","#5574a6","#3b3eac","#b77322","#16d620","#b91383","#f4359e","#9c5935","#a9c413","#2a778d","#668d1c","#bea413","#0c5922","#743411"];
-  var h = data.getNumberOfRows() * 12;
-  var options = { 
-    title: type,
-    chartArea: {left: '20%', width: '70%', height: h },
-    width: 800,
-    height: h + 100,
-    fontSize: 10,
-    bar: {groupWidth: "80%"},
-    hAxis: { title: data.getColumnLabel(1) },
-    legend: { position: "none" },
-  };
-
-  data.addColumn({ type: "string", role: "style" });
-  data.addColumn({ type: "number", role: "annotation" });
-  for (var rowIndex = 0; rowIndex < data.getNumberOfRows(); rowIndex++) {
-    data.setValue(rowIndex, 2, colors[rowIndex]);
-    data.setValue(rowIndex, 3, data.getValue(rowIndex, 1));
-  }
-
-  if (sortOptions != null)
-    data.sort(sortOptions); // sort after assigning colors
-
-  var formatter1 = new google.visualization.NumberFormat({ fractionDigits: 0 });
-  formatter1.format(data, 3);
-
-  if (chart == null) {
-    var div = document.createElement("div");
-    div.className = "chart";
-    $(div).data("filename", type + "_" + data.getColumnLabel(1));
-    $("#main").append(div);
-    chart = new google.visualization.BarChart(div);
-  }
-
-  chart.draw(data, options);
-  return chart;
-}
-
-
-function drawPivotBarChart(type, data, title) {
-  var h = (data.getNumberOfColumns() + 1) * data.getNumberOfRows() * 5;
-  var options = { 
-    title: type,
-    chartArea: {left: '10%', width: '70%', 'height': h},
-    width: 800,
-    height: h + 100,
-    fontSize: 10,
-    hAxis: { "title": title },
-    legend: { textStyle: {fontSize: 8}},
-    bar : { groupWidth: "95%" }
-  };
-  var div = document.createElement("div");
-  div.className = "chart";
-  $(div).data("filename", type + "_" + title);
-  $("#main").append(div);
-  var chart = new google.visualization.BarChart(div);
-
-  chart.draw(data, options);
-}
-
-// https://jsfiddle.net/P6XXM/
-function sanitize(svg) {
-    svg = svg
-        .replace(/\<svg/,'<svg xmlns="http://www.w3.org/2000/svg" version="1.1"')
-        .replace(/zIndex="[^"]+"/g, '')
-        .replace(/isShadow="[^"]+"/g, '')
-        .replace(/symbolName="[^"]+"/g, '')
-        .replace(/jQuery[0-9]+="[^"]+"/g, '')
-        .replace(/isTracker="[^"]+"/g, '')
-        .replace(/url\([^#]+#/g, 'url(#')
-        .replace('<svg xmlns:xlink="http://www.w3.org/1999/xlink" ', '<svg ')
-        .replace(/ href=/g, ' xlink:href=')
-    /*.replace(/preserveAspectRatio="none">/g, 'preserveAspectRatio="none"/>')*/
-    /* This fails in IE < 8
-    .replace(/([0-9]+)\.([0-9]+)/g, function(s1, s2, s3) { // round off to save weight
-    return s2 +'.'+ s3[0];
-    })*/
-
-    // IE specific
-        .replace(/id=([^" >]+)/g, 'id="$1"')
-        .replace(/class=([^" ]+)/g, 'class="$1"')
-        .replace(/ transform /g, ' ')
-        .replace(/:(path|rect)/g, '$1')
-        .replace(/<img ([^>]*)>/gi, '<image $1 />')
-        .replace(/<\/image>/g, '') // remove closing tags for images as they'll never have any content
-        .replace(/<image ([^>]*)([^\/])>/gi, '<image $1$2 />') // closes image tags for firefox
-        .replace(/width=(\d+)/g, 'width="$1"')
-        .replace(/height=(\d+)/g, 'height="$1"')
-        .replace(/hc-svg-href="/g, 'xlink:href="')
-        .replace(/style="([^"]+)"/g, function (s) {
-            return s.toLowerCase();
-        });
-
-    // IE9 beta bugs with innerHTML. Test again with final IE9.
-    svg = svg.replace(/(url\(#highcharts-[0-9]+)&quot;/g, '$1')
-        .replace(/&quot;/g, "'");
-    if (svg.match(/ xmlns="/g).length == 2) {
-        svg = svg.replace(/xmlns="[^"]+"/, '');
-    }
-
-    return svg;
-}
 </script>
 <style type="text/css">
 @media (min-width: 800px) {
@@ -427,40 +169,40 @@ body { padding-top: 70px; }
 <div id="main"></div>
 <h2>Source CSV</h2>
 <textarea id="textInput" class="form-control" rows="5" readonly>
-Library,FirstCommitTS,FirstCommit,FirstCommitString,LastCommitTS,FirstCommit,LastCommitString,LanguageType,Stars
-1, ThorsSerializer, 1422161062, 2015-01-24, Sat Jan 24 20:44:22 2015, 1593681427, 2020-07-02, Thu Jul  2 02:17:07 2020, C++17 , null
-1, ArduinoJson, 1389369312, 2014-01-10, Fri Jan 10 07:55:12 2014, 1593696514, 2020-07-02, Thu Jul  2 06:28:34 2020, C++ , null
-1, cajun-jsonapi, 1323023985, 2011-12-04, Sun Dec  4 10:39:45 2011, 1432624398, 2015-05-26, Tue May 26 00:13:18 2015, C++ , 14
-1, Configuru, 1447007780, 2015-11-08, Sun Nov  8 10:36:20 2015, 1579774509, 2020-01-23, Thu Jan 23 02:15:09 2020, C++11 , 113
-1, fastjson, 1297072162, 2011-02-07, Mon Feb  7 01:49:22 2011, 1341124776, 2012-06-30, Sat Jun 30 23:39:36 2012, C++ , 20
-1, jeayeson, 1352617316, 2012-11-10, Sat Nov 10 23:01:56 2012, 1483322390, 2017-01-01, Sun Jan  1 17:59:50 2017, C++14 , 114
-1, JsonBox, 1306290442, 2011-05-24, Tue May 24 19:27:22 2011, 1553944589, 2019-03-30, Sat Mar 30 04:16:29 2019, C++ , 99
-1, jsoncons, 1368056889, 2013-05-08, Wed May  8 16:48:09 2013, 1593738996, 2020-07-02, Thu Jul  2 18:16:36 2020, C++ , 325
-1, jsoncpp, 1173996274, 2007-03-15, Thu Mar 15 15:04:34 2007, 1592949148, 2020-06-23, Tue Jun 23 14:52:28 2020, C++ , 4832
-1, json-voorhees, 1329587068, 2012-02-18, Sat Feb 18 09:44:28 2012, 1586525641, 2020-04-10, Fri Apr 10 06:34:01 2020, C++ , 121
-1, jsonxx, 1228118477, 2008-12-01, Mon Dec  1 00:01:17 2008, 1574650823, 2019-11-24, Sun Nov 24 19:00:23 2019, C++ , 358
-1, jvar, 1392702504, 2014-02-17, Mon Feb 17 21:48:24 2014, 1479702116, 2016-11-20, Sun Nov 20 20:21:56 2016, C++ , 17
-1, Jzon, 1299082213, 2011-03-02, Wed Mar  2 08:10:13 2011, 1451540136, 2015-12-30, Wed Dec 30 21:35:36 2015, C++ , 40
-1, nlohmann, 1372927743, 2013-07-04, Thu Jul  4 01:49:03 2013, 1593434469, 2020-06-29, Mon Jun 29 05:41:09 2020, C++11 , 19524
-1, picojson, 1246516707, 2009-07-01, Wed Jul  1 23:38:27 2009, 1577940811, 2020-01-01, Wed Jan  1 20:53:31 2020, C++ , 865
-1, rapidjson, 1320418612, 2011-11-04, Fri Nov  4 07:56:52 2011, 1592894050, 2020-06-22, Mon Jun 22 23:34:10 2020, C++ , null
-1, rapidjsonFullPrec, 1320418612, 2011-11-04, Fri Nov  4 07:56:52 2011, 1592894050, 2020-06-22, Mon Jun 22 23:34:10 2020, C++ , null
-1, rapidjsonInsitu, 1320418612, 2011-11-04, Fri Nov  4 07:56:52 2011, 1592894050, 2020-06-22, Mon Jun 22 23:34:10 2020, C++ , null
-1, rapidjsonIterative, 1320418612, 2011-11-04, Fri Nov  4 07:56:52 2011, 1592894050, 2020-06-22, Mon Jun 22 23:34:10 2020, C++ , null
-1, rapidjsonAutoUTF, 1320418612, 2011-11-04, Fri Nov  4 07:56:52 2011, 1592894050, 2020-06-22, Mon Jun 22 23:34:10 2020, C++ , null
-1, gason, 1382948830, 2013-10-28, Mon Oct 28 01:27:10 2013, 1476696192, 2016-10-17, Mon Oct 17 02:23:12 2016, C++11 , 289
-1, sajson, 1356895445, 2012-12-30, Sun Dec 30 11:24:05 2012, 1589517296, 2020-05-14, Thu May 14 21:34:56 2020, C++ , 474
-1, ujson, 1420475978, 2015-01-05, Mon Jan  5 08:39:38 2015, 1475935440, 2016-10-08, Sat Oct  8 07:04:00 2016, C++ , null
-1, ujson4c, 1366981689, 2013-04-26, Fri Apr 26 06:08:09 2013, 1396941950, 2014-04-08, Tue Apr  8 00:25:50 2014, C , 146
-1, pjson, 1392707250, 2014-02-17, Mon Feb 17 23:07:30 2014, 1467174221, 2016-06-28, Tue Jun 28 21:23:41 2016, C , 3
-1, udb-jsason-parser, 1329071631, 2012-02-12, Sun Feb 12 10:33:51 2012, 1562712248, 2019-07-09, Tue Jul  9 15:44:08 2019, C , 1002
-1, juson, 1464535160, 2016-05-29, Sun May 29 08:19:20 2016, 1541770898, 2018-11-09, Fri Nov  9 05:41:38 2018, C , 12
-1, ccan, 1196862099, 2007-12-05, Wed Dec  5 05:41:39 2007, 1592531121, 2020-06-18, Thu Jun 18 18:45:21 2020, C , 783
-1, cJSON, 1251258920, 2009-08-25, Tue Aug 25 20:55:20 2009, 1593245632, 2020-06-27, Sat Jun 27 01:13:52 2020, C , 4683
-1, vincenthz-libjson, 1262261258, 2009-12-31, Thu Dec 31 04:07:38 2009, 1461040189, 2016-04-18, Mon Apr 18 21:29:49 2016, C , 215
-1, yajl, 1184660984, 2007-07-17, Tue Jul 17 01:29:44 2007, 1443122206, 2015-09-24, Thu Sep 24 12:16:46 2015, C , 1948
-1, json-c, 1173774377, 2007-03-13, Tue Mar 13 01:26:17 2007, 1593889210, 2020-07-04, Sat Jul  4 12:00:10 2020, C , 1902
-1, jsmn, 1289819468, 2010-11-15, Mon Nov 15 03:11:08 2010, 1585832892, 2020-04-02, Thu Apr  2 06:08:12 2020, C , 2241
+Library,FirstCommit,FirstCommit,LanguageType,Stars
+ThorsSerializer,2015-01-24,2020-07-02,C++17 ,0
+ArduinoJson,2014-01-10,2020-07-02,C++ ,0
+cajun-jsonapi,2011-12-04,2015-05-26,C++ ,14
+Configuru,2015-11-08,2020-01-23,C++11 ,113
+fastjson,2011-02-07,2012-06-30,C++ ,20
+jeayeson,2012-11-10,2017-01-01,C++14 ,114
+JsonBox,2011-05-24,2019-03-30,C++ ,99
+jsoncons,2013-05-08,2020-07-02,C++ ,325
+jsoncpp,2007-03-15,2020-06-23,C++ ,4832
+json-voorhees,2012-02-18,2020-04-10,C++ ,121
+jsonxx,2008-12-01,2019-11-24,C++ ,358
+jvar,2014-02-17,2016-11-20,C++ ,17
+Jzon,2011-03-02,2015-12-30,C++ ,40
+nlohmann,2013-07-04,2020-06-29,C++11 ,19524
+picojson,2009-07-01,2020-01-01,C++ ,865
+rapidjson,2011-11-04,2020-06-22,C++ ,0
+rapidjsonFullPrec,2011-11-04,2020-06-22,C++ ,0
+rapidjsonInsitu,2011-11-04,2020-06-22,C++ ,0
+rapidjsonIterative,2011-11-04,2020-06-22,C++ ,0
+rapidjsonAutoUTF,2011-11-04,2020-06-22,C++ ,0
+gason,2013-10-28,2016-10-17,C++11 ,289
+sajson,2012-12-30,2020-05-14,C++ ,474
+ujson,2015-01-05,2016-10-08,C++ ,0
+ujson4c,2013-04-26,2014-04-08,C ,146
+pjson,2014-02-17,2016-06-28,C ,3
+udb-jsason-parser,2012-02-12,2019-07-09,C ,1002
+juson,2016-05-29,2018-11-09,C ,12
+ccan,2007-12-05,2020-06-18,C ,783
+cJSON,2009-08-25,2020-06-27,C ,4683
+vincenthz-libjson,2009-12-31,2016-04-18,C ,215
+yajl,2007-07-17,2015-09-24,C ,1948
+json-c,2007-03-13,2020-07-04,C ,1902
+jsmn,2010-11-15,2020-04-02,C ,2241
 </textarea>
 </div>
 <div class="row" id="downloadDD" style="display: none">
