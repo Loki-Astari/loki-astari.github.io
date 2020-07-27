@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html>
+
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Loki Astari</title>
+    <meta name="author" content="Loki Astari">
+
+
+    <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
+
+
+    <!-- https://t.co/dKP3o1e -->
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="/favicon.png" rel="icon">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <link href="https://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+
+    <!-- MathJax configuration -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
+    <!-- script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,https://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+
+</head>
+
+<body>
+<header role="banner">
+    <div class="header-left">
+        <hgroup>
+            <h1><a href="/">Loki Astari</a></h1>
+            
+            <div class="subtitle">
+                <h2>Thoughts of a former code monkey.</h2>
+            </div>
+            
+        </hgroup>
+    </div>
+
+    
+    <div class="header-right">
+        <ul class="main-navigation">
+            
+                <div  >
+                    <li><a href="/">blog</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/about/">about</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/series/">series</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/archives/">archives</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/documentation/">documentation</a></li></div><div class="spacer">
+                </div>
+            
+        </ul>
+    </div>
+    
+</header>
+
+<div id="main">
+    <div id="content">
+        <div class="blog-index">
+                <article class="hentry" role="article">
+<!--
+This is article 4 of the 4 part Series: "<span style="color:red">Sockets</span>".<br>
+See side panel "Series" for details.<br><br>
+-->
+
+    <header>
+    <h1 class="entry-title"><a href="/blog/2016/03/20/vector-the-other-stuff/index.html">Vector - The Other Stuff</a></h1>
+        <p class="meta">
+            <time datetime="2016-03-21T05:26:43Z" pubdate>Mar 20 <span>th</span>, 2016</time>
+            
+                | <a href="/blog/2016/03/20/vector-the-other-stuff/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2016/03/20/vector-the-other-stuff/">Comments</a>
+            
+        </p>
+</header>
+
+    <p>So the C++ standard specifies a set of requirements for containers. Very few requirements are specified in terms of containers so adhering to these exactly is not required (unless you want to be considered for the standard). But they provide an insight into what can be done with them and if you support them will allow your container to be more easily used with some features of the language and standard library. I am not going to go over all of them here (that is left as an exercise for the reader), but I will go over the ones I would expect to see in a simple implementation (the kind you would see in a university project).</p>
+<p>For details see the <a href="https://stackoverflow.com/a/4653479/14065">latest copy of the C++ standard</a>.</p>
+<ul>
+<li>23.2.1  General container requirements [container.requirements.general]</li>
+<li>23.2.3  Sequence containers [sequence.reqmts]</li>
+</ul>
+<h4 id="internal-types">Internal Types</h4>
+<ul>
+<li>value&#95;type</li>
+<li>reference</li>
+<li>const&#95;reference</li>
+<li>iterator</li>
+<li>const&#95;iterator</li>
+<li>difference&#95;type</li>
+<li>size&#95;type</li>
+</ul>
+<p>It is worth specifying the internal types defined here. As this allows you to abstract the implementation details of the container. This will allow you to change the implementation details without users having to change their implementation; as long as the changes still provide the same interface but the interface to reference/pointers/iterators are relatively trivial and well defined.</p>
+<h4 id="constructors">Constructors</h4>
+<p>In C++11 the <code>std::initializer_list&lt;T&gt;</code> was introduced. This allows a better list initialization syntax to be used with user defined types. Since this is usually defined in terms of the range based construction we should probably add both of these constructors.</p>
+<ul>
+<li>Vector(std::initializer&#95;list<T> const&amp; list)</li>
+<li>Vector(I begin, I end)</li>
+</ul>
+<h4 id="iterators">Iterators</h4>
+<ul>
+<li>begin()</li>
+<li>rbegin()</li>
+<li>begin() const</li>
+<li>rbegin() const</li>
+<li>cbegin() const</li>
+<li>crbegin() const</li>
+<li>end()</li>
+<li>rend()</li>
+<li>end() const</li>
+<li>cend() const</li>
+<li>rend() const</li>
+<li>crend() const</li>
+</ul>
+<p>The iterators are relatively easy to write. They also allow the container to be used with the new range based for that was added in C++14. So this becomes another easy add.</p>
+<h4 id="member-access">Member Access</h4>
+<ul>
+<li>at(&lt;index&gt;)</li>
+<li>at(&lt;index&gt;) const</li>
+<li>operator&#91;&#93;(&lt;index&gt;)</li>
+<li>operator&#91;&#93;(&lt;index&gt;) const</li>
+<li>front()</li>
+<li>back()</li>
+<li>front() const</li>
+<li>back() const</li>
+</ul>
+<p>Member access to a vector should be very efficient. As a result normally range checks are not performed on member access, i.e. the user is expected to make sure that the method preconditions have been met before calling the method. This results in very efficient access to the members of a <code>Vector</code>. This is not normally a problem because index ranges are normally checked as part of a loop range as long as these are validated against the size of the array it does not need to be validated again.</p>
+<p>For Loop Vector Access</p>
+<pre><code class="c language-c">Vector&lt;T&gt;   d = getData();
+for(int loop = 0; loop &lt; d.size(); ++loop)
+{
+    std::cout &lt;&lt; d[loop];   // No need for antoher range
+                            // check here as we know that loop is inside the
+                            // bounds of the vector d.
+}</code></pre>
+<p>There is also the <code>at()</code> method which does validate the index provided before accessing the element (throwing an exception if the index is out of range).</p>
+<h4 id="non-mutating-member-functions">Non-Mutating Member Functions</h4>
+<ul>
+<li>size() const</li>
+<li>bool() const</li>
+</ul>
+<p>To allow us to check the preconditions on the element access methods we need some functions that check the state of the object. These are provided here.</p>
+<h4 id="mutating-member-functions">Mutating Member Functions</h4>
+<ul>
+<li>push&#95;back(&lt;object-ref&gt;)</li>
+<li>push&#95;back(&lt;object-rvalue-ref&gt;)</li>
+<li>emplace&#95;back(&lt;args…&gt;)</li>
+<li>pop&#95;back()</li>
+</ul>
+<p>The following members are standard easy to implement methods of <code>std::vector</code> (O(1)) that I would expect to see in every implementation.</p>
+<p>The other mutating member functions are less trivial as they require elements to be moved around. They are not that hard but you must put some thought into the most efficient techniques to move elements (i.e. move or copy) and make sure that capacity is not exceeded by multiple inserts. As a result I would expect to see these methods only on an as needed basis.</p>
+<h4 id="comparators">Comparators</h4>
+<ul>
+<li>operator== const</li>
+<li>operator!= const</li>
+</ul>
+<p>Easy comparison operators.<br />
+Optionally you can provide the other comparison operators.</p>
+<h1 id="final">Final</h1>
+<p><strong>No idea why Jackal is adding all the blank lines to my source</strong></p>
+<p>Vector</p>
+<pre><code class="c language-c">#include &lt;type_traits&gt;
+#include &lt;memory&gt;
+#include &lt;algorithm&gt;
+#include &lt;stdexcept&gt;
+#include &lt;iterator&gt;
+
+template&lt;typename T&gt;
+class Vector
+{
+    public:
+        using value_type        = T;
+        using reference         = T&amp;;
+        using const_reference   = T const&amp;;
+        using pointer           = T*;
+        using const_pointer     = T const*;
+        using iterator          = T*;
+        using const_iterator    = T const*;
+        using riterator         = std::reverse_iterator&lt;iterator&gt;;
+        using const_riterator   = std::reverse_iterator&lt;const_iterator&gt;;
+        using difference_type   = std::ptrdiff_t;
+        using size_type         = std::size_t;
+
+    private:
+        size_type       capacity;
+        size_type       length;
+        T*              buffer;
+
+        struct Deleter
+        {
+            void operator()(T* buffer) const
+            {
+                ::operator delete(buffer);
+            }
+        };
+
+    public:
+        Vector(int capacity = 10)
+            : capacity(capacity)
+            , length(0)
+            , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+        {}
+        template&lt;typename I&gt;
+        Vector(I begin, I end)
+            : capacity(std::distance(begin, end))
+            , length(0)
+            , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+        {
+            for(auto loop = begin;loop != end; ++loop)
+            {
+                pushBackInternal(*loop);
+            }
+        }
+        Vector(std::initializer_list&lt;T&gt; const&amp; list)
+            : Vector(std::begin(list), std::end(list))
+        {}
+        ~Vector()
+        {
+            // Make sure the buffer is deleted even with exceptions
+            // This will be called to release the pointer at the end
+            // of scope.
+            std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+            clearElements&lt;T&gt;();
+        }
+        Vector(Vector const&amp; copy)
+            : capacity(copy.length)
+            , length(0)
+            , buffer(static_cast&lt;T*&gt;(::operator new(sizeof(T) * capacity)))
+        {
+            try
+            {
+                for(int loop = 0; loop &lt; copy.length; ++loop)
+                {
+                    push_back(copy.buffer[loop]);
+                }
+            }
+            catch(...)
+            {
+                std::unique_ptr&lt;T, Deleter&gt;     deleter(buffer, Deleter());
+                clearElements&lt;T&gt;();
+
+                // Make sure the exceptions continue propagating after
+                // the cleanup has completed.
+                throw;
+            }
+        }
+        Vector&amp; operator=(Vector const&amp; copy)
+        {
+            copyAssign&lt;T&gt;(copy);
+            return *this;
+        }
+        Vector(Vector&amp;&amp; move) noexcept
+            : capacity(0)
+            , length(0)
+            , buffer(nullptr)
+        {
+            move.swap(*this);
+        }
+        Vector&amp; operator=(Vector&amp;&amp; move) noexcept
+        {
+            move.swap(*this);
+            return *this;
+        }
+        void swap(Vector&amp; other) noexcept
+        {
+            using std::swap;
+            swap(capacity,      other.capacity);
+            swap(length,        other.length);
+            swap(buffer,        other.buffer);
+        }
+
+        // Non-Mutating functions
+        size_type           size() const                        {return length;}
+        bool                empty() const                       {return length == 0;}
+
+        // Validated element access
+        reference           at(size_type index)                 {validateIndex(index);return buffer[index];}
+        const_reference     at(size_type index) const           {validateIndex(index);return buffer[index];}
+
+        // Non-Validated element access
+        reference           operator[](size_type index)         {return buffer[index];}
+        const_reference     operator[](size_type index) const   {return buffer[index];}
+        reference           front()                             {return buffer[0];}
+        const_reference     front() const                       {return buffer[0];}
+        reference           back()                              {return buffer[length - 1];}
+        const_reference     back() const                        {return buffer[length - 1];}
+
+        // Iterators
+        iterator            begin()                             {return buffer;}
+        riterator           rbegin()                            {return riterator(end());}
+        const_iterator      begin() const                       {return buffer;}
+        const_riterator     rbegin() const                      {return const_riterator(end());}
+
+        iterator            end()                               {return buffer + length;}
+        riterator           rend()                              {return riterator(begin());}
+        const_iterator      end() const                         {return buffer + length;}
+        const_riterator     rend() const                        {return const_riterator(begin());}
+
+        const_iterator      cbegin() const                      {return begin();}
+        const_riterator     crbegin() const                     {return rbegin();}
+        const_iterator      cend() const                        {return end();}
+        const_riterator     crend() const                       {return rend();}
+
+        // Comparison
+        bool operator!=(Vector const&amp; rhs) const {return !(*this == rhs);}
+        bool operator==(Vector const&amp; rhs) const
+        {
+            return  (size() == rhs.size())
+                &amp;&amp;  std::equal(begin(), end(), rhs.begin());
+        }
+
+        // Mutating functions
+        void push_back(value_type const&amp; value)
+        {
+            resizeIfRequire();
+            pushBackInternal(value);
+        }
+        void push_back(value_type&amp;&amp; value)
+        {
+            resizeIfRequire();
+            moveBackInternal(std::move(value));
+        }
+        template&lt;typename... Args&gt;
+        void emplace_back(Args&amp;&amp;... args)
+        {
+            resizeIfRequire();
+            emplaceBackInternal(std::move(args)...);
+        }
+        void pop_back()
+        {
+            --length;
+            buffer[length].~T();
+        }
+        void reserve(size_type capacityUpperBound)
+        {
+            if (capacityUpperBound &gt; capacity)
+            {
+                reserveCapacity(capacityUpperBound);
+            }
+        }
+    private:
+        void validateIndex(size_type index) const
+        {
+            if (index &gt;= length)
+            {
+                throw std::out_of_range("Out of Range");
+            }
+        }
+
+        void resizeIfRequire()
+        {
+            if (length == capacity)
+            {
+                size_type     newCapacity  = std::max(2.0, capacity * 1.5);
+                reserveCapacity(newCapacity);
+            }
+        }
+        void reserveCapacity(size_type newCapacity)
+        {
+            Vector&lt;T&gt;  tmpBuffer(newCapacity);
+
+            simpleCopy&lt;T&gt;(tmpBuffer);
+
+            tmpBuffer.swap(*this);
+        }
+
+        // Add new element to the end using placement new
+        void pushBackInternal(T const&amp; value)
+        {
+            new (buffer + length) T(value);
+            ++length;
+        }
+        void moveBackInternal(T&amp;&amp; value)
+        {
+            new (buffer + length) T(std::move(value));
+            ++length;
+        }
+        template&lt;typename... Args&gt;
+        void emplaceBackInternal(Args&amp;&amp;... args)
+        {
+            new (buffer + length) T(std::move(args)...);
+            ++length;
+        }
+
+        // Optimizations that use SFINAE to only instantiate one
+        // of two versions of a function.
+        //      simpleCopy()        Moves when no exceptions are guaranteed, otherwise copies.
+        //      clearElements()     When no destructor remove loop.
+        //      copyAssign()        Avoid resource allocation when no exceptions guaranteed.
+        //                          ie. When copying integers reuse the buffer if we can
+        //                          to avoid expensive resource allocation.
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == false&gt;::type
+        simpleCopy(Vector&lt;T&gt;&amp; dst)
+        {
+            std::for_each(buffer, buffer + length,
+                          [&amp;dst](T const&amp; v){dst.pushBackInternal(v);}
+                         );
+        }
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_nothrow_move_constructible&lt;X&gt;::value == true&gt;::type
+        simpleCopy(Vector&lt;T&gt;&amp; dst)
+        {
+            std::for_each(buffer, buffer + length,
+                          [&amp;dst](T&amp; v){dst.moveBackInternal(std::move(v));}
+                         );
+        }
+
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == false&gt;::type
+        clearElements()
+        {
+            // Call the destructor on all the members in reverse order
+            for(int loop = 0; loop &lt; length; ++loop)
+            {
+                // Note we destroy the elements in reverse order.
+                buffer[length - 1 - loop].~T();
+            }
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;std::is_trivially_destructible&lt;X&gt;::value == true&gt;::type
+        clearElements()
+        {
+            // Trivially destructible objects can be reused without using the destructor.
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
+                            &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == true&gt;::type
+        copyAssign(Vector&lt;X&gt;&amp; copy)
+        {
+            // This function is only used if there is no chance of an exception being
+            // thrown during destruction or copy construction of the type T.
+
+
+            // Quick return for self assignment.
+            if (this == &amp;copy)
+            {
+                return;
+            }
+
+            if (capacity &lt;= copy.length)
+            {
+                // If we have enough space to copy then reuse the space we currently
+                // have to avoid the need to perform an expensive resource allocation.
+
+                clearElements&lt;T&gt;();     // Potentially does nothing (see above)
+                                        // But if required will call the destructor of
+                                        // all elements.
+
+                // buffer now ready to get a copy of the data.
+                length = 0;
+                for(int loop = 0; loop &lt; copy.length; ++loop)
+                {
+                    pushBackInternal(copy[loop]);
+                }
+            }
+            else
+            {
+                // Fallback to copy and swap if we need to more space anyway
+                Vector&lt;T&gt;  tmp(copy);
+                tmp.swap(*this);
+            }
+        }
+
+        template&lt;typename X&gt;
+        typename std::enable_if&lt;(std::is_nothrow_copy_constructible&lt;X&gt;::value
+                             &amp;&amp;  std::is_nothrow_destructible&lt;X&gt;::value) == false&gt;::type
+        copyAssign(Vector&lt;X&gt;&amp; copy)
+        {
+            // Copy and Swap idiom
+            Vector&lt;T&gt;  tmp(copy);
+            tmp.swap(*this);
+        }
+};</code></pre>
+
+    <footer>
+    <p class="meta">
+        <span class="byline author vcard">Posted by <span class="fn">Loki Astari, (C)2016 (C)2016</span></span>
+        <time datetime="2016-03-21T05:26:43Z" pubdate>Mar 20 <span>th</span>, 2016</time>
+        
+            <span class="categories">
+            
+                <a class="category" href="/categories/c-plus-plus/index.html">C++</a>,
+            
+                <a class="category" href="/categories/vector/index.html">Vector</a>,
+            
+                <a class="category" href="/categories/c-plus-plus-by-example/index.html">C++-By-Example</a>,
+            
+                <a class="category" href="/categories/coding/index.html">Coding</a>,
+            
+            </span>
+        
+    </p>
+    <p class="meta">
+        
+            <a class="basic-alignment left" href="/blog/2016/03/25/resizemaths/index.html" title="Previous Post: Memory Resizing">&laquo; Memory Resizing</a>
+        
+            <a class="basic-alignment right" href="/blog/2016/03/19/vector-simple-optimizations/index.html" title="Next Post: Vector - Simple Optimizations">Vector - Simple Optimizations &raquo;</a>
+        
+    </p>
+</footer>
+
+
+    </article>
+
+            <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite">
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+</section>
+
+        </div>
+        <aside class="sidebar">
+
+    <section>
+    <h1>LinkedIn</h1>
+    <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
+    <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="dark" data-vanity="lokiastari"><a class="LI-simple-link" href='https://www.linkedin.com/in/lokiastari?trk=profile-badge'>Martin York</a></div>
+</section>
+
+
+
+    <section>
+    <h1>Posts</h1>
+    <ul id="recent_posts">
+        
+            <li class="post"><a href="/blog/2016/05/29/socket-protocols/index.html">Socket Protocols</a></li>
+        
+            <li class="post"><a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">C++ Wrapper for Socket</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/09/socket-read/index.html">Socket Read/Write</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html">Socket Programming in C</a></li>
+        
+            <li class="post"><a href="/blog/2016/03/25/resizemaths/index.html">Memory Resizing</a></li>
+        
+    </ul>
+</section>
+
+
+    <section class="well">
+    <h1>Latest Tweets</h1>
+    <a href="https://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <ul id="tweets">
+        <li class="post">
+            <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </li>
+    </ul>
+</section>
+
+
+    <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+        <li class="loading">Status updating&#8230;</li>
+    </ul>
+
+    <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+    </script>
+    <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+</aside>
+
+    </div>
+</div>
+<footer role="contentinfo"><hr>
+    <p>
+        Copyright &copy; 2017 - Loki Astari -
+        <span class="credit">Powered by <a href="https://andvariToro.com">Andvari</a></span>
+        using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
+    </p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+
+
+
+        var disqus_identifier = 'https://LokiAstari.com/blog/2016/03/20/vector-the-other-stuff/';
+        var disqus_url        = 'https://LokiAstari.com/blog/2016/03/20/vector-the-other-stuff/';
+        var disqus_script = 'embed.js';
+
+
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>

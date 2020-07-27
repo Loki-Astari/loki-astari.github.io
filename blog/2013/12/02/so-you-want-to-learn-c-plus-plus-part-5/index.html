@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Loki Astari</title>
+    <meta name="author" content="Loki Astari">
+
+
+    <meta name="description" content="In the previous articles I have used a very simplistic protocol. In real world situations this simple protocol is not sufficient. To provide a more &hellip;">
+
+
+    <!-- https://t.co/dKP3o1e -->
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="/favicon.png" rel="icon">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+    <link href="https://feeds.feedburner.com/LokiAstari" rel="alternate" title="Loki Astari" type="application/atom+xml">
+
+    <!-- MathJax configuration -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
+    <!-- script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML,https://arnabocean.com/javascripts/MathJaxLocal.js"></script> -->
+
+</head>
+
+<body>
+<header role="banner">
+    <div class="header-left">
+        <hgroup>
+            <h1><a href="/">Loki Astari</a></h1>
+            
+            <div class="subtitle">
+                <h2>Thoughts of a former code monkey.</h2>
+            </div>
+            
+        </hgroup>
+    </div>
+
+    
+    <div class="header-right">
+        <ul class="main-navigation">
+            
+                <div  >
+                    <li><a href="/">blog</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/about/">about</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/series/">series</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/archives/">archives</a></li></div><div class="spacer">
+                </div>
+            
+                <div  >
+                    <li><a href="/documentation/">documentation</a></li></div><div class="spacer">
+                </div>
+            
+        </ul>
+    </div>
+    
+</header>
+
+<div id="main">
+    <div id="content">
+        <div class="blog-index">
+                <article class="hentry" role="article">
+<!--
+This is article 4 of the 4 part Series: "<span style="color:red">Sockets</span>".<br>
+See side panel "Series" for details.<br><br>
+-->
+
+    <header>
+    <h1 class="entry-title"><a href="/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/index.html">Control Flow</a></h1>
+        <p class="meta">
+            <time datetime="2013-12-02T20:00:11Z" pubdate>Dec 2 <span>nd</span>, 2013</time>
+            
+                | <a href="/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/#CommentSection" data-disqus-identifier="https://LokiAstari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/">Comments</a>
+            
+        </p>
+</header>
+
+    <p>So far we have demonstrated basic programs that just do a single task without making any decisions. Most (all but the most trivial) programming languages provide constructs for decision making (Conditional Branching).</p>
+<p>C++ provides two forms of branching. The <strong>"If Statement"</strong> and the <strong>"Switch Statement"</strong> .</p>
+<p>Note: Looping is also a form of branching. The looping concept is extensive enough that we will deal with looping separately in its own article.</p>
+<h3 id="if-statement">If Statement</h3>
+<p>The <strong>"If Statement"</strong> allows code to be executed when a certain condition is fulfilled and optionally an alternative piece of code otherwise.</p>
+<p>ifstatement.cpp</p>
+<pre><code class="c language-c">// First versin of "If Statement"
+// Execute code if &lt;Condition&gt; is true.
+//
+if (&lt;Condition&gt;)
+{
+    &lt;code to execute if Condition is true&gt;
+}
+
+
+// Second version of "If Statement"
+// Execute code1 if &lt;Condition&gt; is true or code2 if &lt;Condition&gt; is false
+//
+if (&lt;Condition&gt;)
+{
+    &lt;code1: execute if Condition is true&gt;
+}
+else
+{
+    &lt;code2: execute if Condition is false&gt;
+}</code></pre>
+<p>The standard comparison operators that you find in most languages can be used. These operators are defined for all the built-in types. On user defined types in the standard library they are defined in ways that makes their usage obvious. When you define these for your user defined types you should also make sure that they behave in the logical manner described below; the language does not enforce this, <strong>BUT</strong> if you don't follow this suggestion your types will scare people and they will not be used, so follow the expected behavior.</p>
+<p>Standard Comparison Operators</p>
+<pre><code class="c language-c">/*
+| Operator  | Usage   | Result Type | Meaning                                                           |
+| ----------|---------|-------------|-------------------------------------------------------------------|
+|    !      |  !A     |  bool       | Not A. If A is true then false, if A is false then true.          |
+|           |         |             | If A us not a bool type it is converted (see below)               |
+|    ==     |  A == B |  bool       | true if A and B logically equivalent, otherwise false.            |
+|    !=     |  A != B |  bool       | Should mean !(A == B)                                             |
+|    &lt;      |  A &lt;  B |  bool       | true if A is logically less than B.                               |
+|    &lt;=     |  A &lt;= B |  bool       | true if A is logically less than or equal to B.                   |
+|    &gt;      |  A &gt;  B |  bool       | true if A is logically greater than B.                            |
+|    &gt;=     |  a &gt;= B |  bool       | true if A is logically greater than or equal to B.                |
+|    &amp;&amp;     |  A &amp;&amp; B |  bool       | true if A is true **AND** B is true.                              |
+|           |         |             | If the expressions A or B are not actually bool then              |
+|           |         |             | it is converted (see below). Also worth noting is that            |
+|           |         |             | if A is **false** then the expression for B is not evaluated.     |
+|           |         |             | This is known as a shortcut operator we will describe this later. |
+|    ||     |  A || B |  bool       | true if A is true **OR** B is true.                               |
+|           |         |             | If the expressions A or B are not actually a bool then            |
+|           |         |             | it is converted (see below). Also worth noting is that            |
+|           |         |             | if A is **true** then the expression for B is not evaluated.      |
+|           |         |             | This is known as a shortcut operator we will describe this later. |
+|-----------|---------|-------------|-------------------------------------------------------------------|
+*/</code></pre>
+<p>If the expression you use in &lt;Condition&gt; does not actually result in a bool value the compiler will insert a conversion that will result in a bool (true/false) value. If no conversion is possible it results in a compile time error.</p>
+<p>Type conversion</p>
+<pre><code class="c language-c">/*
+| Type             | false      | true            | Notes                                               |
+|------------------|------------|-----------------|-----------------------------------------------------|
+| bool             | false      | true            | Should be obvious: No actual conversion used.       |
+| Integers         | 0          | (anything else) | Integer shorthand for (char/short/int/long)         |
+| Pointers         | NULL       | (anything else) | Will discuss pointers in detail later.              |
+| User Define Type | ?          | ?               | If a cast operator to bool/Integer/pointer exists   |
+|                  |            |                 | this will be used.                                  |
+|------------------|------------|-----------------|-----------------------------------------------------|
+*/</code></pre>
+<p>An example of using an <strong>If Statement</strong>:</p>
+<p>itest.cpp</p>
+<pre><code class="c language-c">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main()
+{
+    std::string    name;
+    std::cout &lt;&lt; "Please enter your name\n";
+    std::cin &gt;&gt; name;
+
+    if (name == "Loki")
+    {
+        std::cout &lt;&lt; "Hello Admin\n";
+    }
+    else
+    {
+        std::cout &lt;&lt; "Hello Muggle\n";
+    }
+
+    int   value;
+    std::cin &gt;&gt; value;
+    std::cout &lt;&lt; "Please enter a non zero integer value\n";
+    if (value) // integer value converted to bool
+    {
+        std::cout &lt;&lt; "You got it correct. Must use a non zero value.\n";
+    }
+}</code></pre>
+<h3 id="switch-statement">Switch Statement</h3>
+<p>The <strong>"Switch Statement"</strong> is an alternative to the <strong>"If Statement"</strong>. Prefer the switch when you have lots of options derived from the same expression. Unlike other high level language C++ can only use <strong>Integer</strong> types in a switch statement; thus in all `Case &lt;Value&gt; the &lt;Value&gt; must be an integer <strong>literal</strong> value.</p>
+<p>switch.cpp</p>
+<pre><code class="c language-c">switch(&lt;Test Expression&gt;)
+{
+    case &lt;value1&gt;:
+    {
+        &lt;code1&gt;
+        break;
+    }
+    case &lt;value2&gt;:
+    {
+        &lt;code2&gt;
+        break;
+    }
+    case &lt;value3&gt;:
+    {
+        &lt;code3&gt;
+        break;
+    }
+    default:
+    {
+        &lt;code Default&gt;
+        break
+    }
+}
+//
+//
+// Equivalent "If Statement"
+
+int test = &lt;Test Expression&gt;;
+if (&lt;value1&gt; == test)
+{
+    &lt;code1&gt;
+}
+else
+{
+    if (&lt;value2&gt; == test)
+    {
+        &lt;code2&gt;
+    }
+    else
+    {
+        if (&lt;value3&gt; == test)
+        {
+            &lt;code3&gt;
+        }
+        else
+        {
+            &lt;code Default&gt;
+        }
+    }
+}</code></pre>
+<p>If you use a non Integer expression in the switch statement the compiler will try and convert the value to an integer. If this is not possible it generates a compile time error.</p>
+<p>switch.cpp</p>
+<pre><code class="c language-c">    #include &lt;iostream&gt;
+
+    int main()
+    {
+        int  value;
+        std::cout &lt;&lt; "Input a value between 0 and 5\n";
+        std::cin &gt;&gt; value;
+
+        switch(value)
+        {
+            case 0: {std::cout &lt;&lt; "You used zero\n";    break;}
+            case 1: {std::cout &lt;&lt; "You used one\n";     break;}
+            case 2: {std::cout &lt;&lt; "You used two\n";     break;}
+            case 3: {std::cout &lt;&lt; "You used three\n";   break;}
+            case 4: {std::cout &lt;&lt; "You used four\n";    break;}
+            case 5: {std::cout &lt;&lt; "You used five\n";    break;}
+            default: {std::cout &lt;&lt; "You failed to follow instructions\n";break;}
+        }
+    }</code></pre>
+<p>Note I: The language does not require you to use a <strong>Break Statement</strong> in each block. <strong>BUT</strong> you should and compilers will warn you when you don't.<br />
+Note II: You should always use a <strong>Default Statement</strong> . If the value does not hit a value specified in a <strong>Case Statement</strong> then the <strong>Default Statement</strong> is used; If the <strong>Default Statement</strong> is not defined in this situation it results in undefined behavior. To avoid problems you should always define the <strong>Default Statement</strong>, even if all this does is generate an error. This will avoid maintenance issues down the road.</p>
+
+    <footer>
+    <p class="meta">
+        <span class="byline author vcard">Posted by <span class="fn">Loki Astari, (C)2013 (C)2016</span></span>
+        <time datetime="2013-12-02T20:00:11Z" pubdate>Dec 2 <span>nd</span>, 2013</time>
+        
+            <span class="categories">
+            
+                <a class="category" href="/categories/c-plus-plus/index.html">C++</a>,
+            
+                <a class="category" href="/categories/so-you-want-to-learn-c-plus-plus/index.html">So-You-Want-To-Learn-C++</a>,
+            
+                <a class="category" href="/categories/coding/index.html">Coding</a>,
+            
+            </span>
+        
+    </p>
+    <p class="meta">
+        
+            <a class="basic-alignment left" href="/blog/2014/12/06/nearly-new-year-slash-new-resolution/index.html" title="Previous Post: Nearly New Year/New Resolution">&laquo; Nearly New Year/New Resolution</a>
+        
+            <a class="basic-alignment right" href="/blog/2013/11/30/switching-to-octopress/index.html" title="Next Post: Switching to OctoPress">Switching to OctoPress &raquo;</a>
+        
+    </p>
+</footer>
+
+
+    </article>
+
+            <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite">
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+</section>
+
+        </div>
+        <aside class="sidebar">
+
+    <section>
+    <h1>LinkedIn</h1>
+    <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
+    <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="dark" data-vanity="lokiastari"><a class="LI-simple-link" href='https://www.linkedin.com/in/lokiastari?trk=profile-badge'>Martin York</a></div>
+</section>
+
+
+
+    <section>
+    <h1>Posts</h1>
+    <ul id="recent_posts">
+        
+            <li class="post"><a href="/blog/2016/05/29/socket-protocols/index.html">Socket Protocols</a></li>
+        
+            <li class="post"><a href="/blog/2016/05/26/c-plus-plus-wrapper-for-socket/index.html">C++ Wrapper for Socket</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/09/socket-read/index.html">Socket Read/Write</a></li>
+        
+            <li class="post"><a href="/blog/2016/04/08/socket-programming-in-c-version-1/index.html">Socket Programming in C</a></li>
+        
+            <li class="post"><a href="/blog/2016/03/25/resizemaths/index.html">Memory Resizing</a></li>
+        
+    </ul>
+</section>
+
+
+    <section class="well">
+    <h1>Latest Tweets</h1>
+    <a href="https://twitter.com/LokiAstari" class="twitter-follow-button" data-show-count="">Follow @LokiAstari</a>
+    <ul id="tweets">
+        <li class="post">
+            <a class="twitter-timeline"  href="https://twitter.com/LokiAstari"  data-widget-id="406713536040030209">Tweets by @LokiAstari</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </li>
+    </ul>
+</section>
+
+
+    <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+        <li class="loading">Status updating&#8230;</li>
+    </ul>
+
+    <a href="https://github.com/Loki-Astari">@Loki-Astari</a> on GitHub
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'Loki-Astari',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+    </script>
+    <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+</aside>
+
+    </div>
+</div>
+<footer role="contentinfo"><hr>
+    <p>
+        Copyright &copy; 2017 - Loki Astari -
+        <span class="credit">Powered by <a href="https://andvariToro.com">Andvari</a></span>
+        using the <a href="https://github.com/Loki-Astari/andvari-theme-landscape.git">andvari-landscape</a> theme</span>
+    </p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'lokiastari';
+
+
+
+        var disqus_identifier = 'https://LokiAstari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/';
+        var disqus_url        = 'https://LokiAstari.com/blog/2013/12/02/so-you-want-to-learn-c-plus-plus-part-5/';
+        var disqus_script = 'embed.js';
+
+
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>
